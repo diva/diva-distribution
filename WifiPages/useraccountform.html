@@ -1,0 +1,19 @@
+<p >Your Account:</p>
+  <form action="/wifi/user/account" method="post">
+    Email:<br/>
+    <input name="email" type="text" value="<!-- #call method=GetUserEmail-->" class="inputstyle" />
+    <input type="submit" value="update" class="button" />
+  </form>
+
+<p>&nbsp;</p>
+
+  <form action="/wifi/user/account" method="post">
+    Old password:<br/>
+    <input name="oldpassword" type="password" class="inputstyle" /><br/><br/>
+    New password:<br/>
+    <input name="newpassword" type="password" class="inputstyle" /><br/><br/>
+    Retype new password:<br/>
+    <input name="newpassword2" type="password" class="inputstyle" />
+
+    <input type="submit" value="update" class="button" />
+  </form>

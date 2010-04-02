@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+	<title>OpenSim HyperGrid -- <!-- #get var=GridName --></title>
+	<link rel="stylesheet" media="screen" type="text/css" href="/wifi/style.css" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+
+  </head>
+
+
+  <body>
+        <div id="header">
+          <p id="logo">OpenSim <span class="white">HyperGrid</span></p>
+	  <p id="slogan"><!-- #get var=WebAddress--> </p>
+	</div>
+	<div id="page">  <!-- wraps and defines overall page width, centers it -->
+
+	  <div id="content"> <!-- content area of page -->
+	    <!--#include file=content-box.html --> 
+	  </div> <!-- end content area of page -->
+	  
+	  <div id="right-nav">  <!-- right side navigation, etc on page -->
+	    <!--#call method=GetMainMenu --> 
+            <br />
+
+	    <div class="right-nav-divider"></div>
+	    <!--#call method=GetLoginLogout --> 
+	    <br />
+
+	    <div class="right-nav-divider"></div>
+	    <!--#include file=links.html --> 
+
+	  </div> <!-- end right side navigation -->
+	  
+	  <div id="footer">
+	    <div id="footer-pad">
+	      <div class="line"></div>
+	      <p>This site is &copy; Copyright Crista Lopes 2010. Distributed under Creative Commons.</p>
+	    </div>
+	  </div>
+	  
+	</div>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+<!-- Image Service Module -->
+<Project name="Diva.ImageService" path="addon-modules/ImageService" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../bin/</ReferencePath>
+  <Reference name="System"/>
+  <Reference name="System.Drawing"/>
+  <Reference name="OpenMetaverse.dll"/>
+  <Reference name="OpenMetaverseTypes.dll"/>
+  <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Framework.Communications"/>
+  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
+  <Reference name="OpenSim.Services.Interfaces"/>
+  <Reference name="OpenSim.Services.Base"/>
+  <Reference name="OpenSim.Region.Framework"/>
+  <Reference name="OpenSim.Server.Base"/>
+  <Reference name="OpenSim.Server.Handlers"/>
+  <Reference name="Nini.dll" />
+  <Reference name="log4net.dll"/>
+  <Reference name="Mono.Addins.dll"/>
+
+  <!-- To allow regions to have mono addins -->
+  <Reference name="Mono.Addins.dll" />
+
+  <Files>
+    <Match pattern="*.cs" recurse="true"/>
+  </Files>
+
+</Project>

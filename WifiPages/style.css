@@ -1,0 +1,227 @@
+* {
+  margin: 0;
+  padding: 0;
+  }
+
+body {
+  font-size:100%;
+  font-family: Arial,'Lucida Grande',Verdana,sans-serif;
+  text-align:center;
+  background:#000 url(images/3D_computer_animation1.jpg) repeat-y top center;
+}
+  
+#header {
+  height:66px;
+  width:999px;
+  background:transparent;
+  margin:0 auto 0 auto;
+  padding-top:95px;
+}
+
+#logo {
+  text-align:left;
+  font:37.5px Georgia, Arial, "Times New Roman", Times;
+  padding-left:95px;
+  color:#BD6B54;
+}
+
+.white {
+color:#FFF;
+}
+
+#slogan {
+  text-align:left;
+  padding-left:219px;
+  font:bold 14px Arial, "Times New Roman", Times;
+  color:#FFF;
+}
+
+#page {
+width:999px;
+margin:0 auto 0 auto;
+}
+
+#content {
+float:left;
+width:685px;
+padding:33px;
+}
+
+.box {width:685px; background:#0F0F0F;}
+.box a {color:#FFF; text-decoration:underline;}
+.box a:hover {color:#BD6B54; text-decoration:none;}
+.box p {font:14px Arial, Tahoma, Georgia, "Times New Roman", Times; color:#929292; text-align:justify; padding:6px 0px;}
+.box h1,h2,h3,h4,h5 {font:36px Georgia, Arial, "Times New Roman", Times; color:#FFF; text-align:right;}
+.box-top {background:url(images/box-top.gif) no-repeat top left; width:685px; height:24px;}
+.box-bottom {background:url(images/box-bottom.gif) no-repeat top left; width:685px; height:24px;}
+.box-padding {padding:0px 30px 0px 30px;}
+
+.date {
+  font:18px Georgia, Arial, "Times New Roman", Times;
+  color:#FFF;
+  padding:20px 0px 20px 33px;
+  text-align:left;
+}
+
+.imagefloat {
+  float:left;
+  margin:5px 15px 5px 15px;
+  padding:0px;
+  border:1px solid #000;
+}
+.image-text-right {
+  padding:5px;
+  margin:5px 0px 5px 0px;
+  width:100%;
+  height:auto;
+  text-align:justify;
+}
+
+.image-text-right span {
+  font:18px Georgia, Arial, "Times New Roman", Times;
+  color:#FFF;
+  text-align:left;
+}
+
+.clearboth {clear:both;}
+
+#right-nav {
+  float:right;
+  padding-top:33px;
+  width:238px;
+  text-align:left;
+}
+
+.nav-headline {
+  font:19px Georgia, Arial, "Times New Roman", Times;
+  color:#FFF;
+  text-align:left;
+  padding-bottom:10px;
+}
+
+#main-menu ul {
+  list-style:none;
+  padding-bottom:10px;
+}
+  
+#main-menu li a {
+  color:#FFF;
+  font-family: Arial, "Times New Roman", Times, serif;
+  font-size: 14px;
+  text-decoration: none;
+  background: transparent url(images/menu-button.gif) no-repeat left center;
+  padding:0 10px 0 25px;
+  line-height:30px;
+}
+  
+#main-menu li a:hover {
+  color:#8C8D94;
+  text-decoration: underline;
+}
+  
+.right-nav-divider {
+  background: transparent url(images/line.gif) repeat-x top left;
+  width:226px;
+  height:1px;
+  padding-bottom:33px;
+}
+  
+  
+#posts ul {
+  list-style:none;
+  padding-bottom:10px;
+  padding:0px 0px 10px 18px;
+}
+  
+#posts li a {
+  color:#929292;
+  font-family: Arial, "Times New Roman", Times, serif;
+  font-size: 14px;
+  text-decoration: underline;
+  line-height:30px;
+}
+  
+#posts li a:hover {
+  color:#000;
+  background:#FFF;
+  text-decoration: none;
+}
+
+#subscribe {
+  text-align:right;
+  padding-right:30px;
+}
+
+#subscribe input {
+  margin:6px 0;
+}
+
+.inputstyle {
+  background:#090909;
+  border:1px solid #404040;
+  width:180px;
+  height:22px;
+  color:#FFF;
+  font-size:14px;
+  padding-top:5px;
+  padding-left:10px;
+}
+
+.button {
+  background:transparent url(images/button.gif) no-repeat top left;
+  vertical-align:middle;
+  padding-bottom:5px;
+  border:none;
+  width:126px;
+  height:31px;
+  color:#FFFFFF;
+  font:bold 13px Arial, Georgia, "Times New Roman", Times;
+  cursor:pointer;
+  margin-left:5px;
+}
+
+#footer {
+  clear:both;
+  width:999px;
+  height:170px;
+  margin:0 auto 0 auto;
+}
+
+#footer-pad {
+  width:685px;
+  padding:50px 0px 0px 30px;
+  text-align:center;
+}
+
+#footer p {
+  font:14px Arial, "Times New Roman", Times;
+  color:#929292;
+}
+
+#footer a {
+  color:#FFF;
+  text-decoration:underline;
+}
+
+#footer a:hover {
+  color:#BD6B54;
+  text-decoration:none;
+}
+
+.line {
+  background: transparent url(images/line.gif) repeat-x top left;
+  width:650px;
+  height:1px;
+  padding-bottom:10px;
+  margin:0 auto 0 auto;
+}
+
+.line2 {
+  background: transparent url(images/line.gif) repeat-x top left;
+  width:622px;
+  height:1px;
+  margin:15px auto 10px auto;
+}
+
+	
+  
