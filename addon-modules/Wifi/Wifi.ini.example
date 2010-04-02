@@ -1,0 +1,22 @@
+[Startup]
+	ServiceConnectors = "Diva.Wifi.dll:WifiServerConnector"
+
+[Network]
+	port = 8080
+
+[DatabaseService]
+    StorageProvider = "OpenSim.Data.MySQL.dll"
+    ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
+
+[WifiService]
+	GridName = "Diva's World"
+	LoginURL = "http://localhost:9000"
+	WebAddress = "http://localhost:8080"
+	
+[UserAccountService]
+
+[AuthenticationService]
+
+
+	
+	
