@@ -65,6 +65,8 @@ namespace Diva.Wifi
             sr.Close();
             body = body.Trim();
 
+            httpResponse.ContentType = "text/html";
+
             m_log.DebugFormat("[XXX]: query String: {0}", body);
             string resource = GetParam(path);
 

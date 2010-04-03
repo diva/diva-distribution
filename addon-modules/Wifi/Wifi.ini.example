@@ -13,6 +13,12 @@
 	LoginURL = "http://localhost:9000"
 	WebAddress = "http://localhost:8080"
 	
+    ;; The "God" account, both for Wifi and Inworld
+	AdminFirst = "Admin"
+	AdminLast = "Admin"
+	AdminEmail = "user@email.com"
+	;; no AdminPassword here, it's too unsafe. AdminPassword will be set during installation step
+
 [UserAccountService]
 
 [AuthenticationService]

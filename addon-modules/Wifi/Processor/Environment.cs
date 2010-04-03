@@ -29,10 +29,19 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 
+using Nini.Config;
+using log4net;
+
 namespace Diva.Wifi
 {
     public class Environment
     {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        //
+        // Public static Properties of the Environment serve
+        // as global constants and variables
+        //
         private static Dictionary<string, object> m_StaticVariables = new Dictionary<string, object>();
         public static Dictionary<string, object> StaticVariables
         {
@@ -50,6 +59,58 @@ namespace Diva.Wifi
             get { return m_WebApp.GetType(); }
         }
 
+        private static bool m_Installed = false;
+        public static bool IsInstalled
+        {
+            get { return m_Installed; }
+            set { m_Installed = value; }
+        }
+
+        private static int m_Port;
+        public static int Port
+        {
+            get { return m_Port; }
+        }
+
+        private static string m_GridName;
+        public static string GridName
+        {
+            get { return m_GridName; }
+        }
+        private static string m_LoginURL;
+        public static string LoginURL
+        {
+            get { return m_LoginURL; }
+        }
+        private static string m_WebAddress;
+        public static string WebAddress
+        {
+            get { return m_WebAddress; }
+        }
+
+        private static string m_AdminFirst;
+        public static string AdminFirst
+        {
+            get { return m_AdminFirst; }
+        }
+        private static string m_AdminLast;
+        public static string AdminLast
+        {
+            get { return m_AdminLast; }
+        }
+        private static string m_AdminEmail;
+        public static string AdminEmail
+        {
+            get { return m_AdminEmail; }
+        }
+
+
+        private static Dictionary<string, MethodInfo> m_Methods = new Dictionary<string, MethodInfo>();
+
+        //
+        // Instance variables are per request
+        //
+
         private Request m_Request;
         public Request Request
         {
@@ -63,15 +124,13 @@ namespace Diva.Wifi
             set { m_Flags = value; }
         }
 
-        private static Dictionary<string, MethodInfo> m_Methods = new Dictionary<string, MethodInfo>();
-
         public Environment(Request req)
         {
             m_Request = req;
         }
 
 
-        public static void InitializeWebApp(IWebApp webApp)
+        public static void InitializeWebApp(IWebApp webApp, IConfigSource config, string configName)
         {
             if (webApp == null)
                 return;
@@ -79,6 +138,26 @@ namespace Diva.Wifi
             m_WebApp = webApp;
             foreach (MethodInfo minfo in m_WebApp.GetType().GetMethods())
                 m_Methods[minfo.Name] = minfo;
+
+            // Read config vars
+            IConfig appConfig = config.Configs[configName];
+            m_GridName = appConfig.GetString("GridName", "My World");
+            m_LoginURL = appConfig.GetString("LoginURL", "http://localhost:9000");
+            m_WebAddress = appConfig.GetString("WebAddress", "http://localhost:8080");
+
+            m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
+            m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
+            m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
+
+            if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
+                // Can't proceed
+                throw new Exception("Can't proceed. Please specify the administrator account in Wifi.ini");
+
+            IConfig serverConfig = config.Configs["Network"];
+            if (serverConfig != null)
+                m_Port = Int32.Parse(serverConfig.GetString("port", "80"));
+
+            m_log.DebugFormat("[Environment]: Initialized. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
         }
 
         public static MethodInfo GetMethod(string name)
@@ -92,13 +171,15 @@ namespace Diva.Wifi
 
     public enum StateFlags : int
     {
-        FailedLogin = 1,
-        SuccessfulLogin = 2,
-        IsLoggedIn = 4,
-        IsAdmin = 8,
-        UserAccountForm = 16,
-        UserAccountFormResponse = 32,
-        NewAccountForm = 64,
-        NewAccountFormResponse = 128
+        InstallForm = 1,
+        InstallFormResponse = 2,
+        FailedLogin = 4,
+        SuccessfulLogin = 8,
+        IsLoggedIn = 16,
+        IsAdmin = 32,
+        UserAccountForm = 64,
+        UserAccountFormResponse = 128,
+        NewAccountForm = 256,
+        NewAccountFormResponse = 512
     }
 }

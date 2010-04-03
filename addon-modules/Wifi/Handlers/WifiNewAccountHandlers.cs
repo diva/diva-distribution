@@ -69,6 +69,7 @@ namespace Diva.Wifi
             //m_log.DebugFormat("[Wifi]: ip address = {0}", httpRequest.RemoteIPEndPoint);
             //foreach (object o in httpRequest.Query.Keys)
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
+            httpResponse.ContentType = "text/html";
 
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
@@ -110,6 +111,8 @@ namespace Diva.Wifi
             string body = sr.ReadToEnd();
             sr.Close();
             body = body.Trim();
+
+            httpResponse.ContentType = "text/html";
 
             m_log.DebugFormat("[XXX]: query String: {0}", body);
             string resource = GetParam(path);

@@ -60,12 +60,8 @@ namespace Diva.Wifi
             //}
 
             // Launch the WebApp, of well-known type
-            WebApp app = new WebApp(config, server);
-            Environment.InitializeWebApp(app);
+            WebApp app = new WebApp(config, m_ConfigName, server);
 
-            serverConfig = config.Configs["Network"];
-            if (serverConfig != null)
-                Environment.StaticVariables["port"] = serverConfig.GetString("port", "80");
 
         }
     }

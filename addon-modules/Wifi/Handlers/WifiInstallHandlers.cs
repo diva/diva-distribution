@@ -49,14 +49,14 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
-    public class WifiLogoutHandler : BaseStreamHandler
+    public class WifiInstallGetHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
 
-        public WifiLogoutHandler(WebApp webapp) :
-                base("GET", "/wifi/logout")
+        public WifiInstallGetHandler(WebApp webapp) :
+                base("GET", "/wifi/install")
         {
             m_WebApp = webapp;
         }
@@ -70,26 +70,74 @@ namespace Diva.Wifi
             //foreach (object o in httpRequest.Query.Keys)
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
 
+            httpResponse.ContentType = "text/html";
+
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.LogoutRequest(env);
+            string result = m_WebApp.InstallGetRequest(env);
 
-            httpResponse.ContentType = "text/html";
             return WifiUtils.StringToBytes(result);
 
         }
 
-        private string GetResource(string path)
-        {
-            string[] paramArray = SplitParams(path);
-            m_log.DebugFormat("[Wifi]: paramArray length = {0}", paramArray.Length);
-            if (paramArray != null && paramArray.Length > 0)
-                return paramArray[0];
+    }
 
-            return string.Empty;
+    public class WifiInstallPostHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private WebApp m_WebApp;
+
+        public WifiInstallPostHandler(WebApp webapp) :
+            base("POST", "/wifi/install")
+        {
+            m_WebApp = webapp;
         }
 
+        public override byte[] Handle(string path, Stream requestData,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            StreamReader sr = new StreamReader(requestData);
+            string body = sr.ReadToEnd();
+            sr.Close();
+            body = body.Trim();
+
+            httpResponse.ContentType = "text/html";
+
+            m_log.DebugFormat("[XXX]: query String: {0}", body);
+            string resource = GetParam(path);
+
+            try
+            {
+                Dictionary<string, object> request =
+                        ServerUtils.ParseQueryString(body);
+
+                string password = String.Empty;
+                string password2 = String.Empty;
+
+                if (request.ContainsKey("password"))
+                    password = request["password"].ToString();
+                if (request.ContainsKey("password2"))
+                    password2 = request["password2"].ToString();
+
+                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+
+                string result = m_WebApp.InstallPostRequest(env, password, password2);
+
+                return WifiUtils.StringToBytes(result);
+
+            }
+            catch (Exception e)
+            {
+                m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e);
+            }
+
+            return WifiUtils.FailureResult();
+
+        }
 
     }
+
 }

@@ -56,6 +56,13 @@ padding:33px;
 .box-bottom {background:url(images/box-bottom.gif) no-repeat top left; width:685px; height:24px;}
 .box-padding {padding:0px 30px 0px 30px;}
 
+.bodytext {
+  color:#FFF;
+  font-size:14px;
+  padding-top:5px;
+  padding-left:10px;
+}
+
 .date {
   font:18px Georgia, Arial, "Times New Roman", Times;
   color:#FFF;
