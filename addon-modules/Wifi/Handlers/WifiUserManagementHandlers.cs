@@ -49,14 +49,14 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
-    public class WifiUserAccountGetHandler : BaseStreamHandler
+    public class WifiUserManagementGetHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
 
-        public WifiUserAccountGetHandler(WebApp webapp) :
-                base("GET", "/wifi/user/account")
+        public WifiUserManagementGetHandler(WebApp webapp) :
+                base("GET", "/wifi/admin/users")
         {
             m_WebApp = webapp;
         }
@@ -74,32 +74,22 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.UserAccountGetRequest(env);
+            string result = m_WebApp.UserManagementGetRequest(env);
 
             return WifiUtils.StringToBytes(result);
 
         }
 
-        private string GetResource(string path)
-        {
-            string[] paramArray = SplitParams(path);
-            m_log.DebugFormat("[Wifi]: paramArray length = {0}", paramArray.Length);
-            if (paramArray != null && paramArray.Length > 0)
-                return paramArray[0];
-
-            return string.Empty;
-        }
-
     }
 
-    public class WifiUserAccountPostHandler : BaseStreamHandler
+    public class WifiUserManagementPostHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
 
-        public WifiUserAccountPostHandler(WebApp webapp) :
-            base("POST", "/wifi/user/account")
+        public WifiUserManagementPostHandler(WebApp webapp) :
+            base("POST", "/wifi/admin/users")
         {
             m_WebApp = webapp;
         }
@@ -114,40 +104,33 @@ namespace Diva.Wifi
 
             httpResponse.ContentType = "text/html";
 
-            m_log.DebugFormat("[XXX]: query String: {0}", body);
             string resource = GetParam(path);
+            m_log.DebugFormat("[XXX]: query String: {0}; resource: {1}", body, resource);
 
             try
             {
                 Dictionary<string, object> request =
                         ServerUtils.ParseQueryString(body);
 
-                string email = String.Empty;
+                string terms = String.Empty;
                 string oldpassword = String.Empty;
                 string newpassword = String.Empty;
                 string newpassword2 = String.Empty;
 
-                if (request.ContainsKey("email"))
-                    email = request["email"].ToString();
-                if (request.ContainsKey("oldpassword"))
-                    oldpassword = request["oldpassword"].ToString();
-                if (request.ContainsKey("newpassword"))
-                    newpassword = request["newpassword"].ToString();
-                if (request.ContainsKey("newpassword2"))
-                    newpassword2 = request["newpassword2"].ToString();
+                if (request.ContainsKey("terms"))
+                    terms = request["terms"].ToString();
 
                 Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-                string result = m_WebApp.UserAccountPostRequest(env, email, oldpassword, newpassword, newpassword2);
+                string result = m_WebApp.UserSearchPostRequest(env, terms);
 
                 return WifiUtils.StringToBytes(result);
 
             }
             catch (Exception e)
             {
-                Util.PrintCallStack();
-                m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e.StackTrace);
+                m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e);
             }
 
             return WifiUtils.FailureResult();

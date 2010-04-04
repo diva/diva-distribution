@@ -45,10 +45,18 @@ namespace Diva.Wifi
         private static Regex args = new Regex("(\\w+)\\s*=\\s*(\\S+)");
 
         private Environment m_Env;
+        private List<object> m_ListOfObjects;
+        private int m_Index;
 
-        public Processor(Environment env)
+        public Processor(Environment env) : this(env, null)
+        {
+        }
+
+        public Processor(Environment env, List<object> lot)
         {
             m_Env = env;
+            m_ListOfObjects = lot;
+            m_Index = 0;
         }
 
         public string Process(string html)
@@ -115,6 +123,12 @@ namespace Diva.Wifi
 
         private string Include(string argStr)
         {
+            // Break the recursive includes
+            if (m_ListOfObjects != null &&  m_Index == m_ListOfObjects.Count)
+                return string.Empty;
+
+            m_Index++;
+
             Match match = args.Match(argStr);
             //m_log.DebugFormat("Match {0} args? {1} {2}", args.ToString(), match.Success, match.Groups.Count);
             if (match.Groups.Count == 3)
@@ -137,16 +151,37 @@ namespace Diva.Wifi
         private string Get(string argStr)
         {
             Match match = args.Match(argStr);
+            m_log.DebugFormat("[Processor]: Get macthed {0} groups", match.Groups.Count);
             if (match.Groups.Count == 3)
             {
                 string name = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
-                // assume for now that name is "var"
-                if (Environment.StaticVariables.ContainsKey(value))
-                    return Environment.StaticVariables[value].ToString();
+                string keyname = string.Empty;
 
+                if (name == "var")
+                {
+                    if (Environment.StaticVariables.ContainsKey(value))
+                        return Environment.StaticVariables[value].ToString();
+                }
+                else if (name == "field")
+                {
+                    if (m_ListOfObjects != null)
+                    {
+                        // Let's search in the list of objects
+                        object o = m_ListOfObjects[m_Index - 1];
+                        Type type = o.GetType();
+                        FieldInfo finfo = type.GetField(value, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                        object v = finfo.GetValue(o);
+
+                        if (v != null)
+                            return v.ToString();
+                        else
+                            return string.Empty;
+                    }
+                }
                 m_log.DebugFormat("Variable {0} not found", value);
             }
+
             return string.Empty;
         }
 

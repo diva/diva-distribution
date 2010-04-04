@@ -84,6 +84,8 @@ namespace Diva.Wifi
             server.AddStreamHandler(new WifiUserAccountPostHandler(this));
             server.AddStreamHandler(new WifiNewAccountGetHandler(this));
             server.AddStreamHandler(new WifiNewAccountPostHandler(this));
+            server.AddStreamHandler(new WifiUserManagementGetHandler(this));
+            server.AddStreamHandler(new WifiUserManagementPostHandler(this));
 
         }
 
@@ -302,6 +304,37 @@ namespace Diva.Wifi
 
         }
 
+        public string UserManagementGetRequest(Environment env)
+        {
+            m_log.DebugFormat("[WebApp]: UserManagementGetRequest");
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserSearchForm;
+                return PadURLs(env, sinfo.Sid, ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return ReadFile(env, "index.html");
+            }
+        }
+
+        public string UserSearchPostRequest(Environment env, string terms)
+        {
+            m_log.DebugFormat("[WebApp]: UserSearchPostRequest");
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200) && (terms != string.Empty))
+            {
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserSearchFormResponse;
+                env.Data = terms;
+            }
+
+            return PadURLs(env, sinfo.Sid, ReadFile(env, "index.html"));
+        }
         #endregion
 
         public string GetContent(Environment env)
@@ -316,9 +349,7 @@ namespace Diva.Wifi
                 return "Your Wifi has been installed. The administrator account is " + Environment.AdminFirst + " " + Environment.AdminLast;
 
             if ((env.Flags & StateFlags.FailedLogin) != 0)
-            {
                 return "Login failed";
-            }
             if ((env.Flags & StateFlags.SuccessfulLogin) != 0)
             {
                 if (Environment.StaticVariables.ContainsKey("GridName"))
@@ -338,6 +369,10 @@ namespace Diva.Wifi
                     return ReadFile(env, "useraccountform.html");
                 if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
                     return "Your account has been updated.";
+                if ((env.Flags & StateFlags.UserSearchForm) != 0)
+                    return ReadFile(env, "usersearchform.html");
+                if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
+                    return GetUserList(env);
             }
 
             return string.Empty;
@@ -475,16 +510,46 @@ namespace Diva.Wifi
             {
                 m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri + "?sid=" + sid);
                 if (!uri.EndsWith("/"))
+                {
+                    m_log.DebugFormat("XXX Does not end with /");
                     html = html.Replace(uri, uri + "/?sid=" + sid);
+                }
                 else
+                {
+                    m_log.DebugFormat("XXX End with /: {0}-----", uri);
                     html = html.Replace(uri, uri + "?sid=" + sid);
+                }
             }
             return html;
         }
 
+        private string GetUserList(Environment env)
+        {
+            string retString = "No users found.";
+            string terms = (string)env.Data;
+
+            List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
+            if (accounts != null)
+                m_log.DebugFormat("[WebApp]: GetUserList found {0} users in DB", accounts.Count);
+            else
+                m_log.DebugFormat("[WebApp]: GetUserList got null users from DB");
+
+            if (accounts != null && accounts.Count > 0)
+            {
+                return ReadFile(env, "userlist.html", Objectify<UserAccount>(accounts));
+            }
+
+            return retString;
+        }
+
         #region read html files
-       
+
         private string ReadFile(Environment env, string path)
+        {
+            return ReadFile(env, path, null);
+        }
+
+        private string ReadFile(Environment env, string path, List<object> lot)
         {
             string file = Path.Combine(WifiUtils.DocsPath, path);
             try
@@ -492,16 +557,17 @@ namespace Diva.Wifi
                 using (StreamReader sr = new StreamReader(file))
                 {
                     string content = sr.ReadToEnd();
-                    Processor p = new Processor(env);
+                    Processor p = new Processor(env, lot);
                     return p.Process(content);
                 }
             }
             catch (Exception e)
             {
-                m_log.DebugFormat("[WebApp]: Exception on ReadFile {0}: {1}", path, e.Message);
+                m_log.DebugFormat("[WebApp]: Exception on ReadFile {0}: {1}", path, e);
                 return string.Empty;
             }
         }
+
         #endregion
 
         #region Misc
@@ -512,6 +578,15 @@ namespace Diva.Wifi
             account.ServiceURLs["HomeURI"] = Environment.StaticVariables["LoginURL"].ToString();
             account.ServiceURLs["InventoryServerURI"] = Environment.StaticVariables["LoginURL"].ToString();
             account.ServiceURLs["AssetServerURI"] = Environment.StaticVariables["LoginURL"].ToString();
+        }
+
+        private List<object> Objectify<T>(List<T> listOfThings)
+        {
+            List<object> listOfObjects = new List<object>();
+            foreach (T thing in listOfThings)
+                listOfObjects.Add(thing);
+
+            return listOfObjects;                
         }
 
         #endregion Misc

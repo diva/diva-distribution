@@ -124,6 +124,13 @@ namespace Diva.Wifi
             set { m_Flags = value; }
         }
 
+        private Object m_Data;
+        public Object Data
+        {
+            get { return m_Data; }
+            set { m_Data = value; }
+        }
+
         public Environment(Request req)
         {
             m_Request = req;
@@ -180,6 +187,8 @@ namespace Diva.Wifi
         UserAccountForm = 64,
         UserAccountFormResponse = 128,
         NewAccountForm = 256,
-        NewAccountFormResponse = 512
+        NewAccountFormResponse = 512,
+        UserSearchForm = 1024,
+        UserSearchFormResponse = 2048
     }
 }
