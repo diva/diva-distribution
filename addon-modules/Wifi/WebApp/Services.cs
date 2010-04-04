@@ -351,8 +351,8 @@ namespace Diva.Wifi
         }
 
         // <a href="wifi/..." ...>
-        static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+))\\\">");
-        static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+))\\\".*>");
+        static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
+        static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+\\\")).*>");
 
         private string PadURLs(Environment env, string sid, string html)
         {
@@ -388,14 +388,14 @@ namespace Diva.Wifi
                 }
             }
 
-            
             foreach (string uri in uris)
             {
-                m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri + "?sid=" + sid);
+                string uri2 = uri.Substring(0, uri.Length - 1);
+                m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
                 if (!uri.EndsWith("/"))
-                    html = html.Replace(uri, uri + "/?sid=" + sid);
+                    html = html.Replace(uri, uri2 + "/?sid=" + sid + "\"");
                 else
-                    html = html.Replace(uri, uri + "?sid=" + sid);
+                    html = html.Replace(uri, uri2 + "?sid=" + sid + "\"");
             }
 
             return html;
