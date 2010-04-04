@@ -167,9 +167,9 @@ namespace Diva.Wifi.WifiScript
 
                 if (kind == "var")
                 {
-                    FieldInfo finfo = m_WebAppType.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-                    if (finfo != null)
-                        value = finfo.GetValue(m_WebApp);
+                    PropertyInfo pinfo = m_WebAppType.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.DeclaredOnly);
+                    if (pinfo != null)
+                        value = pinfo.GetValue(m_WebApp, null);
                     else
                         m_log.DebugFormat("[WifiScript]: Variable {0} not found", name);
                 }

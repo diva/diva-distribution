@@ -62,47 +62,47 @@ namespace Diva.Wifi
 
         #region IWebApp variables accessible to the WifiScript engine
 
-        private static bool m_Installed = false;
-        public static bool IsInstalled
+        private bool m_Installed = false;
+        public bool IsInstalled
         {
             get { return m_Installed; }
             set { m_Installed = value; }
         }
 
-        private static int m_Port;
-        public static int Port
+        private int m_Port;
+        public int Port
         {
             get { return m_Port; }
         }
 
-        private static string m_GridName;
-        public static string GridName
+        private string m_GridName;
+        public string GridName
         {
             get { return m_GridName; }
         }
-        private static string m_LoginURL;
-        public static string LoginURL
+        private string m_LoginURL;
+        public string LoginURL
         {
             get { return m_LoginURL; }
         }
-        private static string m_WebAddress;
-        public static string WebAddress
+        private string m_WebAddress;
+        public string WebAddress
         {
             get { return m_WebAddress; }
         }
 
-        private static string m_AdminFirst;
-        public static string AdminFirst
+        private string m_AdminFirst;
+        public string AdminFirst
         {
             get { return m_AdminFirst; }
         }
-        private static string m_AdminLast;
-        public static string AdminLast
+        private string m_AdminLast;
+        public string AdminLast
         {
             get { return m_AdminLast; }
         }
-        private static string m_AdminEmail;
-        public static string AdminEmail
+        private string m_AdminEmail;
+        public string AdminEmail
         {
             get { return m_AdminEmail; }
         }
