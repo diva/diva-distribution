@@ -45,10 +45,6 @@ namespace Diva.Wifi
             if (serverConfig == null)
                 throw new Exception(String.Format("No section {0} in config file", m_ConfigName));
 
-            string[] keys = serverConfig.GetKeys();
-            foreach (string s in keys)
-                Environment.StaticVariables[s] = serverConfig.Get(s);
-
             //
             // Leaving this here for educational purposes
             //
@@ -61,7 +57,6 @@ namespace Diva.Wifi
 
             // Launch the WebApp, of well-known type
             WebApp app = new WebApp(config, m_ConfigName, server);
-
 
         }
     }

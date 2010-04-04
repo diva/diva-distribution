@@ -33,7 +33,7 @@ using System.Text.RegularExpressions;
 
 using log4net;
 
-namespace Diva.Wifi
+namespace Diva.Wifi.WifiScript
 {
     public class Processor
     {
@@ -44,16 +44,21 @@ namespace Diva.Wifi
         // name="value"
         private static Regex args = new Regex("(\\w+)\\s*=\\s*(\\S+)");
 
-        private Environment m_Env;
+        private IWebApp m_WebApp;
+        private Type m_WebAppType;
+ 
+        private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
 
-        public Processor(Environment env) : this(env, null)
+        public Processor(IWebApp webApp, IEnvironment env) : this(webApp, env, null)
         {
         }
 
-        public Processor(Environment env, List<object> lot)
+        public Processor(IWebApp webApp, IEnvironment env, List<object> lot)
         {
+            m_WebApp = webApp;
+            m_WebAppType = m_WebApp.GetType();
             m_Env = env;
             m_ListOfObjects = lot;
             m_Index = 0;
@@ -135,8 +140,8 @@ namespace Diva.Wifi
             {
                 string name = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
-                // ignore the name which should be virtual or file
-                string file = Path.Combine(WifiUtils.DocsPath, value);
+                // ignore the name which should be file
+                string file = Path.Combine(m_WebApp.DocsPath, value);
                 m_log.DebugFormat("Including file {0}", file);
                 using (StreamReader sr = new StreamReader(file))
                 {
@@ -151,35 +156,45 @@ namespace Diva.Wifi
         private string Get(string argStr)
         {
             Match match = args.Match(argStr);
-            m_log.DebugFormat("[Processor]: Get macthed {0} groups", match.Groups.Count);
+            m_log.DebugFormat("[WifiScript]: Get macthed {0} groups", match.Groups.Count);
             if (match.Groups.Count == 3)
             {
-                string name = match.Groups[1].Value;
-                string value = match.Groups[2].Value;
+                string kind = match.Groups[1].Value;
+                string name = match.Groups[2].Value;
                 string keyname = string.Empty;
 
-                if (name == "var")
+                object value = null;
+
+                if (kind == "var")
                 {
-                    if (Environment.StaticVariables.ContainsKey(value))
-                        return Environment.StaticVariables[value].ToString();
+                    FieldInfo finfo = m_WebAppType.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                    if (finfo != null)
+                        value = finfo.GetValue(m_WebApp);
+                    else
+                        m_log.DebugFormat("[WifiScript]: Variable {0} not found", name);
                 }
-                else if (name == "field")
+                else if (kind == "field")
                 {
                     if (m_ListOfObjects != null)
                     {
                         // Let's search in the list of objects
                         object o = m_ListOfObjects[m_Index - 1];
                         Type type = o.GetType();
-                        FieldInfo finfo = type.GetField(value, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
-                        object v = finfo.GetValue(o);
-
-                        if (v != null)
-                            return v.ToString();
+                        FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                        if (finfo != null)
+                            value = finfo.GetValue(o);
                         else
-                            return string.Empty;
+                            m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}", name, type);
                     }
+                    else
+                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null list of objects", name);
                 }
-                m_log.DebugFormat("Variable {0} not found", value);
+                
+                if (value != null)
+                    return value.ToString();
+                else
+                    return string.Empty;
+
             }
 
             return string.Empty;
@@ -204,21 +219,18 @@ namespace Diva.Wifi
             }
             if (!methodName.Equals(string.Empty))
             {
-                if (Environment.WebAppType != null)
+                object[] arg = new object[] { m_Env };
+                try
                 {
-                    object[] arg = new object[] { m_Env };
-                    try
-                    {
-                        String s = (String)Environment.WebAppType.InvokeMember(methodName,
-                            BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
-                            null, Environment.WebAppObj, arg);
+                    String s = (String)m_WebAppType.InvokeMember(methodName,
+                        BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Instance,
+                        null, m_WebApp, arg);
 
-                        return s;
-                    }
-                    catch (Exception e)
-                    {
-                        m_log.DebugFormat("[PROCESSOR]: Exception in invoke {0}", e.Message);
-                    }
+                    return s;
+                }
+                catch (Exception e)
+                {
+                    m_log.DebugFormat("[PROCESSOR]: Exception in invoke {0}", e.Message);
                 }
             }
 

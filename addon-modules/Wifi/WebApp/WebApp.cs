@@ -45,6 +45,7 @@ using OpenSim.Services.AuthenticationService;
 using OpenSim.Services.UserAccountService;
 using OpenSim.Services.InventoryService;
 
+using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
@@ -52,6 +53,61 @@ namespace Diva.Wifi
     public class WebApp : IWebApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        public string DocsPath
+        {
+            get { return m_DocsPath; }
+        }
+
+        #region IWebApp variables accessible to the WifiScript engine
+
+        private static bool m_Installed = false;
+        public static bool IsInstalled
+        {
+            get { return m_Installed; }
+            set { m_Installed = value; }
+        }
+
+        private static int m_Port;
+        public static int Port
+        {
+            get { return m_Port; }
+        }
+
+        private static string m_GridName;
+        public static string GridName
+        {
+            get { return m_GridName; }
+        }
+        private static string m_LoginURL;
+        public static string LoginURL
+        {
+            get { return m_LoginURL; }
+        }
+        private static string m_WebAddress;
+        public static string WebAddress
+        {
+            get { return m_WebAddress; }
+        }
+
+        private static string m_AdminFirst;
+        public static string AdminFirst
+        {
+            get { return m_AdminFirst; }
+        }
+        private static string m_AdminLast;
+        public static string AdminLast
+        {
+            get { return m_AdminLast; }
+        }
+        private static string m_AdminEmail;
+        public static string AdminEmail
+        {
+            get { return m_AdminEmail; }
+        }
+
+        #endregion
 
         private IUserAccountService m_UserAccountService;
         private IAuthenticationService m_AuthenticationService;
@@ -64,7 +120,7 @@ namespace Diva.Wifi
         {
             m_log.Debug("[WebApp]: Starting...");
 
-            Environment.InitializeWebApp(this, config, configName);
+            ReadConfigs(config, configName);
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -89,14 +145,36 @@ namespace Diva.Wifi
 
         }
 
+        public void ReadConfigs(IConfigSource config, string configName)
+        {
+            // Read config vars
+            IConfig appConfig = config.Configs[configName];
+            m_GridName = appConfig.GetString("GridName", "My World");
+            m_LoginURL = appConfig.GetString("LoginURL", "http://localhost:9000");
+            m_WebAddress = appConfig.GetString("WebAddress", "http://localhost:8080");
+
+            m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
+            m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
+            m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
+
+            if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
+                // Can't proceed
+                throw new Exception("Can't proceed. Please specify the administrator account in Wifi.ini");
+
+            IConfig serverConfig = config.Configs["Network"];
+            if (serverConfig != null)
+                m_Port = Int32.Parse(serverConfig.GetString("port", "80"));
+
+            m_log.DebugFormat("[Environment]: Initialized. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
+        }
         private void CreateGod()
         {
-            UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, Environment.AdminFirst, Environment.AdminLast);
+            UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, AdminFirst, AdminLast);
             if (god == null)
             {
-                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} does not exist. Creating it...", Environment.AdminFirst, Environment.AdminLast);
+                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} does not exist. Creating it...", AdminFirst, AdminLast);
                 // Doesn't exist. Create one
-                god = new UserAccount(UUID.Zero, Environment.AdminFirst, Environment.AdminLast, Environment.AdminEmail);
+                god = new UserAccount(UUID.Zero, AdminFirst, AdminLast, AdminEmail);
                 god.UserLevel = 500;
                 god.UserTitle = "Administrator";
                 god.UserFlags = 0;
@@ -104,13 +182,13 @@ namespace Diva.Wifi
                 m_UserAccountService.StoreUserAccount(god);
                 m_InventoryService.CreateUserInventory(god.PrincipalID);
                 // Signal that the App needs installation
-                Environment.IsInstalled = false;
+                IsInstalled = false;
             }
             else
             {
-                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} exists.", Environment.AdminFirst, Environment.AdminLast);
+                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} exists.", AdminFirst, AdminLast);
                 // Signal that the App has been previously installed
-                Environment.IsInstalled = true;
+                IsInstalled = true;
             }
 
             if (god.UserLevel < 200)
@@ -137,12 +215,12 @@ namespace Diva.Wifi
 
             if (password == password2)
             {
-                UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, Environment.AdminFirst, Environment.AdminLast);
+                UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, AdminFirst, AdminLast);
                 if (god != null)
                 {
                     m_AuthenticationService.SetPassword(god.PrincipalID, password);
                     // And this finishes the installation procedure
-                    Environment.IsInstalled = true;
+                    IsInstalled = true;
                     env.Flags = StateFlags.InstallFormResponse;
                 }
 
@@ -346,16 +424,13 @@ namespace Diva.Wifi
             if ((env.Flags & StateFlags.InstallForm) != 0)
                 return ReadFile(env, "installform.html");
             if ((env.Flags & StateFlags.InstallFormResponse) != 0)
-                return "Your Wifi has been installed. The administrator account is " + Environment.AdminFirst + " " + Environment.AdminLast;
+                return "Your Wifi has been installed. The administrator account is " + AdminFirst + " " + AdminLast;
 
             if ((env.Flags & StateFlags.FailedLogin) != 0)
                 return "Login failed";
             if ((env.Flags & StateFlags.SuccessfulLogin) != 0)
             {
-                if (Environment.StaticVariables.ContainsKey("GridName"))
-                    return "Welcome to " + Environment.StaticVariables["GridName"] + "!";
-                else
-                    return "Welcome!";
+                return "Welcome to " + GridName + "!";
             }
 
             if ((env.Flags & StateFlags.NewAccountForm) != 0)
@@ -380,7 +455,7 @@ namespace Diva.Wifi
 
         public string GetMainMenu(Environment env)
         {
-            if (!Environment.IsInstalled)
+            if (!IsInstalled)
                 return ReadFile(env, "main-menu-install.html");
 
             SessionInfo sinfo;
@@ -398,7 +473,7 @@ namespace Diva.Wifi
 
         public string GetLoginLogout(Environment env)
         {
-            if (!Environment.IsInstalled)
+            if (!IsInstalled)
                 return string.Empty;
 
             SessionInfo sinfo;
@@ -558,7 +633,7 @@ namespace Diva.Wifi
                 using (StreamReader sr = new StreamReader(file))
                 {
                     string content = sr.ReadToEnd();
-                    Processor p = new Processor(env, lot);
+                    Processor p = new Processor(this, env, lot);
                     return p.Process(content);
                 }
             }
@@ -576,9 +651,9 @@ namespace Diva.Wifi
         private void SetServiceURLs(UserAccount account)
         {
             account.ServiceURLs = new Dictionary<string, object>();
-            account.ServiceURLs["HomeURI"] = Environment.StaticVariables["LoginURL"].ToString();
-            account.ServiceURLs["InventoryServerURI"] = Environment.StaticVariables["LoginURL"].ToString();
-            account.ServiceURLs["AssetServerURI"] = Environment.StaticVariables["LoginURL"].ToString();
+            account.ServiceURLs["HomeURI"] = LoginURL.ToString();
+            account.ServiceURLs["InventoryServerURI"] = LoginURL.ToString();
+            account.ServiceURLs["AssetServerURI"] = LoginURL.ToString();
         }
 
         private List<object> Objectify<T>(List<T> listOfThings)

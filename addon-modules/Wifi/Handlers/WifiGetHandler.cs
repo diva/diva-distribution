@@ -44,7 +44,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
-using Processor = Diva.Wifi.Processor;
+using Diva.Wifi.WifiScript;
+using Processor = Diva.Wifi.WifiScript.Processor;
 
 namespace Diva.Wifi
 {
@@ -80,7 +81,7 @@ namespace Diva.Wifi
             {
                 httpResponse.ContentType = "text/html";
                 string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "index.html");
-                Processor p = new Processor(env);
+                Processor p = new Processor(m_WebApp, env);
                 return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
             }
             else
@@ -93,7 +94,7 @@ namespace Diva.Wifi
 
                 if (type.StartsWith("text"))
                 {
-                    Processor p = new Diva.Wifi.Processor(env);
+                    Processor p = new Processor(m_WebApp, env);
                     return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
                 }
             }

@@ -26,55 +26,64 @@
  */
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Text;
 
+using Nini.Config;
 using log4net;
-using log4net.Appender;
-using log4net.Layout;
 
 using Diva.Wifi.WifiScript;
 
-namespace Diva.Wifi.ProcessorTest
+namespace Diva.Wifi
 {
-    public class Program : IWebApp
+    public class Environment : IEnvironment
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public string DocsPath
+        //
+        // Instance variables are per request
+        //
+
+        private Request m_Request;
+        public Request Request
         {
-            // TODO Fix this
-            get { return string.Empty; }
+            get { return m_Request; }
         }
 
-        public static void Main(string[] args)
+        private StateFlags m_Flags;
+        public StateFlags Flags
         {
-            ConsoleAppender consoleAppender = new ConsoleAppender();
-            consoleAppender.Layout =
-                new PatternLayout("%date [%thread] %-5level %logger [%property{NDC}] - %message%newline");
-            log4net.Config.BasicConfigurator.Configure(consoleAppender);
-
-            if (args.Length == 0)
-            {
-                m_log.Debug("Please specify filename");
-                return;
-            }
-
-            Program webApp = new Program();
-
-            //string myStr = "<!--#include file=\"content-box.html\" -->";
-            //string result = Processor.Processor.Process(myStr);
-            //m_log.Debug(result);
-            string fileName = args[0];
-            using (StreamReader sr = new StreamReader(fileName))
-            {
-                string content = sr.ReadToEnd();
-                Processor p = new Processor(webApp, null);
-                string result = p.Process(content);
-
-                m_log.Debug(result);
-            }
+            get { return m_Flags; }
+            set { m_Flags = value; }
         }
+
+        private Object m_Data;
+        public Object Data
+        {
+            get { return m_Data; }
+            set { m_Data = value; }
+        }
+
+        public Environment(Request req)
+        {
+            m_Request = req;
+        }
+
+    }
+
+    public enum StateFlags : int
+    {
+        InstallForm = 1,
+        InstallFormResponse = 2,
+        FailedLogin = 4,
+        SuccessfulLogin = 8,
+        IsLoggedIn = 16,
+        IsAdmin = 32,
+        UserAccountForm = 64,
+        UserAccountFormResponse = 128,
+        NewAccountForm = 256,
+        NewAccountFormResponse = 512,
+        UserSearchForm = 1024,
+        UserSearchFormResponse = 2048
     }
 }

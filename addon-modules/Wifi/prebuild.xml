@@ -33,6 +33,8 @@
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
 
+  <Reference name="Diva.Wifi.ScriptEngine"/>
+
   <Files>
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />

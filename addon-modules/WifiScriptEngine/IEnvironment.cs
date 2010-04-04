@@ -26,55 +26,15 @@
  */
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
 using System.Text;
 
+using Nini.Config;
 using log4net;
-using log4net.Appender;
-using log4net.Layout;
 
-using Diva.Wifi.WifiScript;
-
-namespace Diva.Wifi.ProcessorTest
+namespace Diva.Wifi.WifiScript
 {
-    public class Program : IWebApp
+    public interface IEnvironment
     {
-        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
-        public string DocsPath
-        {
-            // TODO Fix this
-            get { return string.Empty; }
-        }
-
-        public static void Main(string[] args)
-        {
-            ConsoleAppender consoleAppender = new ConsoleAppender();
-            consoleAppender.Layout =
-                new PatternLayout("%date [%thread] %-5level %logger [%property{NDC}] - %message%newline");
-            log4net.Config.BasicConfigurator.Configure(consoleAppender);
-
-            if (args.Length == 0)
-            {
-                m_log.Debug("Please specify filename");
-                return;
-            }
-
-            Program webApp = new Program();
-
-            //string myStr = "<!--#include file=\"content-box.html\" -->";
-            //string result = Processor.Processor.Process(myStr);
-            //m_log.Debug(result);
-            string fileName = args[0];
-            using (StreamReader sr = new StreamReader(fileName))
-            {
-                string content = sr.ReadToEnd();
-                Processor p = new Processor(webApp, null);
-                string result = p.Process(content);
-
-                m_log.Debug(result);
-            }
-        }
     }
 }

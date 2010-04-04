@@ -1,4 +1,5 @@
-<Project frameworkVersion="v3_5" name="Diva.Wifi.ProcessorTest" path="addon-modules/ProcessorTest" type="Exe">
+<!-- Diva.Wifi.ScriptEngine -->
+<Project frameworkVersion="v3_5" name="Diva.Wifi.ScriptEngine" path="addon-modules/WifiScriptEngine" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
@@ -12,14 +13,12 @@
 
   <ReferencePath>../../bin/</ReferencePath>
   <Reference name="System"/>
+  <Reference name="System.Web"/>
   <Reference name="System.Xml"/>
 
   <Reference name="Nini.dll"/>
-  <Reference name="Mono.Addins.dll"/>
   <Reference name="log4net.dll"/>
 
-  <Reference name="Diva.Wifi.ScriptEngine"/>
-  
   <Files>
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
