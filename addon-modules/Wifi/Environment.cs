@@ -57,6 +57,13 @@ namespace Diva.Wifi
             set { m_Flags = value; }
         }
 
+        private SessionInfo m_Session;
+        public SessionInfo Session
+        {
+            get { return m_Session; }
+            set { m_Session = value; }
+        }
+
         private Object m_Data;
         public Object Data
         {

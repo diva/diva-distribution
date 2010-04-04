@@ -74,7 +74,7 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.NewAccountGetRequest(env);
+            string result = m_WebApp.Services.NewAccountGetRequest(env);
 
             return WifiUtils.StringToBytes(result);
 
@@ -143,7 +143,7 @@ namespace Diva.Wifi
                 Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-                string result = m_WebApp.NewAccountPostRequest(env, first, last, email, password, password2);
+                string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2);
 
                 return WifiUtils.StringToBytes(result);
 

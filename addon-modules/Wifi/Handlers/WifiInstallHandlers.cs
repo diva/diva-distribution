@@ -75,7 +75,7 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.InstallGetRequest(env);
+            string result = m_WebApp.Services.InstallGetRequest(env);
 
             return WifiUtils.StringToBytes(result);
 
@@ -124,7 +124,7 @@ namespace Diva.Wifi
                 Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-                string result = m_WebApp.InstallPostRequest(env, password, password2);
+                string result = m_WebApp.Services.InstallPostRequest(env, password, password2);
 
                 return WifiUtils.StringToBytes(result);
 

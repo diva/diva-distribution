@@ -55,9 +55,21 @@ namespace Diva.Wifi
             //    Environment.InitializeWebApp(app);
             //}
 
-            // Launch the WebApp, of well-known type
+            // Launch the WebApp
             WebApp app = new WebApp(config, m_ConfigName, server);
 
+            // Register all the handlers
+            server.AddStreamHandler(new WifiGetHandler(app));
+            server.AddStreamHandler(new WifiInstallGetHandler(app));
+            server.AddStreamHandler(new WifiInstallPostHandler(app));
+            server.AddStreamHandler(new WifiLoginHandler(app));
+            server.AddStreamHandler(new WifiLogoutHandler(app));
+            server.AddStreamHandler(new WifiUserAccountGetHandler(app));
+            server.AddStreamHandler(new WifiUserAccountPostHandler(app));
+            server.AddStreamHandler(new WifiNewAccountGetHandler(app));
+            server.AddStreamHandler(new WifiNewAccountPostHandler(app));
+            server.AddStreamHandler(new WifiUserManagementGetHandler(app));
+            server.AddStreamHandler(new WifiUserManagementPostHandler(app));
         }
     }
 }

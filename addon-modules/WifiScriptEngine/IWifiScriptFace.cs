@@ -30,7 +30,7 @@ using System.Text;
 
 namespace Diva.Wifi.WifiScript
 {
-    public interface IWebApp
+    public interface IWifiScriptFace
     {
         string DocsPath
         {

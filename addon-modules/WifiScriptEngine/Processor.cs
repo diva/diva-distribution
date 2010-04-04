@@ -44,18 +44,18 @@ namespace Diva.Wifi.WifiScript
         // name="value"
         private static Regex args = new Regex("(\\w+)\\s*=\\s*(\\S+)");
 
-        private IWebApp m_WebApp;
+        private IWifiScriptFace m_WebApp;
         private Type m_WebAppType;
  
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
 
-        public Processor(IWebApp webApp, IEnvironment env) : this(webApp, env, null)
+        public Processor(IWifiScriptFace webApp, IEnvironment env) : this(webApp, env, null)
         {
         }
 
-        public Processor(IWebApp webApp, IEnvironment env, List<object> lot)
+        public Processor(IWifiScriptFace webApp, IEnvironment env, List<object> lot)
         {
             m_WebApp = webApp;
             m_WebAppType = m_WebApp.GetType();
@@ -116,13 +116,17 @@ namespace Diva.Wifi.WifiScript
 
         private string Eval(string directive, string argStr)
         {
-            m_log.DebugFormat("Interpret {0} {1}", directive, argStr);
+            m_log.DebugFormat("[WifiScript]: Interpret {0} {1}", directive, argStr);
+
             if (directive.Equals("include"))
                 return Include(argStr);
+
             if (directive.Equals("get"))
                 return Get(argStr);
+
             if (directive.Equals("call"))
                 return Call(argStr);
+
             return string.Empty;
         }
 
@@ -142,7 +146,7 @@ namespace Diva.Wifi.WifiScript
                 string value = match.Groups[2].Value;
                 // ignore the name which should be file
                 string file = Path.Combine(m_WebApp.DocsPath, value);
-                m_log.DebugFormat("Including file {0}", file);
+                m_log.DebugFormat("[WifiScript]: Including file {0}", file);
                 using (StreamReader sr = new StreamReader(file))
                 {
                     // recurse!
@@ -230,7 +234,7 @@ namespace Diva.Wifi.WifiScript
                 }
                 catch (Exception e)
                 {
-                    m_log.DebugFormat("[PROCESSOR]: Exception in invoke {0}", e.Message);
+                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
                 }
             }
 

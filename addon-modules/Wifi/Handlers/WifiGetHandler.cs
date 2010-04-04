@@ -81,7 +81,7 @@ namespace Diva.Wifi
             {
                 httpResponse.ContentType = "text/html";
                 string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "index.html");
-                Processor p = new Processor(m_WebApp, env);
+                Processor p = new Processor(m_WebApp.WifiScriptFace, env);
                 return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
             }
             else
@@ -94,7 +94,7 @@ namespace Diva.Wifi
 
                 if (type.StartsWith("text"))
                 {
-                    Processor p = new Processor(m_WebApp, env);
+                    Processor p = new Processor(m_WebApp.WifiScriptFace, env);
                     return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
                 }
             }

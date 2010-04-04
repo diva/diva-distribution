@@ -117,7 +117,7 @@ namespace Diva.Wifi
             req.Resource = resource;
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-            string result = m_WebApp.LoginRequest(env, first, last, password);
+            string result = m_WebApp.Services.LoginRequest(env, first, last, password);
 
             return WifiUtils.StringToBytes(result);
         }

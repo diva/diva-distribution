@@ -73,7 +73,7 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.LogoutRequest(env);
+            string result = m_WebApp.Services.LogoutRequest(env);
 
             httpResponse.ContentType = "text/html";
             return WifiUtils.StringToBytes(result);

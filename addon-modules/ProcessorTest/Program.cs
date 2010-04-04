@@ -38,7 +38,7 @@ using Diva.Wifi.WifiScript;
 
 namespace Diva.Wifi.ProcessorTest
 {
-    public class Program : IWebApp
+    public class Program : IWifiScriptFace
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
