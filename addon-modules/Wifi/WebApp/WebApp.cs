@@ -510,17 +510,18 @@ namespace Diva.Wifi
             {
                 m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri + "?sid=" + sid);
                 if (!uri.EndsWith("/"))
-                {
-                    m_log.DebugFormat("XXX Does not end with /");
                     html = html.Replace(uri, uri + "/?sid=" + sid);
-                }
                 else
-                {
-                    m_log.DebugFormat("XXX End with /: {0}-----", uri);
                     html = html.Replace(uri, uri + "?sid=" + sid);
-                }
             }
+
             return html;
+        }
+
+        private void PrintStr(string html)
+        {
+            foreach (char c in html)
+                Console.Write(c);
         }
 
         private string GetUserList(Environment env)
