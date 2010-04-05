@@ -133,10 +133,12 @@ namespace Diva.Wifi.WifiScript
         private string Include(string argStr)
         {
             // Break the recursive includes
-            if (m_ListOfObjects != null &&  m_Index == m_ListOfObjects.Count)
-                return string.Empty;
-
-            m_Index++;
+            if (m_ListOfObjects != null)
+            {
+                if (m_Index == m_ListOfObjects.Count)
+                    return string.Empty;        
+                m_Index++;
+            }
 
             Match match = args.Match(argStr);
             //m_log.DebugFormat("Match {0} args? {1} {2}", args.ToString(), match.Success, match.Groups.Count);
@@ -146,7 +148,7 @@ namespace Diva.Wifi.WifiScript
                 string value = match.Groups[2].Value;
                 // ignore the name which should be file
                 string file = Path.Combine(m_WebApp.DocsPath, value);
-                m_log.DebugFormat("[WifiScript]: Including file {0}", file);
+                //m_log.DebugFormat("[WifiScript]: Including file {0}", file);
                 using (StreamReader sr = new StreamReader(file))
                 {
                     // recurse!
@@ -160,7 +162,7 @@ namespace Diva.Wifi.WifiScript
         private string Get(string argStr)
         {
             Match match = args.Match(argStr);
-            m_log.DebugFormat("[WifiScript]: Get macthed {0} groups", match.Groups.Count);
+            //m_log.DebugFormat("[WifiScript]: Get macthed {0} groups", match.Groups.Count);
             if (match.Groups.Count == 3)
             {
                 string kind = match.Groups[1].Value;
@@ -182,7 +184,12 @@ namespace Diva.Wifi.WifiScript
                     if (m_ListOfObjects != null)
                     {
                         // Let's search in the list of objects
-                        object o = m_ListOfObjects[m_Index - 1];
+                        //m_log.DebugFormat("[WifiScript]: index = {0}", m_Index);
+                        // Note to self: funky indexing going on here because of recursion.
+                        // When it recurses over a list of objects, m_Index is incremented before it gets here
+                        // -- see above in Include.
+                        // When it's simply holding 1 object in env.Data, then m_Index is 0 as it should
+                        object o = m_ListOfObjects[(m_Index == 0)? 0 : (m_Index - 1)];
                         Type type = o.GetType();
                         FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                         if (finfo != null)

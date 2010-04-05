@@ -71,10 +71,25 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
             httpResponse.ContentType = "text/html";
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            string resource = GetParam(path);
+            //m_log.DebugFormat("[XXX]: resource {0}", resource);
+            Request request = WifiUtils.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.Services.UserManagementGetRequest(env);
+            string result = string.Empty;
+            if (resource.Equals("/"))
+                result = m_WebApp.Services.UserManagementGetRequest(env);
+
+            else if (resource.StartsWith("/edit"))
+            {
+                UUID userID = UUID.Zero;
+                string[] pars = SplitParams(path);
+                if (pars.Length >= 2)
+                {
+                    UUID.TryParse(pars[1], out userID);
+                    result = m_WebApp.Services.UserEditGetRequest(env, userID);
+                }
+            }
 
             return WifiUtils.StringToBytes(result);
 
@@ -112,18 +127,58 @@ namespace Diva.Wifi
                 Dictionary<string, object> request =
                         ServerUtils.ParseQueryString(body);
 
-                string terms = String.Empty;
-                string oldpassword = String.Empty;
-                string newpassword = String.Empty;
-                string newpassword2 = String.Empty;
 
-                if (request.ContainsKey("terms"))
-                    terms = request["terms"].ToString();
-
-                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request req = WifiUtils.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-                string result = m_WebApp.Services.UserSearchPostRequest(env, terms);
+                string result = string.Empty;
+                if (resource.Equals("/"))
+                {
+                    string terms = String.Empty;
+                    if (request.ContainsKey("terms"))
+                        terms = request["terms"].ToString();
+
+                    result = m_WebApp.Services.UserSearchPostRequest(env, terms);
+                }
+                else if (resource.StartsWith("/edit"))
+                {
+                    UUID userID = UUID.Zero;
+                    string[] pars = SplitParams(path);
+                    if ((pars.Length >= 2) && UUID.TryParse(pars[1], out userID))
+                    {
+                        string form = string.Empty;
+                        if (request.ContainsKey("form"))
+                            form = request["form"].ToString();
+                        if (form == "1")
+                        {
+                            string first = string.Empty, last = string.Empty, email = string.Empty, title = string.Empty;
+                            int level = 0, flags = 0;
+                            if (request.ContainsKey("first"))
+                                first = request["first"].ToString();
+                            if (request.ContainsKey("last"))
+                                last = request["last"].ToString();
+                            if (request.ContainsKey("email"))
+                                email = request["email"].ToString();
+                            if (request.ContainsKey("title"))
+                                title = request["title"].ToString();
+                            if (request.ContainsKey("level"))
+                                Int32.TryParse(request["level"].ToString(), out level);
+                            if (request.ContainsKey("flags"))
+                                Int32.TryParse(request["flags"].ToString(), out flags);
+
+                            result = m_WebApp.Services.UserEditPostRequest(env, userID, first, last, email, level, flags, title);
+                        }
+                        else if (form == "2")
+                        {
+                            string password = string.Empty;
+                            if (request.ContainsKey("password"))
+                            {
+                                password = request["password"].ToString();
+                                result = m_WebApp.Services.UserEditPostRequest(env, userID, password);
+                            }
+                        }
+                    }
+                }
 
                 return WifiUtils.StringToBytes(result);
 

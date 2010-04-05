@@ -350,6 +350,89 @@ namespace Diva.Wifi
             return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
         }
 
+        public string UserEditGetRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserEditGetRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserEditForm;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    List<object> loo = new List<object>();
+                    loo.Add(account);
+                    env.Data = loo;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+        }
+
+        public string UserEditPostRequest(Environment env, UUID userID, string first, string last, string email, int level, int flags, string title)
+        {
+            m_log.DebugFormat("[WebApp]: UserEditPostRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    // Update the account
+                    account.FirstName = first;
+                    account.LastName = last;
+                    account.Email = email;
+                    account.UserFlags = flags;
+                    account.UserLevel = level;
+                    account.UserTitle = title;
+                    m_UserAccountService.StoreUserAccount(account);
+
+                    env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
+                }
+                else
+                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+
+        }
+
+        public string UserEditPostRequest(Environment env, UUID userID, string password)
+        {
+            m_log.DebugFormat("[WebApp]: UserEditPostRequest (passord) {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    if (password != string.Empty)
+                        m_AuthenticationService.SetPassword(account.PrincipalID, password);
+                    
+                    env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
+                }
+                else
+                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+
+        }
+
+
         // <a href="wifi/..." ...>
         static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
         static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+\\\")).*>");

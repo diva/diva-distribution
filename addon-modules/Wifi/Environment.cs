@@ -64,8 +64,8 @@ namespace Diva.Wifi
             set { m_Session = value; }
         }
 
-        private Object m_Data;
-        public Object Data
+        private List<object> m_Data;
+        public List<object> Data
         {
             get { return m_Data; }
             set { m_Data = value; }
@@ -91,6 +91,8 @@ namespace Diva.Wifi
         NewAccountForm = 256,
         NewAccountFormResponse = 512,
         UserSearchForm = 1024,
-        UserSearchFormResponse = 2048
+        UserSearchFormResponse = 2048,
+        UserEditForm = 4096,
+        UserEditFormResponse = 8192
     }
 }

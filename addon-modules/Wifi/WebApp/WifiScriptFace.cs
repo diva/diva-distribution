@@ -134,10 +134,16 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "useraccountform.html");
                 if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
                     return "Your account has been updated.";
+            
                 if ((env.Flags & StateFlags.UserSearchForm) != 0)
                     return m_WebApp.ReadFile(env, "usersearchform.html");
                 if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
                     return GetUserList(env);
+
+                if ((env.Flags & StateFlags.UserEditForm) != 0)
+                    return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
+                if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
+                    return "The account has been updated.";
             }
 
             return string.Empty;
