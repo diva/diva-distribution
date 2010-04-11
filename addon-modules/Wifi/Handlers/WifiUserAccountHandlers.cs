@@ -70,24 +70,26 @@ namespace Diva.Wifi
             //foreach (object o in httpRequest.Query.Keys)
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
             httpResponse.ContentType = "text/html";
+            string resource = GetParam(path);
+            m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
 
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.Services.UserAccountGetRequest(env);
+            string result = string.Empty;
+            UUID userID = UUID.Zero;
+            if (resource == string.Empty || resource == "/")
+            {
+                result = m_WebApp.Services.NewAccountGetRequest(env);
+            }
+            else
+            {
+                UUID.TryParse(resource.Trim(new char[] {'/'}), out userID);
+                result = m_WebApp.Services.UserAccountGetRequest(env, userID);
+            }
 
             return WifiUtils.StringToBytes(result);
 
-        }
-
-        private string GetResource(string path)
-        {
-            string[] paramArray = SplitParams(path);
-            m_log.DebugFormat("[Wifi]: paramArray length = {0}", paramArray.Length);
-            if (paramArray != null && paramArray.Length > 0)
-                return paramArray[0];
-
-            return string.Empty;
         }
 
     }
@@ -114,14 +116,57 @@ namespace Diva.Wifi
 
             httpResponse.ContentType = "text/html";
 
-            m_log.DebugFormat("[XXX]: query String: {0}", body);
             string resource = GetParam(path);
+            m_log.DebugFormat("[USER ACCOUNT HANDLER POST]: resource {0} query: {1}", resource, body);
 
+            Dictionary<string, object> request =
+                    ServerUtils.ParseQueryString(body);
+
+            if (SplitParams(path).Length >= 1) //  userID given, update account (PUT)
+            {
+                UUID userID = UUID.Zero;
+                if (UUID.TryParse(resource.Trim(new char[] { '/' }), out userID))
+                    return UpdateAccount(resource, httpRequest, userID, request);
+
+                return WifiUtils.FailureResult();
+            }
+
+            // else create a new account (true POST)
+            return CreateAccount(resource, httpRequest, request);
+        }
+
+        private byte[] CreateAccount(string resource, OSHttpRequest httpRequest, Dictionary<string, object> request)
+        {
+            string first = String.Empty;
+            string last = String.Empty;
+            string email = String.Empty;
+            string oldpassword = String.Empty;
+            string password = String.Empty;
+            string password2 = String.Empty;
+
+            if (request.ContainsKey("first"))
+                first = request["first"].ToString();
+            if (request.ContainsKey("last"))
+                last = request["last"].ToString();
+            if (request.ContainsKey("email"))
+                email = request["email"].ToString();
+            if (request.ContainsKey("password"))
+                password = request["password"].ToString();
+            if (request.ContainsKey("password2"))
+                password2 = request["password2"].ToString();
+
+            Request req = WifiUtils.CreateRequest(resource, httpRequest);
+            Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+
+            string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2);
+
+            return WifiUtils.StringToBytes(result);
+        }
+
+        private byte[] UpdateAccount(string resource, OSHttpRequest httpRequest, UUID userID, Dictionary<string, object> request)
+        {
             try
             {
-                Dictionary<string, object> request =
-                        ServerUtils.ParseQueryString(body);
-
                 string email = String.Empty;
                 string oldpassword = String.Empty;
                 string newpassword = String.Empty;
@@ -136,10 +181,10 @@ namespace Diva.Wifi
                 if (request.ContainsKey("newpassword2"))
                     newpassword2 = request["newpassword2"].ToString();
 
-                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request req = WifiUtils.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-                string result = m_WebApp.Services.UserAccountPostRequest(env, email, oldpassword, newpassword, newpassword2);
+                string result = m_WebApp.Services.UserAccountPostRequest(env, userID, email, oldpassword, newpassword, newpassword2);
 
                 return WifiUtils.StringToBytes(result);
 
@@ -147,11 +192,10 @@ namespace Diva.Wifi
             catch (Exception e)
             {
                 Util.PrintCallStack();
-                m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e.StackTrace);
+                m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}", e.StackTrace);
             }
 
             return WifiUtils.FailureResult();
-
         }
 
     }

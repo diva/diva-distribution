@@ -187,6 +187,9 @@ namespace Diva.Wifi
             env.Request.Query["sid"] = authtoken;
             env.Session = sinfo;
 
+            List<object> loo = new List<object>();
+            loo.Add(account);
+            env.Data = loo;
             env.Flags = StateFlags.IsLoggedIn | StateFlags.SuccessfulLogin;
             return PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
         }
@@ -207,7 +210,7 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        public string UserAccountGetRequest(Environment env)
+        public string UserAccountGetRequest(Environment env, UUID userID)
         {
             m_log.DebugFormat("[WebApp]: UserAccountGetRequest");
             Request request = env.Request;
@@ -216,6 +219,9 @@ namespace Diva.Wifi
             if (TryGetSessionInfo(request, out sinfo))
             {
                 env.Session = sinfo;
+                List<object> loo = new List<object>();
+                loo.Add(sinfo.Account);
+                env.Data = loo;
                 env.Flags = StateFlags.IsLoggedIn | StateFlags.UserAccountForm;
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
@@ -225,7 +231,7 @@ namespace Diva.Wifi
             }
         }
 
-        public string UserAccountPostRequest(Environment env, string email, string oldpassword, string newpassword, string newpassword2)
+        public string UserAccountPostRequest(Environment env, UUID userID, string email, string oldpassword, string newpassword, string newpassword2)
         {
             m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
             Request request = env.Request;
@@ -234,6 +240,10 @@ namespace Diva.Wifi
             if (TryGetSessionInfo(request, out sinfo))
             {
                 env.Session = sinfo;
+                // We get the userID, but we only allow changes to the account of this session
+                List<object> loo = new List<object>();
+                loo.Add(sinfo.Account);
+                env.Data = loo;
 
                 bool updated = false;
                 if (email != string.Empty && email.Contains("@") && sinfo.Account.Email != email)
