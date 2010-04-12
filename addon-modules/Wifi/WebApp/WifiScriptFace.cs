@@ -124,19 +124,19 @@ namespace Diva.Wifi
             }
 
             if ((env.Flags & StateFlags.NewAccountForm) != 0)
-                return m_WebApp.ReadFile(env, "newaccountform.html");
+                return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
             if ((env.Flags & StateFlags.NewAccountFormResponse) != 0)
                 return "Your account has been created.";
 
             if ((env.Flags & StateFlags.IsLoggedIn) != 0)
             {
                 if ((env.Flags & StateFlags.UserAccountForm) != 0)
-                    return m_WebApp.ReadFile(env, "useraccountform.html");
+                    return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
                 if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
                     return "Your account has been updated.";
             
                 if ((env.Flags & StateFlags.UserSearchForm) != 0)
-                    return m_WebApp.ReadFile(env, "usersearchform.html");
+                    return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
                 if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
                     return GetUserList(env);
 
@@ -160,10 +160,10 @@ namespace Diva.Wifi
                 if (sinfo.Account.UserLevel >= 200) // Admin
                     return m_WebApp.ReadFile(env, "main-menu-admin.html");
 
-                return m_WebApp.ReadFile(env, "main-menu-users.html");
+                return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);
             }
 
-            return m_WebApp.ReadFile(env, "main-menu.html");
+            return m_WebApp.ReadFile(env, "main-menu.html", env.Data);
         }
 
 
@@ -174,9 +174,9 @@ namespace Diva.Wifi
 
             SessionInfo sinfo = env.Session;
             if (sinfo.Account != null)
-                return m_WebApp.ReadFile(env, "logout.html");
+                return m_WebApp.ReadFile(env, "logout.html", env.Data);
 
-            return m_WebApp.ReadFile(env, "login.html");
+            return m_WebApp.ReadFile(env, "login.html", env.Data);
         }
 
         public string GetUserName(Environment env)

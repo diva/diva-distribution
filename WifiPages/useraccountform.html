@@ -1,15 +1,15 @@
 <p >Your Account:</p>
-  <form action="/wifi/user/account" method="post">
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
   <p class="bodytext"> 
     Email:<br/>
-    <input name="email" type="text" value="<!-- #call method=GetUserEmail-->" class="inputstyle" />
+    <input name="email" type="text" value="<!-- #get field=Email -->" class="inputstyle" />
     <input type="submit" value="update" class="button" />
   </p>
   </form>
 
 <p>&nbsp;</p>
 
-  <form action="/wifi/user/account" method="post">
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
   <p class="bodytext"> 
     Old password:<br/>
     <input name="oldpassword" type="password" class="inputstyle" /><br/><br/>

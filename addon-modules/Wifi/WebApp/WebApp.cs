@@ -152,7 +152,7 @@ namespace Diva.Wifi
 
         public string ReadFile(Environment env, string path)
         {
-            return ReadFile(env, path, null);
+            return ReadFile(env, path, env.Data);
         }
 
         public string ReadFile(Environment env, string path, List<object> lot)
