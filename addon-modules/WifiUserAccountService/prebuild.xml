@@ -1,5 +1,5 @@
-<!-- Diva.Wifi -->
-<Project frameworkVersion="v3_5" name="Diva.Wifi" path="addon-modules/Wifi" type="Library">
+<!-- Diva.WifiUserAccountService -->
+<Project frameworkVersion="v3_5" name="Diva.Wifi.UserAccountService" path="addon-modules/WifiUserAccountService" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
@@ -24,17 +24,11 @@
   <Reference name="OpenMetaverseTypes.dll"/>
 
   <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Data"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-  <Reference name="OpenSim.Server.Base"/>
-  <Reference name="OpenSim.Server.Handlers"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Services.Interfaces"/>
-  <Reference name="OpenSim.Services.AuthenticationService"/>
-  <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
-
-  <Reference name="Diva.Wifi.ScriptEngine"/>
-  <Reference name="Diva.Wifi.UserAccountService"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

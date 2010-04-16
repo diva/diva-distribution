@@ -47,6 +47,7 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
+using Diva.Wifi.WiUserAccountService;
 
 namespace Diva.Wifi
 {
@@ -56,7 +57,7 @@ namespace Diva.Wifi
 
         private WebApp m_WebApp;
         
-        private IUserAccountService m_UserAccountService;
+        private WifiUserAccountService m_UserAccountService;
         private IAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
 
@@ -70,7 +71,7 @@ namespace Diva.Wifi
             m_WebApp = webApp;
 
             // Create the necessary services
-            m_UserAccountService = new UserAccountService(config);
+            m_UserAccountService = new WifiUserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
 
