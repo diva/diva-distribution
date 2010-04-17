@@ -49,6 +49,9 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
+    /// <summary>
+    /// The handler for the HTTP GET method on the resource /wifi/admin/users
+    /// </summary>
     public class WifiUserManagementGetHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -66,9 +69,8 @@ namespace Diva.Wifi
         {
             // path = /wifi/...
             //m_log.DebugFormat("[Wifi]: path = {0}", path);
-            //m_log.DebugFormat("[Wifi]: ip address = {0}", httpRequest.RemoteIPEndPoint);
-            //foreach (object o in httpRequest.Query.Keys)
-            //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
+
+            // This is the content type of the response. Don't forget to set it to this in all your handlers.
             httpResponse.ContentType = "text/html";
 
             string resource = GetParam(path);
@@ -77,15 +79,21 @@ namespace Diva.Wifi
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = string.Empty;
-            if (resource.Equals("/"))
+            if (resource.Equals("/") || resource.Equals(string.Empty))
+                // client invoked /wifi/admin/users/ with no further parameters
                 result = m_WebApp.Services.UserManagementGetRequest(env);
 
             else if (resource.StartsWith("/edit"))
             {
+                // client invoked /wifi/admin/users/edit, possibly with the UUID parameter after
                 UUID userID = UUID.Zero;
+                // SplitParams(path) returns an array of whatever parameters come after the path.
+                // In this case it should return "edit" and "<uuid>"; we want "<uuid>", so [1]
                 string[] pars = SplitParams(path);
                 if (pars.Length >= 2)
                 {
+                    // indeed, client invoked /wifi/admin/users/edit/<uuid>
+                    // let's grab that uuid 
                     UUID.TryParse(pars[1], out userID);
                     result = m_WebApp.Services.UserEditGetRequest(env, userID);
                 }
@@ -97,6 +105,9 @@ namespace Diva.Wifi
 
     }
 
+    /// <summary>
+    /// The handler for the HTTP POST method on the resource /wifi/admin/users
+    /// </summary>
     public class WifiUserManagementPostHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -112,6 +123,7 @@ namespace Diva.Wifi
         public override byte[] Handle(string path, Stream requestData,
                 OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
+            // It's a POST, so we need to read the data on the stream, the lines after the blank line
             StreamReader sr = new StreamReader(requestData);
             string body = sr.ReadToEnd();
             sr.Close();
@@ -120,60 +132,63 @@ namespace Diva.Wifi
             httpResponse.ContentType = "text/html";
 
             string resource = GetParam(path);
-            m_log.DebugFormat("[XXX]: query String: {0}; resource: {1}", body, resource);
+            //m_log.DebugFormat("[XXX]: query String: {0}; resource: {1}", body, resource);
 
             try
             {
-                Dictionary<string, object> request =
+                // Here the data on the stream is transformed into a nice dictionary of keys & values
+                Dictionary<string, object> postdata =
                         ServerUtils.ParseQueryString(body);
-
 
                 Request req = WifiUtils.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = string.Empty;
-                if (resource.Equals("/"))
+                if (resource.Equals("/") || resource.Equals(string.Empty))
                 {
+                    // The client invoked /wifi/admin/users/
                     string terms = String.Empty;
-                    if (request.ContainsKey("terms"))
-                        terms = request["terms"].ToString();
+                    if (postdata.ContainsKey("terms"))
+                        terms = postdata["terms"].ToString();
 
                     result = m_WebApp.Services.UserSearchPostRequest(env, terms);
                 }
                 else if (resource.StartsWith("/edit"))
                 {
+                    // The client invoked /wifi/admin/users/edit, possibly with the UUID parameter after
                     UUID userID = UUID.Zero;
                     string[] pars = SplitParams(path);
                     if ((pars.Length >= 2) && UUID.TryParse(pars[1], out userID))
                     {
+                        // Indeed the client invoked /wifi/admin/users/edit/<uuid>, and we got it already in userID (above)
                         string form = string.Empty;
-                        if (request.ContainsKey("form"))
-                            form = request["form"].ToString();
+                        if (postdata.ContainsKey("form"))
+                            form = postdata["form"].ToString();
                         if (form == "1")
                         {
                             string first = string.Empty, last = string.Empty, email = string.Empty, title = string.Empty;
                             int level = 0, flags = 0;
-                            if (request.ContainsKey("first"))
-                                first = request["first"].ToString();
-                            if (request.ContainsKey("last"))
-                                last = request["last"].ToString();
-                            if (request.ContainsKey("email"))
-                                email = request["email"].ToString();
-                            if (request.ContainsKey("title"))
-                                title = request["title"].ToString();
-                            if (request.ContainsKey("level"))
-                                Int32.TryParse(request["level"].ToString(), out level);
-                            if (request.ContainsKey("flags"))
-                                Int32.TryParse(request["flags"].ToString(), out flags);
+                            if (postdata.ContainsKey("first"))
+                                first = postdata["first"].ToString();
+                            if (postdata.ContainsKey("last"))
+                                last = postdata["last"].ToString();
+                            if (postdata.ContainsKey("email"))
+                                email = postdata["email"].ToString();
+                            if (postdata.ContainsKey("title"))
+                                title = postdata["title"].ToString();
+                            if (postdata.ContainsKey("level"))
+                                Int32.TryParse(postdata["level"].ToString(), out level);
+                            if (postdata.ContainsKey("flags"))
+                                Int32.TryParse(postdata["flags"].ToString(), out flags);
 
                             result = m_WebApp.Services.UserEditPostRequest(env, userID, first, last, email, level, flags, title);
                         }
                         else if (form == "2")
                         {
                             string password = string.Empty;
-                            if (request.ContainsKey("password"))
+                            if (postdata.ContainsKey("password"))
                             {
-                                password = request["password"].ToString();
+                                password = postdata["password"].ToString();
                                 result = m_WebApp.Services.UserEditPostRequest(env, userID, password);
                             }
                         }
