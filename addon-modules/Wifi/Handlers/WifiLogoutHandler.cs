@@ -70,12 +70,21 @@ namespace Diva.Wifi
             //foreach (object o in httpRequest.Query.Keys)
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            string result = string.Empty;
+            try
+            {
+                Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = m_WebApp.Services.LogoutRequest(env);
+                result = m_WebApp.Services.LogoutRequest(env);
 
-            httpResponse.ContentType = "text/html";
+                httpResponse.ContentType = "text/html";
+            }
+            catch (Exception e)
+            {
+                m_log.DebugFormat("[LOGOUT HANDLER]: Exception {0}: {1}", e.Message, e.StackTrace);
+            }
+
             return WifiUtils.StringToBytes(result);
 
         }
