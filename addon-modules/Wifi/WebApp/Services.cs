@@ -47,6 +47,7 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
+using Diva.Wifi.WiUserAccountService;
 
 namespace Diva.Wifi
 {
@@ -56,7 +57,7 @@ namespace Diva.Wifi
 
         private WebApp m_WebApp;
         
-        private IUserAccountService m_UserAccountService;
+        private WifiUserAccountService m_UserAccountService;
         private IAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
 
@@ -70,7 +71,7 @@ namespace Diva.Wifi
             m_WebApp = webApp;
 
             // Create the necessary services
-            m_UserAccountService = new UserAccountService(config);
+            m_UserAccountService = new WifiUserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
 
@@ -394,6 +395,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
+                env.Session = sinfo; 
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
@@ -411,6 +413,8 @@ namespace Diva.Wifi
                 }
                 else
                     m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");

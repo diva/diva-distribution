@@ -1,5 +1,5 @@
 <!-- Diva.Wifi.ScriptEngine -->
-<Project frameworkVersion="v3_5" name="Diva.Wifi.ScriptEngine" path="addon-modules/WifiScriptEngine" type="Library">
+<Project frameworkVersion="v3_5" name="Diva.Wifi.ScriptEngine" path="addon-modules/2WifiScriptEngine" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
