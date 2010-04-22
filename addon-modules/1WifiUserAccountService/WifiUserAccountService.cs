@@ -50,8 +50,7 @@ namespace Diva.Wifi.WiUserAccountService
 
         public bool DeleteAccount(UUID scopeID, UUID userID)
         {
-            string user = userID.ToString();
-            return m_Database.Delete("PrincipalID", user);
+            return m_Database.Delete("PrincipalID", userID.ToString());
         }
     }
 }
