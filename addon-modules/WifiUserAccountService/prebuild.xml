@@ -1,5 +1,5 @@
 <!-- Diva.WifiUserAccountService -->
-<Project frameworkVersion="v3_5" name="Diva.Wifi.UserAccountService" path="addon-modules/1WifiUserAccountService" type="Library">
+<Project frameworkVersion="v3_5" name="Diva.Wifi.UserAccountService" path="addon-modules/WifiUserAccountService" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
