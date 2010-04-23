@@ -5,6 +5,39 @@
 	<link rel="stylesheet" media="screen" type="text/css" href="/wifi/style.css" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
+<script type="text/javascript">
+function http_put()
+{
+  var first = document.form_put.first.value;
+  var last = document.form_put.last.value;
+  var data = 'first=' + first + '&last=' + last;
+  try {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("PUT", "@@wifi@@/wifi/admin/users/<!-- #get field=PrincipalID -->", false);
+    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    xmlhttp.send(data);
+    if (xmlhttp.readyState == 4) {
+        if (xmlhttp.status == 200) {
+           document.open();
+           document.write(xmlhttp.responseText);
+           document.close();
+        }
+    }
+  } catch (error) {
+    alert("Exception " + error.message);
+  }
+}
+</script>
+
+<script type="text/javascript">
+function http_delete()
+{
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open("DELETE", "@@wifi@@/wifi/admin/users/<!-- #get field=PrincipalID -->", false);
+  xmlhttp.send(null);
+}
+</script>
+
   </head>
 
 
