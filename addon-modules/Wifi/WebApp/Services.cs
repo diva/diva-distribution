@@ -450,6 +450,7 @@ namespace Diva.Wifi
         // <a href="wifi/..." ...>
         static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
         static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+\\\")).*>");
+        static Regex xmlhttprequest = new Regex("(@@wifi@@(\\S+\\\"))");
 
         private string PadURLs(Environment env, string sid, string html)
         {
@@ -459,9 +460,10 @@ namespace Diva.Wifi
             // The user is logged in
             HashSet<string> uris = new HashSet<string>();
             MatchCollection matches_href = href.Matches(html);
-            m_log.DebugFormat("[WebApp]: Matched uris {0}", matches_href.Count);
             MatchCollection matches_action = action.Matches(html);
-            m_log.DebugFormat("[WebApp]: Matched uris {0}", matches_action.Count);
+            MatchCollection matches_xmlhttprequest = xmlhttprequest.Matches(html);
+            m_log.DebugFormat("[WebApp]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
+
             foreach (Match match in matches_href)
             {
                 // first group is always the total match
@@ -484,6 +486,17 @@ namespace Diva.Wifi
                         uris.Add(str);
                 }
             }
+            foreach (Match match in matches_xmlhttprequest)
+            {
+                // first group is always the total match
+                if (match.Groups.Count > 2)
+                {
+                    string str = match.Groups[1].Value;
+                    string uri = match.Groups[2].Value;
+                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css"))
+                        uris.Add(str);
+                }
+            }
 
             foreach (string uri in uris)
             {
@@ -494,6 +507,8 @@ namespace Diva.Wifi
                 else
                     html = html.Replace(uri, uri2 + "?sid=" + sid + "\"");
             }
+            // Remove any @@wifi@@
+            html = html.Replace("@@wifi@@", string.Empty);
 
             return html;
         }
