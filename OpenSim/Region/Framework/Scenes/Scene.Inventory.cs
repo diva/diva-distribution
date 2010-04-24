@@ -63,6 +63,7 @@ namespace OpenSim.Region.Framework.Scenes
                 if (group is SceneObjectGroup)
                 {
                     ((SceneObjectGroup) group).CreateScriptInstances(0, false, DefaultScriptEngine, 0);
+                    ((SceneObjectGroup) group).ResumeScripts();
                 }
             }
         }
@@ -201,7 +202,9 @@ namespace OpenSim.Region.Framework.Scenes
 
             // Update item with new asset
             item.AssetID = asset.FullID;
-            group.UpdateInventoryItem(item);
+            if (group.UpdateInventoryItem(item))
+                remoteClient.SendAgentAlertMessage("Notecard saved", false);                        
+            
             part.GetProperties(remoteClient);
 
             // Trigger rerunning of script (use TriggerRezScript event, see RezScript)
@@ -218,6 +221,7 @@ namespace OpenSim.Region.Framework.Scenes
             {
                 remoteClient.SendAgentAlertMessage("Script saved", false);
             }
+            part.ParentGroup.ResumeScripts();
             return errors;
         }
 
@@ -1224,7 +1228,10 @@ namespace OpenSim.Region.Framework.Scenes
                             remoteClient, part, transactionID, currentItem);
                     }
                     if (part.Inventory.UpdateInventoryItem(itemInfo))
+                    {
+                        remoteClient.SendAgentAlertMessage("Notecard saved", false);                        
                         part.GetProperties(remoteClient);
+                    }
                 }
             }
             else
@@ -1276,6 +1283,7 @@ namespace OpenSim.Region.Framework.Scenes
                         //                                         "Rezzed script {0} into prim local ID {1} for user {2}",
                         //                                         item.inventoryName, localID, remoteClient.Name);
                         part.GetProperties(remoteClient);
+                        part.ParentGroup.ResumeScripts();
                     }
                     else
                     {
@@ -1345,6 +1353,7 @@ namespace OpenSim.Region.Framework.Scenes
                 part.GetProperties(remoteClient);
 
                 part.Inventory.CreateScriptInstance(taskItem, 0, false, DefaultScriptEngine, 0);
+                part.ParentGroup.ResumeScripts();
             }
         }
 
@@ -1447,6 +1456,8 @@ namespace OpenSim.Region.Framework.Scenes
             {
                 destPart.Inventory.CreateScriptInstance(destTaskItem, start_param, false, DefaultScriptEngine, 0);
             }
+
+            destPart.ParentGroup.ResumeScripts();
 
             ScenePresence avatar;
 
