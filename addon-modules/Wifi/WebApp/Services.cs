@@ -41,13 +41,11 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-using OpenSim.Services.AuthenticationService;
-using OpenSim.Services.UserAccountService;
 using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
-using Diva.Wifi.WiUserAccountService;
+using Diva.OpenSimServices;
 
 namespace Diva.Wifi
 {
@@ -57,8 +55,8 @@ namespace Diva.Wifi
 
         private WebApp m_WebApp;
         
-        private WifiUserAccountService m_UserAccountService;
-        private IAuthenticationService m_AuthenticationService;
+        private UserAccountService m_UserAccountService;
+        private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
 
         // Sessions
@@ -71,7 +69,7 @@ namespace Diva.Wifi
             m_WebApp = webApp;
 
             // Create the necessary services
-            m_UserAccountService = new WifiUserAccountService(config);
+            m_UserAccountService = new UserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
 

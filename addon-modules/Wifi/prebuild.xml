@@ -29,12 +29,12 @@
   <Reference name="OpenSim.Server.Handlers"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Services.Interfaces"/>
-  <Reference name="OpenSim.Services.AuthenticationService"/>
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
+  <Reference name="OpenSim.Services.AuthenticationService"/>
 
   <Reference name="Diva.Wifi.ScriptEngine"/>
-  <Reference name="Diva.Wifi.UserAccountService"/>
+  <Reference name="Diva.OpenSimServices"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

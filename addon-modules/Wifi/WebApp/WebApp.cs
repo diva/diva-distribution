@@ -41,8 +41,6 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-using OpenSim.Services.AuthenticationService;
-using OpenSim.Services.UserAccountService;
 using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
