@@ -142,6 +142,11 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
                 if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
                     return "The account has been updated.";
+
+                if ((env.Flags & StateFlags.ServerManagementForm) != 0)
+                    return GetServerManagementForm(env);
+                if ((env.Flags & StateFlags.ServerManagementShutdownSuccessful) != 0)
+                    return "The server has been successfully shutdown. Back to <a href=\"/wifi/admin/server\">Server Management Page</a>";
             }
 
             return string.Empty;
@@ -229,6 +234,11 @@ namespace Diva.Wifi
             }
 
             return retString;
+        }
+
+        private string GetServerManagementForm(Environment env)
+        {
+            return m_WebApp.ReadFile(env, "server-admin-form.html", env.Data);
         }
 
     }

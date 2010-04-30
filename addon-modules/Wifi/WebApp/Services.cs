@@ -37,6 +37,7 @@ using System.Web;
 using Nini.Config;
 using log4net;
 using OpenMetaverse;
+using Nwc.XmlRpc;
 
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
@@ -45,6 +46,7 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
+
 using Diva.OpenSimServices;
 
 namespace Diva.Wifi
@@ -59,6 +61,8 @@ namespace Diva.Wifi
         private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
 
+        private string m_ServerAdminPassword;
+
         // Sessions
         private Dictionary<string, SessionInfo> m_Sessions = new Dictionary<string, SessionInfo>();
 
@@ -67,6 +71,10 @@ namespace Diva.Wifi
             m_log.Debug("[Services]: Starting...");
 
             m_WebApp = webApp;
+
+            // Read config
+            IConfig appConfig = config.Configs[configName];
+            m_ServerAdminPassword = appConfig.GetString("ServerAdminPassword", "secret");
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -161,7 +169,7 @@ namespace Diva.Wifi
         {
             m_log.DebugFormat("[WebApp]: LoginRequest {0} {1}", first, last);
             Request request = env.Request;
-            string encpass = Util.Md5Hash(password);
+            string encpass = OpenSim.Framework.Util.Md5Hash(password);
 
             UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
             if (account == null)
@@ -252,7 +260,7 @@ namespace Diva.Wifi
                     updated = true;
                 }
 
-                string encpass = Util.Md5Hash(oldpassword);
+                string encpass = OpenSim.Framework.Util.Md5Hash(oldpassword);
                 if ((newpassword != string.Empty) && (newpassword == newpassword2) &&
                     m_AuthenticationService.Authenticate(sinfo.Account.PrincipalID, encpass, 30) != string.Empty)
                 {
@@ -442,6 +450,62 @@ namespace Diva.Wifi
 
             return m_WebApp.ReadFile(env, "index.html");
 
+        }
+
+        public string ServerManagementShutdownPostRequest(Environment env)
+        {
+            m_log.DebugFormat("[WebApp]: ServerManagementShutdownPostRequest");
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo; 
+                env.Flags = StateFlags.ServerManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+
+                //FIXME: don't hardcode url, get it from m_GridService
+                //TODO: check if server is actually running first
+                //TODO: add support for shutdown message parameter from html form
+                string url = "localhost:9000";
+                Hashtable hash = new Hashtable();
+                hash["password"] = m_ServerAdminPassword;
+                IList paramList = new ArrayList();
+                paramList.Add(hash);
+                XmlRpcRequest xmlrpcReq = new XmlRpcRequest("admin_shutdown", paramList);
+
+                XmlRpcResponse response = null;
+                try
+                {
+                    response = xmlrpcReq.Send(url, 10000);
+                }
+                catch (Exception e)
+                {
+                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+
+        }
+
+        public string ServerManagementGetRequest(Environment env)
+        {
+            m_log.DebugFormat("[WebApp]: ServerManagementGetRequest");
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.ServerManagementForm;
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
         }
 
 
