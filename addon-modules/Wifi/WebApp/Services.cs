@@ -43,9 +43,11 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.InventoryService;
+using OpenSim.Services.GridService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
+using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
 using Diva.OpenSimServices;
 
@@ -60,6 +62,7 @@ namespace Diva.Wifi
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
+        private IGridService m_GridService;
 
         private string m_ServerAdminPassword;
 
@@ -80,6 +83,7 @@ namespace Diva.Wifi
             m_UserAccountService = new UserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
+            m_GridService = new GridService(config);
 
             // Create the "God" account if it doesn't exist
             CreateGod();
@@ -498,7 +502,9 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
+                List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
                 env.Session = sinfo;
+                env.Data = Objectify(regions);
                 env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }

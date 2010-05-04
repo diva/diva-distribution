@@ -33,6 +33,7 @@
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
   <Reference name="OpenSim.Services.AuthenticationService"/>
+  <Reference name="OpenSim.Services.GridService"/>
 
   <Reference name="Diva.Wifi.ScriptEngine"/>
   <Reference name="Diva.OpenSimServices"/>
