@@ -452,16 +452,16 @@ namespace Diva.Wifi
 
         }
 
-        public string ServerManagementShutdownPostRequest(Environment env)
+        public string RegionManagementShutdownPostRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: ServerManagementShutdownPostRequest");
+            m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
                 env.Session = sinfo; 
-                env.Flags = StateFlags.ServerManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
 
                 //FIXME: don't hardcode url, get it from m_GridService
                 //TODO: check if server is actually running first
@@ -490,16 +490,16 @@ namespace Diva.Wifi
 
         }
 
-        public string ServerManagementGetRequest(Environment env)
+        public string RegionManagementGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: ServerManagementGetRequest");
+            m_log.DebugFormat("[WebApp]: RegionManagementGetRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
                 env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.ServerManagementForm;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else

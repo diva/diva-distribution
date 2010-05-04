@@ -143,10 +143,10 @@ namespace Diva.Wifi
                 if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
                     return "The account has been updated.";
 
-                if ((env.Flags & StateFlags.ServerManagementForm) != 0)
-                    return GetServerManagementForm(env);
-                if ((env.Flags & StateFlags.ServerManagementShutdownSuccessful) != 0)
-                    return "The server has been successfully shutdown. Back to <a href=\"/wifi/admin/server\">Server Management Page</a>";
+                if ((env.Flags & StateFlags.RegionManagementForm) != 0)
+                    return GetRegionManagementForm(env);
+                if ((env.Flags & StateFlags.RegionManagementShutdownSuccessful) != 0)
+                    return "The server has been successfully shutdown. Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
             }
 
             return string.Empty;
@@ -236,7 +236,7 @@ namespace Diva.Wifi
             return retString;
         }
 
-        private string GetServerManagementForm(Environment env)
+        private string GetRegionManagementForm(Environment env)
         {
             return m_WebApp.ReadFile(env, "server-admin-form.html", env.Data);
         }

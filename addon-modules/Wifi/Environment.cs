@@ -94,7 +94,7 @@ namespace Diva.Wifi
         UserSearchFormResponse = 2048,
         UserEditForm = 4096,
         UserEditFormResponse = 8192,
-        ServerManagementForm = 16384,
-        ServerManagementShutdownSuccessful = 32768
+        RegionManagementForm = 16384,
+        RegionManagementShutdownSuccessful = 32768
     }
 }
