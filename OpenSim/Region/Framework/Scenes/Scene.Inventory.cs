@@ -415,6 +415,25 @@ namespace OpenSim.Region.Framework.Scenes
                     itemCopy.BasePermissions = item.BasePermissions;
                 }
                 
+                if (itemCopy.Folder == UUID.Zero)
+                {
+                    InventoryFolderBase folder = InventoryService.GetFolderForType(recipient, (AssetType)itemCopy.AssetType);
+
+                    if (folder != null)
+                    {
+                        itemCopy.Folder = folder.ID;
+                    }
+                    else
+                    {
+                        InventoryFolderBase root = InventoryService.GetRootFolder(recipient);
+
+                        if (root != null)
+                            itemCopy.Folder = root.ID;
+                        else
+                            return null; // No destination
+                    }
+                }
+
                 itemCopy.GroupID = UUID.Zero;
                 itemCopy.GroupOwned = false;
                 itemCopy.Flags = item.Flags;
@@ -1135,6 +1154,21 @@ namespace OpenSim.Region.Framework.Scenes
             if (folder == null)
                 return;
 
+            // TODO: This code for looking in the folder for the library should be folded somewhere else
+            // so that this class doesn't have to know the details (and so that multiple libraries, etc.
+            // can be handled transparently).
+            InventoryFolderImpl fold = null;
+            if (LibraryService != null && LibraryService.LibraryRootFolder != null)
+            {
+                if ((fold = LibraryService.LibraryRootFolder.FindFolder(folder.ID)) != null)
+                {
+                    client.SendInventoryFolderDetails(
+                        fold.Owner, folder.ID, fold.RequestListOfItems(),
+                        fold.RequestListOfFolders(), fold.Version, fetchFolders, fetchItems);
+                    return;
+                }
+            }
+
             // Fetch the folder contents
             InventoryCollection contents = InventoryService.GetFolderContent(client.AgentId, folder.ID);
 
@@ -1145,7 +1179,7 @@ namespace OpenSim.Region.Framework.Scenes
             //m_log.DebugFormat("[AGENT INVENTORY]: Sending inventory folder contents ({0} nodes) for \"{1}\" to {2} {3}",
             //    contents.Folders.Count + contents.Items.Count, containingFolder.Name, client.FirstName, client.LastName);
 
-            if (containingFolder != null)
+            if (containingFolder != null && containingFolder != null)
                 client.SendInventoryFolderDetails(client.AgentId, folder.ID, contents.Items, contents.Folders, containingFolder.Version, fetchFolders, fetchItems);
         }
 
@@ -1940,6 +1974,74 @@ namespace OpenSim.Region.Framework.Scenes
                 SceneObjectPart part = GetSceneObjectPart(localID);
                 part.GetProperties(remoteClient);
             }
+        }
+
+        public void DelinkObjects(List<uint> primIds, IClientAPI client)
+        {
+            List<SceneObjectPart> parts = new List<SceneObjectPart>();
+
+            foreach (uint localID in primIds)
+            {
+                SceneObjectPart part = GetSceneObjectPart(localID);
+
+                if (part == null)
+                    continue;
+
+                if (Permissions.CanDelinkObject(client.AgentId, part.ParentGroup.RootPart.UUID))
+                    parts.Add(part);
+            }
+
+            m_sceneGraph.DelinkObjects(parts);
+        }
+
+        public void LinkObjects(IClientAPI client, uint parentPrimId, List<uint> childPrimIds)
+        {
+            List<UUID> owners = new List<UUID>();
+
+            List<SceneObjectPart> children = new List<SceneObjectPart>();
+            SceneObjectPart root = GetSceneObjectPart(parentPrimId);
+
+            if (root == null)
+            {
+                m_log.DebugFormat("[LINK]: Can't find linkset root prim {0{", parentPrimId);
+                return;
+            }
+
+            if (!Permissions.CanLinkObject(client.AgentId, root.ParentGroup.RootPart.UUID))
+            {
+                m_log.DebugFormat("[LINK]: Refusing link. No permissions on root prim");
+                return;
+            }
+
+            foreach (uint localID in childPrimIds)
+            {
+                SceneObjectPart part = GetSceneObjectPart(localID);
+
+                if (part == null)
+                    continue;
+
+                if (!owners.Contains(part.OwnerID))
+                    owners.Add(part.OwnerID);
+
+                if (Permissions.CanLinkObject(client.AgentId, part.ParentGroup.RootPart.UUID))
+                    children.Add(part);
+            }
+
+            // Must be all one owner
+            //
+            if (owners.Count > 1)
+            {
+                m_log.DebugFormat("[LINK]: Refusing link. Too many owners");
+                return;
+            }
+
+            if (children.Count == 0)
+            {
+                m_log.DebugFormat("[LINK]: Refusing link. No permissions to link any of the children");
+                return;
+            }
+
+            m_sceneGraph.LinkObjects(root, children);
         }
     }
 }

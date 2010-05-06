@@ -86,7 +86,7 @@ namespace OpenSim.Server.Handlers.Login
                     m_log.InfoFormat("[LOGIN]: XMLRPC Login Requested for {0} {1}, starting in {2}, using {3}", first, last, startLocation, clientVersion);
 
                     LoginResponse reply = null;
-                    reply = m_LocalService.Login(first, last, passwd, startLocation, scopeID, remoteClient);
+                    reply = m_LocalService.Login(first, last, passwd, startLocation, scopeID, clientVersion, remoteClient);
 
                     XmlRpcResponse response = new XmlRpcResponse();
                     response.Value = reply.ToHashtable();
@@ -96,6 +96,43 @@ namespace OpenSim.Server.Handlers.Login
             }
 
             return FailedXMLRPCResponse();
+
+        }
+
+        public XmlRpcResponse HandleXMLRPCSetLoginLevel(XmlRpcRequest request, IPEndPoint remoteClient)
+        {
+            Hashtable requestData = (Hashtable)request.Params[0];
+
+            if (requestData != null)
+            {
+                if (requestData.ContainsKey("first") && requestData["first"] != null &&
+                    requestData.ContainsKey("last") && requestData["last"] != null &&
+                    requestData.ContainsKey("level") && requestData["level"] != null &&
+                    requestData.ContainsKey("passwd") && requestData["passwd"] != null)
+                {
+                    string first = requestData["first"].ToString();
+                    string last = requestData["last"].ToString();
+                    string passwd = requestData["passwd"].ToString();
+                    int level = Int32.Parse(requestData["level"].ToString());
+
+                    m_log.InfoFormat("[LOGIN]: XMLRPC Set Level to {2} Requested by {0} {1}", first, last, level);
+
+                    Hashtable reply = m_LocalService.SetLevel(first, last, passwd, level, remoteClient);
+
+                    XmlRpcResponse response = new XmlRpcResponse();
+                    response.Value = reply;
+
+                    return response;
+
+                }
+            }
+
+            XmlRpcResponse failResponse = new XmlRpcResponse();
+            Hashtable failHash = new Hashtable();
+            failHash["success"] = "false";
+            failResponse.Value = failHash;
+
+            return failResponse;
 
         }
 
@@ -120,7 +157,7 @@ namespace OpenSim.Server.Handlers.Login
                     m_log.Info("[LOGIN]: LLSD Login Requested for: '" + map["first"].AsString() + "' '" + map["last"].AsString() + "' / " + startLocation);
 
                     LoginResponse reply = null;
-                    reply = m_LocalService.Login(map["first"].AsString(), map["last"].AsString(), map["passwd"].AsString(), startLocation, scopeID, remoteClient);
+                    reply = m_LocalService.Login(map["first"].AsString(), map["last"].AsString(), map["passwd"].AsString(), startLocation, scopeID, String.Empty, remoteClient);
                     return reply.ToOSDMap();
 
                 }

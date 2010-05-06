@@ -29,14 +29,18 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
+using log4net;
 using OpenMetaverse;
 using OpenSim.Framework;
-using Mono.Data.Sqlite;
+using Mono.Data.SqliteClient;
 
-namespace OpenSim.Data.SQLiteNG
+namespace OpenSim.Data.SQLiteLegacy
 {
     public class SQLiteAuthenticationData : SQLiteFramework, IAuthenticationData
     {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        
         private string m_Realm;
         private List<string> m_ColumnNames;
         private int m_LastExpire;
@@ -56,8 +60,13 @@ namespace OpenSim.Data.SQLiteNG
                 m_Connection = new SqliteConnection(connectionString);
                 m_Connection.Open();
 
-                Migration m = new Migration(m_Connection, GetType().Assembly, "AuthStore");
-                m.Update();
+                using (SqliteConnection dbcon = (SqliteConnection)((ICloneable)m_Connection).Clone())
+                {
+                    dbcon.Open();
+                    Migration m = new Migration(dbcon, GetType().Assembly, "AuthStore");
+                    m.Update();
+                    dbcon.Close();
+                }
 
                 m_initialized = true;
             }
@@ -108,7 +117,7 @@ namespace OpenSim.Data.SQLiteNG
             }
             finally
             {
-                //CloseCommand(cmd);
+                CloseCommand(cmd);
             }
 
             return null;
@@ -151,14 +160,14 @@ namespace OpenSim.Data.SQLiteNG
                 {
                     if (ExecuteNonQuery(cmd, m_Connection) < 1)
                     {
-                        //CloseCommand(cmd);
+                        CloseCommand(cmd);
                         return false;
                     }
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e.ToString());
-                    //CloseCommand(cmd);
+                    m_log.Error("[SQLITE]: Exception storing authentication data", e);
+                    CloseCommand(cmd);
                     return false;
                 }
             }
@@ -179,19 +188,19 @@ namespace OpenSim.Data.SQLiteNG
                 {
                     if (ExecuteNonQuery(cmd, m_Connection) < 1)
                     {
-                        //CloseCommand(cmd);
+                        CloseCommand(cmd);
                         return false;
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e.ToString());
-                    //CloseCommand(cmd);
+                    CloseCommand(cmd);
                     return false;
                 }
             }
 
-            //CloseCommand(cmd);
+            CloseCommand(cmd);
 
             return true;
         }

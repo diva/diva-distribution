@@ -29,7 +29,7 @@ using System;
 using System.Data;
 using System.Reflection;
 using System.Collections.Generic;
-using Mono.Data.SqliteClient;
+using Mono.Data.Sqlite;
 using log4net;
 using OpenMetaverse;
 using OpenSim.Framework;
@@ -49,7 +49,7 @@ namespace OpenSim.Data.SQLite
         public SQLiteXInventoryData(string conn, string realm)
         {
             m_Folders = new SQLiteGenericTableHandler<XInventoryFolder>(
-                    conn, "inventoryfolders", "InventoryStore");
+                    conn, "inventoryfolders", "XInventoryStore");
             m_Items = new SqliteItemHandler(
                     conn, "inventoryitems", String.Empty);
         }
@@ -147,7 +147,7 @@ namespace OpenSim.Data.SQLite
             }
 
             reader.Close();
-            CloseCommand(cmd);
+            //CloseCommand(cmd);
 
             return perms;
         }
