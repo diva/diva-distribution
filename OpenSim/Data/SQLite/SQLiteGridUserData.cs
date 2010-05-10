@@ -26,55 +26,36 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
+using System.Threading;
+using log4net;
 using OpenMetaverse;
 using OpenSim.Framework;
-using System.Collections.Generic;
 
-namespace OpenSim.Services.Interfaces
+namespace OpenSim.Data.SQLite
 {
-    public class FriendInfo
+    /// <summary>
+    /// A SQL Interface for user grid data
+    /// </summary>
+    public class SQLiteGridUserData : SQLiteGenericTableHandler<GridUserData>, IGridUserData
     {
-        public UUID PrincipalID;
-        public string Friend;
-        public int MyFlags;
-        public int TheirFlags;
+//        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public FriendInfo()
+        public SQLiteGridUserData(string connectionString, string realm) 
+            : base(connectionString, realm, "GridUserStore") {}
+
+        public new GridUserData Get(string userID)
         {
+            GridUserData[] ret = Get("UserID", userID);
+
+            if (ret.Length == 0)
+                return null;
+
+            return ret[0];
         }
 
-        public FriendInfo(Dictionary<string, object> kvp)
-        {
-            PrincipalID = UUID.Zero;
-            if (kvp.ContainsKey("PrincipalID") && kvp["PrincipalID"] != null)
-                UUID.TryParse(kvp["PrincipalID"].ToString(), out PrincipalID);
-            Friend = string.Empty;
-            if (kvp.ContainsKey("Friend") && kvp["Friend"] != null)
-                Friend = kvp["Friend"].ToString();
-            MyFlags = 0;
-            if (kvp.ContainsKey("MyFlags") && kvp["MyFlags"] != null)
-                Int32.TryParse(kvp["MyFlags"].ToString(), out MyFlags);
-            TheirFlags = 0;
-            if (kvp.ContainsKey("TheirFlags") && kvp["TheirFlags"] != null)
-                Int32.TryParse(kvp["TheirFlags"].ToString(), out TheirFlags);
-        }
 
-        public Dictionary<string, object> ToKeyValuePairs()
-        {
-            Dictionary<string, object> result = new Dictionary<string, object>();
-            result["PrincipalID"] = PrincipalID.ToString();
-            result["Friend"] = Friend;
-            result["MyFlags"] = MyFlags.ToString();
-            result["TheirFlags"] = TheirFlags.ToString();
-
-            return result;
-        }
-    }
-
-    public interface IFriendsService
-    {
-        FriendInfo[] GetFriends(UUID PrincipalID);
-        bool StoreFriend(UUID PrincipalID, string Friend, int flags);
-        bool Delete(UUID PrincipalID, string Friend);
     }
 }
