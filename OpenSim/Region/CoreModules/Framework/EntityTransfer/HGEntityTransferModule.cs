@@ -154,7 +154,7 @@ namespace OpenSim.Region.CoreModules.Framework.EntityTransfer
                     bool success = connector.LoginAgentToGrid(agentCircuit, reg, finalDestination, out reason);
                     if (success)
                         // Log them out of this grid
-                        m_aScene.PresenceService.LogoutAgent(agentCircuit.SessionID, sp.AbsolutePosition, sp.Lookat);
+                        m_aScene.PresenceService.LogoutAgent(agentCircuit.SessionID);
 
                     return success;
                 }
@@ -238,6 +238,21 @@ namespace OpenSim.Region.CoreModules.Framework.EntityTransfer
         {
             if (obj.IsLoggingOut)
             {
+                object sp = null;
+                if (obj.Scene.TryGetScenePresence(obj.AgentId, out sp))
+                {
+                    if (((ScenePresence)sp).IsChildAgent)
+                        return;
+                }
+
+                // Let's find out if this is a foreign user or a local user
+                UserAccount account = m_aScene.UserAccountService.GetUserAccount(m_aScene.RegionInfo.ScopeID, obj.AgentId);
+                if (account != null)
+                {
+                    // local grid user
+                    return;
+                }
+
                 AgentCircuitData aCircuit = ((Scene)(obj.Scene)).AuthenticateHandler.GetAgentCircuitData(obj.CircuitCode);
 
                 if (aCircuit.ServiceURLs.ContainsKey("HomeURI"))
