@@ -98,6 +98,21 @@ namespace Diva.Wifi
                     result = m_WebApp.Services.UserEditGetRequest(env, userID);
                 }
             }
+            else if (resource.StartsWith("/delete"))
+            {
+                // client invoked /wifi/admin/users/delete, possibly with the UUID parameter after
+                UUID userID = UUID.Zero;
+                // SplitParams(path) returns an array of whatever parameters come after the path.
+                // In this case it should return "delete" and "<uuid>"; we want "<uuid>", so [1]
+                string[] pars = SplitParams(path);
+                if (pars.Length >= 2)
+                {
+                    // indeed, client invoked /wifi/admin/users/delete/<uuid>
+                    // let's grab that uuid 
+                    UUID.TryParse(pars[1], out userID);
+                    result = m_WebApp.Services.UserDeleteGetRequest(env, userID);
+                }
+            }
 
             return WifiUtils.StringToBytes(result);
 
@@ -168,11 +183,11 @@ namespace Diva.Wifi
                         {
                             string first = string.Empty, last = string.Empty, email = string.Empty, title = string.Empty;
                             int level = 0, flags = 0;
-                            if (postdata.ContainsKey("first"))
+                            if (postdata.ContainsKey("first") && WifiUtils.IsValidName(postdata["first"].ToString()))
                                 first = postdata["first"].ToString();
-                            if (postdata.ContainsKey("last"))
+                            if (postdata.ContainsKey("last") && WifiUtils.IsValidName(postdata["last"].ToString()))
                                 last = postdata["last"].ToString();
-                            if (postdata.ContainsKey("email"))
+                            if (postdata.ContainsKey("email") && WifiUtils.IsValidEmail(postdata["email"].ToString()))
                                 email = postdata["email"].ToString();
                             if (postdata.ContainsKey("title"))
                                 title = postdata["title"].ToString();
@@ -192,6 +207,22 @@ namespace Diva.Wifi
                                 result = m_WebApp.Services.UserEditPostRequest(env, userID, password);
                             }
                         }
+                    }
+                }
+                else if (resource.StartsWith("/delete"))
+                {
+                    // The client invoked /wifi/admin/users/edit, possibly with the UUID parameter after
+                    UUID userID = UUID.Zero;
+                    string[] pars = SplitParams(path);
+                    if ((pars.Length >= 2) && UUID.TryParse(pars[1], out userID))
+                    {
+                        // Indeed the client invoked /wifi/admin/users/edit/<uuid>, and we got it already in userID (above)
+                        string form = string.Empty;
+                        if (postdata.ContainsKey("form"))
+                            form = postdata["form"].ToString();
+                        if (form == "1")
+                                result = m_WebApp.Services.UserDeletePostRequest(env, userID);
+                         
                     }
                 }
 

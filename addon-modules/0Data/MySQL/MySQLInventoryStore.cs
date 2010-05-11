@@ -28,11 +28,14 @@
 using System;
 using System.Collections.Generic;
 
-using OpenSim.Data.SQLiteNG;
+using OpenSim.Data.MySQL;
 
-namespace Diva.Data.SQLite
+namespace Diva.Data.MySQL
 {
-    public class SQLiteEstateStore : OpenSim.Data.SQLiteNG.SQLiteEstateStore
+    /// <summary>
+    /// An Inventory Interface to the SQLite database
+    /// </summary>
+    public class MySQLInventoryStore : OpenSim.Data.MySQL.MySQLInventoryData
     {
     }
 }

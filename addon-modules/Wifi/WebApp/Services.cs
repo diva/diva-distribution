@@ -27,8 +27,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -53,12 +55,13 @@ using Diva.OpenSimServices;
 
 namespace Diva.Wifi
 {
-    public class Services 
+    public class Services
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
-        
+        private SmtpClient m_Client;
+
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
@@ -75,9 +78,8 @@ namespace Diva.Wifi
 
             m_WebApp = webApp;
 
-            // Read config
-            IConfig appConfig = config.Configs[configName];
-            m_ServerAdminPassword = appConfig.GetString("ServerAdminPassword", "secret");
+            m_ServerAdminPassword = webApp.RemoteAdminPassword;
+            m_log.DebugFormat("[Services]: RemoteAdminPassword is {0}", m_ServerAdminPassword);
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -87,6 +89,12 @@ namespace Diva.Wifi
 
             // Create the "God" account if it doesn't exist
             CreateGod();
+
+            // Connect to our outgoing mail server for password forgetfulness
+            m_Client = new SmtpClient(m_WebApp.SmtpHost, m_WebApp.SmtpPort);
+            m_Client.EnableSsl = true;
+            m_Client.Credentials = new NetworkCredential(m_WebApp.SmtpUsername, m_WebApp.SmtpPassword);
+            m_Client.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
         }
 
         private void CreateGod()
@@ -150,6 +158,12 @@ namespace Diva.Wifi
 
         public string InstallPostRequest(Environment env, string password, string password2)
         {
+            if(m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to change the god password in InstallPostRequest!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
             m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
             Request request = env.Request;
 
@@ -171,6 +185,12 @@ namespace Diva.Wifi
 
         public string LoginRequest(Environment env, string first, string last, string password)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+
             m_log.DebugFormat("[WebApp]: LoginRequest {0} {1}", first, last);
             Request request = env.Request;
             string encpass = OpenSim.Framework.Util.Md5Hash(password);
@@ -223,6 +243,12 @@ namespace Diva.Wifi
 
         public string UserAccountGetRequest(Environment env, UUID userID)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountGetRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
             m_log.DebugFormat("[WebApp]: UserAccountGetRequest");
             Request request = env.Request;
 
@@ -244,6 +270,11 @@ namespace Diva.Wifi
 
         public string UserAccountPostRequest(Environment env, UUID userID, string email, string oldpassword, string newpassword, string newpassword2)
         {
+			if(!m_WebApp.IsInstalled)
+			{
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountPostRequest and Wifi isn't isntalled!");
+				return m_WebApp.ReadFile(env, "index.html");
+			}
             m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
             Request request = env.Request;
 
@@ -301,6 +332,13 @@ namespace Diva.Wifi
 
         public string NewAccountPostRequest(Environment env, string first, string last, string email, string password, string password2)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access NewAccountPostRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
+
             m_log.DebugFormat("[WebApp]: NewAccountPostRequest");
             Request request = env.Request;
 
@@ -405,7 +443,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
-                env.Session = sinfo; 
+                env.Session = sinfo;
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
@@ -444,7 +482,7 @@ namespace Diva.Wifi
                 {
                     if (password != string.Empty)
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
-                    
+
                     env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                     m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
                 }
@@ -456,6 +494,157 @@ namespace Diva.Wifi
 
         }
 
+        public string UserDeleteGetRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserDeleteGetRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserDeleteForm;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    List<object> loo = new List<object>();
+                    loo.Add(account);
+                    env.Data = loo;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+        }
+
+
+        public string UserDeletePostRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserDeletePostRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+
+                    m_UserAccountService.DeleteAccount(UUID.Zero, userID);
+
+                    env.Flags = StateFlags.UserDeleteFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    m_log.DebugFormat("[WebApp]: Deleted account for user {0}", account.Name);
+                }
+                else
+                    m_log.DebugFormat("[WebApp]: Attempt at deleting an inexistent account");
+            }
+
+            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+
+        }
+
+        public string ForgotPasswordGetRequest(Environment env)
+        {
+            m_log.DebugFormat("[WebApp]: ForgotPasswordGetRequest");
+            env.Flags = StateFlags.ForgotPassword;
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        public string ForgotPasswordPostRequest(Environment env, string email)
+        {
+            UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
+            if (account != null)
+            {
+                string token = m_AuthenticationService.GetToken(account.PrincipalID, 60);
+                if (token != string.Empty)
+                {
+                    string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
+
+                    MailMessage msg = new MailMessage();
+                    msg.From = new MailAddress(m_WebApp.SmtpUsername);
+                    msg.To.Add(email);
+                    msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
+                    msg.Body = "Let's reset your password. Click here:\n\t";
+                    msg.Body += url;
+                    msg.Body += "\n\nDiva";
+                    m_Client.SendAsync(msg, email);
+
+                    return "<p>Check your email. You must reset your password within 60 minutes.</p>"; /// change this
+                }
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            String token = (string)e.UserState;
+
+            if (e.Cancelled)
+                m_log.DebugFormat("[ForgotPasswordService] [{0}] Send cancelled.", token);
+
+            if (e.Error != null)
+                m_log.DebugFormat("[ForgotPasswordService] [{0}] {1}", token, e.Error.ToString());
+            else
+                m_log.DebugFormat("[ForgotPasswordService] Password recovery message sent to " + token + ".");
+        }
+
+        public string RecoverPasswordGetRequest(Environment env, string email, string token)
+        {
+            UserAccount account = null;
+            if (IsValidToken(email, token, out account))
+            {
+                PasswordRecoveryData precovery = new PasswordRecoveryData(email, token);
+                env.Data = new List<object>();
+                env.Data.Add(precovery);
+                env.Flags = StateFlags.RecoveringPassword;
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+            else
+            {
+                return "<p>Invalid token.</p>";
+            }
+        }
+
+        public string RecoverPasswordPostRequest(Environment env, string email, string token, string newPassword)
+        {
+            if (newPassword == null || newPassword.Length == 0)
+            {
+                return "<p>You must enter <strong>some</strong> password!</p>";
+            }
+
+            ResetPassword(email, token, newPassword);
+            env.Flags = 0;
+            return "<p>Great success?</p>";
+            //return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        public void ResetPassword(string email, string token, string newPassword)
+        {
+            bool success = false;
+            UserAccount account = null;
+            if (IsValidToken(email, token, out account))
+                success = m_AuthenticationService.SetPassword(account.PrincipalID, newPassword);
+        
+            if (!success)
+                m_log.ErrorFormat("[ForgotPasswordService]: Unable to reset password for account uuid:{0}.", account.PrincipalID);
+            else
+                m_log.InfoFormat("[ForgotPasswordService]: Password reset for account uuid:{0}", account.PrincipalID);
+        }
+
+        private bool IsValidToken(string email, string token, out UserAccount account)
+        {
+            account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
+            if (account != null)
+                return (m_AuthenticationService.Verify(account.PrincipalID, token, 1));
+
+            return false;
+        }
+
         public string RegionManagementShutdownPostRequest(Environment env)
         {
             m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
@@ -464,14 +653,19 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
-                env.Session = sinfo; 
+                env.Session = sinfo;
                 env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
 
                 //FIXME: don't hardcode url, get it from m_GridService
                 //TODO: check if server is actually running first
                 //TODO: add support for shutdown message parameter from html form
-                string url = "localhost:9000";
+                string url = "http://localhost:9000";
                 Hashtable hash = new Hashtable();
+                if (m_ServerAdminPassword == null)
+                {
+                    m_log.Debug("[RegionManagementShutdownPostRequest] No remote admin password was set in .ini file");
+                }
+
                 hash["password"] = m_ServerAdminPassword;
                 IList paramList = new ArrayList();
                 paramList.Add(hash);
@@ -496,13 +690,20 @@ namespace Diva.Wifi
 
         public string RegionManagementGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: RegionManagementGetRequest");
+            m_log.DebugFormat("[Services]: RegionManagementGetRequest()");
             Request request = env.Request;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
                 List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
+
+                m_log.DebugFormat("[Services]: There are {0} regions", regions.Count);
+                regions.ForEach(delegate(GridRegion gg)
+                {
+                    m_log.DebugFormat("[Services] {0}", gg.RegionName);
+                });
+
                 env.Session = sinfo;
                 env.Data = Objectify(regions);
                 env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
@@ -605,7 +806,7 @@ namespace Diva.Wifi
 
 
         #region Misc
-        
+
         private void SetServiceURLs(UserAccount account)
         {
             account.ServiceURLs = new Dictionary<string, object>();
@@ -620,11 +821,21 @@ namespace Diva.Wifi
             foreach (T thing in listOfThings)
                 listOfObjects.Add(thing);
 
-            return listOfObjects;                
+            return listOfObjects;
         }
 
         #endregion Misc
 
     }
 
+    class PasswordRecoveryData
+    {
+        public string Email;
+        public string Token;
+
+        public PasswordRecoveryData(string e, string t)
+        {
+            Email = e; Token = t;
+        }
+    }
 }

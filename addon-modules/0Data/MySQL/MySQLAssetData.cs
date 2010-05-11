@@ -26,18 +26,18 @@
  */
 
 using System;
-using System.Collections;
+using System.Reflection;
 using System.Collections.Generic;
+using log4net;
 
-using OpenSim.Data.SQLiteNG;
+using OpenSim.Data.MySQL;
 
-namespace Diva.Data.SQLite
+namespace Diva.Data.MySQL
 {
-    public class SQLiteUserAccountData : OpenSim.Data.SQLiteNG.SQLiteUserAccountData
+    /// <summary>
+    /// An asset storage interface for the MySQL database system
+    /// </summary>
+    public class MySQLAssetData : OpenSim.Data.MySQL.MySQLAssetData
     {
-        public SQLiteUserAccountData(string connectionString, string realm)
-                : base(connectionString, realm)
-        {
-        }
     }
 }

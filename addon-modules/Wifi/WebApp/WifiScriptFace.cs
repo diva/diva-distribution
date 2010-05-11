@@ -114,6 +114,11 @@ namespace Diva.Wifi
             if ((env.Flags & StateFlags.InstallFormResponse) != 0)
                 return "Your Wifi has been installed. The administrator account is " + m_WebApp.AdminFirst + " " + m_WebApp.AdminLast;
 
+            if ((env.Flags & StateFlags.ForgotPassword) != 0)
+                return m_WebApp.ReadFile(env, "forgotpasswordform.html");
+            if ((env.Flags & StateFlags.RecoveringPassword) != 0)
+                return m_WebApp.ReadFile(env, "recoveringpassword.html");
+
             if ((env.Flags & StateFlags.FailedLogin) != 0)
                 return "Login failed";
             if ((env.Flags & StateFlags.SuccessfulLogin) != 0)
@@ -132,7 +137,7 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
                 if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
                     return "Your account has been updated.";
-            
+
                 if ((env.Flags & StateFlags.UserSearchForm) != 0)
                     return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
                 if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
@@ -142,6 +147,11 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
                 if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
                     return "The account has been updated.";
+                
+                if ((env.Flags & StateFlags.UserDeleteForm) != 0)
+                    return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
+                if ((env.Flags & StateFlags.UserDeleteFormResponse) != 0)
+                    return "The account has been deleted.";
 
                 if ((env.Flags & StateFlags.RegionManagementForm) != 0)
                     return GetRegionManagementForm(env);
@@ -201,7 +211,7 @@ namespace Diva.Wifi
                 if (sinfo.Account.Email == string.Empty)
                     return "No email on file";
 
-                return sinfo.Account.Email ;
+                return sinfo.Account.Email;
             }
 
             return "Who are you?";
@@ -238,7 +248,7 @@ namespace Diva.Wifi
 
         private string GetRegionManagementForm(Environment env)
         {
-            return m_WebApp.ReadFile(env, "server-admin-form.html", env.Data);
+            return m_WebApp.ReadFile(env, "region-form.html", env.Data);
         }
 
     }

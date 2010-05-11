@@ -48,7 +48,7 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
-    public class WebApp 
+    public class WebApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -104,6 +104,35 @@ namespace Diva.Wifi
         {
             get { return m_AdminEmail; }
         }
+        private string m_RemoteAdminPassword;
+        public string RemoteAdminPassword
+        {
+            get { return m_RemoteAdminPassword; }
+        }
+
+        private string m_SmtpHost;
+        public string SmtpHost
+        {
+            get { return m_SmtpHost; }
+        }
+
+        private int m_SmtpPort;
+        public int SmtpPort
+        {
+            get { return m_SmtpPort; }
+        }
+
+        private string m_SmtpUsername;
+        public string SmtpUsername
+        {
+            get { return m_SmtpUsername; }
+        }
+
+        private string m_SmtpPassword;
+        public string SmtpPassword
+        {
+            get { return m_SmtpPassword; }
+        }
 
         #endregion
 
@@ -129,10 +158,18 @@ namespace Diva.Wifi
             m_GridName = appConfig.GetString("GridName", "My World");
             m_LoginURL = appConfig.GetString("LoginURL", "http://localhost:9000");
             m_WebAddress = appConfig.GetString("WebAddress", "http://localhost:8080");
+            m_WebAddress = m_WebAddress.Trim(new char[] { '/' }); 
+
+            m_SmtpHost = appConfig.GetString("SmtpHost", "smtp.gmail.com");
+            m_SmtpPort = Int32.Parse(appConfig.GetString("SmtpPort", "587"));
+            m_SmtpUsername = appConfig.GetString("SmtpUsername", "ddistribution8@gmail.com");
+            m_SmtpPassword = appConfig.GetString("SmtpPassword", "skeeterpants7");
 
             m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
+
+            m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
                 // Can't proceed

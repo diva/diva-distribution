@@ -64,6 +64,10 @@ namespace Diva.Wifi
             server.AddStreamHandler(new WifiInstallPostHandler(app));
             server.AddStreamHandler(new WifiLoginHandler(app));
             server.AddStreamHandler(new WifiLogoutHandler(app));
+            server.AddStreamHandler(new WifiForgotPasswordGetHandler(app));
+            server.AddStreamHandler(new WifiForgotPasswordPostHandler(app));
+            server.AddStreamHandler(new WifiPasswordRecoverGetHandler(app));
+            server.AddStreamHandler(new WifiPasswordRecoverPostHandler(app));
             server.AddStreamHandler(new WifiUserAccountGetHandler(app));
             server.AddStreamHandler(new WifiUserAccountPostHandler(app));
             server.AddStreamHandler(new WifiUserManagementGetHandler(app));

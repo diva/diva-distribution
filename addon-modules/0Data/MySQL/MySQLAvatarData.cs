@@ -26,19 +26,20 @@
  */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using OpenMetaverse;
-using OpenSim.Framework;
+using log4net;
 
-using OpenSim.Data.SQLiteNG;
+using OpenSim.Data.MySQL;
 
-namespace Diva.Data.SQLite
+namespace Diva.Data.MySQL
 {
-    public class SQLiteAuthenticationData : OpenSim.Data.SQLiteNG.SQLiteAuthenticationData
+    /// <summary>
+    /// A SQLite Interface for Avatar Data
+    /// </summary>
+    public class MySQLAvatarData : OpenSim.Data.MySQL.MySQLAvatarData
     {
-        public SQLiteAuthenticationData(string connectionString, string realm)
-                : base(connectionString, realm)
+        public MySQLAvatarData(string connectionString, string realm) :
+                base(connectionString, realm)
         {
         }
     }
