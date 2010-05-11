@@ -142,6 +142,11 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
                 if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
                     return "The account has been updated.";
+                
+                if ((env.Flags & StateFlags.UserDeleteForm) != 0)
+                    return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
+                if ((env.Flags & StateFlags.UserDeleteFormResponse) != 0)
+                    return "The account has been deleted.";
 
                 if ((env.Flags & StateFlags.RegionManagementForm) != 0)
                     return GetRegionManagementForm(env);

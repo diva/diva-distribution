@@ -485,6 +485,60 @@ namespace Diva.Wifi
 
         }
 
+        public string UserDeleteGetRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserDeleteGetRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserDeleteForm;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    List<object> loo = new List<object>();
+                    loo.Add(account);
+                    env.Data = loo;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+        }
+
+
+        public string UserDeletePostRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserDeletePostRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+
+                    m_UserAccountService.DeleteAccount(UUID.Zero, userID);
+
+                    env.Flags = StateFlags.UserDeleteFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    m_log.DebugFormat("[WebApp]: Deleted account for user {0}", account.Name);
+                }
+                else
+                    m_log.DebugFormat("[WebApp]: Attempt at deleting an inexistent account");
+            }
+
+            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+
+        }
+
+
         public string RegionManagementShutdownPostRequest(Environment env)
         {
             m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
