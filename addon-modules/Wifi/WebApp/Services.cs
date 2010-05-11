@@ -149,6 +149,12 @@ namespace Diva.Wifi
 
         public string InstallPostRequest(Environment env, string password, string password2)
         {
+            if(m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to change the god password in InstallPostRequest!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
             m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
             Request request = env.Request;
 
@@ -170,6 +176,12 @@ namespace Diva.Wifi
 
         public string LoginRequest(Environment env, string first, string last, string password)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+
             m_log.DebugFormat("[WebApp]: LoginRequest {0} {1}", first, last);
             Request request = env.Request;
             string encpass = OpenSim.Framework.Util.Md5Hash(password);
@@ -222,6 +234,12 @@ namespace Diva.Wifi
 
         public string UserAccountGetRequest(Environment env, UUID userID)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountGetRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
             m_log.DebugFormat("[WebApp]: UserAccountGetRequest");
             Request request = env.Request;
 
@@ -243,6 +261,11 @@ namespace Diva.Wifi
 
         public string UserAccountPostRequest(Environment env, UUID userID, string email, string oldpassword, string newpassword, string newpassword2)
         {
+			if(!m_WebApp.IsInstalled)
+			{
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountPostRequest and Wifi isn't isntalled!");
+				return m_WebApp.ReadFile(env, "index.html");
+			}
             m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
             Request request = env.Request;
 
@@ -300,6 +323,13 @@ namespace Diva.Wifi
 
         public string NewAccountPostRequest(Environment env, string first, string last, string email, string password, string password2)
         {
+            if(!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[WebApp]: warning: someone is trying to access NewAccountPostRequest and Wifi isn't isntalled!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }    
+
+
             m_log.DebugFormat("[WebApp]: NewAccountPostRequest");
             Request request = env.Request;
 

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml;
 
 using OpenSim.Framework.Servers.HttpServer;
@@ -177,6 +178,22 @@ namespace Diva.Wifi
             xw.Flush();
 
             return ms.ToArray();
+        }
+
+        public static bool IsValidName(string name)
+        {
+            Regex re = new Regex("[^a-zA-Z0-9_]+");
+            return !re.IsMatch(name);
+        }
+        public static bool IsValidEmail(string email)
+        {
+            string strRegex = @"^(([^<>()[\]\\.,;:\s@\""]+"
+                + @"(\.[^<>()[\]\\.,;:\s@\""]+)*)|(\"".+\""))@"
+                + @"((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}"
+                + @"\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+"
+                + @"[a-zA-Z]{2,}))$";
+            Regex re = new Regex(strRegex);
+                return re.IsMatch(email);
         }
 
     }

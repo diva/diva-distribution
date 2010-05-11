@@ -168,11 +168,11 @@ namespace Diva.Wifi
                         {
                             string first = string.Empty, last = string.Empty, email = string.Empty, title = string.Empty;
                             int level = 0, flags = 0;
-                            if (postdata.ContainsKey("first"))
+                            if (postdata.ContainsKey("first") && WifiUtils.IsValidName(postdata["first"].ToString()))
                                 first = postdata["first"].ToString();
-                            if (postdata.ContainsKey("last"))
+                            if (postdata.ContainsKey("last") && WifiUtils.IsValidName(postdata["last"].ToString()))
                                 last = postdata["last"].ToString();
-                            if (postdata.ContainsKey("email"))
+                            if (postdata.ContainsKey("email") && WifiUtils.IsValidEmail(postdata["email"].ToString()))
                                 email = postdata["email"].ToString();
                             if (postdata.ContainsKey("title"))
                                 title = postdata["title"].ToString();

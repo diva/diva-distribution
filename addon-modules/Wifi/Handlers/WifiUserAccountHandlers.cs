@@ -46,7 +46,6 @@ using OpenMetaverse;
 
 using Environment = Diva.Wifi.Environment;
 
-
 namespace Diva.Wifi
 {
     public class WifiUserAccountGetHandler : BaseStreamHandler
@@ -140,15 +139,14 @@ namespace Diva.Wifi
             string first = String.Empty;
             string last = String.Empty;
             string email = String.Empty;
-            string oldpassword = String.Empty;
             string password = String.Empty;
             string password2 = String.Empty;
 
-            if (request.ContainsKey("first"))
+            if (request.ContainsKey("first") && WifiUtils.IsValidName(request["first"].ToString()))
                 first = request["first"].ToString();
-            if (request.ContainsKey("last"))
+            if (request.ContainsKey("last") && WifiUtils.IsValidName(request["last"].ToString()))
                 last = request["last"].ToString();
-            if (request.ContainsKey("email"))
+            if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
                 email = request["email"].ToString();
             if (request.ContainsKey("password"))
                 password = request["password"].ToString();
@@ -172,7 +170,7 @@ namespace Diva.Wifi
                 string newpassword = String.Empty;
                 string newpassword2 = String.Empty;
 
-                if (request.ContainsKey("email"))
+                if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
                     email = request["email"].ToString();
                 if (request.ContainsKey("oldpassword"))
                     oldpassword = request["oldpassword"].ToString();
