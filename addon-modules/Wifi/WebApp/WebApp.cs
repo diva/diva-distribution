@@ -48,7 +48,7 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
-    public class WebApp 
+    public class WebApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -104,6 +104,11 @@ namespace Diva.Wifi
         {
             get { return m_AdminEmail; }
         }
+        private string m_RemoteAdminPassword;
+        public string RemoteAdminPassword
+        {
+            get { return m_RemoteAdminPassword; }
+        }
 
         #endregion
 
@@ -133,6 +138,8 @@ namespace Diva.Wifi
             m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
+
+            m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
                 // Can't proceed

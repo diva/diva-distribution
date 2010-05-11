@@ -132,7 +132,7 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
                 if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
                     return "Your account has been updated.";
-            
+
                 if ((env.Flags & StateFlags.UserSearchForm) != 0)
                     return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
                 if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
@@ -201,7 +201,7 @@ namespace Diva.Wifi
                 if (sinfo.Account.Email == string.Empty)
                     return "No email on file";
 
-                return sinfo.Account.Email ;
+                return sinfo.Account.Email;
             }
 
             return "Who are you?";
@@ -238,7 +238,7 @@ namespace Diva.Wifi
 
         private string GetRegionManagementForm(Environment env)
         {
-            return m_WebApp.ReadFile(env, "server-admin-form.html", env.Data);
+            return m_WebApp.ReadFile(env, "region-form.html", env.Data);
         }
 
     }

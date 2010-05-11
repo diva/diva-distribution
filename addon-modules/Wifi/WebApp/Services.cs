@@ -53,12 +53,12 @@ using Diva.OpenSimServices;
 
 namespace Diva.Wifi
 {
-    public class Services 
+    public class Services
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
-        
+
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
@@ -75,9 +75,8 @@ namespace Diva.Wifi
 
             m_WebApp = webApp;
 
-            // Read config
-            IConfig appConfig = config.Configs[configName];
-            m_ServerAdminPassword = appConfig.GetString("ServerAdminPassword", "secret");
+            m_ServerAdminPassword = webApp.RemoteAdminPassword;
+            m_log.DebugFormat("[Services]: RemoteAdminPassword is {0}", m_ServerAdminPassword);
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -405,7 +404,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
-                env.Session = sinfo; 
+                env.Session = sinfo;
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
@@ -444,7 +443,7 @@ namespace Diva.Wifi
                 {
                     if (password != string.Empty)
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
-                    
+
                     env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                     m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
                 }
@@ -464,14 +463,19 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
-                env.Session = sinfo; 
+                env.Session = sinfo;
                 env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
 
                 //FIXME: don't hardcode url, get it from m_GridService
                 //TODO: check if server is actually running first
                 //TODO: add support for shutdown message parameter from html form
-                string url = "localhost:9000";
+                string url = "http://localhost:9000";
                 Hashtable hash = new Hashtable();
+                if (m_ServerAdminPassword == null)
+                {
+                    m_log.Debug("[RegionManagementShutdownPostRequest] No remote admin password was set in .ini file");
+                }
+
                 hash["password"] = m_ServerAdminPassword;
                 IList paramList = new ArrayList();
                 paramList.Add(hash);
@@ -496,13 +500,20 @@ namespace Diva.Wifi
 
         public string RegionManagementGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: RegionManagementGetRequest");
+            m_log.DebugFormat("[Services]: RegionManagementGetRequest()");
             Request request = env.Request;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
                 List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
+
+                m_log.DebugFormat("[Services]: There are {0} regions", regions.Count);
+                regions.ForEach(delegate(GridRegion gg)
+                {
+                    m_log.DebugFormat("[Services] {0}", gg.RegionName);
+                });
+
                 env.Session = sinfo;
                 env.Data = Objectify(regions);
                 env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
@@ -605,7 +616,7 @@ namespace Diva.Wifi
 
 
         #region Misc
-        
+
         private void SetServiceURLs(UserAccount account)
         {
             account.ServiceURLs = new Dictionary<string, object>();
@@ -620,7 +631,7 @@ namespace Diva.Wifi
             foreach (T thing in listOfThings)
                 listOfObjects.Add(thing);
 
-            return listOfObjects;                
+            return listOfObjects;
         }
 
         #endregion Misc

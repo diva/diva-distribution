@@ -46,12 +46,13 @@ namespace Diva.Wifi.WifiScript
 
         private IWifiScriptFace m_WebApp;
         private Type m_WebAppType;
- 
+
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
 
-        public Processor(IWifiScriptFace webApp, IEnvironment env) : this(webApp, env, null)
+        public Processor(IWifiScriptFace webApp, IEnvironment env)
+            : this(webApp, env, null)
         {
         }
 
@@ -79,7 +80,7 @@ namespace Diva.Wifi.WifiScript
                 string after = html.Substring(match.Index + match.Length);
 
                 processedHtml = processedHtml + before + replacement;
-                lastindex = match.Index + match.Length ;
+                lastindex = match.Index + match.Length;
             }
             if (matches.Count > 0)
             {
@@ -136,7 +137,7 @@ namespace Diva.Wifi.WifiScript
             if (m_ListOfObjects != null)
             {
                 if (m_Index == m_ListOfObjects.Count)
-                    return string.Empty;        
+                    return string.Empty;
                 m_Index++;
             }
 
@@ -179,6 +180,29 @@ namespace Diva.Wifi.WifiScript
                     else
                         m_log.DebugFormat("[WifiScript]: Variable {0} not found", name);
                 }
+                //when a 'get method' is performed, the named method is invoked
+                //on list of objects and the string representation of output is returned
+                else if (kind == "method")
+                {
+                    if (m_ListOfObjects != null)
+                    {
+                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        Type type = o.GetType();
+
+                        try
+                        {
+                            MethodInfo met = type.GetMethod(name);
+                            value = (string)met.Invoke(o, null).ToString();
+                            m_log.DebugFormat("[Processor] Replaced {0} with {1}", name, value);
+                        }
+                        catch (Exception e)
+                        {
+                            m_log.DebugFormat("[Processor]: Exception in invoke {0}", e.Message);
+                        }
+                    }
+                    else
+                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null list of objects", name);
+                }
                 else if (kind == "field")
                 {
                     if (m_ListOfObjects != null)
@@ -189,7 +213,7 @@ namespace Diva.Wifi.WifiScript
                         // When it recurses over a list of objects, m_Index is incremented before it gets here
                         // -- see above in Include.
                         // When it's simply holding 1 object in env.Data, then m_Index is 0 as it should
-                        object o = m_ListOfObjects[(m_Index == 0)? 0 : (m_Index - 1)];
+                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
                         Type type = o.GetType();
                         FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                         if (finfo != null)
@@ -200,7 +224,7 @@ namespace Diva.Wifi.WifiScript
                     else
                         m_log.DebugFormat("[WifiScript]: Field reference {0} to null list of objects", name);
                 }
-                
+
                 if (value != null)
                     return value.ToString();
                 else
