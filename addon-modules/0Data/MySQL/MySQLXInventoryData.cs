@@ -26,18 +26,20 @@
  */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
-using OpenSim.Data.SQLiteNG;
+using OpenSim.Data.MySQL;
 
-namespace Diva.Data.SQLite
+namespace Diva.Data.MySQL
 {
-    public class SQLiteFriendsData : OpenSim.Data.SQLiteNG.SQLiteFriendsData
+    /// <summary>
+    /// A SQLite Interface for the Inventory
+    /// </summary>
+    public class MySQLXInventoryData : OpenSim.Data.MySQL.MySQLXInventoryData
     {
-        public SQLiteFriendsData(string connectionString, string realm)
-            : base(connectionString, realm)
+        public MySQLXInventoryData(string conn, string realm)
+            : base(conn, realm)
         {
         }
+
     }
 }

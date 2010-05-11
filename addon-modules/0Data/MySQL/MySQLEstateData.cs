@@ -28,14 +28,11 @@
 using System;
 using System.Collections.Generic;
 
-using OpenSim.Data.SQLiteNG;
+using OpenSim.Data.MySQL;
 
-namespace Diva.Data.SQLite
+namespace Diva.Data.MySQL
 {
-    /// <summary>
-    /// A RegionData Interface to the SQLite database
-    /// </summary>
-    public class SQLiteRegionData : OpenSim.Data.SQLiteNG.SQLiteRegionData
+    public class MySQLEstateStore : OpenSim.Data.MySQL.MySQLEstateStore
     {
     }
 }
