@@ -27,8 +27,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,6 +60,7 @@ namespace Diva.Wifi
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private WebApp m_WebApp;
+        private SmtpClient m_Client;
 
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
@@ -86,6 +89,12 @@ namespace Diva.Wifi
 
             // Create the "God" account if it doesn't exist
             CreateGod();
+
+            // Connect to our outgoing mail server for password forgetfulness
+            m_Client = new SmtpClient(m_WebApp.SmtpHost, m_WebApp.SmtpPort);
+            m_Client.EnableSsl = true;
+            m_Client.Credentials = new NetworkCredential(m_WebApp.SmtpUsername, m_WebApp.SmtpPassword);
+            m_Client.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
         }
 
         private void CreateGod()
@@ -538,6 +547,103 @@ namespace Diva.Wifi
 
         }
 
+        public string ForgotPasswordGetRequest(Environment env)
+        {
+            m_log.DebugFormat("[WebApp]: ForgotPasswordGetRequest");
+            env.Flags = StateFlags.ForgotPassword;
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        public string ForgotPasswordPostRequest(Environment env, string email)
+        {
+            UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
+            if (account != null)
+            {
+                string token = m_AuthenticationService.GetToken(account.PrincipalID, 60);
+                if (token != string.Empty)
+                {
+                    string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
+
+                    MailMessage msg = new MailMessage();
+                    msg.From = new MailAddress(m_WebApp.SmtpUsername);
+                    msg.To.Add(email);
+                    msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
+                    msg.Body = "Let's reset your password. Click here:\n\t";
+                    msg.Body += url;
+                    msg.Body += "\n\nDiva";
+                    m_Client.SendAsync(msg, email);
+
+                    return "<p>Check your email. You must reset your password within 60 minutes.</p>"; /// change this
+                }
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            String token = (string)e.UserState;
+
+            if (e.Cancelled)
+                m_log.DebugFormat("[ForgotPasswordService] [{0}] Send cancelled.", token);
+
+            if (e.Error != null)
+                m_log.DebugFormat("[ForgotPasswordService] [{0}] {1}", token, e.Error.ToString());
+            else
+                m_log.DebugFormat("[ForgotPasswordService] Password recovery message sent to " + token + ".");
+        }
+
+        public string RecoverPasswordGetRequest(Environment env, string email, string token)
+        {
+            UserAccount account = null;
+            if (IsValidToken(email, token, out account))
+            {
+                PasswordRecoveryData precovery = new PasswordRecoveryData(email, token);
+                env.Data = new List<object>();
+                env.Data.Add(precovery);
+                env.Flags = StateFlags.RecoveringPassword;
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+            else
+            {
+                return "<p>Invalid token.</p>";
+            }
+        }
+
+        public string RecoverPasswordPostRequest(Environment env, string email, string token, string newPassword)
+        {
+            if (newPassword == null || newPassword.Length == 0)
+            {
+                return "<p>You must enter <strong>some</strong> password!</p>";
+            }
+
+            ResetPassword(email, token, newPassword);
+            env.Flags = 0;
+            return "<p>Great success?</p>";
+            //return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        public void ResetPassword(string email, string token, string newPassword)
+        {
+            bool success = false;
+            UserAccount account = null;
+            if (IsValidToken(email, token, out account))
+                success = m_AuthenticationService.SetPassword(account.PrincipalID, newPassword);
+        
+            if (!success)
+                m_log.ErrorFormat("[ForgotPasswordService]: Unable to reset password for account uuid:{0}.", account.PrincipalID);
+            else
+                m_log.InfoFormat("[ForgotPasswordService]: Password reset for account uuid:{0}", account.PrincipalID);
+        }
+
+        private bool IsValidToken(string email, string token, out UserAccount account)
+        {
+            account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
+            if (account != null)
+                return (m_AuthenticationService.Verify(account.PrincipalID, token, 1));
+
+            return false;
+        }
 
         public string RegionManagementShutdownPostRequest(Environment env)
         {
@@ -722,4 +828,14 @@ namespace Diva.Wifi
 
     }
 
+    class PasswordRecoveryData
+    {
+        public string Email;
+        public string Token;
+
+        public PasswordRecoveryData(string e, string t)
+        {
+            Email = e; Token = t;
+        }
+    }
 }

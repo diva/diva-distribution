@@ -114,6 +114,11 @@ namespace Diva.Wifi
             if ((env.Flags & StateFlags.InstallFormResponse) != 0)
                 return "Your Wifi has been installed. The administrator account is " + m_WebApp.AdminFirst + " " + m_WebApp.AdminLast;
 
+            if ((env.Flags & StateFlags.ForgotPassword) != 0)
+                return m_WebApp.ReadFile(env, "forgotpasswordform.html");
+            if ((env.Flags & StateFlags.RecoveringPassword) != 0)
+                return m_WebApp.ReadFile(env, "recoveringpassword.html");
+
             if ((env.Flags & StateFlags.FailedLogin) != 0)
                 return "Login failed";
             if ((env.Flags & StateFlags.SuccessfulLogin) != 0)
