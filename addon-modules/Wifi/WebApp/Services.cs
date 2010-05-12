@@ -640,7 +640,7 @@ namespace Diva.Wifi
         {
             account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
             if (account != null)
-                return (m_AuthenticationService.Verify(account.PrincipalID, token, 1));
+                return (m_AuthenticationService.Verify(account.PrincipalID, token, 10));
 
             return false;
         }

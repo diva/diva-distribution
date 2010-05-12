@@ -148,13 +148,12 @@ namespace Diva.Wifi
             try
             {
                 string[] pars = SplitParams(path);
-                if (pars.Length == 2) // /wifi/recover/token?email=email
+                if (pars.Length == 1) // /wifi/recover/token?email=email
                 {
                     string token = pars[0];
-                    pars = pars[1].Split(new char[] { '=' });
-                    if (pars.Length == 2)
+                    if (httpRequest.Query.ContainsKey("email") && httpRequest.Query["email"] != null)
                     {
-                        string email = pars[1];
+                        string email = HttpUtility.UrlDecode(httpRequest.Query["email"].ToString());
                         Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
                         Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
@@ -162,7 +161,11 @@ namespace Diva.Wifi
 
                         return WifiUtils.StringToBytes(result);
                     }
+                    else
+                        m_Log.DebugFormat("[PASSWORD RECOVER GET HANDLER]: Query part does not contain email variable");
                 }
+                else
+                    m_Log.DebugFormat("[PASSWORD RECOVER GET HANDLER]: Path does not have 1 params, it has {0}", pars.Length);
             }
             catch (Exception e)
             {
