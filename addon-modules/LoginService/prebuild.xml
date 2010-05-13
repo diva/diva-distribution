@@ -1,0 +1,36 @@
+<!-- Diva.LoginService -->
+<Project frameworkVersion="v3_5" name="Diva.LoginService" path="addon-modules/LoginService" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../bin/</ReferencePath>
+  <Reference name="System"/>
+  <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Framework.Capabilities"/>
+  <Reference name="OpenSim.Framework.Console"/>
+  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
+  <Reference name="OpenSim.Services.Interfaces"/>
+  <Reference name="OpenSim.Services.Connectors"/>
+  <Reference name="OpenSim.Services.LLLoginService"/>
+  <Reference name="OpenSim.Services.Base"/>
+  <Reference name="OpenSim.Server.Base"/>
+  <Reference name="OpenMetaverseTypes.dll"/>
+  <Reference name="OpenMetaverse.dll"/>
+  <Reference name="OpenMetaverse.StructuredData.dll"/>
+  <Reference name="Nini.dll" />
+  <Reference name="log4net.dll"/>
+
+  <Files>
+    <Match pattern="*.cs" recurse="true">
+      <Exclude pattern="Tests" />
+    </Match>
+  </Files>
+</Project>
