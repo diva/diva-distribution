@@ -55,7 +55,7 @@ using Diva.OpenSimServices;
 
 namespace Diva.Wifi
 {
-    public class Services
+    public partial class Services
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -547,175 +547,6 @@ namespace Diva.Wifi
 
         }
 
-        public string ForgotPasswordGetRequest(Environment env)
-        {
-            m_log.DebugFormat("[WebApp]: ForgotPasswordGetRequest");
-            env.Flags = StateFlags.ForgotPassword;
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public string ForgotPasswordPostRequest(Environment env, string email)
-        {
-            UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
-            if (account != null)
-            {
-                string token = m_AuthenticationService.GetToken(account.PrincipalID, 60);
-                if (token != string.Empty)
-                {
-                    string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
-
-                    MailMessage msg = new MailMessage();
-                    msg.From = new MailAddress(m_WebApp.SmtpUsername);
-                    msg.To.Add(email);
-                    msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
-                    msg.Body = "Let's reset your password. Click here:\n\t";
-                    msg.Body += url;
-                    msg.Body += "\n\nDiva";
-                    m_Client.SendAsync(msg, email);
-
-                    return "<p>Check your email. You must reset your password within 60 minutes.</p>"; /// change this
-                }
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            String token = (string)e.UserState;
-
-            if (e.Cancelled)
-                m_log.DebugFormat("[ForgotPasswordService] [{0}] Send cancelled.", token);
-
-            if (e.Error != null)
-                m_log.DebugFormat("[ForgotPasswordService] [{0}] {1}", token, e.Error.ToString());
-            else
-                m_log.DebugFormat("[ForgotPasswordService] Password recovery message sent to " + token + ".");
-        }
-
-        public string RecoverPasswordGetRequest(Environment env, string email, string token)
-        {
-            UserAccount account = null;
-            if (IsValidToken(email, token, out account))
-            {
-                PasswordRecoveryData precovery = new PasswordRecoveryData(email, token);
-                env.Data = new List<object>();
-                env.Data.Add(precovery);
-                env.Flags = StateFlags.RecoveringPassword;
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-            else
-            {
-                return "<p>Invalid token.</p>";
-            }
-        }
-
-        public string RecoverPasswordPostRequest(Environment env, string email, string token, string newPassword)
-        {
-            if (newPassword == null || newPassword.Length == 0)
-            {
-                return "<p>You must enter <strong>some</strong> password!</p>";
-            }
-
-            ResetPassword(email, token, newPassword);
-            env.Flags = 0;
-            return "<p>Great success?</p>";
-            //return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public void ResetPassword(string email, string token, string newPassword)
-        {
-            bool success = false;
-            UserAccount account = null;
-            if (IsValidToken(email, token, out account))
-                success = m_AuthenticationService.SetPassword(account.PrincipalID, newPassword);
-        
-            if (!success)
-                m_log.ErrorFormat("[ForgotPasswordService]: Unable to reset password for account uuid:{0}.", account.PrincipalID);
-            else
-                m_log.InfoFormat("[ForgotPasswordService]: Password reset for account uuid:{0}", account.PrincipalID);
-        }
-
-        private bool IsValidToken(string email, string token, out UserAccount account)
-        {
-            account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
-            if (account != null)
-                return (m_AuthenticationService.Verify(account.PrincipalID, token, 1));
-
-            return false;
-        }
-
-        public string RegionManagementShutdownPostRequest(Environment env)
-        {
-            m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
-
-                //FIXME: don't hardcode url, get it from m_GridService
-                //TODO: check if server is actually running first
-                //TODO: add support for shutdown message parameter from html form
-                string url = "http://localhost:9000";
-                Hashtable hash = new Hashtable();
-                if (m_ServerAdminPassword == null)
-                {
-                    m_log.Debug("[RegionManagementShutdownPostRequest] No remote admin password was set in .ini file");
-                }
-
-                hash["password"] = m_ServerAdminPassword;
-                IList paramList = new ArrayList();
-                paramList.Add(hash);
-                XmlRpcRequest xmlrpcReq = new XmlRpcRequest("admin_shutdown", paramList);
-
-                XmlRpcResponse response = null;
-                try
-                {
-                    response = xmlrpcReq.Send(url, 10000);
-                }
-                catch (Exception e)
-                {
-                    m_log.Debug("[WebApp]: Exception " + e.Message);
-                }
-
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-
-        }
-
-        public string RegionManagementGetRequest(Environment env)
-        {
-            m_log.DebugFormat("[Services]: RegionManagementGetRequest()");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
-
-                m_log.DebugFormat("[Services]: There are {0} regions", regions.Count);
-                regions.ForEach(delegate(GridRegion gg)
-                {
-                    m_log.DebugFormat("[Services] {0}", gg.RegionName);
-                });
-
-                env.Session = sinfo;
-                env.Data = Objectify(regions);
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-
         // <a href="wifi/..." ...>
         static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
         static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+\\\")).*>");
@@ -828,14 +659,4 @@ namespace Diva.Wifi
 
     }
 
-    class PasswordRecoveryData
-    {
-        public string Email;
-        public string Token;
-
-        public PasswordRecoveryData(string e, string t)
-        {
-            Email = e; Token = t;
-        }
-    }
 }
