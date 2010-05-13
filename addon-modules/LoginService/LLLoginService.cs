@@ -59,6 +59,7 @@ namespace Diva.LoginService
         public LLLoginService(IConfigSource config, ISimulationService simService, ILibraryService libraryService)
             : base(config, simService, libraryService)
         {
+            m_log.Debug("[DIVA LLOGIN SERVICE]: Starting...");
         }
 
         public LLLoginService(IConfigSource config)
@@ -100,13 +101,13 @@ namespace Diva.LoginService
                     // for external users! Create and fill out a UserAccount object, because it has the information
                     // that the rest of the code needs.
 
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: user not found");
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: user not found");
                     return LLFailedLoginResponse.UserProblem;
                 }
 
                 if (account.UserLevel < m_MinLoginLevel)
                 {
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: login is blocked for user level {0}", account.UserLevel);
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: login is blocked for user level {0}", account.UserLevel);
                     return LLFailedLoginResponse.LoginBlockedProblem;
                 }
 
@@ -117,7 +118,7 @@ namespace Diva.LoginService
                 {
                     if (account.ScopeID != scopeID && account.ScopeID != UUID.Zero)
                     {
-                        m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: user not found");
+                        m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: user not found");
                         return LLFailedLoginResponse.UserProblem;
                     }
                 }
@@ -139,7 +140,7 @@ namespace Diva.LoginService
                 UUID secureSession = UUID.Zero;
                 if ((token == string.Empty) || (token != string.Empty && !UUID.TryParse(token, out secureSession)))
                 {
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: authentication failed");
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: authentication failed");
                     return LLFailedLoginResponse.UserProblem;
                 }
 
@@ -152,13 +153,13 @@ namespace Diva.LoginService
                 //
                 if (m_RequireInventory && m_InventoryService == null)
                 {
-                    m_log.WarnFormat("[LLOGIN SERVICE]: Login failed, reason: inventory service not set up");
+                    m_log.WarnFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: inventory service not set up");
                     return LLFailedLoginResponse.InventoryProblem;
                 }
                 List<InventoryFolderBase> inventorySkel = m_InventoryService.GetInventorySkeleton(account.PrincipalID);
                 if (m_RequireInventory && ((inventorySkel == null) || (inventorySkel != null && inventorySkel.Count == 0)))
                 {
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: unable to retrieve user inventory");
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: unable to retrieve user inventory");
                     return LLFailedLoginResponse.InventoryProblem;
                 }
 
@@ -174,7 +175,7 @@ namespace Diva.LoginService
                     success = m_PresenceService.LoginAgent(account.PrincipalID.ToString(), session, secureSession);
                     if (!success)
                     {
-                        m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: could not login presence");
+                        m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: could not login presence");
                         return LLFailedLoginResponse.GridProblem;
                     }
                 }
@@ -206,7 +207,7 @@ namespace Diva.LoginService
                 if (destination == null)
                 {
                     m_PresenceService.LogoutAgent(session);
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: destination not found");
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: destination not found");
                     return LLFailedLoginResponse.GridProblem;
                 }
 
@@ -228,7 +229,7 @@ namespace Diva.LoginService
                 if (aCircuit == null)
                 {
                     m_PresenceService.LogoutAgent(session);
-                    m_log.InfoFormat("[LLOGIN SERVICE]: Login failed, reason: {0}", reason);
+                    m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: {0}", reason);
                     return LLFailedLoginResponse.AuthorizationProblem;
 
                 }
@@ -237,7 +238,7 @@ namespace Diva.LoginService
                 if (m_FriendsService != null)
                 {
                     friendsList = m_FriendsService.GetFriends(account.PrincipalID);
-                    m_log.DebugFormat("[LLOGIN SERVICE]: Retrieved {0} friends", friendsList.Length);
+                    m_log.DebugFormat("[DIVA LLOGIN SERVICE]: Retrieved {0} friends", friendsList.Length);
                 }
 
                 //
@@ -246,12 +247,12 @@ namespace Diva.LoginService
                 LLLoginResponse response = new LLLoginResponse(account, aCircuit, guinfo, destination, inventorySkel, friendsList, m_LibraryService,
                     where, startLocation, position, lookAt, m_WelcomeMessage, home, clientIP);
 
-                m_log.DebugFormat("[LLOGIN SERVICE]: All clear. Sending login response to client.");
+                m_log.DebugFormat("[DIVA LLOGIN SERVICE]: All clear. Sending login response to client.");
                 return response;
             }
             catch (Exception e)
             {
-                m_log.WarnFormat("[LLOGIN SERVICE]: Exception processing login for {0} {1}: {2} {3}", firstName, lastName, e.ToString(), e.StackTrace);
+                m_log.WarnFormat("[DIVA LLOGIN SERVICE]: Exception processing login for {0} {1}: {2} {3}", firstName, lastName, e.ToString(), e.StackTrace);
                 if (m_PresenceService != null)
                     m_PresenceService.LogoutAgent(session);
                 return LLFailedLoginResponse.InternalError;
