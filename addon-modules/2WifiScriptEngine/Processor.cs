@@ -46,20 +46,22 @@ namespace Diva.Wifi.WifiScript
 
         private IWifiScriptFace m_WebApp;
         private Type m_WebAppType;
+        private Type m_ExtensionMethods;
 
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
 
         public Processor(IWifiScriptFace webApp, IEnvironment env)
-            : this(webApp, env, null)
+            : this(webApp, null, env, null)
         {
         }
 
-        public Processor(IWifiScriptFace webApp, IEnvironment env, List<object> lot)
+        public Processor(IWifiScriptFace webApp, Type extMeths, IEnvironment env, List<object> lot)
         {
             m_WebApp = webApp;
             m_WebAppType = m_WebApp.GetType();
+            m_ExtensionMethods = extMeths;
             m_Env = env;
             m_ListOfObjects = lot;
             m_Index = 0;
@@ -300,11 +302,38 @@ namespace Diva.Wifi.WifiScript
                 try
                 {
                     object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
-                    Type type = o.GetType();
-                    MethodInfo met = type.GetMethod(methodName);
-                    String s = (String)met.Invoke(o, null);
+                    if (o != null)
+                    {
+                        Type type = o.GetType();
+                        if (type != null)
+                        {
+                            MethodInfo met = type.GetMethod(methodName);
 
-                    return s;
+                            if (met != null)
+                            {
+                                String s = (String)met.Invoke(o, null);
+                                return s;
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
+                }
+                // Then try the Extension Methods
+                try
+                {
+                    object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                    if (m_ExtensionMethods.GetMethod(methodName) != null)
+                    {
+                        arg = new object[] { o };
+                        int value = (int)m_ExtensionMethods.InvokeMember(methodName,
+                            BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
+                            null, null, arg);
+
+                        return value.ToString();
+                    }
                 }
                 catch (Exception e)
                 {

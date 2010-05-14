@@ -58,6 +58,8 @@ namespace Diva.Wifi
             get { return m_DocsPath; }
         }
 
+        private Type m_ExtensionMethods;
+
         #region IWebApp variables accessible to the WifiScript engine
 
         private bool m_Installed = false;
@@ -142,13 +144,17 @@ namespace Diva.Wifi
 
         public WebApp(IConfigSource config, string configName, IHttpServer server)
         {
-            m_log.Debug("[WebApp]: Starting...");
 
             ReadConfigs(config, configName);
 
             // Create the two parts
             Services = new Services(config, configName, this);
             WifiScriptFace = new WifiScriptFace(this);
+
+            m_ExtensionMethods = typeof(ExtensionMethods);
+
+            m_log.DebugFormat("[WebApp]: Starting with extension methods type {0}", m_ExtensionMethods);
+
         }
 
         public void ReadConfigs(IConfigSource config, string configName)
@@ -198,7 +204,7 @@ namespace Diva.Wifi
                 using (StreamReader sr = new StreamReader(file))
                 {
                     string content = sr.ReadToEnd();
-                    Processor p = new Processor(WifiScriptFace, env, lot);
+                    Processor p = new Processor(WifiScriptFace, m_ExtensionMethods, env, lot);
                     return p.Process(content);
                 }
             }
