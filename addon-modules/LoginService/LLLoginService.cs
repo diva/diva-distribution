@@ -160,6 +160,9 @@ namespace Diva.LoginService
                     return LLFailedLoginResponse.InventoryProblem;
                 }
 
+                if (inventorySkel == null)
+                    inventorySkel = new List<InventoryFolderBase>();
+
                 //
                 // From here on, things should be exactly the same for all users
                 //
