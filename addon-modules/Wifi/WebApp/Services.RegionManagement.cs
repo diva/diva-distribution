@@ -59,19 +59,18 @@ namespace Diva.Wifi
     {
         public string RegionManagementShutdownPostRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
+            //m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
             {
                 env.Session = sinfo;
-                env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
 
                 //FIXME: don't hardcode url, get it from m_GridService
                 //TODO: check if server is actually running first
                 //TODO: add support for shutdown message parameter from html form
-                string url = "http://localhost:9000";
+                string url = m_WebApp.LoginURL;
                 Hashtable hash = new Hashtable();
                 if (m_ServerAdminPassword == null)
                 {
@@ -87,10 +86,12 @@ namespace Diva.Wifi
                 try
                 {
                     response = xmlrpcReq.Send(url, 10000);
+                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
+                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));

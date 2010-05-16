@@ -157,6 +157,8 @@ namespace Diva.Wifi
                     return GetRegionManagementForm(env);
                 if ((env.Flags & StateFlags.RegionManagementShutdownSuccessful) != 0)
                     return "The server has been successfully shutdown. Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
+                if ((env.Flags & StateFlags.RegionManagementShutdownUnsuccessful) != 0)
+                    return "The server could not be shutdown. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
             }
 
             return string.Empty;
