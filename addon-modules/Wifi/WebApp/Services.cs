@@ -66,6 +66,7 @@ namespace Diva.Wifi
         private PasswordAuthenticationService m_AuthenticationService;
         private IInventoryService m_InventoryService;
         private IGridService m_GridService;
+        private IGridUserService m_GridUserService;
 
         private string m_ServerAdminPassword;
 
@@ -86,6 +87,7 @@ namespace Diva.Wifi
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
             m_GridService = new GridService(config);
+            m_GridUserService = new GridUserService(config);
 
             // Create the "God" account if it doesn't exist
             CreateGod();
