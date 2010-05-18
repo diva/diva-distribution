@@ -98,6 +98,52 @@ namespace Diva.Wifi
             }
 
             return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        public string RegionManagementRestartPostRequest(Environment env)
+        {
+            Request request = env.Request;
+            SessionInfo sinfo;
+
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+
+                string url = m_WebApp.LoginURL;
+
+                Hashtable hash = new Hashtable();
+                if (m_ServerAdminPassword == null)
+                {
+                    m_log.Debug("[RegionManagementRestartPostRequest] No remote admin password was set in .ini file");
+                }
+
+                hash["password"] = m_ServerAdminPassword;
+                IList paramList = new ArrayList();
+                paramList.Add(hash);
+                XmlRpcRequest xmlrpcReq = new XmlRpcRequest("admin_shutdown", paramList);
+
+                XmlRpcResponse response = null;
+                try
+                {
+                    //first, shutdown the server
+                    response = xmlrpcReq.Send(url, 10000);
+
+                    //then wait until the server is completely shutdown, then re-launch
+                    System.Diagnostics.Process[] openSimProcess = System.Diagnostics.Process.GetProcessesByName("OpenSim");
+                    openSimProcess[0].WaitForExit();
+                    System.Diagnostics.Process.Start("OpenSim.exe");
+                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                }
+                catch (Exception e)
+                {
+                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
 
         }
 

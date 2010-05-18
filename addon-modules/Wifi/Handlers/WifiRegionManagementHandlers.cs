@@ -111,7 +111,10 @@ namespace Diva.Wifi
                 {
                     result = m_WebApp.Services.RegionManagementShutdownPostRequest(env);
                 }
-
+                else if (resource.StartsWith("/restart"))
+                {
+                    result = m_WebApp.Services.RegionManagementRestartPostRequest(env);
+                }
                 return WifiUtils.StringToBytes(result);
 
             }
