@@ -147,6 +147,46 @@ namespace Diva.Wifi
 
         }
 
+        public string RegionManagementBroadcastPostRequest(Environment env, string message)
+        {
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+
+                string url = m_WebApp.LoginURL;
+                Hashtable hash = new Hashtable();
+                if (m_ServerAdminPassword == null)
+                {
+                    m_log.Debug("[RegionManagementBroadcastPostRequest] No remote admin password was set in .ini file");
+                }
+
+                hash["password"] = m_ServerAdminPassword;
+                hash["message"] = message;
+                IList paramList = new ArrayList();
+                paramList.Add(hash);
+                XmlRpcRequest xmlrpcReq = new XmlRpcRequest("admin_broadcast", paramList);
+
+                XmlRpcResponse response = null;
+                try
+                {
+                    response = xmlrpcReq.Send(url, 10000);
+                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                }
+                catch (Exception e)
+                {
+                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
         public string RegionManagementGetRequest(Environment env)
         {
             m_log.DebugFormat("[Services]: RegionManagementGetRequest()");

@@ -99,6 +99,10 @@ namespace Diva.Wifi
                 Dictionary<string, object> postdata =
                         ServerUtils.ParseQueryString(body);
 
+                string broadcast_message = String.Empty;
+                    if (postdata.ContainsKey("message"))
+                        broadcast_message = postdata["message"].ToString();
+
                 Request req = WifiUtils.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
@@ -114,6 +118,10 @@ namespace Diva.Wifi
                 else if (resource.StartsWith("/restart"))
                 {
                     result = m_WebApp.Services.RegionManagementRestartPostRequest(env);
+                }
+                else if (resource.StartsWith("/broadcast"))
+                {
+                    result = m_WebApp.Services.RegionManagementBroadcastPostRequest(env, broadcast_message);
                 }
                 return WifiUtils.StringToBytes(result);
 
