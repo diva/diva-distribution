@@ -97,8 +97,8 @@ namespace Diva.Wifi
         RegionManagementForm = 16384,
         UserDeleteForm = 32768,
         UserDeleteFormResponse = 65536,
-        RegionManagementShutdownSuccessful = 131072,
-        RegionManagementShutdownUnsuccessful = 262144,
+        RegionManagementSuccessful = 131072,
+        RegionManagementUnsuccessful = 262144,
         ForgotPassword = 524288,
         RecoveringPassword = 1048576
     }

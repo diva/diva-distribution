@@ -86,12 +86,12 @@ namespace Diva.Wifi
                 try
                 {
                     response = xmlrpcReq.Send(url, 10000);
-                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
@@ -132,12 +132,12 @@ namespace Diva.Wifi
                     System.Diagnostics.Process[] openSimProcess = System.Diagnostics.Process.GetProcessesByName("OpenSim");
                     openSimProcess[0].WaitForExit();
                     System.Diagnostics.Process.Start("OpenSim.exe");
-                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
@@ -173,12 +173,12 @@ namespace Diva.Wifi
                 try
                 {
                     response = xmlrpcReq.Send(url, 10000);
-                    env.Flags = StateFlags.RegionManagementShutdownSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementShutdownUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
