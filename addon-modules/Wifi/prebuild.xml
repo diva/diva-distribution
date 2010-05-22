@@ -22,6 +22,7 @@
   <Reference name="log4net.dll"/>
   <Reference name="OpenMetaverse.dll"/>
   <Reference name="OpenMetaverseTypes.dll"/>
+  <Reference name="DotNetOpenId.dll"/>
   <Reference name="XMLRPC.dll"/>
 
   <Reference name="OpenSim.Framework"/>

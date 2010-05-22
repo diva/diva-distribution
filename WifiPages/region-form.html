@@ -2,8 +2,20 @@
 
 <form action="/wifi/admin/regions/shutdown/" method="post">
 	<p>
-		<input type="hidden" name="server-host" value="<!-- #get var=LoginURL-->"/>
 		<input type="submit" value="Shutdown Server" class="button" />
+	</p>
+</form>
+
+<form action="/wifi/admin/regions/restart/" method="post">
+	<p>
+		<input type="submit" value="Restart Server" class="button" />
+	</p>
+</form>
+
+<form action="/wifi/admin/regions/broadcast/" method="post">
+	<p>
+		<input type="text" name="message" value="Message to users"/>
+		<input type="submit" value="Broadcast" class="button" />
 	</p>
 </form>
 
