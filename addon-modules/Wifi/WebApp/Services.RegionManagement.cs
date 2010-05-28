@@ -213,5 +213,23 @@ namespace Diva.Wifi
                 return m_WebApp.ReadFile(env, "index.html");
             }
         }
+
+        private List<object> GetRegionList(Environment env)
+        {
+            List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
+
+            if (regions != null)
+            {
+                m_log.DebugFormat("[WebApp]: GetUserList found {0} users in DB", regions.Count);
+                return Objectify<GridRegion>(regions);
+            }
+            else
+            {
+                m_log.DebugFormat("[WebApp]: GetRegionList got null regions from DB");
+                return new List<object>();
+            }
+
+        }
+
     }
 }

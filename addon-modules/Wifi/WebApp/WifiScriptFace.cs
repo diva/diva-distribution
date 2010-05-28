@@ -236,21 +236,18 @@ namespace Diva.Wifi
 
         private string GetUserList(Environment env)
         {
-            string retString = "No users found.";
+            if (env.Data != null && env.Data.Count > 0)
+                return m_WebApp.ReadFile(env, "userlist.html", env.Data);
 
-            List<object> accounts = (List<object>)env.Data;
-
-            if (accounts != null && accounts.Count > 0)
-            {
-                return m_WebApp.ReadFile(env, "userlist.html", accounts);
-            }
-
-            return retString;
+            return "No users found";
         }
 
         private string GetRegionManagementForm(Environment env)
         {
-            return m_WebApp.ReadFile(env, "region-form.html", env.Data);
+            if (env.Data != null && env.Data.Count > 0)
+                return m_WebApp.ReadFile(env, "region-form.html", env.Data);
+
+            return "No regions found";
         }
 
     }

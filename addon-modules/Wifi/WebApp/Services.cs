@@ -603,7 +603,7 @@ namespace Diva.Wifi
             foreach (string uri in uris)
             {
                 string uri2 = uri.Substring(0, uri.Length - 1);
-                m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
+                //m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
                 if (!uri.EndsWith("/"))
                     html = html.Replace(uri, uri2 + "/?sid=" + sid + "\"");
                 else
@@ -632,7 +632,7 @@ namespace Diva.Wifi
             else
             {
                 m_log.DebugFormat("[WebApp]: GetUserList got null users from DB");
-                return null;
+                return new List<object>();
             }
 
         }
