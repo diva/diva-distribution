@@ -113,6 +113,20 @@ namespace Diva.Wifi
                     result = m_WebApp.Services.UserDeleteGetRequest(env, userID);
                 }
             }
+            else if (resource.StartsWith("/activate"))
+            {
+                // client invoked /wifi/admin/users/activate, possibly with the UUID parameter after
+                UUID userID = UUID.Zero;
+
+                string[] pars = SplitParams(path);
+                if (pars.Length >= 2)
+                {
+                    // indeed, client invoked /wifi/admin/users/activate/<uuid>
+                    // let's grab that uuid 
+                    UUID.TryParse(pars[1], out userID);
+                    result = m_WebApp.Services.UserActivateGetRequest(env, userID);
+                }
+            }
 
             return WifiUtils.StringToBytes(result);
 

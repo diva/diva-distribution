@@ -153,6 +153,9 @@ namespace Diva.Wifi
                 if ((env.Flags & StateFlags.UserDeleteFormResponse) != 0)
                     return "The account has been deleted.";
 
+                if ((env.Flags & StateFlags.UserActivateResponse) != 0)
+                    return "The account has been activated.";
+
                 if ((env.Flags & StateFlags.RegionManagementForm) != 0)
                     return GetRegionManagementForm(env);
                 if ((env.Flags & StateFlags.RegionManagementSuccessful) != 0)

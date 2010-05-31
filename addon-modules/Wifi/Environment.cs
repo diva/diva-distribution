@@ -100,6 +100,7 @@ namespace Diva.Wifi
         RegionManagementSuccessful = 131072,
         RegionManagementUnsuccessful = 262144,
         ForgotPassword = 524288,
-        RecoveringPassword = 1048576
+        RecoveringPassword = 1048576,
+        UserActivateResponse = 2097152
     }
 }

@@ -349,16 +349,28 @@ namespace Diva.Wifi
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
                 if (account == null)
                 {
+
+                    //attach pending identifier to first name
+                    first = "*pending*" + first;
+
                     // Create the account
                     account = new UserAccount(UUID.Zero, first, last, email);
-                    SetServiceURLs(account);
+
+                    // Store password in the service URL
+                    account.ServiceURLs = new Dictionary<string, object>();
+
+                    //HomeURI acts as temporary password container
+                    account.ServiceURLs["HomeURI"] = password;
+                    account.ServiceURLs["InventoryServerURI"] = m_WebApp.LoginURL.ToString();
+                    account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
+
                     m_UserAccountService.StoreUserAccount(account);
 
                     // Create the inventory
                     m_InventoryService.CreateUserInventory(account.PrincipalID);
 
                     // Store the password
-                    m_AuthenticationService.SetPassword(account.PrincipalID, password);
+                    //m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                     env.Flags = StateFlags.NewAccountFormResponse;
                     m_log.DebugFormat("[WebApp]: Created account for user {0}", account.Name);
@@ -386,6 +398,7 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserSearchForm;
+                env.Data = GetUserList(env, "*pending*");
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
@@ -512,6 +525,41 @@ namespace Diva.Wifi
                     List<object> loo = new List<object>();
                     loo.Add(account);
                     env.Data = loo;
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+        }
+
+        public string UserActivateGetRequest(Environment env, UUID userID)
+        {
+            m_log.DebugFormat("[WebApp]: UserActivateGetRequest {0}", userID);
+            Request request = env.Request;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            {
+                env.Session = sinfo;
+                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserActivateResponse;
+                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                if (account != null)
+                {
+                    //remove pending identifier in name
+                    account.FirstName = account.FirstName.Replace("*pending*", "") ;
+                    
+                    //set serviceURLs back to normal
+                    string password = (string)account.ServiceURLs["HomeURI"];
+                    account.ServiceURLs["HomeURI"] = m_WebApp.LoginURL.ToString();
+
+                    //save changes
+                    m_UserAccountService.StoreUserAccount(account);
+
+                    // Set the password
+                    m_AuthenticationService.SetPassword(account.PrincipalID, password);
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
