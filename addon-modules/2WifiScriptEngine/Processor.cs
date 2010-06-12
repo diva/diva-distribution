@@ -138,7 +138,7 @@ namespace Diva.Wifi.WifiScript
             // Break the recursive includes
             if (m_ListOfObjects != null)
             {
-                if (m_Index == m_ListOfObjects.Count)
+                if (m_ListOfObjects.Count > 0 && m_Index == m_ListOfObjects.Count)
                     return string.Empty;
                 m_Index++;
             }
@@ -184,7 +184,7 @@ namespace Diva.Wifi.WifiScript
                     {
                         m_log.DebugFormat("[WifiScript]: Variable {0} not found in {1}. Trying Data type.", name, pinfo.ReflectedType);
                         // Try the Data type
-                        if (m_ListOfObjects != null)
+                        if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
                         {
                             object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
                             Type type = o.GetType();
@@ -210,7 +210,7 @@ namespace Diva.Wifi.WifiScript
                 // [Obsolete] This should be removed when the other options are proven to work
                 else if (kind == "method")
                 {
-                    if (m_ListOfObjects != null)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
                     {
                         object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
                         Type type = o.GetType();
@@ -231,7 +231,7 @@ namespace Diva.Wifi.WifiScript
                 }
                 else if (kind == "field")
                 {
-                    if (m_ListOfObjects != null)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
                     {
                         // Let's search in the list of objects
                         //m_log.DebugFormat("[WifiScript]: index = {0}", m_Index);
@@ -248,7 +248,7 @@ namespace Diva.Wifi.WifiScript
                             m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}", name, type);
                     }
                     else
-                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null list of objects", name);
+                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null or empty list of objects", name);
                 }
 
                 if (value != null)
@@ -301,18 +301,21 @@ namespace Diva.Wifi.WifiScript
                 // Then try the Data type
                 try
                 {
-                    object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
-                    if (o != null)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
                     {
-                        Type type = o.GetType();
-                        if (type != null)
+                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        if (o != null)
                         {
-                            MethodInfo met = type.GetMethod(methodName);
-
-                            if (met != null)
+                            Type type = o.GetType();
+                            if (type != null)
                             {
-                                String s = (String)met.Invoke(o, null);
-                                return s;
+                                MethodInfo met = type.GetMethod(methodName);
+
+                                if (met != null)
+                                {
+                                    String s = (String)met.Invoke(o, null);
+                                    return s;
+                                }
                             }
                         }
                     }
@@ -324,15 +327,18 @@ namespace Diva.Wifi.WifiScript
                 // Then try the Extension Methods
                 try
                 {
-                    object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
-                    if (m_ExtensionMethods.GetMethod(methodName) != null)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
                     {
-                        arg = new object[] { o };
-                        int value = (int)m_ExtensionMethods.InvokeMember(methodName,
-                            BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
-                            null, null, arg);
+                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        if (m_ExtensionMethods.GetMethod(methodName) != null)
+                        {
+                            arg = new object[] { o };
+                            int value = (int)m_ExtensionMethods.InvokeMember(methodName,
+                                BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
+                                null, null, arg);
 
-                        return value.ToString();
+                            return value.ToString();
+                        }
                     }
                 }
                 catch (Exception e)

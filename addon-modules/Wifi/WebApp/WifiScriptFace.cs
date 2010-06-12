@@ -153,6 +153,9 @@ namespace Diva.Wifi
                 if ((env.Flags & StateFlags.UserDeleteFormResponse) != 0)
                     return "The account has been deleted.";
 
+                if ((env.Flags & StateFlags.UserActivateResponse) != 0)
+                    return "The account has been activated.";
+
                 if ((env.Flags & StateFlags.RegionManagementForm) != 0)
                     return GetRegionManagementForm(env);
                 if ((env.Flags & StateFlags.RegionManagementSuccessful) != 0)
@@ -236,21 +239,18 @@ namespace Diva.Wifi
 
         private string GetUserList(Environment env)
         {
-            string retString = "No users found.";
+            if (env.Data != null && env.Data.Count > 0)
+                return m_WebApp.ReadFile(env, "userlist.html", env.Data);
 
-            List<object> accounts = (List<object>)env.Data;
-
-            if (accounts != null && accounts.Count > 0)
-            {
-                return m_WebApp.ReadFile(env, "userlist.html", accounts);
-            }
-
-            return retString;
+            return "No users found";
         }
 
         private string GetRegionManagementForm(Environment env)
         {
-            return m_WebApp.ReadFile(env, "region-form.html", env.Data);
+            if (env.Data != null && env.Data.Count > 0)
+                return m_WebApp.ReadFile(env, "region-form.html", env.Data);
+
+            return "No regions found";
         }
 
     }
