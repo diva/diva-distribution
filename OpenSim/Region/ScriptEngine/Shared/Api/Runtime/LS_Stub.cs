@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -25,40 +25,52 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.IO;
-using NUnit.Framework;
-using OpenSim.Data.Tests;
-using OpenSim.Tests.Common;
+using System;
+using System.Runtime.Remoting.Lifetime;
+using System.Threading;
+using System.Reflection;
+using System.Collections;
+using System.Collections.Generic;
+using OpenSim.Framework;
+using OpenSim.Region.Framework.Interfaces;
+using OpenSim.Region.ScriptEngine.Interfaces;
+using OpenSim.Region.ScriptEngine.Shared.Api.Interfaces;
+using integer = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLInteger;
+using vector = OpenSim.Region.ScriptEngine.Shared.LSL_Types.Vector3;
+using rotation = OpenSim.Region.ScriptEngine.Shared.LSL_Types.Quaternion;
+using key = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLString;
+using LSL_List = OpenSim.Region.ScriptEngine.Shared.LSL_Types.list;
+using LSL_String = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLString;
+using LSL_Float = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLFloat;
+using LSL_Integer = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLInteger;
 
-namespace OpenSim.Data.SQLite.Tests
+namespace OpenSim.Region.ScriptEngine.Shared.ScriptBase
 {
-    [TestFixture, DatabaseTest]
-    public class SQLiteAssetTest : BasicAssetTest
+    public partial class ScriptBaseClass : MarshalByRefObject
     {
-        public string file;
-        public string connect;
-        
-        [TestFixtureSetUp]
-        public void Init()
-        {
-            // SQLite doesn't work on power or z linux
-            if (Directory.Exists("/proc/ppc64") || Directory.Exists("/proc/dasd"))
-            {
-                Assert.Ignore();
-            }
+        public ILS_Api m_LS_Functions;
 
-            SuperInit();
-            file = Path.GetTempFileName() + ".db";
-            connect = "URI=file:" + file + ",version=3";
-            db = new SQLiteAssetData();
-            db.Initialise(connect);
+        public void ApiTypeLS(IScriptApi api)
+        {
+            if (!(api is ILS_Api))
+                return;
+
+            m_LS_Functions = (ILS_Api)api;
         }
 
-        [TestFixtureTearDown]
-        public void Cleanup()
+        public LSL_List lsGetWindlightScene(LSL_List rules)
         {
-            db.Dispose();
-            File.Delete(file);
+            return m_LS_Functions.lsGetWindlightScene(rules);
+        }
+
+        public int lsSetWindlightScene(LSL_List rules)
+        {
+            return m_LS_Functions.lsSetWindlightScene(rules);
+        }
+
+        public int lsSetWindlightSceneTargeted(LSL_List rules, key target)
+        {
+            return m_LS_Functions.lsSetWindlightSceneTargeted(rules, target);
         }
     }
 }

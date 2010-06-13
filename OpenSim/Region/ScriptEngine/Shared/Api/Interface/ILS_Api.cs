@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -25,22 +25,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System.Collections.Generic;
-using Nini.Config;
-using OpenMetaverse;
-using OpenSim.Services.Interfaces;
+using System.Collections;
+using OpenSim.Region.ScriptEngine.Interfaces;
 
-namespace OpenSim.Tests.Common.Mock
-{        
-    public class MockUserAccountService : IUserAccountService
-    {        
+using key = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLString;
+using rotation = OpenSim.Region.ScriptEngine.Shared.LSL_Types.Quaternion;
+using vector = OpenSim.Region.ScriptEngine.Shared.LSL_Types.Vector3;
+using LSL_List = OpenSim.Region.ScriptEngine.Shared.LSL_Types.list;
+using LSL_String = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLString;
+using LSL_Integer = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLInteger;
+using LSL_Float = OpenSim.Region.ScriptEngine.Shared.LSL_Types.LSLFloat;
 
-        public MockUserAccountService(IConfigSource config) {}
-        
-        public UserAccount GetUserAccount(UUID scopeID, UUID userID) { return new UserAccount(); }
-        public UserAccount GetUserAccount(UUID scopeID, string FirstName, string LastName) { return new UserAccount(); }           
-        public UserAccount GetUserAccount(UUID scopeID, string Email) { return new UserAccount(); }
-        public List<UserAccount> GetUserAccounts(UUID scopeID, string query) { return new List<UserAccount>(); }
-        public bool StoreUserAccount(UserAccount data) { return true; }
+namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
+{
+    public interface ILS_Api
+    {
+        // Windlight Functions
+        LSL_List lsGetWindlightScene(LSL_List rules);
+        int lsSetWindlightScene(LSL_List rules);
+        int lsSetWindlightSceneTargeted(LSL_List rules, key target);
     }
 }

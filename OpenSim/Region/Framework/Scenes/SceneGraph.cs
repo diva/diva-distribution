@@ -206,6 +206,43 @@ namespace OpenSim.Region.Framework.Scenes
             });
         }
 
+        public void GetCoarseLocations(out List<Vector3> coarseLocations, out List<UUID> avatarUUIDs, uint maxLocations)
+        {
+            coarseLocations = new List<Vector3>();
+            avatarUUIDs = new List<UUID>();
+
+            List<ScenePresence> presences = GetScenePresences();
+            for (int i = 0; i < Math.Min(presences.Count, maxLocations); ++i)
+            {
+                ScenePresence sp = presences[i];
+                // If this presence is a child agent, we don't want its coarse locations
+                if (sp.IsChildAgent)
+                    return;
+
+                if (sp.ParentID != 0)
+                {
+                    // sitting avatar
+                    SceneObjectPart sop = m_parentScene.GetSceneObjectPart(sp.ParentID);
+                    if (sop != null)
+                    {
+                        coarseLocations.Add(sop.AbsolutePosition + sp.AbsolutePosition);
+                        avatarUUIDs.Add(sp.UUID);
+                    }
+                    else
+                    {
+                        // we can't find the parent..  ! arg!
+                        coarseLocations.Add(sp.AbsolutePosition);
+                        avatarUUIDs.Add(sp.UUID);
+                    }
+                }
+                else
+                {
+                    coarseLocations.Add(sp.AbsolutePosition);
+                    avatarUUIDs.Add(sp.UUID);
+                }
+            }
+        }
+
         #endregion
 
         #region Entity Methods
@@ -222,11 +259,15 @@ namespace OpenSim.Region.Framework.Scenes
         /// If true, we won't persist this object until it changes
         /// If false, we'll persist this object immediately
         /// </param>
+        /// <param name="sendClientUpdates">
+        /// If true, we send updates to the client to tell it about this object
+        /// If false, we leave it up to the caller to do this
+        /// </param>
         /// <returns>
         /// true if the object was added, false if an object with the same uuid was already in the scene
         /// </returns>
         protected internal bool AddRestoredSceneObject(
-            SceneObjectGroup sceneObject, bool attachToBackup, bool alreadyPersisted)
+            SceneObjectGroup sceneObject, bool attachToBackup, bool alreadyPersisted, bool sendClientUpdates)
         {
             if (!alreadyPersisted)
             {
@@ -234,9 +275,9 @@ namespace OpenSim.Region.Framework.Scenes
                 sceneObject.HasGroupChanged = true;
             }
 
-            return AddSceneObject(sceneObject, attachToBackup, true);
+            return AddSceneObject(sceneObject, attachToBackup, sendClientUpdates);
         }
-
+                
         /// <summary>
         /// Add a newly created object to the scene.  This will both update the scene, and send information about the
         /// new object to all clients interested in the scene.
@@ -1500,7 +1541,7 @@ namespace OpenSim.Region.Framework.Scenes
 
                 // We need to explicitly resend the newly link prim's object properties since no other actions
                 // occur on link to invoke this elsewhere (such as object selection)
-                parentGroup.RootPart.AddFlag(PrimFlags.CreateSelected);
+                parentGroup.RootPart.CreateSelected = true;
                 parentGroup.TriggerScriptChangedEvent(Changed.LINK);
                 parentGroup.HasGroupChanged = true;
                 parentGroup.ScheduleGroupForFullUpdate();

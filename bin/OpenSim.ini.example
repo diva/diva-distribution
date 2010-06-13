@@ -126,7 +126,7 @@
     ; -->>> There are multiple connection strings defined in several places. Check it carefully!
     ;
     ; storage_plugin="OpenSim.Data.MySQL.dll"
-    ; storage_connection_string="Data Source=localhost;Database=opensim;User ID=opensim;Password=*****;";
+    ; storage_connection_string="Data Source=localhost;Database=opensim;User ID=opensim;Password=*****;Old Guids=true;";
     ; If you want to use a different database/server for estate data, then
     ; uncomment and change this connect string. Defaults to the above if not set
     ; estate_connection_string="Data Source=localhost;Database=opensim;User ID=opensim;Password=*****;";
@@ -935,6 +935,9 @@
 
     ; Allow the use of os* functions (some are dangerous)
     AllowOSFunctions = false
+    
+    ; Allow the user of LightShare functions
+    AllowLightShareFunctions = false
 
     ; Threat level to allow, one of None, VeryLow, Low, Moderate, High, VeryHigh, Severe
     OSFunctionThreatLevel = VeryLow
@@ -978,6 +981,12 @@
 
     ; Comma separated list of UUIDS allows the function for that list of UUIDS
     ; Allow_osSetRegionWaterHeight = 888760cb-a3cf-43ac-8ea4-8732fd3ee2bb
+
+    ; You can also use script creators as the uuid
+    ; Creators_osSetRegionWaterHeight = <uuid>, ...
+
+    ; If both Allow_ and Creators_ are given, effective permissions
+    ; are the union of the two.
 
     ; Allow for llCreateLink and llBreakLink to work without asking for permission
     ; only enable this in a trusted environment otherwise you may be subject to hijacking
@@ -1165,44 +1174,42 @@
 [Groups]
     Enabled = false
 
-    ; This is the current groups stub in Region.CoreModules.Avatar.Groups
+    ; This is the current groups stub in Region.CoreModules.Avatar.Groups.  All the other settings below only really
+    ; apply to the Flotsam/SimianGrid GroupsModule
     Module  = Default
 
-    ; The PHP code for the server is available from the Flotsam project for you to deploy
-    ; to your own server.  The Flotsam project is located at http://code.google.com/p/flotsam/
-    ;
+    ; This module can use a PHP XmlRpc server from the Flotsam project at http://code.google.com/p/flotsam/
+    ; or from the SimianGrid project at http://code.google.com/p/openmetaverse
     ;Module  = GroupsModule
 
     ; Enable Group Notices
-    ;NoticesEnabled   = true
+    ;NoticesEnabled   = true 
 
     ; This makes the Groups modules very chatty on the console.
     DebugEnabled     = false
 
     ; Specify which messaging module to use for groups messaging and if it's enabled
     ;MessagingModule = GroupsMessagingModule
-    ;MessagingEnabled = true
+    ;MessagingEnabled = true 
 
-    ; Service connector to Groups Service [Select One] ServicesConnectorModule
-
-	
-    ; Simian Grid Service for Groups
+    ; Service connectors to the Groups Service.  Select one depending on whether you're using a Flotsam XmlRpc backend or a SimianGrid backend
+  
+    ; SimianGrid Service for Groups
     ;ServicesConnectorModule = SimianGroupsServicesConnector
     ;GroupsServerURI = http://mygridserver.com:82/Grid/
 
-    ; XmlRpc Service Connector to the Flotsam XmlRpc Groups Service settings
+    ; Flotsam XmlRpc Service for Groups
     ;ServicesConnectorModule = XmlRpcGroupsServicesConnector
     ;GroupsServerURI        = http://yourxmlrpcserver.com/xmlrpc.php
 
-    ; XmlRpc Service Settings
-    ;XmlRpcServiceReadKey    = 1234
-    ;XmlRpcServiceWriteKey   = 1234
+    ; XmlRpc Security settings.  These must match those set on your backend groups service.
+    ;XmlRpcServiceReadKey    = 1234 
+    ;XmlRpcServiceWriteKey   = 1234 
 
     ; Disables HTTP Keep-Alive for XmlRpcGroupsServicesConnector HTTP Requests,
     ; this is a work around fora problem discovered on some Windows based region servers.
     ; Only disable keep alive if you see a large number (dozens) of the following Exceptions:
     ; System.Net.WebException: The request was aborted: The request was canceled.
-    ;
     ; XmlRpcDisableKeepAlive = false
 
 

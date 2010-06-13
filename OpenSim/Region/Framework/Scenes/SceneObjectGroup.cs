@@ -652,10 +652,16 @@ namespace OpenSim.Region.Framework.Scenes
         /// offsetHeight is the offset in the Z axis from the centre of the bounding box to the centre of the root prim
         /// </summary>
         /// <returns></returns>
-        public Vector3 GetAxisAlignedBoundingBox(out float offsetHeight)
+        public void GetAxisAlignedBoundingBoxRaw(out float minX, out float maxX, out float minY, out float maxY, out float minZ, out float maxZ)
         {
-            float maxX = -256f, maxY = -256f, maxZ = -256f, minX = 256f, minY = 256f, minZ = 256f;
-            lock (m_parts)
+            maxX = -256f;
+            maxY = -256f;
+            maxZ = -256f;
+            minX = 256f;
+            minY = 256f;
+            minZ = 8192f;
+
+            lock(m_parts);
             {
                 foreach (SceneObjectPart part in m_parts.Values)
                 {
@@ -888,7 +894,18 @@ namespace OpenSim.Region.Framework.Scenes
                         minZ = backBottomLeft.Z;
                 }
             }
+        }
 
+        public Vector3 GetAxisAlignedBoundingBox(out float offsetHeight)
+        {
+            float minX;
+            float maxX;
+            float minY;
+            float maxY;
+            float minZ;
+            float maxZ;
+
+            GetAxisAlignedBoundingBoxRaw(out minX, out maxX, out minY, out maxY, out minZ, out maxZ);
             Vector3 boundingBox = new Vector3(maxX - minX, maxY - minY, maxZ - minZ);
 
             offsetHeight = 0;
@@ -1035,6 +1052,7 @@ namespace OpenSim.Region.Framework.Scenes
                 return;
 
             detachedpos = avatar.AbsolutePosition;
+            RootPart.FromItemID = UUID.Zero;
 
             AbsolutePosition = detachedpos;
             m_rootPart.AttachedAvatar = UUID.Zero;
@@ -1995,7 +2013,8 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         public void ScheduleGroupForFullUpdate()
         {
-//            m_log.DebugFormat("[SOG]: Scheduling full update for {0} {1}", Name, UUID);
+            if (IsAttachment)
+                m_log.DebugFormat("[SOG]: Scheduling full update for {0} {1}", Name, LocalId);
             
             checkAtTargets();
             RootPart.ScheduleFullUpdate();
@@ -2254,7 +2273,7 @@ namespace OpenSim.Region.Framework.Scenes
                 linkPart.LinkNum = 2;
 
                 linkPart.SetParent(this);
-                linkPart.AddFlag(PrimFlags.CreateSelected);
+                linkPart.CreateSelected = true;
 
                 //if (linkPart.PhysActor != null)
                 //{

@@ -331,6 +331,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         /// </value>
         protected HashSet<uint> m_killRecord;
         
+//        protected HashSet<uint> m_attachmentsSent;        
+        
         private int m_moneyBalance;
         private int m_animationSequenceNumber = 1;
         private bool m_SendLogoutPacketWhenClosing = true;
@@ -427,6 +429,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             m_entityUpdates = new PriorityQueue(m_scene.Entities.Count);
             m_fullUpdateDataBlocksBuilder = new List<ObjectUpdatePacket.ObjectDataBlock>();
             m_killRecord = new HashSet<uint>();
+//            m_attachmentsSent = new HashSet<uint>();            
 
             m_assetService = m_scene.RequestModuleInterface<IAssetService>();
             m_hyperAssets = m_scene.RequestModuleInterface<IHyperAssetService>();
@@ -3411,6 +3414,9 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             objupdate.ObjectData[0] = CreateAvatarUpdateBlock(presence);
 
             OutPacket(objupdate, ThrottleOutPacketType.Task);
+            
+            // We need to record the avatar local id since the root prim of an attachment points to this.
+//            m_attachmentsSent.Add(avatar.LocalId);            
         }
 
         public void SendCoarseLocationUpdate(List<UUID> users, List<Vector3> CoarseLocations)
@@ -3420,7 +3426,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             CoarseLocationUpdatePacket loc = (CoarseLocationUpdatePacket)PacketPool.Instance.GetPacket(PacketType.CoarseLocationUpdate);
             loc.Header.Reliable = false;
 
-            // Each packet can only hold around 62 avatar positions and the client clears the mini-map each time
+            // Each packet can only hold around 60 avatar positions and the client clears the mini-map each time
             // a CoarseLocationUpdate packet is received. Oh well.
             int total = Math.Min(CoarseLocations.Count, 60);
 
@@ -3466,7 +3472,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             double priority = m_prioritizer.GetUpdatePriority(this, entity);
 
             lock (m_entityUpdates.SyncRoot)
-                m_entityUpdates.Enqueue(priority, new EntityUpdate(entity, updateFlags), entity.LocalId);
+                m_entityUpdates.Enqueue(priority, new EntityUpdate(entity, updateFlags), entity.LocalId);                  
         }
 
         private void ProcessEntityUpdates(int maxUpdates)
@@ -3542,9 +3548,42 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                     if (!canUseImproved && !canUseCompressed)
                     {
                         if (update.Entity is ScenePresence)
+                        {
                             objectUpdateBlocks.Value.Add(CreateAvatarUpdateBlock((ScenePresence)update.Entity));
+                        }
                         else
-                            objectUpdateBlocks.Value.Add(CreatePrimUpdateBlock((SceneObjectPart)update.Entity, this.m_agentId));
+                        {
+//                            if (update.Entity is SceneObjectPart && ((SceneObjectPart)update.Entity).IsAttachment)
+//                            {
+//                                SceneObjectPart sop = (SceneObjectPart)update.Entity;
+//                                string text = sop.Text;
+//                                if (text.IndexOf("\n") >= 0)
+//                                    text = text.Remove(text.IndexOf("\n"));
+//                                
+//                                if (m_attachmentsSent.Contains(sop.ParentID))
+//                                {
+////                                    m_log.DebugFormat(
+////                                        "[CLIENT]: Sending full info about attached prim {0} text {1}",
+////                                        sop.LocalId, text);
+//                                    
+//                                    objectUpdateBlocks.Value.Add(CreatePrimUpdateBlock(sop, this.m_agentId));
+//                                    
+//                                    m_attachmentsSent.Add(sop.LocalId);
+//                                }
+//                                else
+//                                {
+//                                    m_log.DebugFormat(
+//                                        "[CLIENT]: Requeueing full update of prim {0} text {1} since we haven't sent its parent {2} yet", 
+//                                        sop.LocalId, text, sop.ParentID);
+//                                    
+//                                    m_entityUpdates.Enqueue(double.MaxValue, update, sop.LocalId);                  
+//                                }
+//                            }
+//                            else
+//                            {                            
+                                objectUpdateBlocks.Value.Add(CreatePrimUpdateBlock((SceneObjectPart)update.Entity, this.m_agentId));
+//                            }
+                        }
                     }
                     else if (!canUseImproved)
                     {
@@ -4558,11 +4597,11 @@ namespace OpenSim.Region.ClientStack.LindenUDP
 
             if (recipientID == data.OwnerID)
             {
-                if ((data.Flags & PrimFlags.CreateSelected) != 0)
+                if (data.CreateSelected)
                 {
                     // Only send this flag once, then unset it
                     flags |= PrimFlags.CreateSelected;
-                    data.Flags &= ~PrimFlags.CreateSelected;
+                    data.CreateSelected = false;
                 }
             }
 
@@ -4918,14 +4957,15 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                     arg.SessionID = x.SessionID;
                     arg.State = x.State;
                     UpdateAgent handlerAgentUpdate = OnAgentUpdate;
+                    UpdateAgent handlerPreAgentUpdate = OnPreAgentUpdate;
                     lastarg = arg; // save this set of arguments for nexttime
-                    if (handlerAgentUpdate != null)
-                    {
+                    if (handlerPreAgentUpdate != null)
                         OnPreAgentUpdate(this, arg);
+                    if (handlerAgentUpdate != null)
                         OnAgentUpdate(this, arg);
-                    }
 
                     handlerAgentUpdate = null;
+                    handlerPreAgentUpdate = null;
                 }
             }
 
@@ -11802,6 +11842,61 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             buttons[0].ButtonLabel = Util.StringToBytes256("!!llTextBox!!");
             dialog.Buttons = buttons;
             OutPacket(dialog, ThrottleOutPacketType.Task);
+        }
+
+        public void StopFlying(ISceneEntity p)
+        {
+            if (p is ScenePresence)
+            {
+                ScenePresence presence = p as ScenePresence;
+                // It turns out to get the agent to stop flying, you have to feed it stop flying velocities
+                // There's no explicit message to send the client to tell it to stop flying..   it relies on the 
+                // velocity, collision plane and avatar height
+
+                // Add 1/6 the avatar's height to it's position so it doesn't shoot into the air
+                // when the avatar stands up
+
+                Vector3 pos = presence.AbsolutePosition;
+
+                if (presence.Appearance.AvatarHeight != 127.0f)
+                    pos += new Vector3(0f, 0f, (presence.Appearance.AvatarHeight/6f));
+                else
+                    pos += new Vector3(0f, 0f, (1.56f/6f));
+
+                presence.AbsolutePosition = pos;
+
+                // attach a suitable collision plane regardless of the actual situation to force the LLClient to land.
+                // Collision plane below the avatar's position a 6th of the avatar's height is suitable.
+                // Mind you, that this method doesn't get called if the avatar's velocity magnitude is greater then a 
+                // certain amount..   because the LLClient wouldn't land in that situation anyway.
+
+                // why are we still testing for this really old height value default???
+                if (presence.Appearance.AvatarHeight != 127.0f)
+                    presence.CollisionPlane = new Vector4(0, 0, 0, pos.Z - presence.Appearance.AvatarHeight/6f);
+                else
+                    presence.CollisionPlane = new Vector4(0, 0, 0, pos.Z - (1.56f/6f));
+
+
+                ImprovedTerseObjectUpdatePacket.ObjectDataBlock block =
+                    CreateImprovedTerseBlock(p, false);
+
+                const float TIME_DILATION = 1.0f;
+                ushort timeDilation = Utils.FloatToUInt16(TIME_DILATION, 0.0f, 1.0f);
+
+
+                ImprovedTerseObjectUpdatePacket packet = new ImprovedTerseObjectUpdatePacket();
+                packet.RegionData.RegionHandle = m_scene.RegionInfo.RegionHandle;
+                packet.RegionData.TimeDilation = timeDilation;
+                packet.ObjectData = new ImprovedTerseObjectUpdatePacket.ObjectDataBlock[1];
+
+                packet.ObjectData[0] = block;
+
+                OutPacket(packet, ThrottleOutPacketType.Task, true);
+            }
+
+            //ControllingClient.SendAvatarTerseUpdate(new SendAvatarTerseData(m_rootRegionHandle, (ushort)(m_scene.TimeDilation * ushort.MaxValue), LocalId,
+            //        AbsolutePosition, Velocity, Vector3.Zero, m_bodyRot, new Vector4(0,0,1,AbsolutePosition.Z - 0.5f), m_uuid, null, GetUpdatePriority(ControllingClient)));
+
         }
     }
 }
