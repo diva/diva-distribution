@@ -30,6 +30,7 @@
   <Reference name="OpenSim.Services.Interfaces"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
   <Reference name="OpenSim.Services.AuthenticationService"/>
+  <Reference name="OpenSim.Services.InventoryService"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

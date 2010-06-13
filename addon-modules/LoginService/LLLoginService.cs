@@ -163,6 +163,10 @@ namespace Diva.LoginService
                 if (inventorySkel == null)
                     inventorySkel = new List<InventoryFolderBase>();
 
+                // Get active gestures
+                List<InventoryItemBase> gestures = m_InventoryService.GetActiveGestures(account.PrincipalID);
+                m_log.DebugFormat("[LLOGIN SERVICE]: {0} active gestures", gestures.Count);
+
                 //
                 // From here on, things should be exactly the same for all users
                 //
@@ -224,7 +228,7 @@ namespace Diva.LoginService
                 // Instantiate/get the simulation interface and launch an agent at the destination
                 //
                 string reason = string.Empty;
-                AgentCircuitData aCircuit = LaunchAgentAtGrid(gatekeeper, destination, account, avatar, session, secureSession, position, where, clientVersion, out where, out reason);
+                AgentCircuitData aCircuit = LaunchAgentAtGrid(gatekeeper, destination, account, avatar, session, secureSession, position, where, clientVersion, clientIP, out where, out reason);
 
                 if (aCircuit == null)
                 {
@@ -245,7 +249,7 @@ namespace Diva.LoginService
                 // Finally, fill out the response and return it
                 //
                 LLLoginResponse response = new LLLoginResponse(account, aCircuit, guinfo, destination, inventorySkel, friendsList, m_LibraryService,
-                    where, startLocation, position, lookAt, m_WelcomeMessage, home, clientIP);
+                    where, startLocation, position, lookAt, gestures, m_WelcomeMessage, home, clientIP);
 
                 m_log.DebugFormat("[DIVA LLOGIN SERVICE]: All clear. Sending login response to client.");
                 return response;

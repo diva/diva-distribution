@@ -218,7 +218,6 @@ namespace Diva.Wifi
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.RecoverPasswordPostRequest(env, email, token, newPassword);
-                m_Log.Debug("Returning " + result);
                 return WifiUtils.StringToBytes(result);
             }
             catch (Exception e)

@@ -50,11 +50,18 @@ namespace Diva.Wifi
             get { return m_Request; }
         }
 
-        private StateFlags m_Flags;
-        public StateFlags Flags
+        private Flags m_Flags;
+        public Flags Flags
         {
             get { return m_Flags; }
             set { m_Flags = value; }
+        }
+
+        private State m_State;
+        public State State
+        {
+            get { return m_State; }
+            set { m_State = value; }
         }
 
         private SessionInfo m_Session;
@@ -78,29 +85,37 @@ namespace Diva.Wifi
 
     }
 
-    public enum StateFlags : uint
+    public enum Flags : uint
     {
+        IsLoggedIn = 1,
+        IsAdmin = 2
+    }
+
+    public enum State : uint
+    {
+        Default = 0,
         InstallForm = 1,
         InstallFormResponse = 2,
-        FailedLogin = 4,
-        SuccessfulLogin = 8,
-        IsLoggedIn = 16,
-        IsAdmin = 32,
-        UserAccountForm = 64,
-        UserAccountFormResponse = 128,
-        NewAccountForm = 256,
-        NewAccountFormResponse = 512,
-        UserSearchForm = 1024,
-        UserSearchFormResponse = 2048,
-        UserEditForm = 4096,
-        UserEditFormResponse = 8192,
-        RegionManagementForm = 16384,
-        UserDeleteForm = 32768,
-        UserDeleteFormResponse = 65536,
-        RegionManagementSuccessful = 131072,
-        RegionManagementUnsuccessful = 262144,
-        ForgotPassword = 524288,
-        RecoveringPassword = 1048576,
-        UserActivateResponse = 2097152
+        FailedLogin = 3,
+        SuccessfulLogin = 4,
+        UserAccountForm = 5,
+        UserAccountFormResponse = 6,
+        NewAccountForm = 7,
+        NewAccountFormResponse = 8,
+        UserSearchForm = 9,
+        UserSearchFormResponse = 10,
+        UserEditForm = 11,
+        UserEditFormResponse = 12,
+        RegionManagementForm = 13,
+        UserDeleteForm = 14,
+        UserDeleteFormResponse = 15,
+        UserActivateResponse = 26,
+        RegionManagementSuccessful = 17,
+        RegionManagementUnsuccessful = 18,
+        ForgotPassword = 19,
+        PasswordRecoveryMessageSent = 20,
+        RecoveringPassword = 21,
+        PasswordRecovered = 22,
+        BadPassword = 23
     }
 }

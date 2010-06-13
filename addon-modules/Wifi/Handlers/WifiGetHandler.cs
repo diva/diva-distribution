@@ -71,7 +71,7 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
 
             string resource = GetParam(path);
-            m_log.DebugFormat("[Wifi]: resource {0}", resource);
+            //m_log.DebugFormat("[Wifi]: resource {0}", resource);
             resource = resource.Trim(new char[] { '/' });
 
             Request request = WifiUtils.CreateRequest(resource, httpRequest);
@@ -80,9 +80,8 @@ namespace Diva.Wifi
             if (resource == string.Empty || resource.StartsWith("index."))
             {
                 httpResponse.ContentType = "text/html";
-                string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "index.html");
-                Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-                return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
+                
+                return WifiUtils.StringToBytes(GenerateIndex(env));
             }
             else
             {
@@ -95,13 +94,23 @@ namespace Diva.Wifi
                 if (type.StartsWith("text"))
                 {
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-                    return WifiUtils.StringToBytes(p.Process(WifiUtils.ReadTextResource(resourcePath)));
+                    string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
+                    if (res == string.Empty)
+                        res = GenerateIndex(env);
+                    return WifiUtils.StringToBytes(res);
                 }
             }
 
             httpResponse.ContentType = "text/plain";
             string result = "Boo!";
             return WifiUtils.StringToBytes(result);
+        }
+
+        private string GenerateIndex(Diva.Wifi.Environment env)
+        {
+            string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "index.html");
+            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+            return p.Process(WifiUtils.ReadTextResource(resourcePath));
         }
 
         private string GetResource(string path)

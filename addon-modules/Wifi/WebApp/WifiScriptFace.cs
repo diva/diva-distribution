@@ -105,62 +105,71 @@ namespace Diva.Wifi
 
         public string GetContent(Environment env)
         {
-            m_log.DebugFormat("[WifiScriptFace]: GetContent, flags {0} ({1})", env.Flags, (uint)env.Flags);
+            m_log.DebugFormat("[WifiScriptFace]: GetContent, flags {0} ({1})", env.State, (uint)env.State);
 
             //if (!Environment.IsInstalled)
             //    return "Welcome! Please install Wifi.";
-            if ((env.Flags & StateFlags.InstallForm) != 0)
+            if (env.State == State.InstallForm)
                 return m_WebApp.ReadFile(env, "installform.html");
-            if ((env.Flags & StateFlags.InstallFormResponse) != 0)
+            if (env.State == State.InstallFormResponse)
                 return "Your Wifi has been installed. The administrator account is " + m_WebApp.AdminFirst + " " + m_WebApp.AdminLast;
 
-            if ((env.Flags & StateFlags.ForgotPassword) != 0)
+            if (env.State == State.ForgotPassword)
                 return m_WebApp.ReadFile(env, "forgotpasswordform.html");
-            if ((env.Flags & StateFlags.RecoveringPassword) != 0)
+            if (env.State == State.PasswordRecoveryMessageSent)
+                return "<p>Check your email. You must reset your password within 60 minutes.</p>";
+            if (env.State == State.RecoveringPassword)
                 return m_WebApp.ReadFile(env, "recoveringpassword.html");
+            if (env.State == State.PasswordRecovered)
+                return "<p>Your password has been reset.</p>";
+            if (env.State == State.BadPassword)
+                return "<p>The password must be at least 3 characters.</p>";
 
-            if ((env.Flags & StateFlags.FailedLogin) != 0)
+            if (env.State == State.FailedLogin)
                 return "Login failed";
-            if ((env.Flags & StateFlags.SuccessfulLogin) != 0)
-            {
+            if (env.State == State.SuccessfulLogin)
                 return "Welcome to " + m_WebApp.GridName + "!";
+
+            if (env.State == State.NewAccountForm)
+                return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
+            if (env.State == State.NewAccountFormResponse)
+            {
+                if (m_WebApp.AccountConfirmationRequired)
+                    return "Your account awaits administrator approval.";
+
+                return "Your account has been created.";
             }
 
-            if ((env.Flags & StateFlags.NewAccountForm) != 0)
-                return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
-            if ((env.Flags & StateFlags.NewAccountFormResponse) != 0)
-                return "Your account has been created.";
-
-            if ((env.Flags & StateFlags.IsLoggedIn) != 0)
+            if ((env.Flags & Flags.IsLoggedIn) != 0)
             {
-                if ((env.Flags & StateFlags.UserAccountForm) != 0)
+                if (env.State == State.UserAccountForm)
                     return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
-                if ((env.Flags & StateFlags.UserAccountFormResponse) != 0)
+                if (env.State == State.UserAccountFormResponse)
                     return "Your account has been updated.";
 
-                if ((env.Flags & StateFlags.UserSearchForm) != 0)
+                if (env.State == State.UserSearchForm)
                     return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
-                if ((env.Flags & StateFlags.UserSearchFormResponse) != 0)
+                if (env.State == State.UserSearchFormResponse)
                     return GetUserList(env);
 
-                if ((env.Flags & StateFlags.UserEditForm) != 0)
+                if (env.State == State.UserEditForm)
                     return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
-                if ((env.Flags & StateFlags.UserEditFormResponse) != 0)
+                if (env.State == State.UserEditFormResponse)
                     return "The account has been updated.";
                 
-                if ((env.Flags & StateFlags.UserDeleteForm) != 0)
+                if (env.State == State.UserDeleteForm)
                     return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
-                if ((env.Flags & StateFlags.UserDeleteFormResponse) != 0)
+                if (env.State == State.UserDeleteFormResponse)
                     return "The account has been deleted.";
 
-                if ((env.Flags & StateFlags.UserActivateResponse) != 0)
+                if (env.State == State.UserActivateResponse)
                     return "The account has been activated.";
 
-                if ((env.Flags & StateFlags.RegionManagementForm) != 0)
+                if (env.State == State.RegionManagementForm)
                     return GetRegionManagementForm(env);
-                if ((env.Flags & StateFlags.RegionManagementSuccessful) != 0)
+                if (env.State == State.RegionManagementSuccessful)
                     return "Success! Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
-                if ((env.Flags & StateFlags.RegionManagementUnsuccessful) != 0)
+                if (env.State == State.RegionManagementUnsuccessful)
                     return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
             }
 

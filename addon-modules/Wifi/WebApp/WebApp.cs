@@ -136,6 +136,12 @@ namespace Diva.Wifi
             get { return m_SmtpPassword; }
         }
 
+        private bool m_AccountConfirmationRequired;
+        public bool AccountConfirmationRequired
+        {
+            get { return m_AccountConfirmationRequired; }
+        }
+
         #endregion
 
         public readonly Services Services;
@@ -176,6 +182,8 @@ namespace Diva.Wifi
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
+
+            m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
                 // Can't proceed

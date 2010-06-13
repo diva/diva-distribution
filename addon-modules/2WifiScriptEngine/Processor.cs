@@ -51,6 +51,7 @@ namespace Diva.Wifi.WifiScript
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
+        private bool m_Iterating = false;
 
         public Processor(IWifiScriptFace webApp, IEnvironment env)
             : this(webApp, null, env, null)
@@ -64,7 +65,7 @@ namespace Diva.Wifi.WifiScript
             m_ExtensionMethods = extMeths;
             m_Env = env;
             m_ListOfObjects = lot;
-            m_Index = 0;
+            m_Index = -1;
         }
 
         public string Process(string html)
@@ -135,12 +136,15 @@ namespace Diva.Wifi.WifiScript
 
         private string Include(string argStr)
         {
+            m_Index++;
             // Break the recursive includes
             if (m_ListOfObjects != null)
             {
-                if (m_ListOfObjects.Count > 0 && m_Index == m_ListOfObjects.Count)
+                m_log.DebugFormat("[XXX] index = {0}", m_Index);
+                if (m_Index > m_ListOfObjects.Count)
+                {
                     return string.Empty;
-                m_Index++;
+                }
             }
 
             Match match = args.Match(argStr);
@@ -184,9 +188,9 @@ namespace Diva.Wifi.WifiScript
                     {
                         m_log.DebugFormat("[WifiScript]: Variable {0} not found in {1}. Trying Data type.", name, pinfo.ReflectedType);
                         // Try the Data type
-                        if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
+                        if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                         {
-                            object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                            object o = m_ListOfObjects[GetIndex()];
                             Type type = o.GetType();
 
                             try
@@ -210,9 +214,9 @@ namespace Diva.Wifi.WifiScript
                 // [Obsolete] This should be removed when the other options are proven to work
                 else if (kind == "method")
                 {
-                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
-                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        object o = m_ListOfObjects[GetIndex()];
                         Type type = o.GetType();
 
                         try
@@ -231,15 +235,11 @@ namespace Diva.Wifi.WifiScript
                 }
                 else if (kind == "field")
                 {
-                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
+                        m_log.DebugFormat("[XXX] Here index={0} count={1}", m_Index, m_ListOfObjects.Count);
                         // Let's search in the list of objects
-                        //m_log.DebugFormat("[WifiScript]: index = {0}", m_Index);
-                        // Note to self: funky indexing going on here because of recursion.
-                        // When it recurses over a list of objects, m_Index is incremented before it gets here
-                        // -- see above in Include.
-                        // When it's simply holding 1 object in env.Data, then m_Index is 0 as it should
-                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        object o = m_ListOfObjects[GetIndex()];
                         Type type = o.GetType();
                         FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                         if (finfo != null)
@@ -301,9 +301,9 @@ namespace Diva.Wifi.WifiScript
                 // Then try the Data type
                 try
                 {
-                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
-                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        object o = m_ListOfObjects[GetIndex()];
                         if (o != null)
                         {
                             Type type = o.GetType();
@@ -327,9 +327,9 @@ namespace Diva.Wifi.WifiScript
                 // Then try the Extension Methods
                 try
                 {
-                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0)
+                    if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
-                        object o = m_ListOfObjects[(m_Index == 0) ? 0 : (m_Index - 1)];
+                        object o = m_ListOfObjects[GetIndex()];
                         if (m_ExtensionMethods.GetMethod(methodName) != null)
                         {
                             arg = new object[] { o };
@@ -348,6 +348,11 @@ namespace Diva.Wifi.WifiScript
             }
 
             return string.Empty;
+        }
+
+        private int GetIndex()
+        {
+            return (m_Index == -1) ? 0 : m_Index;
         }
     }
 }

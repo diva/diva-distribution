@@ -52,5 +52,6 @@ namespace Diva.OpenSimServices
         {
             return base.GetToken(principalID, lifetime);
         }
+
     }
 }

@@ -86,12 +86,14 @@ namespace Diva.Wifi
                 try
                 {
                     response = xmlrpcReq.Send(url, 10000);
-                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementSuccessful;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementUnsuccessful;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
@@ -132,12 +134,14 @@ namespace Diva.Wifi
                     System.Diagnostics.Process[] openSimProcess = System.Diagnostics.Process.GetProcessesByName("OpenSim");
                     openSimProcess[0].WaitForExit();
                     System.Diagnostics.Process.Start("OpenSim.exe");
-                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementSuccessful;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementUnsuccessful;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
@@ -173,12 +177,14 @@ namespace Diva.Wifi
                 try
                 {
                     response = xmlrpcReq.Send(url, 10000);
-                    env.Flags = StateFlags.RegionManagementSuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementSuccessful;
                 }
                 catch (Exception e)
                 {
                     m_log.Debug("[WebApp]: Exception " + e.Message);
-                    env.Flags = StateFlags.RegionManagementUnsuccessful | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
+                    env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                    env.State = State.RegionManagementUnsuccessful;
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
@@ -205,7 +211,8 @@ namespace Diva.Wifi
 
                 env.Session = sinfo;
                 env.Data = Objectify(regions);
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.RegionManagementForm;
+                env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
+                env.State = State.RegionManagementForm;
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
@@ -220,7 +227,7 @@ namespace Diva.Wifi
 
             if (regions != null)
             {
-                m_log.DebugFormat("[WebApp]: GetUserList found {0} users in DB", regions.Count);
+                m_log.DebugFormat("[WebApp]: GetRegionList found {0} users in DB", regions.Count);
                 return Objectify<GridRegion>(regions);
             }
             else

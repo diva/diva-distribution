@@ -44,7 +44,6 @@ using Nwc.XmlRpc;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-using OpenSim.Services.InventoryService;
 using OpenSim.Services.GridService;
 
 using Diva.Wifi.WifiScript;
@@ -64,7 +63,7 @@ namespace Diva.Wifi
 
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
-        private IInventoryService m_InventoryService;
+        private InventoryService m_InventoryService;
         private IGridService m_GridService;
         private IGridUserService m_GridUserService;
 
@@ -152,450 +151,6 @@ namespace Diva.Wifi
             return success;
         }
 
-        public string InstallGetRequest(Environment env)
-        {
-            env.Flags = StateFlags.InstallForm;
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public string InstallPostRequest(Environment env, string password, string password2)
-        {
-            if(m_WebApp.IsInstalled)
-            {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to change the god password in InstallPostRequest!");
-                return m_WebApp.ReadFile(env, "index.html");
-            }    
-
-            m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
-            Request request = env.Request;
-
-            if (password == password2)
-            {
-                UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast);
-                if (god != null)
-                {
-                    m_AuthenticationService.SetPassword(god.PrincipalID, password);
-                    // And this finishes the installation procedure
-                    m_WebApp.IsInstalled = true;
-                    env.Flags = StateFlags.InstallFormResponse;
-                }
-
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public string LoginRequest(Environment env, string first, string last, string password)
-        {
-            if(!m_WebApp.IsInstalled)
-            {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-
-            m_log.DebugFormat("[WebApp]: LoginRequest {0} {1}", first, last);
-            Request request = env.Request;
-            string encpass = OpenSim.Framework.Util.Md5Hash(password);
-
-            UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
-            if (account == null)
-            {
-                env.Flags = StateFlags.FailedLogin;
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-
-            string authtoken = m_AuthenticationService.Authenticate(account.PrincipalID, encpass, 30);
-            if (authtoken == string.Empty)
-            {
-                env.Flags = StateFlags.FailedLogin;
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-
-            // Successful login
-            SessionInfo sinfo;
-            sinfo.IpAddress = request.IPEndPoint.Address.ToString();
-            sinfo.Sid = authtoken;
-            sinfo.Account = account;
-            m_Sessions.Add(authtoken, sinfo);
-            env.Request.Query["sid"] = authtoken;
-            env.Session = sinfo;
-
-            List<object> loo = new List<object>();
-            loo.Add(account);
-            env.Data = loo;
-            env.Flags = StateFlags.IsLoggedIn | StateFlags.SuccessfulLogin;
-            return PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
-        }
-
-        public string LogoutRequest(Environment env)
-        {
-            m_log.DebugFormat("[WebApp]: LogoutRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo))
-            {
-                m_Sessions.Remove(sinfo.Sid);
-                m_AuthenticationService.Release(sinfo.Account.PrincipalID, sinfo.Sid);
-            }
-
-            env.Flags = 0;
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public string UserAccountGetRequest(Environment env, UUID userID)
-        {
-            if(!m_WebApp.IsInstalled)
-            {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountGetRequest and Wifi isn't isntalled!");
-                return m_WebApp.ReadFile(env, "index.html");
-            }    
-
-            m_log.DebugFormat("[WebApp]: UserAccountGetRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo))
-            {
-                env.Session = sinfo;
-                List<object> loo = new List<object>();
-                loo.Add(sinfo.Account);
-                env.Data = loo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.UserAccountForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-        public string UserAccountPostRequest(Environment env, UUID userID, string email, string oldpassword, string newpassword, string newpassword2)
-        {
-			if(!m_WebApp.IsInstalled)
-			{
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access UserAccountPostRequest and Wifi isn't isntalled!");
-				return m_WebApp.ReadFile(env, "index.html");
-			}
-            m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo))
-            {
-                env.Session = sinfo;
-                // We get the userID, but we only allow changes to the account of this session
-                List<object> loo = new List<object>();
-                loo.Add(sinfo.Account);
-                env.Data = loo;
-
-                bool updated = false;
-                if (email != string.Empty && email.Contains("@") && sinfo.Account.Email != email)
-                {
-                    sinfo.Account.Email = email;
-                    m_UserAccountService.StoreUserAccount(sinfo.Account);
-                    updated = true;
-                }
-
-                string encpass = OpenSim.Framework.Util.Md5Hash(oldpassword);
-                if ((newpassword != string.Empty) && (newpassword == newpassword2) &&
-                    m_AuthenticationService.Authenticate(sinfo.Account.PrincipalID, encpass, 30) != string.Empty)
-                {
-                    m_AuthenticationService.SetPassword(sinfo.Account.PrincipalID, newpassword);
-                    updated = true;
-                }
-
-                if (updated)
-                {
-                    env.Flags = StateFlags.IsLoggedIn | StateFlags.UserAccountFormResponse;
-                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", sinfo.Account.Name);
-                    return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-                }
-
-                // nothing was updated, really
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.UserAccountForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                m_log.DebugFormat("[WebApp]: Failed to get session info");
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-        public string NewAccountGetRequest(Environment env)
-        {
-            m_log.DebugFormat("[WebApp]: NewAccountGetRequest");
-            Request request = env.Request;
-
-            env.Flags = StateFlags.NewAccountForm;
-            return m_WebApp.ReadFile(env, "index.html");
-        }
-
-        public string NewAccountPostRequest(Environment env, string first, string last, string email, string password, string password2)
-        {
-            if(!m_WebApp.IsInstalled)
-            {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access NewAccountPostRequest and Wifi isn't isntalled!");
-                return m_WebApp.ReadFile(env, "index.html");
-            }    
-
-
-            m_log.DebugFormat("[WebApp]: NewAccountPostRequest");
-            Request request = env.Request;
-
-            if ((password != string.Empty) && (password == password2))
-            {
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
-                if (account == null)
-                {
-
-                    //attach pending identifier to first name
-                    first = "*pending*" + first;
-
-                    // Create the account
-                    account = new UserAccount(UUID.Zero, first, last, email);
-
-                    // Store password in the service URL
-                    account.ServiceURLs = new Dictionary<string, object>();
-
-                    //HomeURI acts as temporary password container
-                    account.ServiceURLs["HomeURI"] = password;
-                    account.ServiceURLs["InventoryServerURI"] = m_WebApp.LoginURL.ToString();
-                    account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
-
-                    m_UserAccountService.StoreUserAccount(account);
-
-                    // Create the inventory
-                    m_InventoryService.CreateUserInventory(account.PrincipalID);
-
-                    // Store the password
-                    //m_AuthenticationService.SetPassword(account.PrincipalID, password);
-
-                    env.Flags = StateFlags.NewAccountFormResponse;
-                    m_log.DebugFormat("[WebApp]: Created account for user {0}", account.Name);
-                }
-                else
-                    m_log.DebugFormat("[WebApp]: Attempt at creating an account that already exists");
-            }
-            else
-            {
-                m_log.DebugFormat("[WebApp]: did not create account because of password problems");
-                env.Flags = StateFlags.NewAccountForm;
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-
-        }
-
-        public string UserManagementGetRequest(Environment env)
-        {
-            m_log.DebugFormat("[WebApp]: UserManagementGetRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserSearchForm;
-                env.Data = GetUserList(env, "*pending*");
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-        public string UserSearchPostRequest(Environment env, string terms)
-        {
-            m_log.DebugFormat("[WebApp]: UserSearchPostRequest");
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200) && (terms != string.Empty))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserSearchFormResponse;
-                // Put the listr in the environment
-                env.Data = GetUserList(env, terms);
-            }
-
-            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-        }
-
-        public string UserEditGetRequest(Environment env, UUID userID)
-        {
-            m_log.DebugFormat("[WebApp]: UserEditGetRequest {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserEditForm;
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-                    List<object> loo = new List<object>();
-                    loo.Add(account);
-                    env.Data = loo;
-                }
-
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-        public string UserEditPostRequest(Environment env, UUID userID, string first, string last, string email, int level, int flags, string title)
-        {
-            m_log.DebugFormat("[WebApp]: UserEditPostRequest {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-                    // Update the account
-                    account.FirstName = first;
-                    account.LastName = last;
-                    account.Email = email;
-                    account.UserFlags = flags;
-                    account.UserLevel = level;
-                    account.UserTitle = title;
-                    m_UserAccountService.StoreUserAccount(account);
-
-                    env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
-                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
-                }
-                else
-                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
-
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-
-        }
-
-        public string UserEditPostRequest(Environment env, UUID userID, string password)
-        {
-            m_log.DebugFormat("[WebApp]: UserEditPostRequest (passord) {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-                    if (password != string.Empty)
-                        m_AuthenticationService.SetPassword(account.PrincipalID, password);
-
-                    env.Flags = StateFlags.UserEditFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
-                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
-                }
-                else
-                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
-            }
-
-            return m_WebApp.ReadFile(env, "index.html");
-
-        }
-
-        public string UserDeleteGetRequest(Environment env, UUID userID)
-        {
-            m_log.DebugFormat("[WebApp]: UserDeleteGetRequest {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserDeleteForm;
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-                    List<object> loo = new List<object>();
-                    loo.Add(account);
-                    env.Data = loo;
-                }
-
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-        public string UserActivateGetRequest(Environment env, UUID userID)
-        {
-            m_log.DebugFormat("[WebApp]: UserActivateGetRequest {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                env.Flags = StateFlags.IsLoggedIn | StateFlags.IsAdmin | StateFlags.UserActivateResponse;
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-                    //remove pending identifier in name
-                    account.FirstName = account.FirstName.Replace("*pending*", "") ;
-                    
-                    //set serviceURLs back to normal
-                    string password = (string)account.ServiceURLs["HomeURI"];
-                    account.ServiceURLs["HomeURI"] = m_WebApp.LoginURL.ToString();
-
-                    //save changes
-                    m_UserAccountService.StoreUserAccount(account);
-
-                    // Set the password
-                    m_AuthenticationService.SetPassword(account.PrincipalID, password);
-                }
-
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-            }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-        }
-
-
-        public string UserDeletePostRequest(Environment env, UUID userID)
-        {
-            m_log.DebugFormat("[WebApp]: UserDeletePostRequest {0}", userID);
-            Request request = env.Request;
-
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
-            {
-                env.Session = sinfo;
-                UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                if (account != null)
-                {
-
-                    m_UserAccountService.DeleteAccount(UUID.Zero, userID);
-
-                    env.Flags = StateFlags.UserDeleteFormResponse | StateFlags.IsAdmin | StateFlags.IsLoggedIn;
-                    m_log.DebugFormat("[WebApp]: Deleted account for user {0}", account.Name);
-                }
-                else
-                    m_log.DebugFormat("[WebApp]: Attempt at deleting an inexistent account");
-            }
-
-            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-
-        }
 
         // <a href="wifi/..." ...>
         static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
@@ -604,7 +159,7 @@ namespace Diva.Wifi
 
         private string PadURLs(Environment env, string sid, string html)
         {
-            if ((env.Flags & StateFlags.IsLoggedIn) == 0)
+            if ((env.Flags & Flags.IsLoggedIn) == 0)
                 return html;
 
             // The user is logged in
@@ -612,7 +167,7 @@ namespace Diva.Wifi
             MatchCollection matches_href = href.Matches(html);
             MatchCollection matches_action = action.Matches(html);
             MatchCollection matches_xmlhttprequest = xmlhttprequest.Matches(html);
-            m_log.DebugFormat("[WebApp]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
+            //m_log.DebugFormat("[WebApp]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
 
             foreach (Match match in matches_href)
             {
@@ -672,7 +227,7 @@ namespace Diva.Wifi
         private List<object> GetUserList(Environment env, string terms)
         {
             List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
-            if (accounts != null)
+            if (accounts != null && accounts.Count > 0)
             {
                 m_log.DebugFormat("[WebApp]: GetUserList found {0} users in DB", accounts.Count);
                 return Objectify<UserAccount>(accounts);
@@ -684,9 +239,6 @@ namespace Diva.Wifi
             }
 
         }
-
-
-        #region Misc
 
         private void SetServiceURLs(UserAccount account)
         {
@@ -705,7 +257,28 @@ namespace Diva.Wifi
             return listOfObjects;
         }
 
-        #endregion Misc
+        private void SendEMail(string to, string subject, string message)
+        {
+            MailMessage msg = new MailMessage();
+            msg.From = new MailAddress(m_WebApp.SmtpUsername);
+            msg.To.Add(to);
+            msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
+            msg.Body = message;
+            m_Client.SendAsync(msg, to);
+        }
+
+        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        {
+            String token = (string)e.UserState;
+
+            if (e.Cancelled)
+                m_log.DebugFormat("[Wifi]: [{0}] Send cancelled.", token);
+
+            if (e.Error != null)
+                m_log.DebugFormat("[Wifi]: [{0}] {1}", token, e.Error.ToString());
+            else
+                m_log.DebugFormat("[Wifi]: Message sent to " + token + ".");
+        }
 
     }
 

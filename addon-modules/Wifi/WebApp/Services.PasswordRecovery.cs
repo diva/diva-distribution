@@ -60,7 +60,7 @@ namespace Diva.Wifi
         public string ForgotPasswordGetRequest(Environment env)
         {
             m_log.DebugFormat("[WebApp]: ForgotPasswordGetRequest");
-            env.Flags = StateFlags.ForgotPassword;
+            env.State = State.ForgotPassword;
             return m_WebApp.ReadFile(env, "index.html");
         }
 
@@ -78,30 +78,20 @@ namespace Diva.Wifi
                     msg.From = new MailAddress(m_WebApp.SmtpUsername);
                     msg.To.Add(email);
                     msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
-                    msg.Body = "Let's reset your password. Click here:\n\t";
+                    msg.Body = "\nYour account is " + account.FirstName + " " + account.LastName ;
+                    msg.Body += "\nClick here to reset your password:\n";
                     msg.Body += url;
-                    msg.Body += "\n\nDiva";
                     m_Client.SendAsync(msg, email);
 
-                    return "<p>Check your email. You must reset your password within 60 minutes.</p>"; /// change this
+                    env.State = State.PasswordRecoveryMessageSent;
+
+                    return m_WebApp.ReadFile(env, "index.html");
                 }
             }
 
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
-        {
-            String token = (string)e.UserState;
-
-            if (e.Cancelled)
-                m_log.DebugFormat("[ForgotPasswordService] [{0}] Send cancelled.", token);
-
-            if (e.Error != null)
-                m_log.DebugFormat("[ForgotPasswordService] [{0}] {1}", token, e.Error.ToString());
-            else
-                m_log.DebugFormat("[ForgotPasswordService] Password recovery message sent to " + token + ".");
-        }
 
         public string RecoverPasswordGetRequest(Environment env, string email, string token)
         {
@@ -111,7 +101,7 @@ namespace Diva.Wifi
                 PasswordRecoveryData precovery = new PasswordRecoveryData(email, token);
                 env.Data = new List<object>();
                 env.Data.Add(precovery);
-                env.Flags = StateFlags.RecoveringPassword;
+                env.State = State.RecoveringPassword;
                 return m_WebApp.ReadFile(env, "index.html");
             }
             else
@@ -122,18 +112,19 @@ namespace Diva.Wifi
 
         public string RecoverPasswordPostRequest(Environment env, string email, string token, string newPassword)
         {
-            if (newPassword == null || newPassword.Length == 0)
+            if (newPassword == null || newPassword.Length < 3)
             {
-                return "<p>You must enter <strong>some</strong> password!</p>";
+                env.State = State.RecoveringPassword;
+                return m_WebApp.ReadFile(env, "index.html");
             }
 
             ResetPassword(email, token, newPassword);
-            env.Flags = 0;
-            return "<p>Great success?</p>";
-            //return m_WebApp.ReadFile(env, "index.html");
+            env.State = State.PasswordRecovered;
+
+            return m_WebApp.ReadFile(env, "index.html");
         }
 
-        public void ResetPassword(string email, string token, string newPassword)
+        private void ResetPassword(string email, string token, string newPassword)
         {
             bool success = false;
             UserAccount account = null;
@@ -150,7 +141,7 @@ namespace Diva.Wifi
         {
             account = m_UserAccountService.GetUserAccount(UUID.Zero, email);
             if (account != null)
-                return (m_AuthenticationService.Verify(account.PrincipalID, token, 10));
+                return (m_AuthenticationService.Verify(account.PrincipalID, token, 15));
 
             return false;
         }

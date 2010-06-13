@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OpenSim.Services.Interfaces;
 
+using OpenSim.Framework;
+using OpenSim.Services.Interfaces;
 
 namespace Diva.Wifi
 {
@@ -11,12 +10,12 @@ namespace Diva.Wifi
     {
         public static int GetX(this GridRegion gr)
         {
-            return gr.RegionLocX / 256;
+            return gr.RegionLocX / (int)Constants.RegionSize;
         }
 
         public static int GetY(this GridRegion gr)
         {
-            return gr.RegionLocY / 256;
+            return gr.RegionLocY / (int)Constants.RegionSize;
         }
     }
 }
