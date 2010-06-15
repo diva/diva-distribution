@@ -49,7 +49,7 @@ namespace Diva.Wifi
                         first = "*pending* " + first;
                         // Store the password temporarily here
                         urls["Password"] = password;
-                        urls["Avatar"] = avatar;
+                        urls["Avatar"] = avatar.ToString();
                     }
 
                     // Create the account
@@ -67,10 +67,7 @@ namespace Diva.Wifi
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                         // Set avatar
-                        if (avatar != AvatarType.Neutral)
-                        {
-                            SetAvatar(account.PrincipalID, avatar);
-                        }
+                        SetAvatar(account.PrincipalID, avatar);
                     }
 
                     env.State = State.NewAccountFormResponse;
@@ -96,10 +93,12 @@ namespace Diva.Wifi
             
             if (avatarType == AvatarType.Female)
                 parts = m_WebApp.AvatarFemaleAccount.Split(new char[] { ' ' });
-            else
+            else if (avatarType == AvatarType.Male)
                 parts = m_WebApp.AvatarMaleAccount.Split(new char[] { ' ' });
+            else
+                parts = m_WebApp.AvatarNeutralAccount.Split(new char[] { ' ' });
 
-            if (parts.Length != 2)
+            if (parts == null || (parts != null && parts.Length != 2))
                 return;
 
             account = m_UserAccountService.GetUserAccount(UUID.Zero, parts[0], parts[1]);
@@ -117,22 +116,55 @@ namespace Diva.Wifi
                 return;
             }
 
+            m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
+            
             // Get and replicate the attachments
-            Dictionary<string, string> attchs = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, string> _kvp in avatar.Data)
-                if (_kvp.Key.StartsWith("_ap_"))
-                {
-                    string itemID = CopyItem(_kvp.Value, account.PrincipalID);
-                    if (itemID != string.Empty)
-                        attchs[_kvp.Key] = itemID;
-                }
-            foreach (KeyValuePair<string, string> _kvp in attchs)
-                avatar.Data[_kvp.Key] = _kvp.Value;
+            // and put them in a folder called Default Avatar under Clothing
+            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser);
 
-            m_AvatarService.SetAvatar(newUser, avatar);
+            if (defaultFolderID != UUID.Zero)
+            {
+                Dictionary<string, string> attchs = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, string> _kvp in avatar.Data)
+                {
+                    if (_kvp.Value != null)
+                    {
+                        string itemID = CreateItemFrom(_kvp.Value, newUser, defaultFolderID);
+                        if (itemID != string.Empty)
+                            attchs[_kvp.Key] = itemID;
+                    }
+                }
+
+                foreach (KeyValuePair<string, string> _kvp in attchs)
+                    avatar.Data[_kvp.Key] = _kvp.Value;
+
+                m_AvatarService.SetAvatar(newUser, avatar);
+            }
+            else
+                m_log.DebugFormat("[Wifi]: could not create Default Avatar folder");
         }
 
-        private string CopyItem(string itemID, UUID newUserID)
+        private UUID CreateDefaultAvatarFolder(UUID newUserID)
+        {
+            InventoryFolderBase clothing = m_InventoryService.GetFolderForType(newUserID, AssetType.Clothing);
+            if (clothing == null)
+            {
+                clothing = m_InventoryService.GetRootFolder(newUserID);
+                if (clothing == null)
+                    return UUID.Zero;
+            }
+
+            InventoryFolderBase defaultAvatarFolder = new InventoryFolderBase(UUID.Random(), "Default Avatar", newUserID, clothing.ID);
+            defaultAvatarFolder.Version = 1;
+            defaultAvatarFolder.Type = (short)AssetType.Clothing;
+
+            if (!m_InventoryService.AddFolder(defaultAvatarFolder))
+                m_log.DebugFormat("[Wifi]: Failed to store Default Avatar folder");
+
+            return defaultAvatarFolder.ID;
+        }
+
+        private string CreateItemFrom(string itemID, UUID newUserID, UUID defaultFolderID)
         {
             InventoryItemBase item = new InventoryItemBase();
             item.Owner = newUserID;
@@ -144,17 +176,22 @@ namespace Diva.Wifi
             {
                 item.ID = uuid;
                 retrievedItem = m_InventoryService.GetItem(item);
-                copyItem = CopyFrom(retrievedItem, newUserID);
-                return copyItem.ID.ToString();
+                if (retrievedItem != null)
+                {
+                    copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
+                    m_InventoryService.AddItem(copyItem);
+                    return copyItem.ID.ToString();
+                }
             }
 
             return string.Empty;
         }
 
-        private InventoryItemBase CopyFrom(InventoryItemBase from, UUID newUserID)
+        private InventoryItemBase CopyFrom(InventoryItemBase from, UUID newUserID, UUID defaultFolderID)
         {
             InventoryItemBase to = (InventoryItemBase)from.Clone();
             to.Owner = newUserID;
+            to.Folder = defaultFolderID;
             to.ID = UUID.Random();
 
             return to;

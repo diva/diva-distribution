@@ -142,6 +142,11 @@ namespace Diva.Wifi
             get { return m_AccountConfirmationRequired; }
         }
 
+        private string m_AvatarNeutral;
+        public string AvatarNeutralAccount
+        {
+            get { return m_AvatarNeutral; }
+        }
         private string m_AvatarMale;
         public string AvatarMaleAccount
         {
@@ -199,6 +204,7 @@ namespace Diva.Wifi
 
             m_AvatarFemale = appConfig.GetString("FemaleAvatarAccount", "Test User");
             m_AvatarMale = appConfig.GetString("MaleAvatarAccount", "Test User");
+            m_AvatarNeutral = appConfig.GetString("NeutralAvatarAccount", "Test User");
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
                 // Can't proceed

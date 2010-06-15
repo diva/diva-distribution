@@ -155,9 +155,12 @@ namespace Diva.Wifi
                 password2 = request["password2"].ToString();
             if (request.ContainsKey("avatar"))
             {
-                uint av = 0;
-                UInt32.TryParse((string)request["avatar"], out av);
-                avatar = (AvatarType)av;
+                if ((string)request["avatar"] == "Female")
+                    avatar = AvatarType.Female;
+                else if ((string)request["avatar"] == "Male")
+                    avatar = AvatarType.Male;
+                else
+                    avatar = AvatarType.Neutral;
             }
 
             Request req = WifiUtils.CreateRequest(resource, httpRequest);

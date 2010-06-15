@@ -167,11 +167,28 @@ namespace Diva.Wifi
                     // Set the password
                     m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
-                    string message = "Your account has been activated.\n";
-                    message += "\nFirst name: " + account.FirstName;
-                    message += "\nLast name: " + account.LastName;
-                    message += "\nPassword: " + password;
-                    SendEMail(account.Email, "Account activated", message);
+                    // Set the avatar
+                    if (account.ServiceURLs.ContainsKey("Avatar"))
+                    {
+                        string avatarType = (string)account.ServiceURLs["Avatar"];
+                        account.ServiceURLs.Remove("Avatar");
+                        if (avatarType == "Female")
+                            SetAvatar(account.PrincipalID, AvatarType.Female);
+                        else if (avatarType == "Male")
+                            SetAvatar(account.PrincipalID, AvatarType.Male);
+                        else 
+                            SetAvatar(account.PrincipalID, AvatarType.Neutral);
+
+                    }
+
+                    if (account.Email != string.Empty)
+                    {
+                        string message = "Your account has been activated.\n";
+                        message += "\nFirst name: " + account.FirstName;
+                        message += "\nLast name: " + account.LastName;
+                        message += "\nPassword: " + password;
+                        SendEMail(account.Email, "Account activated", message);
+                    }
                 }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
