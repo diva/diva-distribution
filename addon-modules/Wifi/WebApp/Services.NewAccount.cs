@@ -126,12 +126,8 @@ namespace Diva.Wifi
                     if (itemID != string.Empty)
                         attchs[_kvp.Key] = itemID;
                 }
-            avatar.Data = attchs;
-
             foreach (KeyValuePair<string, string> _kvp in attchs)
-            {
-
-            }
+                avatar.Data[_kvp.Key] = _kvp.Value;
 
             m_AvatarService.SetAvatar(newUser, avatar);
         }
