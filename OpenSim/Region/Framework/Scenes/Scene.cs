@@ -948,12 +948,6 @@ namespace OpenSim.Region.Framework.Scenes
                     // Let the grid service module know, so this can be cached
                     m_eventManager.TriggerOnRegionUp(otherRegion);
 
-                    RegionInfo regInfo = new RegionInfo(xcell, ycell, otherRegion.InternalEndPoint, otherRegion.ExternalHostName);
-                    regInfo.RegionID = otherRegion.RegionID;
-                    regInfo.RegionName = otherRegion.RegionName;
-                    regInfo.ScopeID = otherRegion.ScopeID;
-                    regInfo.ExternalHostName = otherRegion.ExternalHostName;
-                    GridRegion r = new GridRegion(regInfo);
                     try
                     {
                         ForEachScenePresence(delegate(ScenePresence agent)
@@ -968,7 +962,7 @@ namespace OpenSim.Region.Framework.Scenes
                                                      old.Add(otherRegion.RegionHandle);
                                                      agent.DropOldNeighbours(old);
                                                      if (m_teleportModule != null)
-                                                         m_teleportModule.EnableChildAgent(agent, r);
+                                                         m_teleportModule.EnableChildAgent(agent, otherRegion);
                                                  }
                                              }
                             );
@@ -1340,6 +1334,8 @@ namespace OpenSim.Region.Framework.Scenes
                         m_regInfo.EstateSettings.EstateOwner = account.PrincipalID;
                         m_regInfo.EstateSettings.Save();
                     }
+                    else
+                        m_log.ErrorFormat("[SCENE]: Unable to store account. If this simulator is connected to a grid,\n you must create the estate owner account first.");
                 }
                 else
                 {
@@ -1518,6 +1514,7 @@ namespace OpenSim.Region.Framework.Scenes
                         {
                             m_log.DebugFormat("[REGION]: Enabling logins for {0}", RegionInfo.RegionName);
                             LoginsDisabled = false;
+                            m_sceneGridService.InformNeighborsThatRegionisUp(RequestModuleInterface<INeighbourService>(), RegionInfo);
                         }
                     }
                 }
@@ -1802,6 +1799,8 @@ namespace OpenSim.Region.Framework.Scenes
         {
             RegisterCommsEvents();
 
+            m_sceneGridService.SetScene(this);
+
             // These two 'commands' *must be* next to each other or sim rebooting fails.
             //m_sceneGridService.RegisterRegion(m_interregionCommsOut, RegionInfo);
 
@@ -1812,24 +1811,6 @@ namespace OpenSim.Region.Framework.Scenes
                 throw new Exception(error);
             }
 
-            m_sceneGridService.SetScene(this);
-            m_sceneGridService.InformNeighborsThatRegionisUp(RequestModuleInterface<INeighbourService>(), RegionInfo);
-
-            //Dictionary<string, string> dGridSettings = m_sceneGridService.GetGridSettings();
-
-            //if (dGridSettings.ContainsKey("allow_forceful_banlines"))
-            //{
-            //    if (dGridSettings["allow_forceful_banlines"] != "TRUE")
-            //    {
-            //        m_log.Info("[GRID]: Grid is disabling forceful parcel banlists");
-            //        EventManager.TriggerSetAllowForcefulBan(false);
-            //    }
-            //    else
-            //    {
-            //        m_log.Info("[GRID]: Grid is allowing forceful parcel banlists");
-            //        EventManager.TriggerSetAllowForcefulBan(true);
-            //    }
-            //}
         }
 
         /// <summary>
