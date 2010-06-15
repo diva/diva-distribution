@@ -45,6 +45,7 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.GridService;
+using OpenSim.Services.AvatarService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
@@ -66,6 +67,7 @@ namespace Diva.Wifi
         private InventoryService m_InventoryService;
         private IGridService m_GridService;
         private IGridUserService m_GridUserService;
+        private IAvatarService m_AvatarService;
 
         private string m_ServerAdminPassword;
 
@@ -87,6 +89,7 @@ namespace Diva.Wifi
             m_InventoryService = new InventoryService(config);
             m_GridService = new GridService(config);
             m_GridUserService = new GridUserService(config);
+            m_AvatarService = new AvatarService(config);
 
             // Create the "God" account if it doesn't exist
             CreateGod();

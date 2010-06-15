@@ -118,4 +118,11 @@ namespace Diva.Wifi
         PasswordRecovered = 22,
         BadPassword = 23
     }
+
+    public enum AvatarType : uint
+    {
+        Neutral = 0,
+        Male = 1,
+        Female = 2
+    }
 }

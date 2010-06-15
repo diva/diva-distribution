@@ -141,6 +141,7 @@ namespace Diva.Wifi
             string email = String.Empty;
             string password = String.Empty;
             string password2 = String.Empty;
+            AvatarType avatar = AvatarType.Neutral;
 
             if (request.ContainsKey("first") && WifiUtils.IsValidName(request["first"].ToString()))
                 first = request["first"].ToString();
@@ -152,11 +153,17 @@ namespace Diva.Wifi
                 password = request["password"].ToString();
             if (request.ContainsKey("password2"))
                 password2 = request["password2"].ToString();
+            if (request.ContainsKey("avatar"))
+            {
+                uint av = 0;
+                UInt32.TryParse((string)request["avatar"], out av);
+                avatar = (AvatarType)av;
+            }
 
             Request req = WifiUtils.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
-            string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2);
+            string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2, avatar);
 
             return WifiUtils.StringToBytes(result);
         }

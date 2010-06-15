@@ -142,6 +142,18 @@ namespace Diva.Wifi
             get { return m_AccountConfirmationRequired; }
         }
 
+        private string m_AvatarMale;
+        public string AvatarMaleAccount
+        {
+            get { return m_AvatarMale; }
+        }
+        private string m_AvatarFemale;
+        public string AvatarFemaleAccount
+        {
+            get { return m_AvatarFemale; }
+        }
+
+
         #endregion
 
         public readonly Services Services;
@@ -184,6 +196,9 @@ namespace Diva.Wifi
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
+
+            m_AvatarFemale = appConfig.GetString("FemaleAvatarAccount", "Test User");
+            m_AvatarMale = appConfig.GetString("MaleAvatarAccount", "Test User");
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
                 // Can't proceed
