@@ -9,15 +9,28 @@
     ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
 
 [WifiService]
-	GridName = "Diva's World"
+	GridName = "My World"
 	LoginURL = "http://localhost:9000"
 	WebAddress = "http://localhost:8080"
 	
-    ;; The "God" account, both for Wifi and Inworld
+    ;; The Wifi Administrator account, both for Wifi and Inworld "God"
 	AdminFirst = "Admin"
 	AdminLast = "Admin"
-	AdminEmail = "user@email.com"
-	;; no AdminPassword here, it's too unsafe. AdminPassword will be set during installation step
+	AdminEmail = "your@email.com"
+
+	;; Do you want to be able to control grid registrations?
+	AccountConfirmationRequired = false
+
+	FemaleAvatarAccount = "Female Avatar"
+	MaleAvatarAccount = "Male Avatar"
+	NeutralAvatarAccount = "Neutral Avatar"
+
+	;; Variables for your mail server
+	;; Users will get email notifications from this account
+	SmtpHost = "smtp.gmail.com"
+	SmtpPort = "587"
+	SmtpUsername = "your_account_in_this_mail_server"
+	SmtpPassword = "your_password_in_this_mail_server"
 
 [UserAccountService]
 
