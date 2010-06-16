@@ -70,7 +70,7 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
             httpResponse.ContentType = "text/html";
             string resource = GetParam(path);
-            m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
+            //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
 
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
@@ -116,7 +116,7 @@ namespace Diva.Wifi
             httpResponse.ContentType = "text/html";
 
             string resource = GetParam(path);
-            m_log.DebugFormat("[USER ACCOUNT HANDLER POST]: resource {0} query: {1}", resource, body);
+            //m_log.DebugFormat("[USER ACCOUNT HANDLER POST]: resource {0} query: {1}", resource, body);
 
             Dictionary<string, object> request =
                     ServerUtils.ParseQueryString(body);

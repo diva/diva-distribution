@@ -45,7 +45,7 @@ using Nini.Config;
 
 using Mono.Addins;
 
-[assembly: Addin("MetaverseInk.ImageService", "0.1")]
+[assembly: Addin("Diva.Modules", "0.1")]
 [assembly: AddinDependency("OpenSim", "0.5")]
 
 namespace MetaverseInk.ImageService

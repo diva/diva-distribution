@@ -14,11 +14,11 @@ namespace Diva.Wifi
         {
             if (!m_WebApp.IsInstalled)
             {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
+                m_log.DebugFormat("[Wifi]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
-            m_log.DebugFormat("[WebApp]: LoginRequest {0} {1}", first, last);
+            m_log.DebugFormat("[Wifi]: LoginRequest {0} {1}", first, last);
             Request request = env.Request;
             string encpass = OpenSim.Framework.Util.Md5Hash(password);
 
@@ -55,7 +55,7 @@ namespace Diva.Wifi
 
         public string LogoutRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: LogoutRequest");
+            m_log.DebugFormat("[Wifi]: LogoutRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;

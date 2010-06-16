@@ -12,7 +12,7 @@ namespace Diva.Wifi
     {
         public string UserManagementGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: UserManagementGetRequest");
+            m_log.DebugFormat("[Wifi]: UserManagementGetRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -32,7 +32,7 @@ namespace Diva.Wifi
 
         public string UserSearchPostRequest(Environment env, string terms)
         {
-            m_log.DebugFormat("[WebApp]: UserSearchPostRequest");
+            m_log.DebugFormat("[Wifi]: UserSearchPostRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -50,7 +50,7 @@ namespace Diva.Wifi
 
         public string UserEditGetRequest(Environment env, UUID userID)
         {
-            m_log.DebugFormat("[WebApp]: UserEditGetRequest {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserEditGetRequest {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -77,7 +77,7 @@ namespace Diva.Wifi
 
         public string UserEditPostRequest(Environment env, UUID userID, string first, string last, string email, int level, int flags, string title)
         {
-            m_log.DebugFormat("[WebApp]: UserEditPostRequest {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserEditPostRequest {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -98,10 +98,10 @@ namespace Diva.Wifi
 
                     env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                     env.State = State.UserEditFormResponse;
-                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
+                    m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
-                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
+                    m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
@@ -112,7 +112,7 @@ namespace Diva.Wifi
 
         public string UserEditPostRequest(Environment env, UUID userID, string password)
         {
-            m_log.DebugFormat("[WebApp]: UserEditPostRequest (passord) {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserEditPostRequest (passord) {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -126,10 +126,10 @@ namespace Diva.Wifi
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.UserEditFormResponse;
-                    m_log.DebugFormat("[WebApp]: Updated account for user {0}", account.Name);
+                    m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
-                    m_log.DebugFormat("[WebApp]: Attempt at updating an inexistent account");
+                    m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -139,7 +139,7 @@ namespace Diva.Wifi
 
         public string UserActivateGetRequest(Environment env, UUID userID)
         {
-            m_log.DebugFormat("[WebApp]: UserActivateGetRequest {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserActivateGetRequest {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -201,7 +201,7 @@ namespace Diva.Wifi
 
         public string UserDeleteGetRequest(Environment env, UUID userID)
         {
-            m_log.DebugFormat("[WebApp]: UserDeleteGetRequest {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserDeleteGetRequest {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -229,7 +229,7 @@ namespace Diva.Wifi
 
         public string UserDeletePostRequest(Environment env, UUID userID)
         {
-            m_log.DebugFormat("[WebApp]: UserDeletePostRequest {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserDeletePostRequest {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -245,10 +245,10 @@ namespace Diva.Wifi
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.UserDeleteFormResponse ;
-                    m_log.DebugFormat("[WebApp]: Deleted account for user {0}", account.Name);
+                    m_log.DebugFormat("[Wifi]: Deleted account for user {0}", account.Name);
                 }
                 else
-                    m_log.DebugFormat("[WebApp]: Attempt at deleting an inexistent account");
+                    m_log.DebugFormat("[Wifi]: Attempt at deleting an inexistent account");
             }
 
             return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));

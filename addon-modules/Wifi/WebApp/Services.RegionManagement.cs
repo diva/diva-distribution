@@ -59,7 +59,7 @@ namespace Diva.Wifi
     {
         public string RegionManagementShutdownPostRequest(Environment env)
         {
-            //m_log.DebugFormat("[WebApp]: RegionManagementShutdownPostRequest");
+            //m_log.DebugFormat("[Wifi]: RegionManagementShutdownPostRequest");
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -91,7 +91,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
@@ -139,7 +139,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
@@ -182,7 +182,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[WebApp]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
@@ -227,12 +227,12 @@ namespace Diva.Wifi
 
             if (regions != null)
             {
-                m_log.DebugFormat("[WebApp]: GetRegionList found {0} users in DB", regions.Count);
+                m_log.DebugFormat("[Wifi]: GetRegionList found {0} users in DB", regions.Count);
                 return Objectify<GridRegion>(regions);
             }
             else
             {
-                m_log.DebugFormat("[WebApp]: GetRegionList got null regions from DB");
+                m_log.DebugFormat("[Wifi]: GetRegionList got null regions from DB");
                 return new List<object>();
             }
 

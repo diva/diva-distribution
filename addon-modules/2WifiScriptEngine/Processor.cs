@@ -120,7 +120,7 @@ namespace Diva.Wifi.WifiScript
 
         private string Eval(string directive, string argStr)
         {
-            m_log.DebugFormat("[WifiScript]: Interpret {0} {1}", directive, argStr);
+            //m_log.DebugFormat("[WifiScript]: Interpret {0} {1}", directive, argStr);
 
             if (directive.Equals("include"))
                 return Include(argStr);
@@ -140,7 +140,6 @@ namespace Diva.Wifi.WifiScript
             // Break the recursive includes
             if (m_ListOfObjects != null)
             {
-                m_log.DebugFormat("[XXX] index = {0}", m_Index);
                 if (m_Index > m_ListOfObjects.Count)
                 {
                     return string.Empty;
@@ -186,7 +185,7 @@ namespace Diva.Wifi.WifiScript
                         value = pinfo.GetValue(m_WebApp, null);
                     else
                     {
-                        m_log.DebugFormat("[WifiScript]: Variable {0} not found in {1}. Trying Data type.", name, pinfo.ReflectedType);
+                        //m_log.DebugFormat("[WifiScript]: Variable {0} not found in {1}. Trying Data type.", name, pinfo.ReflectedType);
                         // Try the Data type
                         if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                         {
@@ -204,8 +203,6 @@ namespace Diva.Wifi.WifiScript
                                 m_log.DebugFormat("[WifiScript]: Exception in GetProperty {0}", e.Message);
                             }
                         }
-                        else
-                            m_log.DebugFormat("[WifiScript]: Property reference {0} to null list of objects", name);
 
                     }
                 }
@@ -223,21 +220,17 @@ namespace Diva.Wifi.WifiScript
                         {
                             MethodInfo met = type.GetMethod(name);
                             value = (string)met.Invoke(o, null).ToString();
-                            m_log.DebugFormat("[WifiScript] Replaced {0} with {1}", name, value);
                         }
                         catch (Exception e)
                         {
                             m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
                         }
                     }
-                    else
-                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null list of objects", name);
                 }
                 else if (kind == "field")
                 {
                     if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
-                        m_log.DebugFormat("[XXX] Here index={0} count={1}", m_Index, m_ListOfObjects.Count);
                         // Let's search in the list of objects
                         object o = m_ListOfObjects[GetIndex()];
                         Type type = o.GetType();
@@ -247,8 +240,6 @@ namespace Diva.Wifi.WifiScript
                         else
                             m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}", name, type);
                     }
-                    else
-                        m_log.DebugFormat("[WifiScript]: Field reference {0} to null or empty list of objects", name);
                 }
 
                 if (value != null)

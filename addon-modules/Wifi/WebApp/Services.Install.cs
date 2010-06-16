@@ -19,11 +19,11 @@ namespace Diva.Wifi
         {
             if (m_WebApp.IsInstalled)
             {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to change the god password in InstallPostRequest!");
+                m_log.DebugFormat("[Wifi]: warning: someone is trying to change the god password in InstallPostRequest!");
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
-            m_log.DebugFormat("[WebApp]: UserAccountPostRequest");
+            m_log.DebugFormat("[Wifi]: UserAccountPostRequest");
             Request request = env.Request;
 
             if (password == password2)

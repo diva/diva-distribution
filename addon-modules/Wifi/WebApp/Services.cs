@@ -106,7 +106,7 @@ namespace Diva.Wifi
             UserAccount god = m_UserAccountService.GetUserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast);
             if (god == null)
             {
-                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} does not exist. Creating it...", m_WebApp.AdminFirst, m_WebApp.AdminLast);
+                m_log.DebugFormat("[Wifi]: Administrator account {0} {1} does not exist. Creating it...", m_WebApp.AdminFirst, m_WebApp.AdminLast);
                 // Doesn't exist. Create one
                 god = new UserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast, m_WebApp.AdminEmail);
                 god.UserLevel = 500;
@@ -120,7 +120,7 @@ namespace Diva.Wifi
             }
             else
             {
-                m_log.DebugFormat("[WebApp]: Administrator account {0} {1} exists.", m_WebApp.AdminFirst, m_WebApp.AdminLast);
+                m_log.DebugFormat("[Wifi]: Administrator account {0} {1} exists.", m_WebApp.AdminFirst, m_WebApp.AdminLast);
                 // Signal that the App has been previously installed
                 m_WebApp.IsInstalled = true;
             }
@@ -170,7 +170,7 @@ namespace Diva.Wifi
             MatchCollection matches_href = href.Matches(html);
             MatchCollection matches_action = action.Matches(html);
             MatchCollection matches_xmlhttprequest = xmlhttprequest.Matches(html);
-            //m_log.DebugFormat("[WebApp]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
+            //m_log.DebugFormat("[Wifi]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
 
             foreach (Match match in matches_href)
             {
@@ -209,7 +209,7 @@ namespace Diva.Wifi
             foreach (string uri in uris)
             {
                 string uri2 = uri.Substring(0, uri.Length - 1);
-                //m_log.DebugFormat("[WebApp]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
+                //m_log.DebugFormat("[Wifi]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
                 if (!uri.EndsWith("/"))
                     html = html.Replace(uri, uri2 + "/?sid=" + sid + "\"");
                 else
@@ -232,12 +232,10 @@ namespace Diva.Wifi
             List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
             if (accounts != null && accounts.Count > 0)
             {
-                m_log.DebugFormat("[WebApp]: GetUserList found {0} users in DB", accounts.Count);
                 return Objectify<UserAccount>(accounts);
             }
             else
             {
-                m_log.DebugFormat("[WebApp]: GetUserList got null users from DB");
                 return new List<object>();
             }
 

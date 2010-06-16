@@ -59,7 +59,7 @@ namespace Diva.Wifi
     {
         public string ForgotPasswordGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: ForgotPasswordGetRequest");
+            m_log.DebugFormat("[Wifi]: ForgotPasswordGetRequest");
             env.State = State.ForgotPassword;
             return m_WebApp.ReadFile(env, "index.html");
         }

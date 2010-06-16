@@ -1,5 +1,5 @@
 <!-- Image Service Module -->
-<Project frameworkVersion="v3_5" name="Diva.ImageService" path="addon-modules/ImageService" type="Library">
+<Project frameworkVersion="v3_5" name="Diva.Modules" path="addon-modules/Modules" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
@@ -24,6 +24,7 @@
   <Reference name="OpenSim.Region.Framework"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
+  <Reference name="Diva.Wifi"/>
   <Reference name="Nini.dll" />
   <Reference name="log4net.dll"/>
   <Reference name="Mono.Addins.dll"/>

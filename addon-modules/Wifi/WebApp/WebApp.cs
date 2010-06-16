@@ -176,7 +176,7 @@ namespace Diva.Wifi
 
             m_ExtensionMethods = typeof(ExtensionMethods);
 
-            m_log.DebugFormat("[WebApp]: Starting with extension methods type {0}", m_ExtensionMethods);
+            m_log.DebugFormat("[Wifi]: Starting with extension methods type {0}", m_ExtensionMethods);
 
         }
 
@@ -239,7 +239,7 @@ namespace Diva.Wifi
             }
             catch (Exception e)
             {
-                m_log.DebugFormat("[WebApp]: Exception on ReadFile {0}: {1}", path, e);
+                m_log.DebugFormat("[Wifi]: Exception on ReadFile {0}: {1}", path, e);
                 return string.Empty;
             }
         }

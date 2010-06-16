@@ -105,10 +105,8 @@ namespace Diva.Wifi
 
         public string GetContent(Environment env)
         {
-            m_log.DebugFormat("[WifiScriptFace]: GetContent, flags {0} ({1})", env.State, (uint)env.State);
+            //m_log.DebugFormat("[WifiScriptFace]: GetContent, flags {0} ({1})", env.State, (uint)env.State);
 
-            //if (!Environment.IsInstalled)
-            //    return "Welcome! Please install Wifi.";
             if (env.State == State.InstallForm)
                 return m_WebApp.ReadFile(env, "installform.html");
             if (env.State == State.InstallFormResponse)

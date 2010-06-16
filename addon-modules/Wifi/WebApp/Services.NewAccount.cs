@@ -13,7 +13,7 @@ namespace Diva.Wifi
     {
         public string NewAccountGetRequest(Environment env)
         {
-            m_log.DebugFormat("[WebApp]: NewAccountGetRequest");
+            m_log.DebugFormat("[Wifi]: NewAccountGetRequest");
             Request request = env.Request;
 
             env.State = State.NewAccountForm;
@@ -24,12 +24,12 @@ namespace Diva.Wifi
         {
             if (!m_WebApp.IsInstalled)
             {
-                m_log.DebugFormat("[WebApp]: warning: someone is trying to access NewAccountPostRequest and Wifi isn't installed!");
+                m_log.DebugFormat("[Wifi]: warning: someone is trying to access NewAccountPostRequest and Wifi isn't installed!");
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
 
-            m_log.DebugFormat("[WebApp]: NewAccountPostRequest");
+            m_log.DebugFormat("[Wifi]: NewAccountPostRequest");
             Request request = env.Request;
 
             if ((password != string.Empty) && (password == password2))
@@ -55,6 +55,7 @@ namespace Diva.Wifi
                     // Create the account
                     account = new UserAccount(UUID.Zero, first, last, email);
                     account.ServiceURLs = urls;
+                    account.UserTitle = "Local User";
 
                     m_UserAccountService.StoreUserAccount(account);
 
@@ -69,16 +70,23 @@ namespace Diva.Wifi
                         // Set avatar
                         SetAvatar(account.PrincipalID, avatar);
                     }
+                    else if (m_WebApp.AdminEmail != string.Empty)
+                    {
+                        string message = "New account " + first + " " + last + " created in " + m_WebApp.GridName;
+                        message += " is waiting your approval.";
+                        message += "\n\n" + m_WebApp.WebAddress + "/wifi";
+                        SendEMail(m_WebApp.AdminEmail, "Account waiting approval", message);
+                    }
 
                     env.State = State.NewAccountFormResponse;
-                    m_log.DebugFormat("[WebApp]: Created account for user {0}", account.Name);
+                    m_log.DebugFormat("[Wifi]: Created account for user {0}", account.Name);
                 }
                 else
-                    m_log.DebugFormat("[WebApp]: Attempt at creating an account that already exists");
+                    m_log.DebugFormat("[Wifi]: Attempt at creating an account that already exists");
             }
             else
             {
-                m_log.DebugFormat("[WebApp]: did not create account because of password problems");
+                m_log.DebugFormat("[Wifi]: did not create account because of password problems");
                 env.State = State.NewAccountForm;
             }
 
