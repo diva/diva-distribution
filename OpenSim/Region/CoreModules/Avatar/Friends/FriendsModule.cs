@@ -503,7 +503,7 @@ namespace OpenSim.Region.CoreModules.Avatar.Friends
                 UUID principalID = new UUID(im.fromAgentID);
                 UUID friendID = new UUID(im.toAgentID);
 
-                m_log.DebugFormat("[FRIENDS]: {0} offered friendship to {1}", principalID, friendID);
+                m_log.DebugFormat("[FRIENDS]: {0} ({1}) offered friendship to {2}", principalID, im.fromAgentName, friendID);
 
                 // This user wants to be friends with the other user.
                 // Let's add the relation backwards, in case the other is not online
@@ -521,6 +521,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Friends
             im.imSessionID = im.fromAgentID;
 
             // Try the local sim
+            UserAccount account = UserAccountService.GetUserAccount(Scene.RegionInfo.ScopeID, agentID);
+            im.fromAgentName = (account == null) ? "Unknown" : account.FirstName + " " + account.LastName;
+            
             if (LocalFriendshipOffered(friendID, im))
                 return;
 
@@ -765,7 +768,14 @@ namespace OpenSim.Region.CoreModules.Avatar.Friends
                     bool canEditObjectsChanged = ((rights ^ userFlags) & (int)FriendRights.CanModifyObjects) != 0;
                     if (canEditObjectsChanged)
                         friendClient.SendChangeUserRights(userID, friendID, rights);
+
                 }
+
+                // update local cache
+                //m_Friends[friendID].Friends = m_FriendsService.GetFriends(friendID);
+                foreach (FriendInfo finfo in m_Friends[friendID].Friends)
+                    if (finfo.Friend == userID.ToString())
+                        finfo.TheirFlags = rights;
 
                 return true;
             }
