@@ -170,6 +170,9 @@ namespace OpenSim.Services.LLLoginService
         private string firstname;
         private string lastname;
 
+        // Web map
+        private string mapTileURL;
+
         // Error Flags
         private string errorReason;
         private string errorMessage;
@@ -218,7 +221,7 @@ namespace OpenSim.Services.LLLoginService
         public LLLoginResponse(UserAccount account, AgentCircuitData aCircuit, GridUserInfo pinfo,
             GridRegion destination, List<InventoryFolderBase> invSkel, FriendInfo[] friendsList, ILibraryService libService,
             string where, string startlocation, Vector3 position, Vector3 lookAt, List<InventoryItemBase> gestures, string message,
-            GridRegion home, IPEndPoint clientIP)
+            GridRegion home, IPEndPoint clientIP, string mapTileURL)
             : this()
         {
             FillOutInventoryData(invSkel, libService);
@@ -234,6 +237,7 @@ namespace OpenSim.Services.LLLoginService
             Message = message;
             BuddList = ConvertFriendListItem(friendsList);
             StartLocation = where;
+            MapTileURL = mapTileURL;
 
             FillOutHomeData(pinfo, home);
             LookAt = String.Format("[r{0},r{1},r{2}]", lookAt.X, lookAt.Y, lookAt.Z);
@@ -405,6 +409,7 @@ namespace OpenSim.Services.LLLoginService
             InitialOutfitHash["folder_name"] = "Nightclub Female";
             InitialOutfitHash["gender"] = "female";
             initialOutfit.Add(InitialOutfitHash);
+            mapTileURL = String.Empty;
         }
 
 
@@ -467,6 +472,9 @@ namespace OpenSim.Services.LLLoginService
                 responseData["message"] = welcomeMessage;
                 responseData["region_x"] = (Int32)(RegionX);
                 responseData["region_y"] = (Int32)(RegionY);
+
+                if (mapTileURL != String.Empty)
+                    responseData["map-server-url"] = mapTileURL;
 
                 if (m_buddyList != null)
                 {
@@ -564,6 +572,9 @@ namespace OpenSim.Services.LLLoginService
                 map["region_x"] = OSD.FromInteger(RegionX);
                 map["region_y"] = OSD.FromInteger(RegionY);
 
+                if (mapTileURL != String.Empty)
+                    map["map-server-url"] = OSD.FromString(mapTileURL);
+
                 if (m_buddyList != null)
                 {
                     map["buddy-list"] = ArrayListToOSDArray(m_buddyList.ToArray());
@@ -647,7 +658,7 @@ namespace OpenSim.Services.LLLoginService
             Hashtable TempHash;
             foreach (InventoryFolderBase InvFolder in folders)
             {
-                if (InvFolder.ParentID == UUID.Zero)
+                if (InvFolder.ParentID == UUID.Zero && InvFolder.Name == "My Inventory")
                 {
                     rootID = InvFolder.ID;
                 }
@@ -913,6 +924,12 @@ namespace OpenSim.Services.LLLoginService
         {
             get { return home; }
             set { home = value; }
+        }
+
+        public string MapTileURL
+        {
+            get { return mapTileURL; }
+            set { mapTileURL = value; }
         }
 
         public string Message
