@@ -116,7 +116,8 @@ namespace Diva.Wifi
         PasswordRecoveryMessageSent = 20,
         RecoveringPassword = 21,
         PasswordRecovered = 22,
-        BadPassword = 23
+        BadPassword = 23,
+        InventoryListForm = 24
     }
 
     public enum AvatarType : uint

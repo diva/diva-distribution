@@ -52,6 +52,9 @@ namespace Diva.Wifi
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        public static WebApp WebAppInstance;
+        public static WifiScriptFace WifiScriptFaceInstance;
+
         private string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
         public string DocsPath
         {
@@ -175,6 +178,9 @@ namespace Diva.Wifi
             WifiScriptFace = new WifiScriptFace(this);
 
             m_ExtensionMethods = typeof(ExtensionMethods);
+
+            WebAppInstance = this;
+            WifiScriptFaceInstance = WifiScriptFace;
 
             m_log.DebugFormat("[Wifi]: Starting with extension methods type {0}", m_ExtensionMethods);
 

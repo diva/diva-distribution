@@ -45,6 +45,7 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Environment = Diva.Wifi.Environment;
+using InventoryTreeNode = Diva.OpenSimServices.InventoryTreeNode;
 
 namespace Diva.Wifi
 {
@@ -169,6 +170,27 @@ namespace Diva.Wifi
                     return "Success! Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
                 if (env.State == State.RegionManagementUnsuccessful)
                     return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
+
+                if (env.State == State.InventoryListForm)
+                //{
+                //    string invListStr = string.Empty;
+                //    if (env.Data.Count > 0)
+                //    {
+                //        InventoryTreeNode tree = (InventoryTreeNode)env.Data[0];
+                //        if (tree.Children != null)
+                //        {
+                //            List<object> loo = new List<object>();
+                //            foreach (InventoryTreeNode node in tree.Children)
+                //            {
+                //                m_log.DebugFormat("--> {0}", node.Name);
+                //                loo.Add(node);
+                //                invListStr += m_WebApp.ReadFile(env, "inventorylist.html", loo);
+                //            }
+                //            return invListStr;
+                //        }
+                //    }
+                    return m_WebApp.ReadFile(env, "inventorylist.html", env.Data); 
+            //    }
             }
 
             return string.Empty;
@@ -241,6 +263,7 @@ namespace Diva.Wifi
             // TODO
             return "/wifi/images/temporaryphoto1.jpg";
         }
+
 
         #endregion
 

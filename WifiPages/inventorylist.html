@@ -1,0 +1,15 @@
+
+<form action="/wifi/user/inventory" method="post" >
+ <table class="bodytext">
+  <td><input type="submit" value="Delete" class="button" /></td>
+  <td><input type="submit" value="Move" class="button" /></td>
+  <td><select name="folders">
+   <!-- #call method=GetFolders-->
+  </select></td>
+ </table>
+
+ <table cellspacing="7">
+  <!-- #include file=inventorylistitem.html -->
+ </table>
+
+</form>

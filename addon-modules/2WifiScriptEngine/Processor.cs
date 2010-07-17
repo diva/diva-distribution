@@ -51,7 +51,6 @@ namespace Diva.Wifi.WifiScript
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
-        private bool m_Iterating = false;
 
         public Processor(IWifiScriptFace webApp, IEnvironment env)
             : this(webApp, null, env, null)
@@ -238,7 +237,7 @@ namespace Diva.Wifi.WifiScript
                         if (finfo != null)
                             value = finfo.GetValue(o);
                         else
-                            m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}", name, type);
+                            m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}; {2}", name, type, argStr);
                     }
                 }
 
@@ -286,7 +285,9 @@ namespace Diva.Wifi.WifiScript
                 }
                 catch (Exception e)
                 {
-                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
+                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0} in WebApp {1}", methodName, e.Message);
+                    if (e.InnerException != null)
+                        m_log.DebugFormat("[WifiScript]: Inner Exception {0}", e.InnerException.Message);
                 }
 
                 // Then try the Data type
@@ -313,28 +314,34 @@ namespace Diva.Wifi.WifiScript
                 }
                 catch (Exception e)
                 {
-                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
+                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0} in data type {1}", methodName, e.Message);
+                    if (e.InnerException != null)
+                        m_log.DebugFormat("[WifiScript]: Inner Exception {0}", e.InnerException.Message);
                 }
                 // Then try the Extension Methods
                 try
                 {
+                    //m_log.DebugFormat(" --> call method {0}; count {1}", methodName,  (m_ListOfObjects == null ? "null" : m_ListOfObjects.Count.ToString()));
                     if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
                     {
                         object o = m_ListOfObjects[GetIndex()];
                         if (m_ExtensionMethods.GetMethod(methodName) != null)
                         {
-                            arg = new object[] { o };
-                            int value = (int)m_ExtensionMethods.InvokeMember(methodName,
+                            arg = new object[] { o, m_Env };
+                            //m_log.DebugFormat(" --> {0}", o.ToString());
+                            string value = (string)m_ExtensionMethods.InvokeMember(methodName,
                                 BindingFlags.InvokeMethod | BindingFlags.Public | BindingFlags.Static,
                                 null, null, arg);
 
-                            return value.ToString();
+                            return value;
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    m_log.DebugFormat("[WifiScript]: Exception in invoke {0}", e.Message);
+                    m_log.DebugFormat("[WifiScript]: Exception in invoke extension method {0}, {1}", methodName, e.Message);
+                    if (e.InnerException != null)
+                        m_log.DebugFormat("[WifiScript]: Inner Exception {0}", e.InnerException.Message);
                 }
             }
 

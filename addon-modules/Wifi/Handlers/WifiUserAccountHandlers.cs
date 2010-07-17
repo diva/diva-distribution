@@ -83,8 +83,9 @@ namespace Diva.Wifi
             }
             else
             {
-                UUID.TryParse(resource.Trim(new char[] {'/'}), out userID);
-                result = m_WebApp.Services.UserAccountGetRequest(env, userID);
+                //UUID.TryParse(resource.Trim(new char[] {'/'}), out userID);
+                if (resource.Trim(new char[] {'/'}).StartsWith("edit"))
+                    result = m_WebApp.Services.UserAccountGetRequest(env, userID);
             }
 
             return WifiUtils.StringToBytes(result);
