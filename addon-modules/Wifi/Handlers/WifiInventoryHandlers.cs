@@ -75,17 +75,7 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string result = string.Empty;
-            UUID userID = UUID.Zero;
-            if (resource == string.Empty || resource == "/")
-            {
-                result = m_WebApp.Services.InventoryGetRequest(env);
-            }
-            else
-            {
-                UUID.TryParse(resource.Trim(new char[] {'/'}), out userID);
-                result = m_WebApp.Services.UserAccountGetRequest(env, userID);
-            }
+            string result = m_WebApp.Services.InventoryGetRequest(env);
 
             return WifiUtils.StringToBytes(result);
 
@@ -93,119 +83,65 @@ namespace Diva.Wifi
 
     }
 
-    //public class WifiUserAccountPostHandler : BaseStreamHandler
-    //{
-    //    private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+    public class WifiInventoryPostHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-    //    private WebApp m_WebApp;
+        private WebApp m_WebApp;
 
-    //    public WifiUserAccountPostHandler(WebApp webapp) :
-    //        base("POST", "/wifi/user/account")
-    //    {
-    //        m_WebApp = webapp;
-    //    }
+        public WifiInventoryPostHandler(WebApp webapp) :
+            base("POST", "/wifi/user/inventory")
+        {
+            m_WebApp = webapp;
+        }
 
-    //    public override byte[] Handle(string path, Stream requestData,
-    //            OSHttpRequest httpRequest, OSHttpResponse httpResponse)
-    //    {
-    //        StreamReader sr = new StreamReader(requestData);
-    //        string body = sr.ReadToEnd();
-    //        sr.Close();
-    //        body = body.Trim();
+        public override byte[] Handle(string path, Stream requestData,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            // path = /wifi/...
+            //m_log.DebugFormat("[Wifi]: path = {0}", path);
+            //m_log.DebugFormat("[Wifi]: ip address = {0}", httpRequest.RemoteIPEndPoint);
+            //foreach (object o in httpRequest.Query.Keys)
+            //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
+            httpResponse.ContentType = "text/html";
+            string resource = GetParam(path);
+            //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
 
-    //        httpResponse.ContentType = "text/html";
+            StreamReader sr = new StreamReader(requestData);
+            string body = sr.ReadToEnd();
+            sr.Close();
+            body = body.Trim();
+            Dictionary<string, object> postdata =
+                    ServerUtils.ParseQueryString(body);
 
-    //        string resource = GetParam(path);
-    //        //m_log.DebugFormat("[USER ACCOUNT HANDLER POST]: resource {0} query: {1}", resource, body);
+            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-    //        Dictionary<string, object> request =
-    //                ServerUtils.ParseQueryString(body);
+            string action = string.Empty;
+            string folder = string.Empty;
+            string newFolderName = string.Empty;
+            List<string> nodes = new List<string>();
+            List<string> types = new List<string>();
 
-    //        if (SplitParams(path).Length >= 1) //  userID given, update account (PUT)
-    //        {
-    //            UUID userID = UUID.Zero;
-    //            if (UUID.TryParse(resource.Trim(new char[] { '/' }), out userID))
-    //                return UpdateAccount(resource, httpRequest, userID, request);
+            if (postdata.ContainsKey("action"))
+                action = postdata["action"].ToString();
+            if (postdata.ContainsKey("folder"))
+                folder = postdata["folder"].ToString();
+            if (postdata.ContainsKey("newFolderName"))
+                newFolderName = postdata["newFolderName"].ToString();
+            foreach (KeyValuePair<string, object> kvp in postdata)
+            {
+                if (kvp.Key.StartsWith("inv-"))
+                {
+                    nodes.Add(kvp.Key.Substring(4));
+                    types.Add(kvp.Value.ToString());
+                }
+            }
 
-    //            return WifiUtils.FailureResult();
-    //        }
+            return WifiUtils.StringToBytes(m_WebApp.Services.InventoryPostRequest(env, action, folder, newFolderName, nodes, types));
 
-    //        // else create a new account (true POST)
-    //        return CreateAccount(resource, httpRequest, request);
-    //    }
+        }
 
-    //    private byte[] CreateAccount(string resource, OSHttpRequest httpRequest, Dictionary<string, object> request)
-    //    {
-    //        string first = String.Empty;
-    //        string last = String.Empty;
-    //        string email = String.Empty;
-    //        string password = String.Empty;
-    //        string password2 = String.Empty;
-    //        AvatarType avatar = AvatarType.Neutral;
-
-    //        if (request.ContainsKey("first") && WifiUtils.IsValidName(request["first"].ToString()))
-    //            first = request["first"].ToString();
-    //        if (request.ContainsKey("last") && WifiUtils.IsValidName(request["last"].ToString()))
-    //            last = request["last"].ToString();
-    //        if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
-    //            email = request["email"].ToString();
-    //        if (request.ContainsKey("password"))
-    //            password = request["password"].ToString();
-    //        if (request.ContainsKey("password2"))
-    //            password2 = request["password2"].ToString();
-    //        if (request.ContainsKey("avatar"))
-    //        {
-    //            if ((string)request["avatar"] == "Female")
-    //                avatar = AvatarType.Female;
-    //            else if ((string)request["avatar"] == "Male")
-    //                avatar = AvatarType.Male;
-    //            else
-    //                avatar = AvatarType.Neutral;
-    //        }
-
-    //        Request req = WifiUtils.CreateRequest(resource, httpRequest);
-    //        Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
-
-    //        string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2, avatar);
-
-    //        return WifiUtils.StringToBytes(result);
-    //    }
-
-    //    private byte[] UpdateAccount(string resource, OSHttpRequest httpRequest, UUID userID, Dictionary<string, object> request)
-    //    {
-    //        try
-    //        {
-    //            string email = String.Empty;
-    //            string oldpassword = String.Empty;
-    //            string newpassword = String.Empty;
-    //            string newpassword2 = String.Empty;
-
-    //            if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
-    //                email = request["email"].ToString();
-    //            if (request.ContainsKey("oldpassword"))
-    //                oldpassword = request["oldpassword"].ToString();
-    //            if (request.ContainsKey("newpassword"))
-    //                newpassword = request["newpassword"].ToString();
-    //            if (request.ContainsKey("newpassword2"))
-    //                newpassword2 = request["newpassword2"].ToString();
-
-    //            Request req = WifiUtils.CreateRequest(resource, httpRequest);
-    //            Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
-
-    //            string result = m_WebApp.Services.UserAccountPostRequest(env, userID, email, oldpassword, newpassword, newpassword2);
-
-    //            return WifiUtils.StringToBytes(result);
-
-    //        }
-    //        catch (Exception e)
-    //        {
-    //            Util.PrintCallStack();
-    //            m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}", e.StackTrace);
-    //        }
-
-    //        return WifiUtils.FailureResult();
-    //    }
-
-    //}
+    }
 
 }

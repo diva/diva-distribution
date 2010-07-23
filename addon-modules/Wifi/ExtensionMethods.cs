@@ -58,16 +58,8 @@ namespace Diva.Wifi
                 indent += "&nbsp;&nbsp;&nbsp;&nbsp;";
 
             if (node.Children != null)
-                indent += "* ";
+                indent += "&raquo; ";
             return indent;
-        }
-
-        public static string GetItemType(this InventoryTreeNode node, IEnvironment env)
-        {
-            if (node.Children == null)
-                return node.Type.ToString();
-
-            return string.Empty;
         }
 
         public static string GetFolders(this InventoryTreeNode node, IEnvironment env)
@@ -83,13 +75,17 @@ namespace Diva.Wifi
                 {
                     InventoryTreeNode n = (InventoryTreeNode)obj;
                     if (n.Children != null) // it's a folder
+                    {
+                        result += "<option value=\"" + n.ID + "\">" + n.Name + "</option>\n"; 
                         foreach (InventoryTreeNode child in n.Children)
                             result += "<option value=\"" + child.ID + "\">" + n.Name + "/" + child.Name + "</option>\n";
+                    }
                 }
                 catch { /* */ }
             }
 
             return result;
         }
+
     }
 }

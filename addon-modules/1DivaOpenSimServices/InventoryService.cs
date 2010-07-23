@@ -46,7 +46,7 @@ namespace Diva.OpenSimServices
             InventoryTreeNode root = new InventoryTreeNode(UUID.Zero, "root", AssetType.Unknown, -1, true);
             FillIn(root, folderList, itemList);
 
-            Dump(root, string.Empty);
+            //Dump(root, string.Empty);
             return root;
             
         }
@@ -112,5 +112,23 @@ namespace Diva.OpenSimServices
         {
             return "Name: " + Name;
         }
+
+        public string GetNodeType()
+        {
+            if (IsFolder())
+                return "folder";
+
+            return "item";
+        }
+
+        public string GetItemType()
+        {
+            if (Children == null)
+                return Type.ToString();
+
+            return string.Empty;
+        }
+
+
     }
 }
