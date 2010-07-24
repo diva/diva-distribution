@@ -105,7 +105,6 @@ namespace Diva.Wifi
 
             httpResponse.ContentType = "text/html";
 
-            m_log.DebugFormat("[XXX]: query String: {0}", body);
             string resource = GetParam(path);
 
             try

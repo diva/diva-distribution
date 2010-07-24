@@ -43,7 +43,7 @@ namespace Diva.OpenSimServices
             else
                 itemList = new List<XInventoryItem>();
 
-            InventoryTreeNode root = new InventoryTreeNode(UUID.Zero, "root", AssetType.Unknown, -1, true);
+            InventoryTreeNode root = new InventoryTreeNode(UUID.Zero, String.Empty, AssetType.Unknown, 0, true);
             FillIn(root, folderList, itemList);
 
             //Dump(root, string.Empty);

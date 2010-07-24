@@ -30,8 +30,12 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 InventoryTreeNode tree = m_InventoryService.GetInventoryTree(sinfo.Account.PrincipalID);
                 List<object> loo = new List<object>();
-                foreach (InventoryTreeNode n in tree.Children) // skip the artificial first level
-                    loo.Add(n);
+                //foreach (InventoryTreeNode n in tree.Children) // skip the artificial first level
+                //{
+                //    m_log.DebugFormat("[XXX] Adding {0}", n.Name);
+                //    loo.Add(n);
+                //}
+                loo.Add(tree);
 
                 env.Data = loo;
                 env.Flags = Flags.IsLoggedIn;
@@ -60,11 +64,11 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
 
-                if (action.Contains("Delete"))
+                if (action.Contains("delete"))
                     Delete(sinfo.Account.PrincipalID, nodes, types);
-                else if (action.Contains("Move"))
+                else if (action.Contains("move"))
                     Move(sinfo.Account.PrincipalID, nodes, types, folder);
-                else if (action.Contains("New"))
+                else if (action.Contains("new"))
                     NewFolder(sinfo.Account.PrincipalID, newFolderName, folder);
 
                 // Send the [new] inventory list

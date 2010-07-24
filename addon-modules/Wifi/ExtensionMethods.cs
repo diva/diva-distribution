@@ -76,9 +76,13 @@ namespace Diva.Wifi
                     InventoryTreeNode n = (InventoryTreeNode)obj;
                     if (n.Children != null) // it's a folder
                     {
-                        result += "<option value=\"" + n.ID + "\">" + n.Name + "</option>\n"; 
+                        // first node is the very top root, UUID.Zero
                         foreach (InventoryTreeNode child in n.Children)
-                            result += "<option value=\"" + child.ID + "\">" + n.Name + "/" + child.Name + "</option>\n";
+                        {
+                            result += "<option value=\"" + child.ID + "\">" + child.Name + "</option>\n";
+                            foreach (InventoryTreeNode gchild in child.Children)
+                                result += "<option value=\"" + gchild.ID + "\">" + child.Name + "/" + gchild.Name + "</option>\n";
+                        }
                     }
                 }
                 catch { /* */ }
