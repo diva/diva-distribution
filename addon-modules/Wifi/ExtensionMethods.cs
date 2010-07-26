@@ -79,9 +79,17 @@ namespace Diva.Wifi
                         // first node is the very top root, UUID.Zero
                         foreach (InventoryTreeNode child in n.Children)
                         {
-                            result += "<option value=\"" + child.ID + "\">" + child.Name + "</option>\n";
+                            string name = child.Name;
+                            if (name.Length > 40)
+                                name = name.Substring(0, 40);
+                            result += "<option value=\"" + child.ID + "\">" + name + "</option>\n";
                             foreach (InventoryTreeNode gchild in child.Children)
-                                result += "<option value=\"" + gchild.ID + "\">" + child.Name + "/" + gchild.Name + "</option>\n";
+                            {
+                                name = child.Name + "/" + gchild.Name;
+                                if (name.Length > 40)
+                                    name = name.Substring(0, 40);
+                                result += "<option value=\"" + gchild.ID + "\">" + name + "</option>\n";
+                            }
                         }
                     }
                 }

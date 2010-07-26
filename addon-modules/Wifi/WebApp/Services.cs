@@ -81,7 +81,7 @@ namespace Diva.Wifi
             m_WebApp = webApp;
 
             m_ServerAdminPassword = webApp.RemoteAdminPassword;
-            m_log.DebugFormat("[Services]: RemoteAdminPassword is {0}", m_ServerAdminPassword);
+            //m_log.DebugFormat("[Services]: RemoteAdminPassword is {0}", m_ServerAdminPassword);
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -109,14 +109,20 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[Wifi]: Administrator account {0} {1} does not exist. Creating it...", m_WebApp.AdminFirst, m_WebApp.AdminLast);
                 // Doesn't exist. Create one
                 god = new UserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast, m_WebApp.AdminEmail);
-                god.UserLevel = 500;
+                god.UserLevel = 100;
                 god.UserTitle = "Administrator";
                 god.UserFlags = 0;
                 SetServiceURLs(god);
                 m_UserAccountService.StoreUserAccount(god);
                 m_InventoryService.CreateUserInventory(god.PrincipalID);
-                // Signal that the App needs installation
-                m_WebApp.IsInstalled = false;
+                if (m_WebApp.AdminPassword == string.Empty)
+                    // Signal that the App needs installation
+                    m_WebApp.IsInstalled = false;
+                else
+                {
+                    m_AuthenticationService.SetPassword(god.PrincipalID, m_WebApp.AdminPassword);
+                    m_WebApp.IsInstalled = true;
+                }
             }
             else
             {
@@ -125,10 +131,10 @@ namespace Diva.Wifi
                 m_WebApp.IsInstalled = true;
             }
 
-            if (god.UserLevel < 200)
+            if (god.UserLevel < 100)
             {
                 // Might have existed but had wrong UserLevel
-                god.UserLevel = 500;
+                god.UserLevel = 100;
                 m_UserAccountService.StoreUserAccount(god);
             }
 

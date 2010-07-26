@@ -7,7 +7,7 @@ body {
   font-size:100%;
   font-family: Arial,'Lucida Grande',Verdana,sans-serif;
   text-align:center;
-  background:#000 url(images/3D_computer_animation1.jpg) repeat-y top center;
+  background:#000 repeat-y top center;
 }
   
 #header {
@@ -20,9 +20,9 @@ body {
 
 #logo {
   text-align:left;
-  font:37.5px Georgia, Arial, "Times New Roman", Times;
+  font:16px Georgia, Arial, "Times New Roman", Times;
   padding-left:95px;
-  color:#BD6B54;
+  color:#f67d15;
 }
 
 .white {
@@ -31,8 +31,8 @@ color:#FFF;
 
 #slogan {
   text-align:left;
-  padding-left:219px;
-  font:bold 14px Arial, "Times New Roman", Times;
+  padding-left:130px;
+  font:bold 16px Arial, "Times New Roman", Times;
   color:#FFF;
 }
 

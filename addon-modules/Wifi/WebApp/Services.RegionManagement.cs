@@ -63,7 +63,7 @@ namespace Diva.Wifi
             Request request = env.Request;
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 100))
             {
                 env.Session = sinfo;
 
@@ -107,7 +107,7 @@ namespace Diva.Wifi
             Request request = env.Request;
             SessionInfo sinfo;
 
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 100))
             {
                 env.Session = sinfo;
 
@@ -156,7 +156,7 @@ namespace Diva.Wifi
             Request request = env.Request;
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 100))
             {
                 env.Session = sinfo;
 
@@ -199,7 +199,7 @@ namespace Diva.Wifi
             Request request = env.Request;
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 200))
+            if (TryGetSessionInfo(request, out sinfo) && (sinfo.Account.UserLevel >= 100))
             {
                 List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
 
@@ -223,7 +223,7 @@ namespace Diva.Wifi
 
         private List<object> GetRegionList(Environment env)
         {
-            List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
+            List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 100);
 
             if (regions != null)
             {

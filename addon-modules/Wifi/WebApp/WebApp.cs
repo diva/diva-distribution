@@ -109,6 +109,12 @@ namespace Diva.Wifi
         {
             get { return m_AdminEmail; }
         }
+        private string m_AdminPassword;
+        public string AdminPassword
+        {
+            get { return m_AdminPassword; }
+        }
+
         private string m_RemoteAdminPassword;
         public string RemoteAdminPassword
         {
@@ -202,6 +208,7 @@ namespace Diva.Wifi
 
             m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
+            m_AdminPassword = appConfig.GetString("AdminPassword", string.Empty);
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);

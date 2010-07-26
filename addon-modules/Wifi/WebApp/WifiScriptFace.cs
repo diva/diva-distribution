@@ -204,7 +204,7 @@ namespace Diva.Wifi
             SessionInfo sinfo = env.Session;
             if (sinfo.Account != null)
             {
-                if (sinfo.Account.UserLevel >= 200) // Admin
+                if (sinfo.Account.UserLevel >= 100) // Admin
                     return m_WebApp.ReadFile(env, "main-menu-admin.html");
 
                 return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);
@@ -257,11 +257,11 @@ namespace Diva.Wifi
             if (sinfo.Account != null)
             {
                 // TODO
-                return "/wifi/images/temporaryphoto1.jpg";
+                return "/wifi/images/abstract-cool.jpg";
             }
 
             // TODO
-            return "/wifi/images/temporaryphoto1.jpg";
+            return "/wifi/images/abstract-cool.jpg";
         }
 
 
