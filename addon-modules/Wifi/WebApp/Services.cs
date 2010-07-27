@@ -96,9 +96,12 @@ namespace Diva.Wifi
 
             // Connect to our outgoing mail server for password forgetfulness
             m_Client = new SmtpClient(m_WebApp.SmtpHost, m_WebApp.SmtpPort);
-            m_Client.EnableSsl = true;
+            if (m_WebApp.SmtpPort == 25)
+                m_Client.EnableSsl = false;
+            else
+                m_Client.EnableSsl = true;
             m_Client.Credentials = new NetworkCredential(m_WebApp.SmtpUsername, m_WebApp.SmtpPassword);
-            m_Client.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
+
         }
 
         private void CreateGod()
