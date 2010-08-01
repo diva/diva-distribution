@@ -81,7 +81,15 @@ namespace Diva.Wifi
                     msg.Body = "\nYour account is " + account.FirstName + " " + account.LastName ;
                     msg.Body += "\nClick here to reset your password:\n";
                     msg.Body += url;
-                    m_Client.SendAsync(msg, email);
+                    //m_Client.SendAsync(msg, email);
+                    try
+                    {
+                        m_Client.Send(msg);
+                    }
+                    catch (Exception e)
+                    {
+                        m_log.DebugFormat("[Wifi]: Problem sending email: {0}", e.InnerException);
+                    }
 
                     env.State = State.PasswordRecoveryMessageSent;
 
