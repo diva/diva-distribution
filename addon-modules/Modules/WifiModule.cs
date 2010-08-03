@@ -68,9 +68,10 @@ namespace Diva.Wifi
                 }
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                m_log.Info("[Wifi Module]: Could not load configuration. Wifi will be disabled.");
+                m_log.ErrorFormat(e.StackTrace);
+                m_log.ErrorFormat("[Wifi Module]: Could not load configuration: {0}. Wifi will be disabled.", e.Message);
                 m_enabled = false;
                 return;
             }

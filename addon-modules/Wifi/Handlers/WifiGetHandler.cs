@@ -83,6 +83,12 @@ namespace Diva.Wifi
                 
                 return WifiUtils.StringToBytes(GenerateIndex(env));
             }
+            else if (resource == "welcome.html")
+            {
+                httpResponse.ContentType = "text/html";
+
+                return WifiUtils.StringToBytes(GenerateWelcome(env));
+            }
             else
             {
                 string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, resource);
@@ -111,6 +117,20 @@ namespace Diva.Wifi
             string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "index.html");
             Processor p = new Processor(m_WebApp.WifiScriptFace, env);
             return p.Process(WifiUtils.ReadTextResource(resourcePath));
+        }
+
+        private string GenerateWelcome(Diva.Wifi.Environment env)
+        {
+            try
+            {
+                string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "welcome.html");
+                Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+                return p.Process(WifiUtils.ReadTextResource(resourcePath));
+            }
+            catch
+            {
+                return GenerateIndex(env);
+            }
         }
 
         private string GetResource(string path)

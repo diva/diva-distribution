@@ -76,7 +76,7 @@ namespace Diva.Wifi
 
         public Services(IConfigSource config, string configName, WebApp webApp)
         {
-            m_log.Debug("[Services]: Starting...");
+            m_log.Debug("[Wifi]: Services Starting...");
 
             m_WebApp = webApp;
 

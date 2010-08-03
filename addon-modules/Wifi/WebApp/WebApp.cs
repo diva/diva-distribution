@@ -198,7 +198,7 @@ namespace Diva.Wifi
             IConfig appConfig = config.Configs[configName];
             m_GridName = appConfig.GetString("GridName", "My World");
             m_LoginURL = appConfig.GetString("LoginURL", "http://localhost:9000");
-            m_WebAddress = appConfig.GetString("WebAddress", "http://localhost:8080");
+            m_WebAddress = appConfig.GetString("WebAddress", "http://localhost:9000");
             m_WebAddress = m_WebAddress.Trim(new char[] { '/' }); 
 
             m_SmtpHost = appConfig.GetString("SmtpHost", "smtp.gmail.com");
@@ -219,15 +219,15 @@ namespace Diva.Wifi
             m_AvatarMale = appConfig.GetString("MaleAvatarAccount", "Test User");
             m_AvatarNeutral = appConfig.GetString("NeutralAvatarAccount", "Test User");
 
-            if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty || m_AdminEmail == string.Empty)
+            if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed
-                throw new Exception("Can't proceed. Please specify the administrator account in Wifi.ini");
+                throw new Exception("Can't proceed. Please specify the administrator account completely.");
 
             IConfig serverConfig = config.Configs["Network"];
             if (serverConfig != null)
-                m_Port = Int32.Parse(serverConfig.GetString("port", "80"));
+                m_Port = serverConfig.GetInt("port", 9000);
 
-            m_log.DebugFormat("[Environment]: Initialized. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
+            m_log.DebugFormat("[Wifi]: WebApp configs loaded. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
         }
 
 
