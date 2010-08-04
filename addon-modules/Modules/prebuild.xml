@@ -24,7 +24,6 @@
   <Reference name="OpenSim.Region.Framework"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
-  <Reference name="Diva.Wifi"/>
   <Reference name="Nini.dll" />
   <Reference name="log4net.dll"/>
   <Reference name="Mono.Addins.dll"/>

@@ -77,7 +77,8 @@ namespace MetaverseInk.ImageService
 
             try
             {
-                m_enabled = config.Configs["DataSnapshot"].GetBoolean("index_sims", m_enabled);
+                m_enabled = (config.Configs["DataSnapshot"].GetBoolean("index_sims", false) &&
+                             config.Configs["Modules"].GetBoolean("MIImageServiceModule", false));
 
                 m_snapsDir = config.Configs["DataSnapshot"].GetString("snapshot_cache_directory", m_snapsDir);
             }

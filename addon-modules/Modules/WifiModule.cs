@@ -31,12 +31,12 @@ using OpenSim.Framework;
 using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
+using OpenSim.Server.Base;
+using OpenSim.Server.Handlers.Base;
 using OpenMetaverse;
 using OpenMetaverse.Imaging;
 using log4net;
 using Nini.Config;
-
-using Diva.Wifi;
 
 using Mono.Addins;
 
@@ -64,14 +64,18 @@ namespace Diva.Wifi
                 m_enabled = config.Configs["Modules"].GetBoolean("WifiModule", m_enabled);
                 if (m_enabled)
                 {
-                    new WifiServerConnector(config, MainServer.Instance, string.Empty);
+                    object[] args = new object[] { config, MainServer.Instance, string.Empty };
+                    //new WifiServerConnector(config, MainServer.Instance, string.Empty);
+
+                    ServerUtils.LoadPlugin<IServiceConnector>("Diva.Wifi.dll:WifiServerConnector", args);
+                    m_log.Debug("[Wifi Module]: Wifi enabled.");
                 }
 
             }
             catch (Exception e)
             {
                 m_log.ErrorFormat(e.StackTrace);
-                m_log.ErrorFormat("[Wifi Module]: Could not load configuration: {0}. Wifi will be disabled.", e.Message);
+                m_log.ErrorFormat("[Wifi Module]: Could not load Wifi: {0}. ", e.Message);
                 m_enabled = false;
                 return;
             }
