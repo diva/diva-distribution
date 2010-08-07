@@ -11,11 +11,11 @@ body {
 }
   
 #header {
-  height:66px;
+  height:15px;
   width:999px;
   background:transparent;
   margin:0 auto 0 auto;
-  padding-top:95px;
+  padding-top:45px;
 }
 
 #logo {
@@ -130,7 +130,7 @@ padding:33px;
   background: transparent url(images/line.gif) repeat-x top left;
   width:226px;
   height:1px;
-  padding-bottom:33px;
+  padding-bottom:15px;
 }
   
   
@@ -145,11 +145,11 @@ padding:33px;
   font-family: Arial, "Times New Roman", Times, serif;
   font-size: 14px;
   text-decoration: underline;
-  line-height:30px;
+  line-height:20px;
 }
   
 #posts li a:hover {
-  color:#000;
+  color:#8C8D94;
   background:#FFF;
   text-decoration: none;
 }

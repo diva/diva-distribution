@@ -2,7 +2,7 @@
 	ServiceConnectors = "Diva.Wifi.dll:WifiServerConnector"
 
 [Network]
-	port = 8080
+	port = 8002
 
 [DatabaseService]
     StorageProvider = "OpenSim.Data.MySQL.dll"
@@ -10,10 +10,10 @@
 
 [WifiService]
 	GridName = "My World"
-	LoginURL = "http://localhost:9000"
-	WebAddress = "http://localhost:8080"
+	LoginURL = "http://localhost:8002"
+	WebAddress = "http://localhost:8002"
 	
-    ;; The Wifi Administrator account, both for Wifi and Inworld "God"
+	;; The Wifi Administrator account
 	AdminFirst = "Admin"
 	AdminLast = "Admin"
 	AdminEmail = "your@email.com"
