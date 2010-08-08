@@ -1,7 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-	<title>OpenSim HyperGrid -- <!-- #get var=GridName --></title>
+	<title><!-- #get var=GridName --></title>
+	<link rel="shortcut icon" href="/wifi/images/favicon.ico" />
 	<link rel="stylesheet" media="screen" type="text/css" href="/wifi/style.css" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
 
@@ -10,13 +11,13 @@
 
   <body>
         <div id="header">
-          <p id="logo">virtual <span class="white">world</span></p>
+	  <!--#include file=header.html -->
 	</div>
 	<div id="page">  <!-- wraps and defines overall page width, centers it -->
 
 	  <div id="content"> <!-- content area of page -->
 	    <!--#include file=content-box.html --> 
-            <img src="images/orange-planets-background.jpg" width="100%">
+            <img src="/wifi/images/orange-planets-background.jpg" width="100%">
       	  </div> <!-- end content area of page -->
 	  
 	  <div id="right-nav">  <!-- right side navigation, etc on page -->
@@ -33,12 +34,7 @@
 	  </div> <!-- end right side navigation -->
 	  
 	  <div id="footer">
-	    <div id="footer-pad">
-	      <div class="line"></div>
-	      <p>LoginURI <span style="color:#f67d15"><!-- #get var=LoginURL --></span></p>
-	      <p>&nbsp;</p>
-	      <p>Web design &copy; Crista Lopes 2010. Distributed under Creative Commons.</p>
-	    </div>
+	    <!-- #include file=footer.html -->
 	  </div>
 	  
 	</div>

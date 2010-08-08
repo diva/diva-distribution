@@ -88,6 +88,7 @@ namespace Diva.Wifi
                 string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, resource);
                 string type = WifiUtils.GetContentType(resource);
                 httpResponse.ContentType = type;
+                //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
                 if (type.StartsWith("image"))
                     return WifiUtils.ReadBinaryResource(resourcePath);
 

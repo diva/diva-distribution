@@ -67,7 +67,7 @@ namespace Diva.Wifi
             sinfo.IpAddress = request.IPEndPoint.Address.ToString();
             sinfo.Sid = authtoken;
             sinfo.Account = account;
-            m_Sessions.Add(authtoken, sinfo);
+            m_Sessions.Add(authtoken, sinfo, DateTime.Now + TimeSpan.FromMinutes(30.0d));
             env.Request.Query["sid"] = authtoken;
             env.Session = sinfo;
 

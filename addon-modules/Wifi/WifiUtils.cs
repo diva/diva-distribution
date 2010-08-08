@@ -52,6 +52,10 @@ namespace Diva.Wifi
                 return "image/jpeg";
             if (resource.ToLower().EndsWith(".gif"))
                 return "image/gif";
+            if (resource.ToLower().EndsWith(".png"))
+                return "image/png";
+            if (resource.ToLower().EndsWith(".ico"))
+                return "image/x-icon";
             if (resource.ToLower().EndsWith(".css"))
                 return "text/css";
             return "text/html";

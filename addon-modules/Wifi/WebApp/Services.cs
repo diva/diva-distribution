@@ -72,7 +72,8 @@ namespace Diva.Wifi
         private string m_ServerAdminPassword;
 
         // Sessions
-        private Dictionary<string, SessionInfo> m_Sessions = new Dictionary<string, SessionInfo>();
+        //private Dictionary<string, SessionInfo> m_Sessions = new Dictionary<string, SessionInfo>();
+        private ExpiringCache<string, SessionInfo> m_Sessions = new ExpiringCache<string, SessionInfo>();
 
         public Services(IConfigSource config, string configName, WebApp webApp)
         {
@@ -150,11 +151,14 @@ namespace Diva.Wifi
             if (request.Query.ContainsKey("sid"))
             {
                 string sid = request.Query["sid"].ToString();
-                if (m_Sessions.ContainsKey(sid))
+                if (m_Sessions.Contains(sid))
                 {
-                    if (m_Sessions[sid].IpAddress == request.IPEndPoint.Address.ToString())
+                    SessionInfo session;
+                    if (m_Sessions.TryGetValue(sid, out session) && 
+                        session.IpAddress == request.IPEndPoint.Address.ToString())
                     {
-                        sinfo = m_Sessions[sid];
+                        sinfo = session;
+                        m_Sessions.AddOrUpdate(sid, session, DateTime.Now + TimeSpan.FromMinutes(30.0d));
                         success = true;
                     }
                 }
