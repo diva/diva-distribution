@@ -51,6 +51,7 @@ namespace Diva.Wifi.WifiScript
         private IEnvironment m_Env;
         private List<object> m_ListOfObjects;
         private int m_Index;
+        private static string m_FileName;
 
         public Processor(IWifiScriptFace webApp, IEnvironment env)
             : this(webApp, null, env, null)
@@ -64,7 +65,8 @@ namespace Diva.Wifi.WifiScript
             m_ExtensionMethods = extMeths;
             m_Env = env;
             m_ListOfObjects = lot;
-            m_Index = -1;
+            m_Index = 0;
+            //m_log.DebugFormat("[Wifi]: New processor m_Index = {0}", m_Index);
         }
 
         public string Process(string html)
@@ -135,15 +137,6 @@ namespace Diva.Wifi.WifiScript
 
         private string Include(string argStr)
         {
-            m_Index++;
-            // Break the recursive includes
-            if (m_ListOfObjects != null)
-            {
-                if (m_Index > m_ListOfObjects.Count)
-                {
-                    return string.Empty;
-                }
-            }
 
             Match match = args.Match(argStr);
             //m_log.DebugFormat("Match {0} args? {1} {2}", args.ToString(), match.Success, match.Groups.Count);
@@ -153,11 +146,30 @@ namespace Diva.Wifi.WifiScript
                 string value = match.Groups[2].Value;
                 // ignore the name which should be file
                 string file = Path.Combine(m_WebApp.DocsPath, value);
-                //m_log.DebugFormat("[WifiScript]: Including file {0}", file);
+                //m_log.DebugFormat("[WifiScript]: Including file {0} with index = {1} (previous file is {2})", file, m_Index, m_FileName);
+                
                 using (StreamReader sr = new StreamReader(file))
                 {
-                    // recurse!
-                    return Process(sr.ReadToEnd());
+                    if (file == m_FileName)
+                    {
+                        m_Index++;
+                        if (m_ListOfObjects != null)
+                        {
+                            if (m_Index > m_ListOfObjects.Count)
+                            {
+                                return string.Empty;
+                            }
+                        }
+
+                        // recurse!
+                        return Process(sr.ReadToEnd());
+                    }
+                    else
+                    {
+                        m_FileName = file;
+                        Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, m_ListOfObjects);
+                        return p.Process(sr.ReadToEnd());
+                    }
                 }
             }
 
