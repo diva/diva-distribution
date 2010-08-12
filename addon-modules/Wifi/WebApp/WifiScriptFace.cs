@@ -129,7 +129,7 @@ namespace Diva.Wifi
             if (env.State == State.SuccessfulLogin)
                 return "Welcome to " + m_WebApp.GridName + "!";
 
-            if (env.State == State.NewAccountForm)
+            if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
                 return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
             if (env.State == State.NewAccountFormResponse)
             {

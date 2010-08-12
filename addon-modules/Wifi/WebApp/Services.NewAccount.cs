@@ -58,7 +58,7 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: NewAccountPostRequest");
             Request request = env.Request;
 
-            if ((password != string.Empty) && (password == password2))
+            if ((password != string.Empty) && (password == password2) && (first != string.Empty) && (last != string.Empty))
             {
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
                 if (account == null)
@@ -112,7 +112,7 @@ namespace Diva.Wifi
             }
             else
             {
-                m_log.DebugFormat("[Wifi]: did not create account because of password problems");
+                m_log.DebugFormat("[Wifi]: did not create account because of password and/or user name problems");
                 env.State = State.NewAccountForm;
             }
 
