@@ -273,12 +273,19 @@ namespace Diva.Wifi
 
         private void SendEMail(string to, string subject, string message)
         {
-            MailMessage msg = new MailMessage();
-            msg.From = new MailAddress(m_WebApp.SmtpUsername);
-            msg.To.Add(to);
-            msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
-            msg.Body = message;
-            m_Client.SendAsync(msg, to);
+            try
+            {
+                MailMessage msg = new MailMessage();
+                msg.From = new MailAddress(m_WebApp.SmtpUsername);
+                msg.To.Add(to);
+                msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
+                msg.Body = message;
+                m_Client.SendAsync(msg, to);
+            }
+            catch (Exception e)
+            {
+                m_log.WarnFormat("[Wifi]: Exception on sending mail to {0}: {1}", to, e.Message);
+            }
         }
 
         private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
