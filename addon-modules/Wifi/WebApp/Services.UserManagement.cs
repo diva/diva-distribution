@@ -218,7 +218,6 @@ namespace Diva.Wifi
                         string message = "Your account has been activated.\n";
                         message += "\nFirst name: " + account.FirstName;
                         message += "\nLast name: " + account.LastName;
-                        message += "\nPassword: " + password;
                         SendEMail(account.Email, "Account activated", message);
                     }
                 }
