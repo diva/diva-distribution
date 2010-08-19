@@ -109,6 +109,10 @@ namespace Diva.Wifi
 
         private string GenerateSplash(Diva.Wifi.Environment env)
         {
+            string result = m_WebApp.Services.DefaultRequest(env);
+            if (!string.IsNullOrEmpty(result))
+                return result;
+
             string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "splash.html");
             Processor p = new Processor(m_WebApp.WifiScriptFace, env);
             return p.Process(WifiUtils.ReadTextResource(resourcePath));
