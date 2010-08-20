@@ -93,6 +93,16 @@ namespace Diva.Wifi
             get { return m_WebApp.AdminEmail; }
         }
 
+        public string Version
+        {
+            get { return OpenSim.VersionInfo.Version; }
+        }
+
+        public string RuntimeInfo
+        {
+            get { return OpenSim.Framework.Util.GetRuntimeInformation(); }
+        }
+
         #endregion
 
         public WifiScriptFace(WebApp webApp)

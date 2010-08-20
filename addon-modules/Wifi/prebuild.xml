@@ -26,6 +26,7 @@
   <Reference name="XMLRPC.dll"/>
 
   <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Framework.Servers"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
