@@ -26,6 +26,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using log4net;
 using OpenMetaverse;
@@ -46,7 +47,7 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        public string NewAccountPostRequest(Environment env, string first, string last, string email, string password, string password2, AvatarType avatar)
+        public string NewAccountPostRequest(Environment env, string first, string last, string email, string password, string password2, string avatarType)
         {
             if (!m_WebApp.IsInstalled)
             {
@@ -75,7 +76,7 @@ namespace Diva.Wifi
                         first = "*pending* " + first;
                         // Store the password temporarily here
                         urls["Password"] = password;
-                        urls["Avatar"] = avatar.ToString();
+                        urls["Avatar"] = avatarType;
                     }
 
                     // Create the account
@@ -94,7 +95,7 @@ namespace Diva.Wifi
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                         // Set avatar
-                        SetAvatar(account.PrincipalID, avatar);
+                        SetAvatar(account.PrincipalID, avatarType);
                     }
                     else if (m_WebApp.AdminEmail != string.Empty)
                     {
@@ -120,17 +121,13 @@ namespace Diva.Wifi
 
         }
 
-        private void SetAvatar(UUID newUser, AvatarType avatarType)
+        private void SetAvatar(UUID newUser, string avatarType)
         {
             UserAccount account = null;
             string[] parts = null;
-            
-            if (avatarType == AvatarType.Female)
-                parts = m_WebApp.AvatarFemaleAccount.Split(new char[] { ' ' });
-            else if (avatarType == AvatarType.Male)
-                parts = m_WebApp.AvatarMaleAccount.Split(new char[] { ' ' });
-            else
-                parts = m_WebApp.AvatarNeutralAccount.Split(new char[] { ' ' });
+
+            Avatar defaultAvatar = m_WebApp.DefaultAvatars.First(av => av.Type.Equals(avatarType));
+            parts = defaultAvatar.Name.Split(new char[] { ' ' });
 
             if (parts == null || (parts != null && parts.Length != 2))
                 return;
@@ -151,7 +148,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
-            
+
             // Get and replicate the attachments
             // and put them in a folder called Default Avatar under Clothing
             UUID defaultFolderID = CreateDefaultAvatarFolder(newUser);

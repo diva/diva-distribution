@@ -203,14 +203,11 @@ namespace Diva.Wifi
                     if (account.ServiceURLs.ContainsKey("Avatar"))
                     {
                         string avatarType = (string)account.ServiceURLs["Avatar"];
+                        // Set ServiceURLs back to normal and save changes
                         account.ServiceURLs.Remove("Avatar");
-                        if (avatarType == "Female")
-                            SetAvatar(account.PrincipalID, AvatarType.Female);
-                        else if (avatarType == "Male")
-                            SetAvatar(account.PrincipalID, AvatarType.Male);
-                        else 
-                            SetAvatar(account.PrincipalID, AvatarType.Neutral);
+                        m_UserAccountService.StoreUserAccount(account);
 
+                        SetAvatar(account.PrincipalID, avatarType);
                     }
 
                     if (account.Email != string.Empty)

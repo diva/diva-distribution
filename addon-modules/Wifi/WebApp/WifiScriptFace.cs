@@ -264,6 +264,23 @@ namespace Diva.Wifi
             return "/wifi/images/abstract-cool.jpg";
         }
 
+        public string GetDefaultAvatarSelection(Environment env)
+        {
+            if (string.IsNullOrEmpty(m_WebApp.DefaultAvatars[0].Type))
+                return string.Empty;
+
+            int preselectIndex = 0;
+            StringBuilder sb = new StringBuilder();
+            foreach (Avatar avatar in m_WebApp.DefaultAvatars)
+            {
+                sb.AppendFormat("<input name=\"avatar\" type=\"radio\" value=\"{0}\" {2}/> {1} <br />",
+                    avatar.Type, avatar.Type.Replace('_', ' '),
+                    (preselectIndex-- == 0) ? "checked=\"checked\" " : "");
+                sb.AppendLine();
+            }
+            return sb.ToString();
+        }
+
 
         #endregion
 

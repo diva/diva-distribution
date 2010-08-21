@@ -142,7 +142,7 @@ namespace Diva.Wifi
             string email = String.Empty;
             string password = String.Empty;
             string password2 = String.Empty;
-            AvatarType avatar = AvatarType.Neutral;
+            string avatar = string.Empty;
 
             if (request.ContainsKey("first") && WifiUtils.IsValidName(request["first"].ToString()))
                 first = request["first"].ToString();
@@ -156,12 +156,7 @@ namespace Diva.Wifi
                 password2 = request["password2"].ToString();
             if (request.ContainsKey("avatar"))
             {
-                if ((string)request["avatar"] == "Female")
-                    avatar = AvatarType.Female;
-                else if ((string)request["avatar"] == "Male")
-                    avatar = AvatarType.Male;
-                else
-                    avatar = AvatarType.Neutral;
+                avatar = request["avatar"].ToString();
             }
 
             Request req = WifiUtils.CreateRequest(resource, httpRequest);

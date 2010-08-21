@@ -28,6 +28,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
@@ -151,20 +152,10 @@ namespace Diva.Wifi
             get { return m_AccountConfirmationRequired; }
         }
 
-        private string m_AvatarNeutral;
-        public string AvatarNeutralAccount
+        private Avatar[] m_DefaultAvatars;
+        public Avatar[] DefaultAvatars
         {
-            get { return m_AvatarNeutral; }
-        }
-        private string m_AvatarMale;
-        public string AvatarMaleAccount
-        {
-            get { return m_AvatarMale; }
-        }
-        private string m_AvatarFemale;
-        public string AvatarFemaleAccount
-        {
-            get { return m_AvatarFemale; }
+            get { return m_DefaultAvatars; }
         }
 
 
@@ -215,9 +206,31 @@ namespace Diva.Wifi
 
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
 
-            m_AvatarFemale = appConfig.GetString("FemaleAvatarAccount", "Test User");
-            m_AvatarMale = appConfig.GetString("MaleAvatarAccount", "Test User");
-            m_AvatarNeutral = appConfig.GetString("NeutralAvatarAccount", "Test User");
+            // Read list of default avatars and their account names
+            const string avatarParamPrefix = "AvatarAccount_";
+            IEnumerable<string> avatars = appConfig.GetKeys().Where(avatar => avatar.StartsWith(avatarParamPrefix));
+            int avatarCount = avatars.Count();
+            if (avatarCount > 0)
+            {
+                m_DefaultAvatars = new Avatar[avatarCount];
+                foreach (string avatar in avatars)
+                {
+                    Avatar defaultAvatar = new Avatar();
+                    defaultAvatar.Type = avatar.Substring(avatarParamPrefix.Length);
+                    defaultAvatar.Name = appConfig.GetString(avatar, "Test User");
+                    m_DefaultAvatars[m_DefaultAvatars.Length - avatarCount] = defaultAvatar;
+                    avatarCount--;
+                }
+            }
+            else
+            {
+                // Create empty default avatar
+                Avatar defaultAvatar = new Avatar();
+                defaultAvatar.Type = "Default";
+                defaultAvatar.Name = string.Empty;
+                m_DefaultAvatars = new Avatar[] { defaultAvatar };
+                m_log.Warn("[Wifi]: There are not any default avatars defined in config");
+            }
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed
@@ -266,5 +279,11 @@ namespace Diva.Wifi
         public string Sid;
         public string IpAddress;
         public UserAccount Account;
+    }
+
+    public struct Avatar
+    {
+        public string Type;
+        public string Name;
     }
 }
