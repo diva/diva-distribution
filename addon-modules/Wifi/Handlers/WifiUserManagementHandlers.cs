@@ -79,11 +79,7 @@ namespace Diva.Wifi
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = string.Empty;
-            if (resource.Equals("/") || resource.Equals(string.Empty))
-                // client invoked /wifi/admin/users/ with no further parameters
-                result = m_WebApp.Services.UserManagementGetRequest(env);
-
-            else if (resource.StartsWith("/edit"))
+            if (resource.StartsWith("/edit"))
             {
                 // client invoked /wifi/admin/users/edit, possibly with the UUID parameter after
                 UUID userID = UUID.Zero;
@@ -127,6 +123,9 @@ namespace Diva.Wifi
                     result = m_WebApp.Services.UserActivateGetRequest(env, userID);
                 }
             }
+
+            if (string.IsNullOrEmpty(result))
+                result = m_WebApp.Services.UserManagementGetRequest(env);
 
             return WifiUtils.StringToBytes(result);
 
