@@ -29,6 +29,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Reflection;
@@ -254,6 +255,21 @@ namespace Diva.Wifi
 
         }
 
+        private List<object> GetDefaultAvatarSelectionList()
+        {
+            // Present only default avatars of a non-empty type.
+            // This allows to specify a default avatar which is used when none is selected
+            // during account creation. Use the following configuration settings to enable
+            // this ("Default Avatar" may be any avatar name or "" to create an empty
+            // standard inventory):
+            // [WifiService]
+            //    AvatarAccount_ = "Default Avatar"
+            //    AvatarPreselection = ""
+            IEnumerable<Avatar> visibleAvatars = m_WebApp.DefaultAvatars.Where(avatar => !string.IsNullOrEmpty(avatar.Type));
+
+            return Objectify<Avatar>(visibleAvatars);
+        }
+
         private void SetServiceURLs(UserAccount account)
         {
             account.ServiceURLs = new Dictionary<string, object>();
@@ -262,7 +278,7 @@ namespace Diva.Wifi
             account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
         }
 
-        private List<object> Objectify<T>(List<T> listOfThings)
+        private List<object> Objectify<T>(IEnumerable<T> listOfThings)
         {
             List<object> listOfObjects = new List<object>();
             foreach (T thing in listOfThings)

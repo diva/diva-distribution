@@ -44,6 +44,8 @@ namespace Diva.Wifi
             Request request = env.Request;
 
             env.State = State.NewAccountForm;
+            env.Data = GetDefaultAvatarSelectionList();
+
             return m_WebApp.ReadFile(env, "index.html");
         }
 
@@ -115,6 +117,7 @@ namespace Diva.Wifi
             {
                 m_log.DebugFormat("[Wifi]: did not create account because of password and/or user name problems");
                 env.State = State.NewAccountForm;
+                env.Data = GetDefaultAvatarSelectionList();
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -126,8 +129,9 @@ namespace Diva.Wifi
             UserAccount account = null;
             string[] parts = null;
 
-            Avatar defaultAvatar = m_WebApp.DefaultAvatars.First(av => av.Type.Equals(avatarType));
-            parts = defaultAvatar.Name.Split(new char[] { ' ' });
+            Avatar defaultAvatar = m_WebApp.DefaultAvatars.FirstOrDefault(av => av.Type.Equals(avatarType));
+            if (defaultAvatar.Name != null)
+                parts = defaultAvatar.Name.Split(new char[] { ' ' });
 
             if (parts == null || (parts != null && parts.Length != 2))
                 return;

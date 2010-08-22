@@ -216,8 +216,9 @@ namespace Diva.Wifi
                 foreach (string avatar in avatars)
                 {
                     Avatar defaultAvatar = new Avatar();
-                    defaultAvatar.Type = avatar.Substring(avatarParamPrefix.Length);
-                    defaultAvatar.Name = appConfig.GetString(avatar, "Test User");
+                    if (avatar.Length > avatarParamPrefix.Length)
+                        defaultAvatar.Type = avatar.Substring(avatarParamPrefix.Length);
+                    defaultAvatar.Name = appConfig.GetString(avatar);
                     m_DefaultAvatars[m_DefaultAvatars.Length - avatarCount] = defaultAvatar;
                     avatarCount--;
                 }
@@ -227,10 +228,14 @@ namespace Diva.Wifi
                 // Create empty default avatar
                 Avatar defaultAvatar = new Avatar();
                 defaultAvatar.Type = "Default";
-                defaultAvatar.Name = string.Empty;
                 m_DefaultAvatars = new Avatar[] { defaultAvatar };
                 m_log.Warn("[Wifi]: There are not any default avatars defined in config");
             }
+
+            // Preselection for default avatar list
+            Avatar.DefaultType = appConfig.GetString("AvatarPreselection", null);
+            if (Avatar.DefaultType == null)
+                Avatar.DefaultType = m_DefaultAvatars[0].Type;
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed
@@ -281,9 +286,19 @@ namespace Diva.Wifi
         public UserAccount Account;
     }
 
-    public struct Avatar
+    public class Avatar
     {
-        public string Type;
+        public static string DefaultType;
+
+        public string Type = string.Empty;
         public string Name;
+        public string PrettyType
+        {
+            get { return Type.Replace('_', ' '); }
+        }
+        public bool isDefault
+        {
+            get { return Type.Equals(DefaultType); }
+        }
     }
 }

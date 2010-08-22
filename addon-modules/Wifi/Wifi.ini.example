@@ -24,9 +24,12 @@
 	;; Default avatars for new account registration
 	;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"
 	;; Appearance and attachments are copied from avatar <FirstName> <LastName>.
-	AvatarAccount_Neutral = "Neutral Avatar"
 	AvatarAccount_Female = "Female Avatar"
 	AvatarAccount_Male = "Male Avatar"
+	AvatarAccount_Neutral = "Neutral Avatar"
+
+	;; Preselection for default avatar in new account registration
+	AvatarPreselection = "Neutral"
 
 	;; Variables for your mail server
 	;; Users will get email notifications from this account

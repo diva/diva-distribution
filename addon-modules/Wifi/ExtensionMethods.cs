@@ -125,5 +125,12 @@ namespace Diva.Wifi
             return result;
         }
 
+        public static string GetAvatarPreselection(this Avatar avatar, IEnvironment env)
+        {
+            if (avatar.isDefault)
+                return "checked=\"checked\"";
+
+            return string.Empty;
+        }
     }
 }

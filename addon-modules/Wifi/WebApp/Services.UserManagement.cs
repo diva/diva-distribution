@@ -190,6 +190,11 @@ namespace Diva.Wifi
                     string password = (string)account.ServiceURLs["Password"];
                     account.ServiceURLs.Remove("Password");
 
+                    Object value;
+                    account.ServiceURLs.TryGetValue("Avatar", out value);
+                    account.ServiceURLs.Remove("Avatar");
+                    string avatarType = (string)value;
+
                     //save changes
                     m_UserAccountService.StoreUserAccount(account);
 
@@ -200,13 +205,8 @@ namespace Diva.Wifi
                     m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                     // Set the avatar
-                    if (account.ServiceURLs.ContainsKey("Avatar"))
+                    if (avatarType != null)
                     {
-                        string avatarType = (string)account.ServiceURLs["Avatar"];
-                        // Set ServiceURLs back to normal and save changes
-                        account.ServiceURLs.Remove("Avatar");
-                        m_UserAccountService.StoreUserAccount(account);
-
                         SetAvatar(account.PrincipalID, avatarType);
                     }
 
