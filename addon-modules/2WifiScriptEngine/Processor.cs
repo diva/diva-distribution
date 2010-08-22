@@ -155,7 +155,7 @@ namespace Diva.Wifi.WifiScript
                         m_Index++;
                         if (m_ListOfObjects != null)
                         {
-                            if (m_Index > m_ListOfObjects.Count)
+                            if (m_Index >= m_ListOfObjects.Count)
                             {
                                 return string.Empty;
                             }
