@@ -255,6 +255,17 @@ namespace Diva.Wifi
 
         }
 
+        private List<object> GetActiveUserList(Environment env, string terms)
+        {
+            List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
+            if (accounts != null)
+            {
+                IEnumerable<UserAccount> nonPending = accounts.Where(user => !user.FirstName.StartsWith("*pending*"));
+                return Objectify<UserAccount>(nonPending);
+            }
+            return new List<object>();
+        }
+
         private List<object> GetDefaultAvatarSelectionList()
         {
             // Present only default avatars of a non-empty type.

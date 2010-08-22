@@ -69,8 +69,8 @@ namespace Diva.Wifi
                     env.Session = sinfo;
                     env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                     env.State = State.UserSearchFormResponse;
-                    // Put the listr in the environment
-                    env.Data = GetUserList(env, terms);
+                    // Put the list in the environment
+                    env.Data = GetActiveUserList(env, terms);
                     return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
                 else
