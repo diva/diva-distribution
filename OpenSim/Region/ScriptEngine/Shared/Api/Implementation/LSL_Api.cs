@@ -1926,7 +1926,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
 
             if (part.ParentGroup.RootPart == part)
             {
-                if ((targetPos.z < ground) && disable_underground_movement)
+                if ((targetPos.z < ground) && disable_underground_movement && m_host.AttachmentPoint == 0)
                     targetPos.z = ground;
                 SceneObjectGroup parent = part.ParentGroup;
                 LSL_Vector real_vec = SetPosAdjust(currentPos, targetPos);
@@ -1958,17 +1958,26 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
         protected LSL_Vector GetPartLocalPos(SceneObjectPart part)
         {
             m_host.AddScriptLPS(1);
-            if (part.ParentID != 0)
-            {
-                return new LSL_Vector(part.OffsetPosition.X,
-                                      part.OffsetPosition.Y,
-                                      part.OffsetPosition.Z);
-            }
-            else
+            if (part.ParentID == 0)
             {
                 return new LSL_Vector(part.AbsolutePosition.X,
                                       part.AbsolutePosition.Y,
                                       part.AbsolutePosition.Z);
+            }
+            else
+            {
+                if (m_host.IsRoot)
+                {
+                    return new LSL_Vector(m_host.AttachedPos.X,
+                                          m_host.AttachedPos.Y,
+                                          m_host.AttachedPos.Z);
+                }
+                else
+                {
+                    return new LSL_Vector(part.OffsetPosition.X,
+                                          part.OffsetPosition.Y,
+                                          part.OffsetPosition.Z);
+                }
             }
         }
 
@@ -3837,18 +3846,16 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api
             if (World.GetScenePresence(destId) != null)
             {
                 // destination is an avatar
-                InventoryItemBase agentItem =
-                        World.MoveTaskInventoryItem(destId, UUID.Zero, m_host, objId);
+                InventoryItemBase agentItem = World.MoveTaskInventoryItem(destId, UUID.Zero, m_host, objId);
 
                 if (agentItem == null)
                     return;
 
                 byte[] bucket = new byte[17];
                 bucket[0] = (byte)assetType;
-                byte[] objBytes = objId.GetBytes();
+                byte[] objBytes = agentItem.ID.GetBytes();
                 Array.Copy(objBytes, 0, bucket, 1, 16);
 
-                Console.WriteLine("Giving inventory");
                 GridInstantMessage msg = new GridInstantMessage(World,
                         m_host.UUID, m_host.Name+", an object owned by "+
                         resolveName(m_host.OwnerID)+",", destId,
