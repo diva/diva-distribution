@@ -3,6 +3,12 @@
     <td align="left"><!-- #get field=Email --></td>
     <td align="left"><!-- #get field=UserTitle --></td>
     <td><!-- #get field=UserLevel --></td>
+    <td>
+      <script type="application/javascript">
+        ConvertAndWriteDate("<!-- #call method=GetAccountCreated -->");
+      </script>
+      <noscript><!-- #call method=GetAccountCreated --></noscript>
+    </td>
     <td><a href="/wifi/admin/users/edit/<!-- #get field=PrincipalID -->">Edit</a></td>
     <td><a href="/wifi/admin/users/delete/<!-- #get field=PrincipalID -->">Delete</a></td>
   </tr>

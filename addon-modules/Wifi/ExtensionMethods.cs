@@ -132,5 +132,15 @@ namespace Diva.Wifi
 
             return string.Empty;
         }
+
+        public static string GetAccountCreated(this UserAccount account, IEnvironment env)
+        {
+            Environment env2 = (Environment)env;
+            if (env2.Data == null || env2.Data.Count == 0)
+                return string.Empty;
+
+            // Return date and time in a fomat that JavaScript can easily parse
+            return Util.ToDateTime(account.Created).ToString("R");
+        }
     }
 }

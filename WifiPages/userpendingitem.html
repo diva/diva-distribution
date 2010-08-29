@@ -1,6 +1,12 @@
   <tr class="bodytext">
     <td><!-- #get field=FirstName --> <!-- #get field=LastName --></td>
     <td><!-- #get field=Email --></td>
+    <td>
+      <script type="application/javascript">
+        ConvertAndWriteDate("<!-- #call method=GetAccountCreated -->");
+      </script>
+      <noscript><!-- #call method=GetAccountCreated --></noscript>
+    </td>
     <td><a href="/wifi/admin/users/activate/<!-- #get field=PrincipalID -->">activate</a></td>
 	<td><a href="/wifi/admin/users/delete/<!-- #get field=PrincipalID -->">ignore</a></td>
   </tr>
