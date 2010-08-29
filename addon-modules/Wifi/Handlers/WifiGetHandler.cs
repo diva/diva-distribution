@@ -80,7 +80,7 @@ namespace Diva.Wifi
             if (resource == string.Empty || resource.StartsWith("index."))
             {
                 httpResponse.ContentType = "text/html";
-                
+
                 return WifiUtils.StringToBytes(GenerateSplash(env));
             }
             else
@@ -92,6 +92,11 @@ namespace Diva.Wifi
                 if (type.StartsWith("image"))
                     return WifiUtils.ReadBinaryResource(resourcePath);
 
+                if (type.StartsWith("application"))
+                {
+                    string res = WifiUtils.ReadTextResource(resourcePath, true);
+                    return WifiUtils.StringToBytes(res);
+                }
                 if (type.StartsWith("text"))
                 {
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);

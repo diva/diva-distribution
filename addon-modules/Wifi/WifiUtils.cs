@@ -58,6 +58,8 @@ namespace Diva.Wifi
                 return "image/x-icon";
             if (resource.ToLower().EndsWith(".css"))
                 return "text/css";
+            if (resource.ToLower().EndsWith(".js"))
+                return "application/javascript";
             return "text/html";
         }
 
@@ -91,17 +93,29 @@ namespace Diva.Wifi
 
         public static string ReadTextResource(string resourceName)
         {
-            String buffer = String.Empty;
+            return ReadTextResource(resourceName, false);
+        }
+
+        public static string ReadTextResource(string resourceName, bool keepEndOfLines)
+        {
+            StringBuilder buffer = new StringBuilder();
             try
             {
                 // Create an instance of StreamReader to read from a file.
                 // The using statement also closes the StreamReader.
                 using (StreamReader sr = new StreamReader(resourceName))
                 {
-                    String line;
-                    while ((line = sr.ReadLine()) != null)
+                    if (keepEndOfLines)
                     {
-                        buffer += line;
+                        buffer.Append(sr.ReadToEnd());
+                    }
+                    else
+                    {
+                        String line;
+                        while ((line = sr.ReadLine()) != null)
+                        {
+                            buffer.Append(line);
+                        }
                     }
                 }
             }
@@ -111,8 +125,9 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[Wifi]: Exception {0}", e.Message);
             }
 
-            return buffer;
+            return buffer.ToString();
         }
+        
         public static byte[] StringToBytes(string str)
         {
             return Encoding.UTF8.GetBytes(str);
