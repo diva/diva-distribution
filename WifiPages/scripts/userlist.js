@@ -17,4 +17,4 @@ function ConvertAndWriteDate(rfc1123DateString) {
         return;
     var rfc1123Date = new Date(rfc1123DateString);
     document.write(LocaleDateString(rfc1123Date));
-} 
+}

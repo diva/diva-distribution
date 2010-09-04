@@ -1,8 +1,7 @@
   <tr class="bodytext">
-    <td align="left"><input type="checkbox" name="inv-<!-- #get field=ID -->" value="<!-- #call method=GetNodeType -->"/> </td>
-    <td align="left"><!-- #call method=Indent --><!-- #get field=Name --></td>
-    <td>&nbsp;&nbsp;</td>
-    <td align="left"><i><!-- #call method=GetItemType --></i></td>
+    <td class="checkbox"><input type="checkbox" name="inv-<!-- #get field=ID -->" value="<!-- #call method=GetNodeType -->"/> </td>
+    <td class="itemname"><!-- #call method=Indent --><!-- #get field=Name --></td>
+    <td class="itemtype"><!-- #call method=GetItemType --></td>
   </tr>
   <!-- #call method=GetInventoryChildren -->
 

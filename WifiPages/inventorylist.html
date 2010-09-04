@@ -1,22 +1,22 @@
 
-<form action="/wifi/user/inventory" method="post" >
- <p allign="left"><select name="folder">
-         <!-- #call method=GetFolders-->
-        </select>
+<form id="inventory" action="/wifi/user/inventory" method="post" >
+  <p>
+    <select name="folder">
+      <!-- #call method=GetFolders-->
+    </select>
     <input type="submit" name="action" value="&lsaquo;&ndash; new folder" class="button" /> 
     <input type="text" name="newFolderName" class="inputstyle" /> 
- </p>
- <p align="left">
+  </p>
+  <p>
     <input type="submit" name="action" value="&darr; move to &uarr;" class="button" />
- </p>
+  </p>
 
+  <table>
+    <!-- #include file=inventorylistitem.html -->
+  </table>
 
- <table cellspacing="7">
-  <!-- #include file=inventorylistitem.html -->
- </table>
-
- <p align="left">
- <input type="submit" name="action" value="&uarr; delete" class="button" />
- </p>
+  <p>
+    <input type="submit" name="action" value="&uarr; delete" class="button" />
+  </p>
 </form>
 

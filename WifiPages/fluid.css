@@ -11,11 +11,10 @@ body {
 }
   
 #header {
-  height:15px;
-  width:999px;
+  height:1.1em;
   background:transparent;
   margin:0 auto 0 auto;
-  padding-top:45px;
+  padding-top:3.2em;
 }
 
 .textlogo {
@@ -33,29 +32,33 @@ p.textlogo {
 
 #slogan {
   text-align:left;
-  padding-left:130px;
+  padding-left:9em;
   font:bold 16px Arial, "Times New Roman", Times;
   color:#FFF;
 }
 
 #page {
-  width:999px;
   margin:0 auto 0 auto;
+  position:relative;
 }
 
 #content {
-  float:left;
-  width:685px;
-  padding:33px;
+  margin-right:17em;
+  padding:2.4em;
 }
 
-.box {background:#0F0F0F; padding:0px 33px;}
+img {display:inline-block;}
+.box {background:#0F0F0F; padding:0 2.25em;}
 .box a {color:#FFF; text-decoration:underline;}
 .box a:hover {color:#BD6B54; text-decoration:none;}
-.box p {font:14px Arial, Tahoma, Georgia, "Times New Roman", Times; color:#929292; text-align:justify; padding:6px 0px;}
+.box p {font:14px Arial, Tahoma, Georgia, "Times New Roman", Times; color:#929292; text-align:justify; padding:0.4em 0;}
 .box h1,h2,h3,h4,h5 {font:36px Georgia, Arial, "Times New Roman", Times; color:#FFF; text-align:right;}
-.box-top {background:url(images/box-top.gif) no-repeat top left; width:685px; height:24px;}
-.box-bottom {background:url(images/box-bottom.gif) no-repeat top left; width:685px; height:24px;}
+.box-top {background:#0F0F0F; margin:0px 24px; height:24px;}
+.box-top-left {background:url(images/box-top.gif) no-repeat 0% 0%; margin-left:-24px; height:24px; width:24px; float:left;}
+.box-top-right {background:url(images/box-top.gif) no-repeat 100% 0%; margin-right:-24px; height:24px; width:24px; float:right;}
+.box-bottom {background:#0F0F0F; margin:0px 24px; height:24px;}
+.box-bottom-left {background:url(images/box-bottom.gif) no-repeat 0% 100%; margin-left:-24px; height:24px; width:24px; float:left;}
+.box-bottom-right {background:url(images/box-bottom.gif) no-repeat 100% 100%; margin-right:-24px; height:24px; width:24px; float:right;}
 
 table.accounts {
   margin-right:auto;
@@ -90,9 +93,8 @@ table.accounts {
 .bodytext {
   color:#FFF;
   font-size:14px;
-  padding-top:5px;
-  padding-left:10px;
 }
+
 td.username, td.email, td.usertitle {
   text-align:left;
 }
@@ -104,16 +106,15 @@ td.username, td.email, td.usertitle {
   text-align:left;
 }
 */
-
 .imagefloat {
   float:left;
-  margin:5px 15px 5px 15px;
-  padding:0px;
+  margin:0.4em 1em;
+  padding:0;
   border:1px solid #000;
 }
 .image-text-right {
-  padding:5px;
-  margin:5px 0px 5px 0px;
+  padding:0.4em;
+  margin:0.4em 0;
   width:100%;
   height:auto;
   text-align:justify;
@@ -129,8 +130,10 @@ td.username, td.email, td.usertitle {
 
 #right-nav {
   float:right;
-  padding-top:33px;
-  width:238px;
+  margin-left:2.1em;
+  padding-top:2em;
+  padding-bottom:1.5em;
+  width:17em;
   text-align:left;
 }
 
@@ -138,12 +141,12 @@ td.username, td.email, td.usertitle {
   font:19px Georgia, Arial, "Times New Roman", Times;
   color:#FFF;
   text-align:left;
-  padding-bottom:10px;
+  padding-bottom:0.55em;
 }
 
 #main-menu ul {
   list-style:none;
-  padding-bottom:10px;
+  padding-bottom:0.55em;
 }
   
 #main-menu li a {
@@ -152,8 +155,8 @@ td.username, td.email, td.usertitle {
   font-size: 14px;
   text-decoration: none;
   background: transparent url(images/menu-button.gif) no-repeat left center;
-  padding:0 10px 0 25px;
-  line-height:30px;
+  padding:0 0.25em 0 1.75em;
+  line-height:215%;
 }
   
 #main-menu li a:hover {
@@ -163,9 +166,9 @@ td.username, td.email, td.usertitle {
   
 .right-nav-divider {
   background: transparent url(images/line.gif) repeat-x top left;
-  width:226px;
+  width:16em;
   height:1px;
-  padding-bottom:15px;
+  padding-bottom:1em;
 }
   
 #posts {  
@@ -174,8 +177,7 @@ td.username, td.email, td.usertitle {
   
 #posts ul {
   list-style:none;
-  padding-bottom:10px;
-  padding:0px 0px 10px 18px;
+  padding:0 0 0.7em 1.25em;
 }
   
 #posts li a {
@@ -183,7 +185,7 @@ td.username, td.email, td.usertitle {
   font-family: Arial, "Times New Roman", Times, serif;
   font-size: 14px;
   text-decoration: underline;
-  line-height:20px;
+  line-height:145%;
 }
   
 #posts li a:hover {
@@ -194,22 +196,22 @@ td.username, td.email, td.usertitle {
 
 #subscribe {
   text-align:right;
-  padding-right:30px;
+  padding-right:2.1em;
 }
 
 #subscribe input {
-  margin:6px 0;
+  margin:0.4em 0;
 }
 
 .inputstyle {
   background:#090909;
   border:1px solid #404040;
-  width:180px;
-  height:22px;
+  width:13em;
+  height:1.6em;
   color:#FFF;
   font-size:14px;
-  padding-top:5px;
-  padding-left:10px;
+  padding-top:0.35em;
+  padding-left:0.7em;
 }
 
 .button {
@@ -222,25 +224,22 @@ td.username, td.email, td.usertitle {
   color:#FFFFFF;
   font:bold 13px Arial, Georgia, "Times New Roman", Times;
   cursor:pointer;
-  margin-left:5px;
+  margin-left:0.385em;
 }
 
 .avatar {
-  margin:1px 1px 0 1em;
+  margin-left:1em;
 }
 
 #footer {
   clear:both;
-  width:999px;
-  height:170px;
-  margin:0 auto 0 auto;
+  margin:0 auto;
 }
 
 #footer-pad {
-  width:685px;
-  padding:50px 0px 0px 30px;
+  margin-right:17em;
+  padding:0 2em 1.5em;
   text-align:center;
-  margin-right:auto;
 }
 
 #footer p {
@@ -260,8 +259,7 @@ td.username, td.email, td.usertitle {
 
 #right-footer {
   float:right;
-  padding-top:50px;
-  width:238px;
+  width:17em;
   text-align:center;
 }
 
@@ -271,15 +269,14 @@ td.username, td.email, td.usertitle {
 
 .line {
   background: transparent url(images/line.gif) repeat-x top left;
-  width:650px;
   height:1px;
-  padding-bottom:10px;
-  margin:0 auto 0 auto;
+  padding-bottom:0.75em;
+  margin-right:1.1em;
+  margin-left:1.1em;
 }
 
 .line2 {
   background: transparent url(images/line.gif) repeat-x top left;
-  width:622px;
   height:1px;
-  margin:15px auto 10px auto;
+  margin:1.1em auto 0.75em auto;
 }
