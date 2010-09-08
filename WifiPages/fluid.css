@@ -1,4 +1,4 @@
-* {
+﻿* {
   margin: 0;
   padding: 0;
 }
@@ -76,18 +76,17 @@ table.accounts {
 #inventory p {
   text-align:left;
 }
-#inventory table {
-  border:0 none black;
-  margin-right:auto;
-  border-collapse:collapse;
-}
-#inventory td {
-  padding:1px 5px;
+#inventory div.bodytext {
   text-align:left;
+  cursor:default;
 }
-#inventory td.itemtype {
-  padding-left:2em;
-  font-style:italic;
+#inventory .item {
+  line-height:125%;
+}
+#inventory .itemtype {
+  float:right;
+  width:5em;
+  padding-left:0.8em;
 }
 
 .bodytext {
