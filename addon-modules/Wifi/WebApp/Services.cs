@@ -193,7 +193,7 @@ namespace Diva.Wifi
                 {
                     string str = match.Groups[1].Value;
                     string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css"))
+                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
                         uris.Add(str);
                 }
             }
@@ -204,7 +204,7 @@ namespace Diva.Wifi
                 {
                     string str = match.Groups[1].Value;
                     string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css"))
+                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
                         uris.Add(str);
                 }
             }
@@ -215,7 +215,7 @@ namespace Diva.Wifi
                 {
                     string str = match.Groups[1].Value;
                     string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css"))
+                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
                         uris.Add(str);
                 }
             }
