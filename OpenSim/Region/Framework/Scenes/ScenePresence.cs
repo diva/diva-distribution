@@ -2465,7 +2465,6 @@ namespace OpenSim.Region.Framework.Scenes
             m_controllingClient.SendAvatarDataImmediate(this);
 
             SendInitialFullUpdateToAllClients();
-            SendAppearanceToAllOtherAgents();
         }
 
         /// <summary>
