@@ -109,7 +109,7 @@ namespace Diva.Wifi
         RegionManagementForm = 13,
         UserDeleteForm = 14,
         UserDeleteFormResponse = 15,
-        UserActivateResponse = 26,
+        UserActivateResponse = 16,
         RegionManagementSuccessful = 17,
         RegionManagementUnsuccessful = 18,
         ForgotPassword = 19,
