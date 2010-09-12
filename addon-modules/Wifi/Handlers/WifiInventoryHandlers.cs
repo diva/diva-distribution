@@ -48,6 +48,34 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
+    public class WifiInventoryLoadGetHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private WebApp m_WebApp;
+
+        public WifiInventoryLoadGetHandler(WebApp webapp) :
+            base("GET", "/wifi/user/loadinventory")
+        {
+            m_WebApp = webapp;
+        }
+
+        public override byte[] Handle(string path, Stream requestData,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+
+            string resource = GetParam(path);
+            //m_log.DebugFormat("[XXX]: resource {0}", resource);
+
+            string result = m_WebApp.Services.InventoryLoadGetRequest(env);
+            httpResponse.ContentType = "text/html";
+
+            return WifiUtils.StringToBytes(result);
+        }
+    }
+    
     public class WifiInventoryGetHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);

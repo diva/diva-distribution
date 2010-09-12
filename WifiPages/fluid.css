@@ -76,6 +76,15 @@ table.accounts {
 #inventory p {
   text-align:left;
 }
+#inventory #loading {
+  display:none;
+  padding:0 1em;
+}
+#inventory #loading img {
+  height:1.4em;
+  position:relative;
+  top:0.4em;
+}
 #inventory div.bodytext {
   text-align:left;
   cursor:default;

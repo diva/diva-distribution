@@ -39,6 +39,19 @@ namespace Diva.Wifi
 {
     public partial class Services
     {
+        public string InventoryLoadGetRequest(Environment env)
+        {
+            m_log.DebugFormat("[Wifi]: InventoryLoadGetRequest");
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(env.Request, out sinfo))
+            {
+                env.Session = sinfo;
+                env.Flags = Flags.IsLoggedIn;
+                env.State = State.InventoryListLoad;
+            }
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
         public string InventoryGetRequest(Environment env)
         {
             if (!m_WebApp.IsInstalled)

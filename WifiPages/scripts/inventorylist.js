@@ -5,6 +5,7 @@ var INDENTSIZE = 4; // No. of whitespace characters per indentation level
 var itemNamePattern;
 // Initialization
 function DoOnload() {
+  document.getElementById('loading').style.display = 'inline';
   var rootFolder = GetChildItems(document.getElementById('inventory'))[0];
   for (var i = 0; i < rootFolder.childNodes.length; ++i) {
     if (rootFolder.childNodes[i].nodeType == 1) { // Element nodes only
@@ -28,6 +29,7 @@ function DoOnload() {
     AdjustIndent(topLevelFolders[i]);
     Expand(topLevelFolders[i]);
   }
+  document.getElementById('loading').style.display = 'none';
 }
 // Functions called from form
 function Collapse(parent) {
@@ -94,12 +96,9 @@ var State = {
 }
 // Auxiliary functions
 function GetChildItems(parent) {
-  return GetChildElementsByTagName(parent, 'DIV');
-}
-function GetChildElementsByTagName(parent, tag) {
   var elements = new Array();
   for (var i = 0; i < parent.childNodes.length; ++i) {
-    if (parent.childNodes[i].nodeName == tag)
+    if (parent.childNodes[i].nodeName == 'DIV')
       elements.push(parent.childNodes[i]);
   }
   return elements;

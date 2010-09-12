@@ -181,6 +181,9 @@ namespace Diva.Wifi
                 if (env.State == State.RegionManagementUnsuccessful)
                     return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
 
+                if (env.State == State.InventoryListLoad)
+                    return "Loading your inventory, please wait <img src=\"/wifi/images/loader.gif\" />";
+
                 if (env.State == State.InventoryListForm)
                 //{
                 //    string invListStr = string.Empty;
@@ -202,6 +205,17 @@ namespace Diva.Wifi
                     return m_WebApp.ReadFile(env, "inventorylist.html", env.Data); 
             //    }
             }
+
+            return string.Empty;
+        }
+
+
+        public string GetRefresh(Environment env)
+        {
+            string refresh = "<meta http-equiv=\"refresh\" content=\"{0}; URL={1}/?sid={2}\" />";
+
+            if (env.State == State.InventoryListLoad)
+                return string.Format(refresh, 0, "/wifi/user/inventory", env.Session.Sid);
 
             return string.Empty;
         }
@@ -273,7 +287,6 @@ namespace Diva.Wifi
             // TODO
             return "/wifi/images/abstract-cool.jpg";
         }
-
 
         #endregion
 

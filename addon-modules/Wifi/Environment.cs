@@ -118,6 +118,7 @@ namespace Diva.Wifi
         PasswordRecovered = 22,
         BadPassword = 23,
         InventoryListForm = 24,
-        NewAccountFormRetry = 25
+        NewAccountFormRetry = 25,
+        InventoryListLoad = 26
     }
 }
