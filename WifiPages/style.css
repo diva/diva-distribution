@@ -49,10 +49,17 @@ p.textlogo {
   padding:33px;
 }
 
-.box {background:#0F0F0F; padding:0px 33px;}
+.box {
+  font:14px Arial, Tahoma, Georgia, "Times New Roman", Times;
+  background:#0F0F0F;
+  color:#929292;
+  text-align:justify; 
+  padding:0px 33px;
+}
 .box a {color:#FFF; text-decoration:underline;}
 .box a:hover {color:#BD6B54; text-decoration:none;}
-.box p {font:14px Arial, Tahoma, Georgia, "Times New Roman", Times; color:#929292; text-align:justify; padding:6px 0px;}
+.box p {padding:6px 0px;}
+.box li {list-style-position:inside;}
 .box h1,h2,h3,h4,h5 {font:36px Georgia, Arial, "Times New Roman", Times; color:#FFF; text-align:right;}
 .box-top {background:url(images/box-top.gif) no-repeat top left; width:685px; height:24px;}
 .box-bottom {background:url(images/box-bottom.gif) no-repeat top left; width:685px; height:24px;}

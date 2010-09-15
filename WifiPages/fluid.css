@@ -48,10 +48,17 @@ p.textlogo {
 }
 
 img {display:inline-block;}
-.box {background:#0F0F0F; padding:0 2.25em;}
+.box {
+  font:14px Arial, Tahoma, Georgia, "Times New Roman", Times;
+  background:#0F0F0F;
+  color:#929292;
+  text-align:justify;
+  padding:0 2.25em;
+}
 .box a {color:#FFF; text-decoration:underline;}
 .box a:hover {color:#BD6B54; text-decoration:none;}
-.box p {font:14px Arial, Tahoma, Georgia, "Times New Roman", Times; color:#929292; text-align:justify; padding:0.4em 0;}
+.box p {padding:0.4em 0;}
+.box li {list-style-position:inside;}
 .box h1,h2,h3,h4,h5 {font:36px Georgia, Arial, "Times New Roman", Times; color:#FFF; text-align:right;}
 .box-top {background:#0F0F0F; margin:0px 24px; height:24px;}
 .box-top-left {background:url(images/box-top.gif) no-repeat 0% 0%; margin-left:-24px; height:24px; width:24px; float:left;}
