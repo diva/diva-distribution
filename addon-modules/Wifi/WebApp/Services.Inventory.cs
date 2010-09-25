@@ -111,7 +111,7 @@ namespace Diva.Wifi
                     NewFolder(sinfo.Account.PrincipalID, newFolderName, folder);
 
                 // Send the [new] inventory list
-                return InventoryGetRequest(env);
+                return InventoryLoadGetRequest(env);
             }
             else
             {

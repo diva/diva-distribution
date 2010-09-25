@@ -182,7 +182,7 @@ namespace Diva.Wifi
                     return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
 
                 if (env.State == State.InventoryListLoad)
-                    return "Loading your inventory, please wait <img src=\"/wifi/images/loader.gif\" />";
+                    return string.Format("Loading your inventory, please wait <img src=\"/wifi/images/loader.gif\" /><p>If your browser does not load the next page, then force it by following <a href=\"/wifi/user/inventory/?sid={0}\">this link</a>, please.</p>", env.Session.Sid);
 
                 if (env.State == State.InventoryListForm)
                 //{
