@@ -170,8 +170,8 @@ namespace Diva.Wifi
 
 
         // <a href="wifi/..." ...>
-        static Regex href = new Regex("(<a\\s+href\\s*=\\s*\\\"(\\S+\\\"))>");
-        static Regex action = new Regex("(<form\\s+action\\s*=\\s*\\\"(\\S+\\\")).*>");
+        static Regex href = new Regex("(<a\\s+.*href\\s*=\\s*\\\"(\\S+\\\")).*>");
+        static Regex action = new Regex("(<form\\s+.*action\\s*=\\s*\\\"(\\S+\\\")).*>");
         static Regex xmlhttprequest = new Regex("(@@wifi@@(\\S+\\\"))");
 
         private string PadURLs(Environment env, string sid, string html)
