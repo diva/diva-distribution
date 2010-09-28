@@ -181,44 +181,9 @@ namespace Diva.Wifi
 
             // The user is logged in
             HashSet<string> uris = new HashSet<string>();
-            MatchCollection matches_href = href.Matches(html);
-            MatchCollection matches_action = action.Matches(html);
-            MatchCollection matches_xmlhttprequest = xmlhttprequest.Matches(html);
-            //m_log.DebugFormat("[Wifi]: Matched uris href={0}, action={1}, xmlhttp={2}", matches_href.Count, matches_action.Count, matches_xmlhttprequest.Count);
-
-            foreach (Match match in matches_href)
-            {
-                // first group is always the total match
-                if (match.Groups.Count > 2)
-                {
-                    string str = match.Groups[1].Value;
-                    string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
-                        uris.Add(str);
-                }
-            }
-            foreach (Match match in matches_action)
-            {
-                // first group is always the total match
-                if (match.Groups.Count > 2)
-                {
-                    string str = match.Groups[1].Value;
-                    string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
-                        uris.Add(str);
-                }
-            }
-            foreach (Match match in matches_xmlhttprequest)
-            {
-                // first group is always the total match
-                if (match.Groups.Count > 2)
-                {
-                    string str = match.Groups[1].Value;
-                    string uri = match.Groups[2].Value;
-                    if (!uri.StartsWith("http") && !uri.EndsWith(".html") && !uri.EndsWith(".css") && !uri.EndsWith(".js"))
-                        uris.Add(str);
-                }
-            }
+            CollectMatches(uris, href.Matches(html));
+            CollectMatches(uris, action.Matches(html));
+            CollectMatches(uris, xmlhttprequest.Matches(html));
 
             foreach (string uri in uris)
             {
@@ -235,12 +200,33 @@ namespace Diva.Wifi
             return html;
         }
 
+        private void CollectMatches(HashSet<string> uris, MatchCollection matches)
+        {
+            foreach (Match match in matches)
+            {
+                // first group is always the total match
+                if (match.Groups.Count > 2)
+                {
+                    string str = match.Groups[1].Value;
+                    string uri = match.Groups[2].Value;
+                    if (!uri.StartsWith("http") &&
+                        !uri.StartsWith("mailto") &&
+                        !uri.EndsWith(".html") &&
+                        !uri.EndsWith(".css") &&
+                        !uri.EndsWith(".js")
+                       )
+                        uris.Add(str);
+                }
+            }
+        }
+
+        /*
         private void PrintStr(string html)
         {
             foreach (char c in html)
                 Console.Write(c);
         }
-
+        */
         private List<object> GetUserList(Environment env, string terms)
         {
             List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
