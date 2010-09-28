@@ -90,7 +90,6 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Land
             if (!m_Enabled)
                 return;
 
-            m_GridService = scene.GridService;
             m_LocalService.AddRegion(scene);
             scene.RegisterModuleInterface<ILandService>(this);
         }
@@ -106,7 +105,6 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Land
             if (m_Enabled)
                 m_GridService = scene.GridService;
         }
-
 
         #region ILandService
 
