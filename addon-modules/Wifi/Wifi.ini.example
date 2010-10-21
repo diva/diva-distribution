@@ -23,6 +23,7 @@
 
 	;; Default avatars for new account registration
 	;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"
+	;;         (replace spaces in <AvatarType> with underscore)
 	;; Appearance and attachments are copied from avatar <FirstName> <LastName>.
 	AvatarAccount_Female = "Female Avatar"
 	AvatarAccount_Male = "Male Avatar"

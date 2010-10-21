@@ -154,8 +154,8 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
 
             // Get and replicate the attachments
-            // and put them in a folder called Default Avatar under Clothing
-            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser);
+            // and put them in a folder named after the avatar type under Clothing
+            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, defaultAvatar.PrettyType);
 
             if (defaultFolderID != UUID.Zero)
             {
@@ -176,7 +176,7 @@ namespace Diva.Wifi
                 m_AvatarService.SetAvatar(newUser, avatar);
             }
             else
-                m_log.DebugFormat("[Wifi]: could not create Default Avatar folder");
+                m_log.DebugFormat("[Wifi]: could not create {0} folder", defaultAvatar.PrettyType);
 
             // Set home and last location for new account
             // Config setting takes precedence over home location of default avatar
@@ -201,7 +201,7 @@ namespace Diva.Wifi
             }
         }
 
-        private UUID CreateDefaultAvatarFolder(UUID newUserID)
+        private UUID CreateDefaultAvatarFolder(UUID newUserID, string folderName)
         {
             InventoryFolderBase clothing = m_InventoryService.GetFolderForType(newUserID, AssetType.Clothing);
             if (clothing == null)
@@ -211,12 +211,12 @@ namespace Diva.Wifi
                     return UUID.Zero;
             }
 
-            InventoryFolderBase defaultAvatarFolder = new InventoryFolderBase(UUID.Random(), "Default Avatar", newUserID, clothing.ID);
+            InventoryFolderBase defaultAvatarFolder = new InventoryFolderBase(UUID.Random(), folderName, newUserID, clothing.ID);
             defaultAvatarFolder.Version = 1;
             defaultAvatarFolder.Type = (short)AssetType.Clothing;
 
             if (!m_InventoryService.AddFolder(defaultAvatarFolder))
-                m_log.DebugFormat("[Wifi]: Failed to store Default Avatar folder");
+                m_log.DebugFormat("[Wifi]: Failed to store {0} folder", folderName);
 
             return defaultAvatarFolder.ID;
         }
