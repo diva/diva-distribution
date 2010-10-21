@@ -158,6 +158,11 @@ namespace Diva.Wifi
             get { return m_DefaultAvatars; }
         }
 
+        private string m_DefaultHome;
+        public string DefaultHome
+        {
+            get { return m_DefaultHome; }
+        }
 
         #endregion
 
@@ -237,6 +242,9 @@ namespace Diva.Wifi
             if (Avatar.DefaultType == null)
                 Avatar.DefaultType = m_DefaultAvatars[0].Type;
 
+            // Default home location for new accounts
+            m_DefaultHome = appConfig.GetString("HomeLocation", string.Empty);
+
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed
                 throw new Exception("Can't proceed. Please specify the administrator account completely.");
@@ -289,6 +297,8 @@ namespace Diva.Wifi
     public class Avatar
     {
         public static string DefaultType;
+        public static UUID HomeRegion = UUID.Zero;
+        public static Vector3 HomeLocation;
 
         public string Type = string.Empty;
         public string Name;

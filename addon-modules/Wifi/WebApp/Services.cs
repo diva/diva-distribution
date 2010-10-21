@@ -145,6 +145,39 @@ namespace Diva.Wifi
 
         }
 
+        private void PrepareHomeLocation()
+        {
+            if (m_WebApp.DefaultHome != string.Empty && Avatar.HomeRegion == UUID.Zero)
+            {
+                string[] parts = m_WebApp.DefaultHome.Split(new char[] { '/' });
+                if (parts.Length > 0)
+                {
+                    GridRegion region = m_GridService.GetRegionByName(UUID.Zero, parts[0]);
+                    if (region != null)
+                    {
+                        Avatar.HomeRegion = region.RegionID;
+                        uint coordinate;
+                        if (parts.Length > 1)
+                        {
+                            uint.TryParse(parts[1], out coordinate);
+                            Avatar.HomeLocation.X = coordinate;
+                        }
+                        if (parts.Length > 2)
+                        {
+                            uint.TryParse(parts[2], out coordinate);
+                            Avatar.HomeLocation.Y = coordinate;
+                        }
+                        if (parts.Length > 3)
+                        {
+                            uint.TryParse(parts[3], out coordinate);
+                            Avatar.HomeLocation.Z = coordinate;
+                        }
+                        m_log.DebugFormat("[Wifi]: Default home location {0} parsed to region UUID {1} and coordinates {2}.", m_WebApp.DefaultHome, Avatar.HomeRegion, Avatar.HomeLocation);
+                    }
+                }
+            }
+        }
+        
         public bool TryGetSessionInfo(Request request, out SessionInfo sinfo)
         {
             bool success = false;

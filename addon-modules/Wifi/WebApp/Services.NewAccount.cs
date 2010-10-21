@@ -177,6 +177,28 @@ namespace Diva.Wifi
             }
             else
                 m_log.DebugFormat("[Wifi]: could not create Default Avatar folder");
+
+            // Set home and last location for new account
+            // Config setting takes precedence over home location of default avatar
+            PrepareHomeLocation();
+            UUID homeRegion = Avatar.HomeRegion;
+            Vector3 position = Avatar.HomeLocation;
+            Vector3 lookAt = new Vector3();
+            if (homeRegion == UUID.Zero)
+            {
+                GridUserInfo userInfo = m_GridUserService.GetGridUserInfo(account.PrincipalID.ToString());
+                if (userInfo != null)
+                {
+                    homeRegion = userInfo.HomeRegionID;
+                    position = userInfo.HomePosition;
+                    lookAt = userInfo.HomeLookAt;
+                }
+            }
+            if (homeRegion != UUID.Zero)
+            {
+                m_GridUserService.SetHome(newUser.ToString(), homeRegion, position, lookAt);
+                m_GridUserService.SetLastPosition(newUser.ToString(), homeRegion, position, lookAt);
+            }
         }
 
         private UUID CreateDefaultAvatarFolder(UUID newUserID)
