@@ -164,6 +164,17 @@ namespace Diva.Wifi
             get { return m_DefaultHome; }
         }
 
+        private string m_ConsoleUser;
+        public string ConsoleUser
+        {
+            get { return m_ConsoleUser; }
+        }
+        private string m_ConsolePass;
+        public string ConsolePass
+        {
+            get { return m_ConsolePass; }
+        }
+
         #endregion
 
         public readonly Services Services;
@@ -251,7 +262,11 @@ namespace Diva.Wifi
 
             IConfig serverConfig = config.Configs["Network"];
             if (serverConfig != null)
+            {
                 m_Port = serverConfig.GetInt("port", 9000);
+                m_ConsoleUser = serverConfig.GetString("ConsoleUser", string.Empty);
+                m_ConsolePass = serverConfig.GetString("ConsolePass", string.Empty);
+            }
 
             m_log.DebugFormat("[Wifi]: WebApp configs loaded. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
         }
@@ -284,7 +299,6 @@ namespace Diva.Wifi
         }
 
         #endregion
-
     }
 
     public struct SessionInfo

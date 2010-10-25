@@ -1,0 +1,100 @@
+.bodytext #console {
+  text-align:left;
+}
+
+#console .tab {
+  background-color:#090909;
+  border:1px solid #404040;
+  color:#FFF;
+  display:inline;
+  padding:0.35em 0.5em 0.35em 0.7em;
+  margin-right:0.5em;
+  line-height:2.25em;
+  cursor:default;
+}
+#console #tabulators {
+  padding-bottom:0.5em;
+}
+#console #tabulators .inactive {
+  background-color:#000;
+  color:#404040;
+}
+#console .symbol {
+  font-size:180%;
+  vertical-align:-0.1em;
+}
+
+.cssmenu ul {
+  display:none;
+  list-style:none;
+  background-color:#000;
+  border:1px solid #404040;
+  cursor:auto;
+  margin:0;
+  padding:0;
+}
+.cssmenu:hover ul {
+  position:absolute;
+  display:block;
+  cursor:default;
+  line-height:normal;
+  margin-top:-0.225em;
+}
+.cssmenu li {
+  padding:0.25em 0.5em 0.25em 1em;
+}
+.cssmenu li:hover {
+  color:#8C8D94;
+  outline:#404040 solid 1px;
+}
+.cssmenu form {
+  display:inline;
+}
+
+#simulators p {
+  padding-bottom:0.5em;
+}
+#simulators p input {
+  margin-right:1em;
+  padding-right:1em;
+}
+#console #messages {
+  font-family:Calibri;
+  height:30em;
+  text-align:left;
+  color:white;
+  padding-top:0.5em;
+  border-top:1px solid #404040;
+  white-space:pre-wrap;
+}
+#console #messages.monospace {
+  font-family:Consolas, 'Lucida Console', Monaco, monospace;
+  font-size:95%;
+  height:32.5em;
+}
+#console #messages div.trace {
+  color:gray;
+}
+
+#console .normal { background-color:transparent; }
+#console .good { color:lime; }
+#console .warn { color:yellow; }
+#console .error { color:red; }
+#console .inactive .normal { color:gray; }
+#console .inactive .good { color:green; }
+#console .inactive .error { color:maroon; }
+
+#console #prompt {
+  display:none;
+}
+#console .cmdinput {
+  margin-top:0.5em;
+  width:auto;
+  height:auto;
+}
+#console #command input.inputstyle {
+  border:0 none;
+  padding:0;
+  margin:0;
+  width:100%;
+}

@@ -204,11 +204,13 @@ namespace Diva.Wifi
                 //    }
                     return m_WebApp.ReadFile(env, "inventorylist.html", env.Data); 
             //    }
+
+                if (env.State == State.Console)
+                    return m_WebApp.ReadFile(env, "console.html", env.Data);
             }
 
             return string.Empty;
         }
-
 
         public string GetRefresh(Environment env)
         {
