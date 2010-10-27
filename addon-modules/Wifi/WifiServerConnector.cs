@@ -78,6 +78,9 @@ namespace Diva.Wifi
             server.AddStreamHandler(new WifiInventoryGetHandler(app));
             server.AddStreamHandler(new WifiInventoryPostHandler(app));
 
+            server.AddStreamHandler(new WifiHyperlinkGetHandler(app));
+            server.AddStreamHandler(new WifiHyperlinkPostHandler(app));
+
             //server.AddStreamHandler(new WifiRegionManagementPostHandler(app));
             //server.AddStreamHandler(new WifiRegionManagementGetHandler(app));
         }

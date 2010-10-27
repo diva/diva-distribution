@@ -33,8 +33,13 @@
 	AvatarPreselection = "Neutral"
 
 	;; Home location for new accounts
-  	;; If empty or not set, then the selected default avatar's home location is used.
-  	; HomeLocation = "<RegionName>/<X>/<Y>/<Z>"
+	;; If empty or not set, then the selected default avatar's home location is used.
+	; HomeLocation = "<RegionName>/<X>/<Y>/<Z>"
+
+	;; Allow regular users to create links to hypergrid regions
+	;; If you set this to false, then you should also remove the related menu option
+	;; from file main-menu-users.html
+	EnableHyperlinkService = true
 
 	;; Variables for your mail server
 	;; Users will get email notifications from this account

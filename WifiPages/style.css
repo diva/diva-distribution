@@ -77,6 +77,17 @@ table.accounts {
   border-bottom:3px ridge #444;
 }
 
+#hyperlinks th.xloc, th.yloc {
+  text-align:center;
+}
+#hyperlinks td.xloc, td.yloc {
+  text-align:right;
+}
+
+#hyperlinkform input[name="address"] {
+  width:20em;
+}
+
 #inventory p {
   text-align:left;
 }
@@ -224,6 +235,7 @@ td.username, td.email, td.usertitle {
   font-size:14px;
   padding-top:5px;
   padding-left:10px;
+  padding-right:10px;
 }
 
 .button {

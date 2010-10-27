@@ -174,6 +174,11 @@ namespace Diva.Wifi
                 if (env.State == State.UserActivateResponse)
                     return "The account has been activated.";
 
+                if (env.State == State.HyperlinkListForm)
+                    return m_WebApp.ReadFile(env, "linkregionform.html", env.Data);
+                if (env.State == State.HyperlinkDeleteForm)
+                    return m_WebApp.ReadFile(env, "linkregiondeleteform.html", env.Data);
+
                 if (env.State == State.RegionManagementForm)
                     return GetRegionManagementForm(env);
                 if (env.State == State.RegionManagementSuccessful)
@@ -288,6 +293,14 @@ namespace Diva.Wifi
 
             // TODO
             return "/wifi/images/abstract-cool.jpg";
+        }
+
+        public string GetHyperlinks(Environment env)
+        {
+            if (env.Data != null && env.Data.Count > 0)
+                return m_WebApp.ReadFile(env, "linkregionlist.html", env.Data);
+
+            return "No linked regions found";
         }
 
         #endregion

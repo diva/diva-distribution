@@ -215,5 +215,21 @@ namespace Diva.Wifi
                 return re.IsMatch(email);
         }
 
+        public static bool IsValidRegionAddress(string address)
+        {
+            string[] parts = address.Split(new char[] { ':' });
+            if (parts.Length < 2 || parts.Length > 3)
+                return false;
+            Uri test;
+            if (!Uri.TryCreate(parts[0] + ":" + parts[1], UriKind.Absolute, out test))
+                return false;
+            if (parts.Length == 3)
+            {
+                // Check region name
+                Regex re = new Regex(@"[\?@]|\{\d+\}");
+                return !re.IsMatch(parts[2]);
+            }
+            return true;
+        }
     }
 }

@@ -206,7 +206,7 @@ namespace Diva.Wifi.WifiScript
                             try
                             {
                                 pinfo = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.DeclaredOnly);
-                                value = (string)pinfo.GetValue(o, null); ;
+                                value = pinfo.GetValue(o, null).ToString();
                                 m_log.DebugFormat("[WifiScript] Replaced {0} with {1}", name, value);
                             }
                             catch (Exception e)

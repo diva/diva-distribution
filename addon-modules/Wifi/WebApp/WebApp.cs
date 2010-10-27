@@ -42,6 +42,7 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
+using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
@@ -164,6 +165,12 @@ namespace Diva.Wifi
             get { return m_DefaultHome; }
         }
 
+        private bool m_EnableHyperlinks;
+        public bool EnableHyperlinks
+        {
+            get { return m_EnableHyperlinks; }
+        }
+
         private string m_ConsoleUser;
         public string ConsoleUser
         {
@@ -256,6 +263,9 @@ namespace Diva.Wifi
             // Default home location for new accounts
             m_DefaultHome = appConfig.GetString("HomeLocation", string.Empty);
 
+            // Hyperlink service
+            m_EnableHyperlinks = appConfig.GetBoolean("EnableHyperlinkService", true);
+
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed
                 throw new Exception("Can't proceed. Please specify the administrator account completely.");
@@ -323,6 +333,57 @@ namespace Diva.Wifi
         public bool isDefault
         {
             get { return Type.Equals(DefaultType); }
+        }
+    }
+
+    public class RegionInfo
+    {
+        private UUID m_OwnerID;
+        private string m_Owner;
+
+        public UUID RegionID
+        {
+            get { return Region.RegionID; }
+        }
+        public string RegionName
+        {
+            get { return Region.RegionName; }
+        }
+        public string RegionAddress
+        {
+            get {
+                string address = Region.ExternalHostName + ":" + Region.HttpPort;
+                if (Region.RegionName == Region.ExternalHostName)
+                    return address;
+                else
+                    return address + ":" + Region.RegionName;
+            }
+        }
+        public uint RegionLocX
+        {
+            get { return (uint)Region.RegionLocX / Constants.RegionSize; }
+        }
+        public uint RegionLocY
+        {
+            get { return (uint)Region.RegionLocY / Constants.RegionSize; }
+        }
+        public UUID RegionOwnerID
+        {
+            get { return m_OwnerID; }
+            set { m_OwnerID = value; }
+        }
+        public string RegionOwner
+        {
+            get { return m_Owner; }
+            set { m_Owner = value; }
+        }
+        public GridRegion Region;
+
+        public RegionInfo(GridRegion region)
+        {
+            Region = region;
+            m_OwnerID = region.EstateOwner;
+            m_Owner = "nobody";
         }
     }
 }

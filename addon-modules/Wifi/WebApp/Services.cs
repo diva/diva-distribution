@@ -45,7 +45,6 @@ using Nwc.XmlRpc;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
-using OpenSim.Services.GridService;
 using OpenSim.Services.AvatarService;
 
 using Diva.Wifi.WifiScript;
@@ -66,7 +65,7 @@ namespace Diva.Wifi
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private InventoryService m_InventoryService;
-        private IGridService m_GridService;
+        private HypergridService m_GridService;
         private IGridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
 
@@ -89,7 +88,7 @@ namespace Diva.Wifi
             m_UserAccountService = new UserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
-            m_GridService = new GridService(config);
+            m_GridService = new HypergridService(config);
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
 
