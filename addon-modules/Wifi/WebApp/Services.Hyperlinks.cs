@@ -46,12 +46,15 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
                 if (sinfo.Account.UserLevel >= 100)
-                    env.Flags |= Flags.IsAdmin;
-                if (m_WebApp.EnableHyperlinks || (env.Flags & Flags.IsAdmin) != 0)
-                {
+                    env.Flags |= Flags.IsAdmin & Flags.AllowHyperlinks;
+                if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel)
+                    env.Flags |= Flags.AllowHyperlinks;
+                if ((env.Flags & Flags.AllowHyperlinks) == 0)
+                    env.State = State.HyperlinkList;
+                else
                     env.State = State.HyperlinkListForm;
-                    env.Data = GetHyperlinks(env, sinfo.Account.PrincipalID);
-                }
+                env.Data = GetHyperlinks(env, sinfo.Account.PrincipalID);
+
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
@@ -66,7 +69,8 @@ namespace Diva.Wifi
                 foreach(GridRegion region in hyperlinks)
                 {
                     RegionInfo link = new RegionInfo(region);
-                    if ((env.Flags & Flags.IsAdmin) != 0 ||
+                    if (m_WebApp.HyperlinksShowAll ||
+                        (env.Flags & Flags.IsAdmin) != 0 ||
                         (link.RegionOwnerID == owner) ||
                         (link.RegionOwnerID == UUID.Zero))
                     {
@@ -90,7 +94,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
-                if (m_WebApp.EnableHyperlinks || sinfo.Account.UserLevel >= 100)
+                if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel || sinfo.Account.UserLevel >= 100)
                 {
                     if (address != string.Empty)
                     {
@@ -124,12 +128,12 @@ namespace Diva.Wifi
                 env.Flags = Flags.IsLoggedIn;
                 if (sinfo.Account.UserLevel >= 100)
                     env.Flags |= Flags.IsAdmin;
-                if (m_WebApp.EnableHyperlinks || (env.Flags & Flags.IsAdmin) != 0)
+                if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel || (env.Flags & Flags.IsAdmin) != 0)
                 {
                     GridRegion region = m_GridService.GetRegionByUUID(UUID.Zero, regionID);
                     if (region != null)
                     {
-                        if ((sinfo.Account.UserLevel >= 100) || (region.EstateOwner == sinfo.Account.PrincipalID))
+                        if (((env.Flags & Flags.IsAdmin) != 0) || (region.EstateOwner == sinfo.Account.PrincipalID))
                         {
                             RegionInfo link = new RegionInfo(region);
                             UserAccount user = m_UserAccountService.GetUserAccount(UUID.Zero, region.EstateOwner);
@@ -155,7 +159,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
-                if (m_WebApp.EnableHyperlinks || sinfo.Account.UserLevel >= 100)
+                if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel || sinfo.Account.UserLevel >= 100)
                 {
                     // Try to delete hyperlink
                     GridRegion region = m_GridService.GetRegionByUUID(UUID.Zero, regionID);

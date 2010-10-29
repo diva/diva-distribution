@@ -36,10 +36,11 @@
 	;; If empty or not set, then the selected default avatar's home location is used.
 	; HomeLocation = "<RegionName>/<X>/<Y>/<Z>"
 
-	;; Allow regular users to create links to hypergrid regions
-	;; If you set this to false, then you should also remove the related menu option
-	;; from file main-menu-users.html
-	EnableHyperlinkService = true
+	;; Accounts with this or a higher user level are able to create links to
+	;; hypergrid regions. Other users are only able to view existing hyperlinks.
+	HyperlinkServiceUserLevel = 50
+	;; Show everbody's hyperlinks or only global and their own linked regions to users
+	HyperlinkServiceUsersSeeAll = true
 
 	;; Variables for your mail server
 	;; Users will get email notifications from this account

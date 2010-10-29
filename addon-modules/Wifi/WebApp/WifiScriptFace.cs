@@ -174,6 +174,8 @@ namespace Diva.Wifi
                 if (env.State == State.UserActivateResponse)
                     return "The account has been activated.";
 
+                if (env.State == State.HyperlinkList)
+                    return GetHyperlinks(env);
                 if (env.State == State.HyperlinkListForm)
                     return m_WebApp.ReadFile(env, "linkregionform.html", env.Data);
                 if (env.State == State.HyperlinkDeleteForm)

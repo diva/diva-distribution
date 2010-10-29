@@ -142,5 +142,18 @@ namespace Diva.Wifi
             // Return date and time in a fomat that JavaScript can easily parse
             return Util.ToDateTime(account.Created).ToString("R");
         }
+
+        public static string GetHyperlinkCommands(this RegionInfo region, IEnvironment env)
+        {
+            Environment env2 = (Environment)env;
+            if (env2.Session.Account.UserLevel < 100)
+                if ((env2.Flags & Flags.AllowHyperlinks) == 0 ||
+                    (region.RegionOwnerID != env2.Session.Account.PrincipalID))
+                    return "&nbsp;&nbsp;&nbsp;";
+
+            string commandDelete = string.Format("<a href=\"{0}{1}\">{2}</a>",
+                "/wifi/linkregion/delete/", region.RegionID, "delete");
+            return commandDelete;
+        }
     }
 }

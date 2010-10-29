@@ -165,10 +165,15 @@ namespace Diva.Wifi
             get { return m_DefaultHome; }
         }
 
-        private bool m_EnableHyperlinks;
-        public bool EnableHyperlinks
+        private int m_HyperlinksUserLevel;
+        public int HyperlinksUserLevel
         {
-            get { return m_EnableHyperlinks; }
+            get { return m_HyperlinksUserLevel; }
+        }
+        private bool m_HyperlinksShowAll;
+        public bool HyperlinksShowAll
+        {
+            get { return m_HyperlinksShowAll; }
         }
 
         private string m_ConsoleUser;
@@ -264,7 +269,8 @@ namespace Diva.Wifi
             m_DefaultHome = appConfig.GetString("HomeLocation", string.Empty);
 
             // Hyperlink service
-            m_EnableHyperlinks = appConfig.GetBoolean("EnableHyperlinkService", true);
+            m_HyperlinksUserLevel = appConfig.GetInt("HyperlinkServiceUserLevel", 50);
+            m_HyperlinksShowAll = appConfig.GetBoolean("HyperlinkServiceUsersSeeAll", true);
 
             if (m_AdminFirst == string.Empty || m_AdminLast == string.Empty)
                 // Can't proceed

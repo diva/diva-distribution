@@ -88,7 +88,8 @@ namespace Diva.Wifi
     public enum Flags : uint
     {
         IsLoggedIn = 1,
-        IsAdmin = 2
+        IsAdmin = 2,
+        AllowHyperlinks = 4
     }
 
     public enum State : uint
@@ -122,6 +123,7 @@ namespace Diva.Wifi
         InventoryListLoad = 26,
         Console = 27,
         HyperlinkListForm = 28,
-        HyperlinkDeleteForm = 29
+        HyperlinkDeleteForm = 29,
+        HyperlinkList = 30
     }
 }
