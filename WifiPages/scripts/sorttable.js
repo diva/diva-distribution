@@ -22,6 +22,9 @@ function InitUserTableRowSort() {
   users[3] = { column:4, reverse:false, comparer:function(a, b) {return CompareDateCells(a, b, 4);} }; // Created
   SetupTableHeadings('users', users);
 }
+var sortIndicatorNeutral = '\u2005\u25c6'; // black diamond (with leading space)
+var sortIndicatorNormal = '\u25bc'; // black down-pointing triangle
+var sortIndicatorReverse = '\u25b2'; // black up-pointing triangle
 // Add event handlers for row sorting
 function SetupTableHeadings(tableId, columnConfig) {
   var table = document.getElementById(tableId);
@@ -32,6 +35,7 @@ function SetupTableHeadings(tableId, columnConfig) {
     heading.onclick = new Function("SortColumn('" + tableId + "', " + i +")");
     heading.style.cursor = "pointer";
     heading.title = "Sort rows";
+    heading.firstChild.nodeValue += sortIndicatorNeutral;
   }
 }
 // Sort user table rows by values in a column
@@ -58,10 +62,7 @@ function SortColumn(id, index) {
 }
 // Display sort direction indicators
 function UpdateTableHeadings(table, columnConfig, index) {
-  // Constants; IE does not like const declarator
-  var normal = String.fromCharCode(0x25bc); // down arrow
-  var reverse = String.fromCharCode(0x25b2); // up arrow
-  var indicators = new RegExp('(' + normal + '|' + reverse + ')$');
+  var indicators = new RegExp('(' + sortIndicatorNeutral + '|' + sortIndicatorNormal + '|' + sortIndicatorReverse + ')$');
   
   var cells = table.rows[0].cells;
   for (var i = 0; i < columnConfig.length; ++i) {
@@ -71,10 +72,12 @@ function UpdateTableHeadings(table, columnConfig, index) {
     // Add indicator for selected column
     if (i == index) {
       if (columnConfig[i].reverse)
-        text += reverse;
+        text += sortIndicatorReverse;
       else
-        text += normal;
+        text += sortIndicatorNormal;
     }
+    else
+      text += sortIndicatorNeutral;
     cells[columnConfig[i].column].firstChild.nodeValue = text;
   }
 }

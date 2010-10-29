@@ -8,8 +8,13 @@ body {
   font-family: Arial,'Lucida Grande',Verdana,sans-serif;
   text-align:center;
   background:#000 repeat-y top center;
+  color:#929292;
 }
-  
+
+table th {
+  white-space:nowrap;
+}
+
 #header {
   height:15px;
   width:999px;
