@@ -3,6 +3,8 @@ function DoOnload() {
     InitPendingTableRowSort();
   if (document.getElementById('users'))
     InitUserTableRowSort();
+  if (document.getElementById('hyperlinks'))
+    InitHyperlinkTableRowSort();
 }
 // Configuration for sorting rows in pending users table
 var pending; // variable name must match the table id
@@ -21,6 +23,16 @@ function InitUserTableRowSort() {
   users[2] = { column:3, reverse:false, comparer:function(a, b) {return CompareNumCells(a, b, 3);} };  // Level
   users[3] = { column:4, reverse:false, comparer:function(a, b) {return CompareDateCells(a, b, 4);} }; // Created
   SetupTableHeadings('users', users);
+}
+// Configuration for sorting rows in hyperlinks table
+var hyperlinks; // variable name must match the table id
+function InitHyperlinkTableRowSort() {
+  hyperlinks = new Array();
+  hyperlinks[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Adress
+  hyperlinks[1] = { column:1, reverse:false, comparer:function(a, b) {return CompareNumCells(a, b, 1);} };  // X
+  hyperlinks[2] = { column:2, reverse:false, comparer:function(a, b) {return CompareNumCells(a, b, 2);} };  // Y
+  hyperlinks[3] = { column:3, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 3);} }; // Owner
+  SetupTableHeadings('hyperlinks', hyperlinks);
 }
 var sortIndicatorNeutral = '\u2005\u25c6'; // black diamond (with leading space)
 var sortIndicatorNormal = '\u25bc'; // black down-pointing triangle
