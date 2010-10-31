@@ -1,5 +1,5 @@
-﻿/**
- * Copyright (c) Crista Lopes (aka Diva) and Marck. All rights reserved.
+/**
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -27,27 +27,46 @@
 
 using System;
 using System.IO;
-using Diva.Wifi.WifiScript;
+using System.Reflection;
+using log4net;
+using OpenSim.Framework.Servers.HttpServer;
 
 namespace Diva.Wifi
 {
-    public partial class Services
+    public class WifiNotifyHandler : BaseStreamHandler
     {
-        public string DefaultRequest(Environment env)
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private WebApp m_WebApp;
+
+        public WifiNotifyHandler(WebApp webapp) :
+            base("POST", "/wifi/notify")
         {
-            m_log.DebugFormat("[Wifi]: DefaultRequest");
-            SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            m_WebApp = webapp;
+        }
+
+        public override byte[] Handle(string path, Stream requestData,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            // This is the content type of the response. Don't forget to set it to this in all your handlers.
+            httpResponse.ContentType = "text/html";
+
+            string resource = GetParam(path);
+            //m_log.DebugFormat("[NOTIFY HANDLER]: resource {1}", resource);
+            Request request = WifiUtils.CreateRequest(resource, httpRequest);
+            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            
+            string result = string.Empty;
+            try
             {
-                env.Session = sinfo;
-                env.Flags = Flags.IsLoggedIn;
-                env.State = State.Default;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "splash.html"));
+                result = m_WebApp.Services.NotifyRequest(env);
+            }
+            catch (Exception e)
+            {
+                m_log.DebugFormat("[NOTIFY HANDLER]: Exception {0}: {1}", e.Message, e.StackTrace);
             }
 
-            string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "splash.html");
-            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-            return p.Process(WifiUtils.ReadTextResource(resourcePath));
+            return WifiUtils.StringToBytes(result);
         }
     }
 }

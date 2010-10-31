@@ -40,7 +40,7 @@ namespace Diva.Wifi
         {
             if (!m_WebApp.IsInstalled)
             {
-                m_log.DebugFormat("[Wifi]: warning: someone is trying to access LoginRequest and Wifi isn't isntalled!");
+                m_log.DebugFormat("[Wifi]: warning: someone is trying to access LoginRequest and Wifi isn't installed!");
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
@@ -67,7 +67,8 @@ namespace Diva.Wifi
             sinfo.IpAddress = request.IPEndPoint.Address.ToString();
             sinfo.Sid = authtoken;
             sinfo.Account = account;
-            m_Sessions.Add(authtoken, sinfo, DateTime.Now + TimeSpan.FromMinutes(30.0d));
+            sinfo.NotifyFollowUp = null;
+            m_Sessions.Add(authtoken, sinfo, m_WebApp.SessionTimeout);
             env.Request.Query["sid"] = authtoken;
             env.Session = sinfo;
 

@@ -57,10 +57,16 @@ namespace Diva.Wifi
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;
 
-        private string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        private readonly string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
         public string DocsPath
         {
             get { return m_DocsPath; }
+        }
+
+        private readonly TimeSpan m_SessionTimeout = TimeSpan.FromMinutes(30.0d);
+        public TimeSpan SessionTimeout
+        {
+            get { return m_SessionTimeout; }
         }
 
         private Type m_ExtensionMethods;
@@ -317,11 +323,20 @@ namespace Diva.Wifi
         #endregion
     }
 
+    public delegate string ServiceCall(Environment env);
+
     public struct SessionInfo
     {
         public string Sid;
         public string IpAddress;
         public UserAccount Account;
+        public ServiceCall NotifyFollowUp;
+    }
+
+    public class Notification
+    {
+        public string Message;
+        public string ButtonText;
     }
 
     public class Avatar

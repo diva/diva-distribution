@@ -124,6 +124,7 @@ namespace Diva.Wifi
         Console = 27,
         HyperlinkListForm = 28,
         HyperlinkDeleteForm = 29,
-        HyperlinkList = 30
+        HyperlinkList = 30,
+        Notification = 31
     }
 }

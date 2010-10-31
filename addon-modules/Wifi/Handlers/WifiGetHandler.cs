@@ -81,7 +81,7 @@ namespace Diva.Wifi
             {
                 httpResponse.ContentType = "text/html";
 
-                return WifiUtils.StringToBytes(GenerateSplash(env));
+                return WifiUtils.StringToBytes(m_WebApp.Services.DefaultRequest(env));
             }
             else
             {
@@ -102,7 +102,7 @@ namespace Diva.Wifi
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
                     string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
                     if (res == string.Empty)
-                        res = GenerateSplash(env);
+                        res = m_WebApp.Services.DefaultRequest(env);
                     return WifiUtils.StringToBytes(res);
                 }
             }
@@ -112,17 +112,7 @@ namespace Diva.Wifi
             return WifiUtils.StringToBytes(result);
         }
 
-        private string GenerateSplash(Diva.Wifi.Environment env)
-        {
-            string result = m_WebApp.Services.DefaultRequest(env);
-            if (!string.IsNullOrEmpty(result))
-                return result;
-
-            string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "splash.html");
-            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-            return p.Process(WifiUtils.ReadTextResource(resourcePath));
-        }
-
+        /*
         private string GetResource(string path)
         {
             string[] paramArray = SplitParams(path);
@@ -132,7 +122,6 @@ namespace Diva.Wifi
 
             return string.Empty;
         }
-
-
+        */
     }
 }

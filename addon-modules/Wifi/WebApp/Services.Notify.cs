@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) Crista Lopes (aka Diva) and Marck. All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -25,29 +25,49 @@
  * 
  */
 
-using System;
-using System.IO;
-using Diva.Wifi.WifiScript;
+using System.Collections.Generic;
 
 namespace Diva.Wifi
 {
     public partial class Services
     {
-        public string DefaultRequest(Environment env)
+        public string NotifyRequest(Environment env)
         {
-            m_log.DebugFormat("[Wifi]: DefaultRequest");
+            m_log.Debug("[Wifi]: NotifyRequest");
+
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                env.State = State.Default;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "splash.html"));
-            }
+                if (sinfo.Account.UserLevel >= 100)
+                    env.Flags |= Flags.IsAdmin;
 
-            string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "splash.html");
-            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-            return p.Process(WifiUtils.ReadTextResource(resourcePath));
+                return sinfo.NotifyFollowUp(env);
+            }
+            m_log.Debug("[Wifi]: No session info with NotifyRequest");
+            return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        private void NotifyOK(Environment env, string message, ServiceCall followUp)
+        {
+            Notify(env, message, "OK", followUp);
+        }
+        private void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
+        {
+            Notification note = new Notification();
+            note.Message = message;
+            note.ButtonText = buttonText;
+            env.Data = new List<object>();
+            env.Data.Add(note);
+            env.State = State.Notification;
+            SessionInfo sinfo = env.Session;
+            if (sinfo.Sid != null && m_Sessions.Contains(sinfo.Sid))
+            {
+                sinfo.NotifyFollowUp = followUp;
+                m_Sessions.Update(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
+                env.Session = sinfo;
+            }
         }
     }
 }

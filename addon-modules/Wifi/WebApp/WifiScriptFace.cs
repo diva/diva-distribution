@@ -149,6 +149,9 @@ namespace Diva.Wifi
                 return "Your account has been created.";
             }
 
+            if (env.State == State.Notification)
+                return m_WebApp.ReadFile(env, "notification.html", env.Data);
+
             if ((env.Flags & Flags.IsLoggedIn) != 0)
             {
                 if (env.State == State.UserAccountForm)
@@ -227,6 +230,15 @@ namespace Diva.Wifi
                 return string.Format(refresh, 0, "/wifi/user/inventory", env.Session.Sid);
 
             return string.Empty;
+        }
+
+        public string GetNotificationType(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (sinfo.NotifyFollowUp == null)
+                return "hidden";
+
+            return "submit";
         }
 
         public string GetMainMenu(Environment env)

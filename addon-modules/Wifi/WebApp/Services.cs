@@ -191,7 +191,7 @@ namespace Diva.Wifi
                         session.IpAddress == request.IPEndPoint.Address.ToString())
                     {
                         sinfo = session;
-                        m_Sessions.AddOrUpdate(sid, session, DateTime.Now + TimeSpan.FromMinutes(30.0d));
+                        m_Sessions.AddOrUpdate(sid, session, m_WebApp.SessionTimeout);
                         success = true;
                     }
                 }
