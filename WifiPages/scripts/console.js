@@ -26,8 +26,8 @@ var loginAreaRule;
 var outputAreaRule;
 // Global variables
 var wifi = false;
-var messageArea = null;
 var settings = null; // Ref to settings form
+var messageArea = null;
 var consoles = new Object();
 var activeConsole;
 var simulatorNode;
@@ -51,13 +51,15 @@ function DoOnload() {
   consoles[activeConsole.name] = activeConsole;
   consoles.count = 1;
   document.getElementById(ID.DEFAULT_CONSOLE).getElementsByTagName('span')[0].style.display = 'none';
+  document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'none';
   document.getElementById(ID.LOGIN).getElementsByTagName('div')[0].style.display = 'none';
+  //document.getElementById(ID.SIMULATORS).style.display = 'none';
   // Amend event handlers of some menu options
   var options = document.getElementById(ID.OPTIONS).getElementsByTagName('li');
-  options[0].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.MONOSPACE)[0]);
-  options[1].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[0]);
-  options[2].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[1]);
-  options[3].onclick = CreateEventHandler(function(e) {
+  options[2].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.MONOSPACE)[0]);
+  options[3].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[0]);
+  options[4].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[1]);
+  options[5].onclick = CreateEventHandler(function(e) {
       if (e.target != document.getElementsByName(NAME.BUFSIZE)[0])
         e.target.firstChild.select();
     }
@@ -70,28 +72,18 @@ function DoOnload() {
   // Get default parameters from form
   ChangedOption(NAME.TRACING);
   ChangedOption(NAME.MONOSPACE);
-  // Set up login area
+  // With Wifi, we have all data ready and can connect immediately
   document.forms[NAME.CREDENTIALS].address.value = location.host;
-  if (document.forms[NAME.CREDENTIALS].user.value && document.forms[NAME.CREDENTIALS].password.value)
-    loginAreaRule.style.display = 'block';
-  else {
-    // With Wifi, get credentials and connect automatically
+  if (document.forms[NAME.CREDENTIALS].user.value && document.forms[NAME.CREDENTIALS].password.value) {
     wifi = true;
     var buttons = document.getElementById(ID.COMMAND).getElementsByTagName('input');
     buttons[buttons.length-1].style.display = 'none';
     buttons[buttons.length-2].style.display = 'none';
     simulatorNode = document.getElementById(ID.SIMULATORS).cloneNode(true);
-    // Retrieve console login info
-    var query = location.protocol.concat('//', location.host, location.pathname, 'data/console/', location.search);
-    AjaxSend(query, null,
-      function(xml) {
-        var element = xml.getElementsByTagName('Console')[0];
-        document.forms[NAME.CREDENTIALS].user.value = element.getAttribute('User');
-        document.forms[NAME.CREDENTIALS].password.value = element.getAttribute('Password');
-        Connect();
-      }
-    );
+    Connect();
   }
+  else
+    loginAreaRule.style.display = 'block';
 }
 // Terminate
 function DoOnunload() {
@@ -131,6 +123,35 @@ function Connect() {
   activeConsole.password = document.forms[NAME.CREDENTIALS].password.value;
   StartSession(activeConsole);
 }
+function CreateConsole() {
+  // New console
+  var name = 'console' + consoles.count;
+  var console = new Console(name);
+  consoles[console.name] = console;
+  consoles.count++;
+  // New CSS rule with name as class
+  console.rule = AddCSSRule(CSSINDEX, '#console #messages .' + name);
+  console.rule.style.display = 'none'; // hide messages for now
+  // New tab (clone from default)
+  var node = document.getElementById(ID.DEFAULT_CONSOLE).cloneNode(true);
+  node.setAttribute('id', name);
+  var children = node.getElementsByTagName('span');
+  //children[0].style.cursor = 'pointer';
+  children[0].style.display = 'none';
+  
+  children[1].firstChild.data = "New\xA0Console";
+  children[2].setAttribute('class', 'normal');
+  document.getElementById(ID.TABULATORS).appendChild(node);
+  // Make new console the current one
+  ToggleTab(activeConsole, false);
+  ToggleTab(console, true);
+  ToggleConsole(false); // show login area
+  activeConsole.rule.style.display = 'none'; // hide messages of previously active console
+  activeConsole = console;
+  // With Wifi, select from current list of simulators
+  if (wifi)
+    SelectSimulator();
+}
 function Disconnect() {
   var console = activeConsole;
   if (console.name != ID.DEFAULT_CONSOLE)
@@ -142,14 +163,112 @@ function Disconnect() {
     document.getElementById(ID.TABULATORS).removeChild(tab);
   }
 }
+function SwitchConsole(name) {
+  var console = consoles[name];
+  ToggleTab(activeConsole, false);
+  ToggleTab(console, true);
+  activeConsole.rule.style.display = 'none'; // hide messages of formerly active console
+  activeConsole = console;
+  if (activeConsole.sessionId) // connected?
+    ToggleConsole(true); // show messages of active console
+  else
+    ToggleConsole(false);
+}
+function ToggleTab(console, active) {
+  var tab = document.getElementById(console.name);
+  var styleClass = tab.getAttribute('class');
+  if (active) {
+    styleClass = styleClass.replace(/\s*inactive/, '');
+    tab.onclick = null;
+    if (console.name != ID.DEFAULT_CONSOLE) {
+      document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'block';
+      /*
+      // Show close button
+      tab.getElementsByTagName('span')[0].style.display = 'inline';
+      tab.getElementsByTagName('span')[0].onclick = Disconnect;
+      //tab.getElementsByTagName('span')[0].onclick = new Function('Disconnect("' + console.name + '")');
+      */
+    }
+  }
+  else {
+    ScrollBottom.Save(console, messageArea);
+    styleClass += ' inactive';
+    /*
+    tab.getElementsByTagName('span')[0].style.display = 'none'; // hide close button
+    tab.getElementsByTagName('span')[0].onclick = null;
+    */
+    tab.onclick = new Function('SwitchConsole("' + console.name + '")');
+    if (console.name != ID.DEFAULT_CONSOLE) {
+      document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'none';
+    }
+  }
+  tab.setAttribute('class', styleClass);
+}
 function ToggleConsole(visible) {
-  loginAreaRule.style.display = (visible ? 'none' : 'block'); // login area
-  outputAreaRule.style.display = (visible ? 'block' : 'none'); // console area
+  loginAreaRule.style.display = (visible ? 'none' : 'block');
+  outputAreaRule.style.display = (visible ? 'block' : 'none');
   messageArea.style.display = (visible ? 'block' : 'none');
   if (visible) {
     activeConsole.rule.style.display = 'block';
     ScrollBottom.Restore(activeConsole, messageArea);
   }
+}
+
+// Create selection form with available simulators
+function SelectSimulator() {
+  var query = location.protocol.concat('//', location.host, location.pathname, 'data/simulators/', location.search);
+  Output(TRACE, "[SelectSimulator] Requesting available simulators: " + query);
+  var regionRequest = AjaxSend(query, null,
+    function(xml) {
+      var allSimulators = xml.getElementsByTagName('Simulator');
+      Output(TRACE, "[SelectSimulator] Found ".concat(allSimulators.length, " simulator(s) with a total of ", xml.getElementsByTagName('Region').length, " region(s)"));
+      simulators = new Array();
+      for (var i = allSimulators.length - 1; i >= 0; --i) {
+        if (allSimulators[i].getAttribute('HostAddress') != consoles[ID.DEFAULT_CONSOLE].serviceURL.substr(7))
+          simulators.push(allSimulators[i]);
+      }
+      if (simulators.length > 0) {
+        var loginForm = document.getElementsByName(NAME.CREDENTIALS)[0];
+        // Hide unused form elements
+        var inputs = loginForm.getElementsByTagName('p');
+        for (var i = 1; i <= 3; ++i)
+          inputs[inputs.length-i].style.display = 'none';
+        // Change form to offer available simulators
+        var chooser = loginForm.getElementsByTagName('div')[0];
+        loginForm.replaceChild(document.createElement('div'), chooser);
+        chooser = loginForm.getElementsByTagName('div')[0];
+        chooser.setAttribute('id', ID.SIMULATORS);
+        //chooser.appendChild(document.createTextNode("Please select a simulator:"));
+        chooser.appendChild(simulatorNode.getElementsByTagName('span')[0].cloneNode(true));
+        for (var i = 0; i < simulators.length; ++i) {
+          // Retrieve simulator info
+          var address = simulators[i].getAttribute('HostAddress');
+          var regionElements = simulators[i].getElementsByTagName('Name');
+          var regions = new Array();
+          for (var j = 0; j < regionElements.length; ++j)
+            regions.push(regionElements[j].firstChild.data);
+          regions.sort();
+          // Add radio button for simulator
+          var option = simulatorNode.getElementsByTagName('p')[0].cloneNode(true);
+          GetChildElementsByTagName(option, 'input')[0].value = address;
+          if (0 == i) 
+            GetChildElementsByTagName(option, 'input')[0].checked = true;
+          GetChildElementsByTagName(option, 'span')[0].innerHTML = address;
+          option.appendChild(document.createTextNode(" " + regions.join(", ") + "."));
+          chooser.appendChild(option);
+          // Prepare credentials
+          document.forms[NAME.CREDENTIALS].address.value = '';
+          document.forms[NAME.CREDENTIALS].user.value = consoles[ID.DEFAULT_CONSOLE].user;
+          document.forms[NAME.CREDENTIALS].password.value = consoles[ID.DEFAULT_CONSOLE].password;
+         }
+        chooser.style.display = 'block';
+      }
+      else {
+        Disconnect();
+        alert(settings[NAME.TEXT][1].value);
+      }
+    }
+  );
 }
 
 // Remote console requests
@@ -184,6 +303,10 @@ function StartSession(console) {
 function CloseSession(console) {
   Output(TRACE, "[CloseSession:".concat(console.name, "] " + (console.sessionId ? "Closing session" : "No active session")));
   if (console.sessionId) {
+    /*
+    if (console.consoleRequest.xhr)
+      console.consoleRequest.xhr.abort();
+    */
     try {
       void AjaxSend(console.serviceURL.concat('/CloseSession/'), 'ID=' + console.sessionId,
         function() {
@@ -204,15 +327,17 @@ function ReadResponses(console, xml, status) {
   ShowStatus(console, status);
   if (xml) {
     Output(TRACE, "[ReadResponses:".concat(console.name, "] Processing response"));
+    // 153:normal:19:18:39 - [MODULES]: [XmlRpcRouterModule]: Initializing.
+    var pattern = /(\d{2}:\d{2}:\d{2}\s*-\s*\[)([\w\s!]*)(\]:*\s*)(.*)$/;
     elements = xml.getElementsByTagName('Line');
     if (elements) {
-      // 153:normal:19:18:39 - [MODULES]: [XmlRpcRouterModule]: Initializing.
-      var pattern = /(\d{2}:\d{2}:\d{2}\s*-\s*\[)([\w\s!]*)(\]:*\s*)(.*)$/;
       ScrollBottom.Save(console, messageArea);
       UpdateScrollback(elements.length);
       for (var i = 0; i < elements.length; ++i) {
         var lineNode = elements[i];
         lineNode.removeAttribute('Number');
+        //var lines = lineNode.firstChild.nodeValue.split('\n');
+        //var parts = lines.shift().split(':');
         var parts = lineNode.firstChild.nodeValue.split(':');
         parts.shift(); // discard line number
         var level = parts.shift();
@@ -227,6 +352,7 @@ function ReadResponses(console, xml, status) {
         }
         // Format line
         var matches = line.match(pattern);
+        //line = new Array();
         if (matches) {
           line = new Array();
           // Timestamp
@@ -242,6 +368,10 @@ function ReadResponses(console, xml, status) {
           line[3].setAttribute('class', level);
           line[3].appendChild(document.createTextNode(matches[4]));
         }
+        //if (lines.length)
+        //  UpdateScrollback(lines.length);
+        //for (var l in lines)
+        //  line.push(document.createTextNode(lines[l]));
         Output(MSG + " " + console.name, line, true);
       }
       ScrollBottom.Restore(console, messageArea);
@@ -342,6 +472,7 @@ function AjaxRequest(callback) {
   // Find and create an appropriate XMLHttpRequest object
   this.xhr = null;
   var xhrFactories = [
+    //function() { return new XDomainRequest(); },
     function() { return new XMLHttpRequest(); },
     function() { return new ActiveXObject('Msxml2.XMLHTTP'); }
   ];
@@ -354,7 +485,8 @@ function AjaxRequest(callback) {
   }
 }
 function AjaxSend(url, postData, callback, request) {
-  if (request)
+  var hasXDR = false; //(typeof(XDomainRequest) != "undefined");
+  if (request && !hasXDR)
     request.callback = callback;
   else
     request = new AjaxRequest(callback);
@@ -363,11 +495,20 @@ function AjaxSend(url, postData, callback, request) {
   var async = (request.callback) ? true : false;
   // Set up the request
   try {
-    request.xhr.open(method, url, async);
-    if (async)
-        request.xhr.onreadystatechange = function() { AjaxReceive(request); };
+    if (hasXDR) {
+      request.xhr.open(method, url);
+      request.xhr.onerror = function() {
+        Output(TRACE, "[AJAX:".concat(request.id, "] XDR error"));
+      };
+      request.xhr.onload = function() { AjaxReceiveXDR(request); };
+    }
+    else {
+      request.xhr.open(method, url, async);
+      if (async)
+          request.xhr.onreadystatechange = function() { AjaxReceive(request); };
+    }
     request.xhr.send(postData);
-    if (!async)
+    if (!async && !hasXDR)
       AjaxReceive(request);
     else 
       return request;
@@ -377,6 +518,18 @@ function AjaxSend(url, postData, callback, request) {
       throw e;
   }
   return null;
+}
+function AjaxReceiveXDR(request) {
+  // Parse XDR response and prepare request for generic AjaxReceive
+  Output(TRACE, "[AJAX:".concat(request.id, "] Parse XDR response"));
+  var xmlDoc = new ActiveXObject('Microsoft.XMLDOM');
+  xmlDoc.async = 'false';
+  xmlDoc.loadXML(request.xhr.responseText);
+  request.xhr.responseXML = xmlDoc;
+  request.xhr.readyState = 4;
+  request.xhr.status = 200;
+  request.xhr.statusText = "OK";
+  AjaxReceive(request);
 }
 function AjaxReceive(request) {
   if (request.xhr.readyState < 4) {

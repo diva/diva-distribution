@@ -10,6 +10,8 @@
             <input type="hidden" name="text" value="No connection">
             <input type="hidden" name="text" value="There are not any other active simulators.">
             <ul id="options">
+              <li onclick="CreateConsole()"> New console </li>
+              <li onclick="Disconnect()"> Close active console </li>
               <li><input type="checkbox" name="mono" value="enable" onclick="ChangedOption(this.name)" /> Use mono-space font </li>
               <li><input type="checkbox" name="trace" value="enable" onclick="ChangedOption(this.name)" checked="checked" /> Enable traces </li>
               <li><input type="checkbox" name="trace" value="hide" onclick="ChangedOption(this.name)" /> Hide traces </li>
@@ -34,8 +36,8 @@
             <p><input type="radio" name="simulator" value="address" />Simulator at <span>%address%</span> with region(s) </p>
           </div>
           <p>Service Host & Port: <input name="address" type="text" value="" /></p>
-          <p>Login Name (Test): <input name="user" type="text" value="" /></p>
-          <p>Password (secret): <input name="password" type="password" value="" /></p>
+          <p>Login Name: <input name="user" type="text" value="<!-- #call method=GetConsoleUser -->" /></p>
+          <p>Password: <input name="password" type="password" value="<!-- #call method=GetConsolePass -->" /></p>
           <input type="submit" value="Connect" class="button" />
         </form>
       </div>

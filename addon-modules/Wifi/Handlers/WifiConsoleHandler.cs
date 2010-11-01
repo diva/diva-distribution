@@ -72,9 +72,9 @@ namespace Diva.Wifi
 
                 string resource = GetParam(path);
                 //m_log.DebugFormat("[XXX]: resource {0}", resource);
-                if (resource.StartsWith("/data/console"))
+                if (resource.StartsWith("/data/simulators"))
                 {
-                    result = m_WebApp.Services.ConsoleDataRequest(env);
+                    result = m_WebApp.Services.ConsoleSimulatorsRequest(env);
                     httpResponse.ContentType = "application/xml";
                 }
                 else

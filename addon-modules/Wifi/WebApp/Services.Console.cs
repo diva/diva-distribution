@@ -26,6 +26,7 @@
  */
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 using OpenMetaverse;
 
@@ -52,16 +53,31 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        public string ConsoleDataRequest(Environment env)
+        public string ConsoleSimulatorsRequest(Environment env)
         {
-            m_log.Debug("[Wifi]: ConsoleDataRequest");
+            m_log.Debug("[Wifi]: ConsoleSimulatorsRequest");
             string result = string.Empty;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo) &&
                 (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
             {
-                // Create an XML document with the result data (console user and password)
+                // Retrieve addresses of simulators (and the regions running on them)
+                List<GridRegion> allRegions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
+                List<GridRegion> hyperlinks = m_GridService.GetHyperlinks(UUID.Zero);
+                IEnumerable<GridRegion> regions = allRegions.Except(hyperlinks);
+
+                NameValueCollection simulators = new NameValueCollection();
+                if (regions != null)
+                {
+                    foreach (GridRegion region in regions)
+                    {
+                        string address = region.ExternalHostName + ':' + region.HttpPort;
+                        simulators.Add(address, region.RegionName);
+                    }
+                }
+
+                // Create an XML document with the result data
                 XmlDocument xmldoc = new XmlDocument();
                 XmlNode xmlnode = xmldoc.CreateNode(XmlNodeType.XmlDeclaration, "", "");
                 xmldoc.AppendChild(xmlnode);
@@ -69,10 +85,25 @@ namespace Diva.Wifi
                 XmlElement rootElement = xmldoc.CreateElement("Wifi");
                 xmldoc.AppendChild(rootElement);
 
-                XmlElement consoleElement = xmldoc.CreateElement("Console");
-                consoleElement.SetAttribute("User", m_WebApp.ConsoleUser);
-                consoleElement.SetAttribute("Password", m_WebApp.ConsolePass);
-                rootElement.AppendChild(consoleElement);
+                XmlElement simulatorsElement = xmldoc.CreateElement("Simulators");
+                rootElement.AppendChild(simulatorsElement);
+
+                foreach (string address in simulators.AllKeys)
+                {
+                    XmlElement simElement = xmldoc.CreateElement("Simulator");
+                    simElement.SetAttribute("HostAddress", address);
+                    simulatorsElement.AppendChild(simElement);
+
+                    foreach (string regionName in simulators.GetValues(address))
+                    {
+                        XmlElement regionElement = xmldoc.CreateElement("Region");
+                        simElement.AppendChild(regionElement);
+
+                        XmlElement nameElement = xmldoc.CreateElement("Name");
+                        nameElement.AppendChild(xmldoc.CreateTextNode(regionName));
+                        regionElement.AppendChild(nameElement);
+                    }
+                }
 
                 result = xmldoc.InnerXml;
             }

@@ -309,6 +309,23 @@ namespace Diva.Wifi
             return "/wifi/images/abstract-cool.jpg";
         }
 
+        public string GetConsoleUser(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (sinfo.Account != null && sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                return m_WebApp.ConsoleUser;
+
+            return string.Empty;
+        }
+        public string GetConsolePass(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (sinfo.Account != null && sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                return m_WebApp.ConsolePass;
+
+            return string.Empty;
+        }
+
         public string GetHyperlinks(Environment env)
         {
             if (env.Data != null && env.Data.Count > 0)
