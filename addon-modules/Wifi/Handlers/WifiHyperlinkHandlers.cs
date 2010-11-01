@@ -63,7 +63,7 @@ namespace Diva.Wifi
             httpResponse.ContentType = "text/html";
 
             string resource = GetParam(path);
-            //m_log.DebugFormat("[XXX]: resource {0}", resource);
+            //m_log.DebugFormat("[HYPERLINK GET HANDLER]: resource {0}", resource);
             Request request = WifiUtils.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
@@ -133,7 +133,7 @@ namespace Diva.Wifi
                     // The client invoked /wifi/linkregion/add
                     string address = string.Empty;
                     uint xloc = 0, yloc = 0;
-                    if (postdata.ContainsKey("address") && WifiUtils.IsValidRegionAddress(postdata["address"].ToString()))
+                    if (postdata.ContainsKey("address"))
                         address = postdata["address"].ToString();
                     if (postdata.ContainsKey("xloc"))
                         UInt32.TryParse(postdata["xloc"].ToString(), out xloc);

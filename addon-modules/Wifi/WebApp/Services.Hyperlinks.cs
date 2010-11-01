@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) Marck. All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -24,13 +24,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
+
 using System.Collections.Generic;
 
 using OpenMetaverse;
 
 using OpenSim.Framework;
-using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 using OpenSim.Services.Interfaces;
+using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
 namespace Diva.Wifi
 {
@@ -60,33 +61,6 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        private List<object> GetHyperlinks(Environment env, UUID owner)
-        {
-            List<GridRegion> hyperlinks = m_GridService.GetHyperlinks(UUID.Zero);
-            List<RegionInfo> links = new List<RegionInfo>();
-            if (hyperlinks != null)
-            {
-                foreach(GridRegion region in hyperlinks)
-                {
-                    RegionInfo link = new RegionInfo(region);
-                    if (m_WebApp.HyperlinksShowAll ||
-                        (env.Flags & Flags.IsAdmin) != 0 ||
-                        (link.RegionOwnerID == owner) ||
-                        (link.RegionOwnerID == UUID.Zero))
-                    {
-                        if (link.RegionOwnerID != UUID.Zero)
-                        {
-                            UserAccount user = m_UserAccountService.GetUserAccount(UUID.Zero, link.RegionOwnerID);
-                            if (user != null)
-                                link.RegionOwner = user.Name;
-                        }
-                        links.Add(link);
-                    }
-                }
-            }
-            return Objectify<RegionInfo>(links);
-        }
-        
         public string HyperlinkAddRequest(Environment env, string address, uint xloc, uint yloc)
         {
             m_log.Debug("[Wifi]: HyperlinkAddRequest");
@@ -94,24 +68,36 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
+                env.Session = sinfo;
+                env.Flags = Flags.IsLoggedIn;
+                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                    env.Flags |= Flags.IsAdmin;
+
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel ||
                     sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
                 {
                     if (address != string.Empty)
                     {
-                        UUID owner = sinfo.Account.PrincipalID;
-                        if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
-                            owner = UUID.Zero;
-                        // Create hyperlink
-                        xloc = xloc * Constants.RegionSize;
-                        yloc = yloc * Constants.RegionSize;
-                        string reason = string.Empty;
-                        if (m_GridService.TryLinkRegionToCoords(UUID.Zero, address, xloc, yloc, owner, out reason) == null)
-                            m_log.Debug("[Wifi]: Failed to link region: " + reason);
+                        string reason;
+                        if (WifiUtils.IsValidRegionAddress(address))
+                        {
+                            UUID owner = sinfo.Account.PrincipalID;
+                            if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                                owner = UUID.Zero;
+                            // Create hyperlink
+                            xloc = xloc * Constants.RegionSize;
+                            yloc = yloc * Constants.RegionSize;
+                            if (m_GridService.TryLinkRegionToCoords(UUID.Zero, address, xloc, yloc, owner, out reason) == null)
+                                reason = "Failed to link region: " + reason;
+                            else
+                                reason = "Region link to " + address + " established. (If this link already existed, then it will remain at the original location.)";
+                        }
                         else
-                            m_log.Debug("[Wifi]: Hyperlink established");
+                            reason = "Invalid region address.";
+                        NotifyOK(env, reason, delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
-                    return HyperlinkGetRequest(env);
+                    else
+                        return HyperlinkGetRequest(env);
                 }
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
@@ -137,7 +123,9 @@ namespace Diva.Wifi
                         if (((env.Flags & Flags.IsAdmin) != 0) || (region.EstateOwner == sinfo.Account.PrincipalID))
                         {
                             RegionInfo link = new RegionInfo(region);
-                            UserAccount user = m_UserAccountService.GetUserAccount(UUID.Zero, region.EstateOwner);
+                            UserAccount user = sinfo.Account;
+                            if (region.EstateOwner != user.PrincipalID)
+                                user = m_UserAccountService.GetUserAccount(UUID.Zero, region.EstateOwner);
                             if (user != null)
                                 link.RegionOwner = user.Name;
                             List<object> loo = new List<object>();
@@ -145,8 +133,15 @@ namespace Diva.Wifi
                             env.State = State.HyperlinkDeleteForm;
                             env.Data = loo;
                         }
-                        else // Not allowed to delete this hyperlink
-                            return HyperlinkGetRequest(env);
+                        else
+                            m_log.WarnFormat("[Wifi]: Unauthorized attempt to delete hyperlink {0}:{1} ({2}) by {3} ({4})",
+                                region.ExternalHostName, region.HttpPort, region.RegionName, sinfo.Account.Name, sinfo.Account.PrincipalID);
+                    }
+                    else
+                    {
+                        m_log.WarnFormat("[Wifi]: Attempt to delete an inexistent region link for UUID {0} by {1} ({2})",
+                            regionID, sinfo.Account.Name, sinfo.Account.PrincipalID);
+                        NotifyOK(env, "Region link not found", delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
                 }
             }
@@ -160,6 +155,10 @@ namespace Diva.Wifi
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
+                env.Session = sinfo;
+                env.Flags = Flags.IsLoggedIn;
+                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                    env.Flags |= Flags.IsAdmin;
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel ||
                     sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
                 {
@@ -171,18 +170,53 @@ namespace Diva.Wifi
                             (region.EstateOwner == sinfo.Account.PrincipalID))
                         {
                             if (m_GridService.TryUnlinkRegion(region.RegionName))
-                                m_log.DebugFormat("[Wifi]: Deleted link to region {0}", region.RegionName);
+                                NotifyOK(env, "Deleted region link " + region.RegionName,
+                                    delegate(Environment e) { return HyperlinkGetRequest(e); });
+                            else
+                                NotifyOK(env, "Deletion of region link " + region.RegionName + " failed.",
+                                    delegate(Environment e) { return HyperlinkGetRequest(e); });
                         }
                         else
-                            m_log.WarnFormat("[Wifi]: Unauthorized attempt at deleteing link to region {0}", region.RegionName);
+                            m_log.WarnFormat("[Wifi]: Unauthorized attempt to delete hyperlink {0}:{1} ({2}) by {3} ({4})",
+                                region.ExternalHostName, region.HttpPort, region.RegionName, sinfo.Account.Name, sinfo.Account.PrincipalID);
                     }
                     else
-                        m_log.Debug("[Wifi]: Attempt at deleting an inexistent region link");
-                    return HyperlinkGetRequest(env);
+                    {
+                        m_log.WarnFormat("[Wifi]: Attempt to delete an inexistent region link for UUID {0} by {1} ({2})",
+                            regionID, sinfo.Account.Name, sinfo.Account.PrincipalID);
+                        NotifyOK(env, "Region link not found", delegate(Environment e) { return HyperlinkGetRequest(e); });
+                    }
                 }
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
+        }
+
+        private List<object> GetHyperlinks(Environment env, UUID owner)
+        {
+            List<GridRegion> hyperlinks = m_GridService.GetHyperlinks(UUID.Zero);
+            List<RegionInfo> links = new List<RegionInfo>();
+            if (hyperlinks != null)
+            {
+                foreach (GridRegion region in hyperlinks)
+                {
+                    RegionInfo link = new RegionInfo(region);
+                    if (m_WebApp.HyperlinksShowAll ||
+                        (env.Flags & Flags.IsAdmin) != 0 ||
+                        (link.RegionOwnerID == owner) ||
+                        (link.RegionOwnerID == UUID.Zero))
+                    {
+                        if (link.RegionOwnerID != UUID.Zero)
+                        {
+                            UserAccount user = m_UserAccountService.GetUserAccount(UUID.Zero, link.RegionOwnerID);
+                            if (user != null)
+                                link.RegionOwner = user.Name;
+                        }
+                        links.Add(link);
+                    }
+                }
+            }
+            return Objectify<RegionInfo>(links);
         }
     }
 }
