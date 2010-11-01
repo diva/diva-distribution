@@ -146,7 +146,7 @@ namespace Diva.Wifi
         public static string GetHyperlinkCommands(this RegionInfo region, IEnvironment env)
         {
             Environment env2 = (Environment)env;
-            if (env2.Session.Account.UserLevel < 100)
+            if (env2.Session.Account.UserLevel < WebApp.AdminUserLevel)
                 if ((env2.Flags & Flags.AllowHyperlinks) == 0 ||
                     (region.RegionOwnerID != env2.Session.Account.PrincipalID))
                     return "&nbsp;&nbsp;&nbsp;";

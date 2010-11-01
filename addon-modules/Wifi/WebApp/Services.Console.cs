@@ -40,7 +40,8 @@ namespace Diva.Wifi
         {
             m_log.DebugFormat("[Wifi]: ConsoleRequest");
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo) && (sinfo.Account.UserLevel >= 100))
+            if (TryGetSessionInfo(env.Request, out sinfo) &&
+                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
@@ -57,7 +58,8 @@ namespace Diva.Wifi
             string result = string.Empty;
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo) && (sinfo.Account.UserLevel >= 100))
+            if (TryGetSessionInfo(env.Request, out sinfo) &&
+                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
             {
                 // Create an XML document with the result data (console user and password)
                 XmlDocument xmldoc = new XmlDocument();

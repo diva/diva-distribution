@@ -249,7 +249,7 @@ namespace Diva.Wifi
             SessionInfo sinfo = env.Session;
             if (sinfo.Account != null)
             {
-                if (sinfo.Account.UserLevel >= 100) // Admin
+                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel) // Admin
                     return m_WebApp.ReadFile(env, "main-menu-admin.html");
 
                 return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);

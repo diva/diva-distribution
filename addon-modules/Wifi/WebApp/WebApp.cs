@@ -57,6 +57,12 @@ namespace Diva.Wifi
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;
 
+        private static readonly int m_AdminUserLevel = 100;
+        public static int AdminUserLevel
+        {
+            get { return m_AdminUserLevel; }
+        }
+
         private readonly string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
         public string DocsPath
         {

@@ -40,7 +40,7 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                if (sinfo.Account.UserLevel >= 100)
+                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin;
 
                 return sinfo.NotifyFollowUp(env);
