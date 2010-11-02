@@ -57,8 +57,8 @@ namespace Diva.Wifi
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;
 
-        private static readonly int m_AdminUserLevel = 100;
-        public static int AdminUserLevel
+        private readonly int m_AdminUserLevel = 100;
+        public int AdminUserLevel
         {
             get { return m_AdminUserLevel; }
         }

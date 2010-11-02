@@ -43,7 +43,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
@@ -64,7 +64,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 if (terms != string.Empty)
                 {
@@ -89,7 +89,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin ;
@@ -117,7 +117,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
@@ -153,7 +153,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
@@ -181,7 +181,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
@@ -241,7 +241,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
@@ -270,7 +270,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);

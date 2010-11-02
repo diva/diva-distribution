@@ -249,7 +249,7 @@ namespace Diva.Wifi
             SessionInfo sinfo = env.Session;
             if (sinfo.Account != null)
             {
-                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel) // Admin
+                if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) // Admin
                     return m_WebApp.ReadFile(env, "main-menu-admin.html");
 
                 return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);
@@ -312,7 +312,7 @@ namespace Diva.Wifi
         public string GetConsoleUser(Environment env)
         {
             SessionInfo sinfo = env.Session;
-            if (sinfo.Account != null && sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+            if (sinfo.Account != null && sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                 return m_WebApp.ConsoleUser;
 
             return string.Empty;
@@ -320,7 +320,7 @@ namespace Diva.Wifi
         public string GetConsolePass(Environment env)
         {
             SessionInfo sinfo = env.Session;
-            if (sinfo.Account != null && sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+            if (sinfo.Account != null && sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                 return m_WebApp.ConsolePass;
 
             return string.Empty;

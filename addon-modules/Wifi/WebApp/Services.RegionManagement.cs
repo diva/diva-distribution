@@ -64,7 +64,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
 
@@ -109,7 +109,7 @@ namespace Diva.Wifi
             SessionInfo sinfo;
 
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
 
@@ -159,7 +159,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
 
@@ -203,7 +203,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 List<GridRegion> regions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);
 

@@ -42,7 +42,7 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: ConsoleRequest");
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
@@ -60,7 +60,7 @@ namespace Diva.Wifi
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo) &&
-                (sinfo.Account.UserLevel >= WebApp.AdminUserLevel))
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 // Retrieve addresses of simulators (and the regions running on them)
                 List<GridRegion> allRegions = m_GridService.GetRegionsByName(UUID.Zero, "", 200);

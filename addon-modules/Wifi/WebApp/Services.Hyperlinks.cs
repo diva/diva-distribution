@@ -46,7 +46,7 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin & Flags.AllowHyperlinks;
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel)
                     env.Flags |= Flags.AllowHyperlinks;
@@ -70,11 +70,11 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin;
 
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel ||
-                    sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                    sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                 {
                     if (address != string.Empty)
                     {
@@ -82,7 +82,7 @@ namespace Diva.Wifi
                         if (WifiUtils.IsValidRegionAddress(address))
                         {
                             UUID owner = sinfo.Account.PrincipalID;
-                            if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                            if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                                 owner = UUID.Zero;
                             // Create hyperlink
                             xloc = xloc * Constants.RegionSize;
@@ -113,7 +113,7 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin;
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel || (env.Flags & Flags.IsAdmin) != 0)
                 {
@@ -157,16 +157,16 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                if (sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin;
                 if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel ||
-                    sinfo.Account.UserLevel >= WebApp.AdminUserLevel)
+                    sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                 {
                     // Try to delete hyperlink
                     GridRegion region = m_GridService.GetRegionByUUID(UUID.Zero, regionID);
                     if (region != null)
                     {
-                        if ((sinfo.Account.UserLevel >= WebApp.AdminUserLevel) ||
+                        if ((sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) ||
                             (region.EstateOwner == sinfo.Account.PrincipalID))
                         {
                             if (m_GridService.TryUnlinkRegion(region.RegionName))
