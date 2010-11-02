@@ -70,6 +70,7 @@ namespace Diva.Wifi
         private IAvatarService m_AvatarService;
 
         private string m_ServerAdminPassword;
+        private DateTime m_LastStatisticsUpdate;
 
         // Sessions
         //private Dictionary<string, SessionInfo> m_Sessions = new Dictionary<string, SessionInfo>();
@@ -83,6 +84,7 @@ namespace Diva.Wifi
 
             m_ServerAdminPassword = webApp.RemoteAdminPassword;
             //m_log.DebugFormat("[Services]: RemoteAdminPassword is {0}", m_ServerAdminPassword);
+            m_LastStatisticsUpdate = new DateTime();
 
             // Create the necessary services
             m_UserAccountService = new UserAccountService(config);
@@ -102,7 +104,6 @@ namespace Diva.Wifi
             else
                 m_Client.EnableSsl = true;
             m_Client.Credentials = new NetworkCredential(m_WebApp.SmtpUsername, m_WebApp.SmtpPassword);
-
         }
 
         private void CreateGod()
@@ -176,7 +177,7 @@ namespace Diva.Wifi
                 }
             }
         }
-        
+
         public bool TryGetSessionInfo(Request request, out SessionInfo sinfo)
         {
             bool success = false;
@@ -198,6 +199,34 @@ namespace Diva.Wifi
             }
 
             return success;
+        }
+
+        public void ComputeStatistics()
+        {
+            DateTime now = DateTime.Now;
+            if (now - m_LastStatisticsUpdate < m_WebApp.StatisticsUpdateInterval)
+                return;
+            m_LastStatisticsUpdate = now;
+
+            // Total users
+            List<object> accounts = GetActiveUserList(null, " ");
+            m_WebApp.Statistics["UsersTotal"] = accounts.Count;
+
+            // Users in world
+            uint inworldUsers = 0;
+            foreach (UserAccount account in accounts)
+            {
+                GridUserInfo user = m_GridUserService.GetGridUserInfo(account.PrincipalID.ToString());
+                if (user != null && user.Online)
+                    ++inworldUsers;
+            }
+            m_WebApp.Statistics["UsersInworld"] = inworldUsers;
+
+            // Total local regions
+            List<GridRegion> allRegions = m_GridService.GetRegionsByName(UUID.Zero, "", 99999);
+            List<GridRegion> hyperlinks = m_GridService.GetHyperlinks(UUID.Zero);
+            IEnumerable<GridRegion> regions = allRegions.Except(hyperlinks);
+            m_WebApp.Statistics["RegionsTotal"] = regions.Count();
         }
 
 

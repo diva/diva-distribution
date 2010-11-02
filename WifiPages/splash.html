@@ -5,49 +5,45 @@
     <link rel="shortcut icon" href="/wifi/images/favicon.ico" />
     <link rel="stylesheet" media="screen" type="text/css" href="/wifi/fluid.css" />
     <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-
   </head>
 
   <body>
     <div id="header">
       <!--#include file=header.html -->
     </div>
+
     <div id="page">  <!-- wraps and defines overall page width, centers it -->
-
       <div id="right-nav">  <!-- right side navigation, etc on page -->
-	<!--#call method=GetMainMenu --> 
-	<br />
+        <!--#call method=GetMainMenu --> 
+        <br />
 
-	<div class="right-nav-divider"></div>
-	<!--#call method=GetLoginLogout --> 
-	<br />
+        <div class="right-nav-divider"></div>
+        <!--#call method=GetLoginLogout --> 
+        <br />
 
-	<div class="right-nav-divider"></div>
-	<!--#include file=links.html --> 
-
+        <div class="right-nav-divider"></div>
+        <!--#include file=links.html --> 
       </div> <!-- end right side navigation -->
-	  
+
       <div id="content"> <!-- content area of page -->
-	<!--#include file=content-box.html --> 
-	<img src="/wifi/images/orange-planets-background.jpg" style="width:100%; max-width:400px;" />
+        <!--#include file=content-box.html --> 
+        <img src="/wifi/images/orange-planets-background.jpg" style="width:100%; max-width:400px;" />
+        <p class="white"><br />
+          Users&nbsp;in&nbsp;World:&nbsp;<!-- #get var=UsersInworld --> &emsp;
+          Regions:&nbsp;<!-- #get var=RegionsTotal --> &emsp;
+          Total&nbsp;Users:&nbsp;<!-- #get var=UsersTotal -->
+        </p>
       </div> <!-- end content area of page -->
     </div>
 
     <div id="footer">
       <div id="right-footer">
-	<div class="right-nav-divider"></div>
+      <div class="right-nav-divider"></div>
         <img class="logo" src="/wifi/images/diva.png">
             &nbsp;&nbsp;&nbsp;&nbsp;
             <a href="http://opensimulator.org"><img class="logo" src="/wifi/images/PoweredByOS.png"></a>
       </div>
       <!-- #include file=footer.html -->
-      <!--div id="footer-pad">
-        <p style="text-align:center">
-          <img src="/wifi/images/diva.png">
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <a href="http://opensimulator.org"><img src="/wifi/images/PoweredByOS.png"></a>
-        </p>
-      </div-->
     </div>
 
   </body>

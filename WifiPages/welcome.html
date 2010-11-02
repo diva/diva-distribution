@@ -3,27 +3,29 @@
   <head>
 	<title><!-- #get var=GridName --></title>
 	<link rel="stylesheet" media="screen" type="text/css" href="/wifi/fluid.css" />
-    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
   </head>
 
-
   <body>
-        <div id="header">
-          <p id="logo" class="textlogo">virtual <span class="white">world</span></p>
-          <p id="slogan"><!-- #get var=GridName--> </p>
-	</div>
-	<div id="page">  <!-- wraps and defines overall page width, centers it -->
+    <div id="header">
+      <p id="logo" class="textlogo">virtual <span class="white">world</span></p>
+      <p id="slogan"><!-- #get var=GridName--> </p>
+    </div>
 
-	  <div id="content"> <!-- content area of page -->
-
-		<p style="text-align:center"><img src="/wifi/images/orange-planets-background.jpg" style="width:400px"></p>
-		<p>&nbsp</p>
-		<p style="text-align:center">
-		  <img src="/wifi/images/PoweredByOS.png">
-		</p>
+    <div id="page">  <!-- wraps and defines overall page width, centers it -->
+      <div id="content"> <!-- content area of page -->
+        <p style="text-align:center"><img src="/wifi/images/orange-planets-background.jpg" style="width:400px"></p>
+        <p>
+          Users&nbsp;in&nbsp;World:&nbsp;<!-- #get var=UsersInworld --> &emsp;
+          Regions:&nbsp;<!-- #get var=RegionsTotal --> &emsp;
+          Total&nbsp;Users:&nbsp;<!-- #get var=UsersTotal -->
+        </p>
+        <p>&nbsp</p>
+        <p style="text-align:center">
+          <img src="/wifi/images/PoweredByOS.png">
+        </p>
 	  </div> <!-- end content area of page -->
-	  
 	</div>
+
   </body>
 </html>

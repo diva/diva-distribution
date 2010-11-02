@@ -103,6 +103,34 @@ namespace Diva.Wifi
             get { return OpenSim.Framework.Util.GetRuntimeInformation(); }
         }
 
+        public uint UsersInworld
+        {
+            get 
+            {
+                float value;
+                m_WebApp.Statistics.TryGetValue("UsersInworld", out value);
+                return (uint)value;
+            }
+        }
+        public uint UsersTotal
+        {
+            get
+            {
+                float value;
+                m_WebApp.Statistics.TryGetValue("UsersTotal", out value);
+                return (uint)value;
+            }
+        }
+        public uint RegionsTotal
+        {
+            get
+            {
+                float value;
+                m_WebApp.Statistics.TryGetValue("RegionsTotal", out value);
+                return (uint)value;
+            }
+        }
+        
         #endregion
 
         public WifiScriptFace(WebApp webApp)

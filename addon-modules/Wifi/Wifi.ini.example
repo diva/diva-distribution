@@ -12,7 +12,7 @@
 	GridName = "My World"
 	LoginURL = "http://localhost:8002"
 	WebAddress = "http://localhost:8002"
-	
+
 	;; The Wifi Administrator account
 	AdminFirst = "Admin"
 	AdminLast = "Admin"
@@ -20,6 +20,11 @@
 
 	;; Do you want to be able to control grid registrations?
 	AccountConfirmationRequired = false
+
+	;; Time interval in seconds for updating statistics data for variables like
+	;; UsersInworld, UsersTotal, and RegionsTotal.
+	;; Default value 0 disables data updates.
+	; StatisticsUpdateInterval = 60
 
 	;; Default avatars for new account registration
 	;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"
@@ -53,6 +58,3 @@
 
 [AuthenticationService]
 
-
-	
-	

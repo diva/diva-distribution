@@ -50,6 +50,8 @@ using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
+    using StatisticsDict = Dictionary<string, float>;
+
     public class WebApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -73,6 +75,12 @@ namespace Diva.Wifi
         public TimeSpan SessionTimeout
         {
             get { return m_SessionTimeout; }
+        }
+
+        private TimeSpan m_StatisticsUpdateInterval;
+        public TimeSpan StatisticsUpdateInterval
+        {
+            get { return m_StatisticsUpdateInterval; }
         }
 
         private Type m_ExtensionMethods;
@@ -199,6 +207,12 @@ namespace Diva.Wifi
             get { return m_ConsolePass; }
         }
 
+        private StatisticsDict m_Statistics;
+        public StatisticsDict Statistics
+        {
+            get { return m_Statistics; }
+        }
+
         #endregion
 
         public readonly Services Services;
@@ -207,7 +221,6 @@ namespace Diva.Wifi
 
         public WebApp(IConfigSource config, string configName, IHttpServer server)
         {
-
             ReadConfigs(config, configName);
 
             // Create the two parts
@@ -215,6 +228,7 @@ namespace Diva.Wifi
             WifiScriptFace = new WifiScriptFace(this);
 
             m_ExtensionMethods = typeof(ExtensionMethods);
+            m_Statistics = new StatisticsDict();
 
             WebAppInstance = this;
             WifiScriptFaceInstance = WifiScriptFace;
@@ -245,6 +259,8 @@ namespace Diva.Wifi
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
+
+            m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 0));
 
             // Read list of default avatars and their account names
             const string avatarParamPrefix = "AvatarAccount_";

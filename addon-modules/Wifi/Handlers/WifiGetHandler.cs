@@ -79,6 +79,9 @@ namespace Diva.Wifi
 
             if (resource == string.Empty || resource.StartsWith("index."))
             {
+                if (m_WebApp.StatisticsUpdateInterval != TimeSpan.Zero)
+                    m_WebApp.Services.ComputeStatistics();
+
                 httpResponse.ContentType = "text/html";
 
                 return WifiUtils.StringToBytes(m_WebApp.Services.DefaultRequest(env));
@@ -99,6 +102,9 @@ namespace Diva.Wifi
                 }
                 if (type.StartsWith("text"))
                 {
+                    if (m_WebApp.StatisticsUpdateInterval != TimeSpan.Zero)
+                        m_WebApp.Services.ComputeStatistics();
+
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
                     string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
                     if (res == string.Empty)
