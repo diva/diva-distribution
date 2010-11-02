@@ -65,7 +65,7 @@ namespace Diva.Wifi
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private InventoryService m_InventoryService;
-        private HypergridService m_GridService;
+        private GridService m_GridService;
         private IGridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
 
@@ -88,7 +88,7 @@ namespace Diva.Wifi
             m_UserAccountService = new UserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
-            m_GridService = new HypergridService(config);
+            m_GridService = new GridService(config);
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
 

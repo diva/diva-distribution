@@ -27,15 +27,14 @@
 
 using Nini.Config;
 using OpenMetaverse;
-using OpenSim.Services.GridService;
 using OpenSim.Services.Interfaces;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
-namespace Diva.Wifi
+namespace Diva.OpenSimServices
 {
-    public class HypergridService : GridService
+    public class GridService : OpenSim.Services.GridService.GridService, IGridService
     {
-        public HypergridService(IConfigSource config) : base(config) { }
+        public GridService(IConfigSource config) : base(config) { }
 
         public GridRegion TryLinkRegionToCoords(UUID scopeID, string address, uint xloc, uint yloc, UUID ownerID, out string reason)
         {
