@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <title>OpenSimulator Remote Console</title>
+    <link rel="stylesheet" media="screen" type="text/css" href="console.css" />
+    <style type="text/css">
+    /* <![CDATA[ */
+    body {
+      color:white;
+      background-color:#0F0F0F;
+    }
+    .inputstyle {
+      background:#090909;
+      border:1px solid #404040;
+      color:#FFF;
+      width:13em;
+      height:1.6em;
+      font-size:14px;
+      padding-top:0.35em;
+      padding-left:0.7em;
+      padding-right:0.7em;
+    }
+    #console #messages {
+      overflow:auto;
+    }
+    /* ]]> */
+    </style>
+    <script src="scripts/console.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      window.onload = DoOnload;
+      window.onunload = DoOnunload;
+    </script>
+  </head>
+  <body>
+    <h1>OpenSimulator Remote Console</h1>
+    <div id="noscript">This function requires JavaScript. Please enable JavaScript in your browser.</div>
+    <div id="console" style="display:none">
+    
+      <div id="tabulators">
+        <div class="cssmenu tab">
+          <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
+            <input type="hidden" name="debug" value="true">
+            <input type="hidden" name="text" value="No connection">
+            <input type="hidden" name="text" value="There are not any other active simulators.">
+            <ul id="options">
+              <li onclick="CreateConsole()"> New console </li>
+              <li onclick="Disconnect()"> Close active console </li>
+              <li><input type="checkbox" name="mono" value="enable" onclick="ChangedOption(this.name)" /> Use mono-space font </li>
+              <li><input type="checkbox" name="trace" value="enable" onclick="ChangedOption(this.name)" checked="checked" /> Enable traces </li>
+              <li><input type="checkbox" name="trace" value="hide" onclick="ChangedOption(this.name)" /> Hide traces </li>
+              <li><input type="text" name="bufsize" value="1000" size="4" onchange="ChangedOption(this.name)" /> Lines of scroll back buffer </li>
+              <li onclick="UpdateScrollback(99999)"> Clear all messages </li>
+            </ul>
+          </form>
+          <span class="symbol">&#x25A4;</span>
+        </div>
+        
+        <div id="rootconsole" class="tab" title="No status">
+          <span class="symbol"><!--&#x22A0;&nbsp;--></span>
+          <span>Console</span>&nbsp;
+          <span class="normal"><span class="symbol"><!--&#x25CF;-->&#x25C9;</span></span>
+        </div>
+      </div>
+
+      <div id="login">
+        <form name="credentials" onsubmit="Connect(); return false" action="#">
+          <div id="simulators">
+            <span>Please select a simulator:</span>
+            <p><input type="radio" name="simulator" value="address" />Simulator at <span>%address%</span> with region(s) </p>
+          </div>
+          <p>Service Host & Port: <input name="address" type="text" value="localhost:8002" /></p>
+          <p>Login Name (Test): <input name="user" type="text" value="" /></p>
+          <p>Password (secret): <input name="password" type="password" value="" /></p>
+          <input type="submit" value="Connect" class="button" />
+        </form>
+      </div>
+    
+      <div id="messages"></div>
+
+      <div id="command">
+        <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">
+          <div id="prompt">Prompt</div>
+          <!--input id="prompt" type="text" value="Prompt" readonly="readonly" class="inputstyle" /-->
+          <div class="inputstyle cmdinput">
+            <input name="command" type="text" value="Command" class="inputstyle" />
+          </div>
+          <input type="submit" value="Send" class="button" />
+          <input type="button" value="Disconnect" onclick="Disconnect()" class="button" />
+        </form>
+      </div>
+      
+    </div>
+  </body>
+</html>
