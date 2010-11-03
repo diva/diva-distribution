@@ -66,7 +66,7 @@ namespace Diva.Wifi
         private PasswordAuthenticationService m_AuthenticationService;
         private InventoryService m_InventoryService;
         private GridService m_GridService;
-        private IGridUserService m_GridUserService;
+        private GridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
 
         private string m_ServerAdminPassword;
@@ -203,6 +203,11 @@ namespace Diva.Wifi
 
         public void ComputeStatistics()
         {
+            // Users in world
+            List<GridUserInfo> onlines = m_GridUserService.GetOnlineUsers();
+            m_WebApp.Statistics["UsersInworld"] = onlines.Count;
+            
+            // For the other stats, let's check less often
             DateTime now = DateTime.Now;
             if (now - m_LastStatisticsUpdate < m_WebApp.StatisticsUpdateInterval)
                 return;
@@ -211,16 +216,6 @@ namespace Diva.Wifi
             // Total users
             List<object> accounts = GetActiveUserList(null, " ");
             m_WebApp.Statistics["UsersTotal"] = accounts.Count;
-
-            // Users in world
-            uint inworldUsers = 0;
-            foreach (UserAccount account in accounts)
-            {
-                GridUserInfo user = m_GridUserService.GetGridUserInfo(account.PrincipalID.ToString());
-                if (user != null && user.Online)
-                    ++inworldUsers;
-            }
-            m_WebApp.Statistics["UsersInworld"] = inworldUsers;
 
             // Total local regions
             List<GridRegion> allRegions = m_GridService.GetRegionsByName(UUID.Zero, "", 99999);

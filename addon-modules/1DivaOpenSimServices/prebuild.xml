@@ -25,6 +25,7 @@
 
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>
+  <Reference name="OpenSim.Data.MySQL"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Services.Interfaces"/>
@@ -32,6 +33,8 @@
   <Reference name="OpenSim.Services.AuthenticationService"/>
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.GridService"/>
+
+  <Reference name="Diva.Data.MySQL"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

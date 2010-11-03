@@ -58,3 +58,5 @@
 
 [AuthenticationService]
 
+[GridUserService]
+    StorageProvider = "Diva.Data.MySQL.dll"

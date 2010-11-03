@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Nini.Config;
+using OpenSim.Framework;
 using OpenSim.Data;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.UserAccountService;
@@ -40,12 +41,48 @@ namespace Diva.OpenSimServices
 {
     public class GridUserService : OpenSim.Services.UserAccountService.GridUserService, IGridUserService
     {
-        //private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public GridUserService(IConfigSource config)
             : base(config)
         {
         }
 
+        public List<GridUserInfo> GetOnlineUsers()
+        {
+            List<GridUserInfo> onlineList = new List<GridUserInfo>();
+            try
+            {
+                GridUserData[] onlines = ((Diva.Data.MySQL.MySQLGridUserData)m_Database).GetOnlineUsers();
+                foreach (GridUserData d in onlines)
+                    onlineList.Add(ToGridUserInfo(d));
+
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat("[DivaData]: Invalid cast for GridUser store. Diva.Data.MySQL required for method GetOnlineUsers.");
+            }
+
+            return onlineList;
+        }
+
+        protected GridUserInfo ToGridUserInfo(GridUserData d)
+        {
+            GridUserInfo info = new GridUserInfo();
+            info.UserID = d.UserID;
+            info.HomeRegionID = new UUID(d.Data["HomeRegionID"]);
+            info.HomePosition = Vector3.Parse(d.Data["HomePosition"]);
+            info.HomeLookAt = Vector3.Parse(d.Data["HomeLookAt"]);
+
+            info.LastRegionID = new UUID(d.Data["LastRegionID"]);
+            info.LastPosition = Vector3.Parse(d.Data["LastPosition"]);
+            info.LastLookAt = Vector3.Parse(d.Data["LastLookAt"]);
+
+            info.Online = bool.Parse(d.Data["Online"]);
+            info.Login = Util.ToDateTime(Convert.ToInt32(d.Data["Login"]));
+            info.Logout = Util.ToDateTime(Convert.ToInt32(d.Data["Logout"]));
+
+            return info;
+        }
     }
 }
