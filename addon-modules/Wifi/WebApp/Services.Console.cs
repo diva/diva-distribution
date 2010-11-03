@@ -53,6 +53,20 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
+        public string ConsoleHeartbeat(Environment env)
+        {
+            m_log.DebugFormat("[Wifi]: ConsoleHeartbeat");
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(env.Request, out sinfo) &&
+                (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
+            {
+                // Reset session timer
+                m_Sessions.Update(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
+            }
+
+            return string.Empty;
+        }
+
         public string ConsoleSimulatorsRequest(Environment env)
         {
             m_log.Debug("[Wifi]: ConsoleSimulatorsRequest");

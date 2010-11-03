@@ -75,7 +75,10 @@ function DoOnload() {
   // With Wifi, we have all data ready and can connect immediately
   document.forms[NAME.CREDENTIALS].address.value = location.host;
   if (document.forms[NAME.CREDENTIALS].user.value && document.forms[NAME.CREDENTIALS].password.value) {
-    wifi = true;
+    wifi = {
+      HEARTBEAT_THRESHOLD:60, // No. of ReadResponses requests before a heartbeat is sent
+      heartbeatCounter:0
+    };
     var buttons = document.getElementById(ID.COMMAND).getElementsByTagName('input');
     buttons[buttons.length-1].style.display = 'none';
     buttons[buttons.length-2].style.display = 'none';
@@ -386,6 +389,12 @@ function ReadResponses(console, xml, status) {
     catch (e) {
       NoConnection(console);
     }          
+  }
+  if (wifi && (++wifi.heartbeatCounter >= wifi.HEARTBEAT_THRESHOLD)) {
+    // Keep session active
+    wifi.heartbeatCounter = 0;
+    Output(TRACE, "[ReadResponses:".concat(console.name, "] Wifi Heartbeat"));
+    void AjaxSend(location.protocol.concat('//', location.host, location.pathname, 'heartbeat/', location.search), null, new Function() );
   }
 }
 function Command(console, command) {

@@ -77,6 +77,11 @@ namespace Diva.Wifi
                     result = m_WebApp.Services.ConsoleSimulatorsRequest(env);
                     httpResponse.ContentType = "application/xml";
                 }
+                else if (resource.StartsWith("/heartbeat"))
+                {
+                    result = m_WebApp.Services.ConsoleHeartbeat(env);
+                    httpResponse.ContentType = "application/xml";
+                }
                 else
                 {
                     result = m_WebApp.Services.ConsoleRequest(env);
