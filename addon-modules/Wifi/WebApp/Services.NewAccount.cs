@@ -155,7 +155,8 @@ namespace Diva.Wifi
 
             // Get and replicate the attachments
             // and put them in a folder named after the avatar type under Clothing
-            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, defaultAvatar.PrettyType);
+            string folderName = "Default Avatar " + defaultAvatar.PrettyType;
+            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, folderName.Trim());
 
             if (defaultFolderID != UUID.Zero)
             {
@@ -176,7 +177,7 @@ namespace Diva.Wifi
                 m_AvatarService.SetAvatar(newUser, avatar);
             }
             else
-                m_log.DebugFormat("[Wifi]: could not create {0} folder", defaultAvatar.PrettyType);
+                m_log.Debug("[Wifi]: could not create folder " + folderName);
 
             // Set home and last location for new account
             // Config setting takes precedence over home location of default avatar
