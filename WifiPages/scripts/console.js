@@ -390,12 +390,13 @@ function ReadResponses(console, xml, status) {
       NoConnection(console);
     }          
   }
-  if (wifi && (++wifi.heartbeatCounter >= wifi.HEARTBEAT_THRESHOLD)) {
-    // Keep session active
-    wifi.heartbeatCounter = 0;
-    Output(TRACE, "[ReadResponses:".concat(console.name, "] Wifi Heartbeat"));
-    void AjaxSend(location.protocol.concat('//', location.host, location.pathname, 'heartbeat/', location.search), null, new Function() );
-  }
+  if (wifi && (console.name == ID.DEFAULT_CONSOLE))
+    if (++wifi.heartbeatCounter >= wifi.HEARTBEAT_THRESHOLD) {
+      // Keep session active
+      wifi.heartbeatCounter = 0;
+      Output(TRACE, "[ReadResponses:".concat(console.name, "] Wifi Heartbeat"));
+      void AjaxSend(location.protocol.concat('//', location.host, location.pathname, 'heartbeat/', location.search));
+    }
 }
 function Command(console, command) {
   command = command.replace(/\s*$/, '');
@@ -556,7 +557,8 @@ function AjaxReceive(request) {
     statusText = NO_CONNECTION;
   if (request.xhr.status != 200) // HTTP error
     Output(TRACE, "[AJAX:".concat(request.id, "] HTTP status ", request.xhr.status, ": ", statusText));
-  request.callback(request.xhr.responseXML, new XMLHttpStatus(request.xhr.status, statusText));
+  if (request.callback)
+    request.callback(request.xhr.responseXML, new XMLHttpStatus(request.xhr.status, statusText));
 }
 
 // Auxiliary functions
