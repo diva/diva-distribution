@@ -148,8 +148,6 @@ namespace Diva.Wifi
 
             if (env.State == State.InstallForm)
                 return m_WebApp.ReadFile(env, "installform.html");
-            if (env.State == State.InstallFormResponse)
-                return "Your Wifi has been installed. The administrator account is " + m_WebApp.AdminFirst + " " + m_WebApp.AdminLast;
 
             if (env.State == State.ForgotPassword)
                 return m_WebApp.ReadFile(env, "forgotpasswordform.html");

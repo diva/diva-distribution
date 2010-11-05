@@ -96,7 +96,6 @@ namespace Diva.Wifi
     {
         Default = 0,
         InstallForm = 1,
-        InstallFormResponse = 2,
         UserAccountForm = 5,
         UserAccountFormResponse = 6,
         NewAccountForm = 7,
