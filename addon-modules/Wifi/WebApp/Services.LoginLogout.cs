@@ -48,35 +48,32 @@ namespace Diva.Wifi
             Request request = env.Request;
             string encpass = OpenSim.Framework.Util.Md5Hash(password);
 
+            string notification;
+            string authtoken = null;
             UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
-            if (account == null)
+            if (account != null)
+                authtoken = m_AuthenticationService.Authenticate(account.PrincipalID, encpass, 30);
+            if (string.IsNullOrEmpty(authtoken))
+                notification = "Login failed.";
+            else
             {
-                env.State = State.FailedLogin;
-                return m_WebApp.ReadFile(env, "index.html");
+                // Successful login
+                SessionInfo sinfo;
+                sinfo.IpAddress = request.IPEndPoint.Address.ToString();
+                sinfo.Sid = authtoken;
+                sinfo.Account = account;
+                sinfo.NotifyFollowUp = null;
+                m_Sessions.Add(authtoken, sinfo, m_WebApp.SessionTimeout);
+                env.Request.Query["sid"] = authtoken;
+                env.Session = sinfo;
+
+                List<object> loo = new List<object>();
+                loo.Add(account);
+                env.Data = loo;
+                env.Flags = Flags.IsLoggedIn;
+                notification = "Welcome to " + m_WebApp.GridName + "!";
             }
-
-            string authtoken = m_AuthenticationService.Authenticate(account.PrincipalID, encpass, 30);
-            if (authtoken == string.Empty)
-            {
-                env.State = State.FailedLogin;
-                return m_WebApp.ReadFile(env, "index.html");
-            }
-
-            // Successful login
-            SessionInfo sinfo;
-            sinfo.IpAddress = request.IPEndPoint.Address.ToString();
-            sinfo.Sid = authtoken;
-            sinfo.Account = account;
-            sinfo.NotifyFollowUp = null;
-            m_Sessions.Add(authtoken, sinfo, m_WebApp.SessionTimeout);
-            env.Request.Query["sid"] = authtoken;
-            env.Session = sinfo;
-
-            List<object> loo = new List<object>();
-            loo.Add(account);
-            env.Data = loo;
-            env.Flags = Flags.IsLoggedIn;
-            env.State = State.SuccessfulLogin;
+            NotifyWithoutButton(env, notification);
             return PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
         }
 

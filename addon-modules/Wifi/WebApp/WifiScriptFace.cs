@@ -162,11 +162,6 @@ namespace Diva.Wifi
             if (env.State == State.BadPassword)
                 return "<p>The password must be at least 3 characters.</p>";
 
-            if (env.State == State.FailedLogin)
-                return "Login failed";
-            if (env.State == State.SuccessfulLogin)
-                return "Welcome to " + m_WebApp.GridName + "!";
-
             if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
                 return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
 

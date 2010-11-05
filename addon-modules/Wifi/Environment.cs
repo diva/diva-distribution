@@ -97,8 +97,6 @@ namespace Diva.Wifi
         Default = 0,
         InstallForm = 1,
         InstallFormResponse = 2,
-        FailedLogin = 3,
-        SuccessfulLogin = 4,
         UserAccountForm = 5,
         UserAccountFormResponse = 6,
         NewAccountForm = 7,
