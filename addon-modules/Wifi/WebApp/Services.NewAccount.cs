@@ -75,7 +75,7 @@ namespace Diva.Wifi
                     if (m_WebApp.AccountConfirmationRequired)
                     {
                         //attach pending identifier to first name
-                        first = "*pending* " + first;
+                        first = m_PendingIdentifier + first;
                         // Store the password temporarily here
                         urls["Password"] = password;
                         urls["Avatar"] = avatarType;

@@ -59,6 +59,8 @@ namespace Diva.Wifi
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        private const string m_PendingIdentifier = "*pending* ";
+
         private WebApp m_WebApp;
         private SmtpClient m_Client;
 
@@ -302,7 +304,7 @@ namespace Diva.Wifi
             List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
             if (accounts != null)
             {
-                IEnumerable<UserAccount> nonPending = accounts.Where(user => !user.FirstName.StartsWith("*pending*"));
+                IEnumerable<UserAccount> nonPending = accounts.Where(user => !user.FirstName.StartsWith(m_PendingIdentifier));
                 return Objectify<UserAccount>(nonPending);
             }
             return new List<object>();

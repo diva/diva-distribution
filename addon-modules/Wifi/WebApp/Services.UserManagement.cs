@@ -48,7 +48,7 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                 env.State = State.UserSearchForm;
-                env.Data = GetUserList(env, "*pending*");
+                env.Data = GetUserList(env, m_PendingIdentifier);
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
@@ -190,7 +190,7 @@ namespace Diva.Wifi
                 if (account != null)
                 {
                     //remove pending identifier in name
-                    account.FirstName = account.FirstName.Replace("*pending* ", "");
+                    account.FirstName = account.FirstName.Replace(m_PendingIdentifier, "");
 
                     //set serviceURLs back to normal
                     string password = (string)account.ServiceURLs["Password"];
