@@ -355,12 +355,6 @@ namespace Diva.Wifi
         public ServiceCall NotifyFollowUp;
     }
 
-    public class Notification
-    {
-        public string Message;
-        public string ButtonText;
-    }
-
     public class Avatar
     {
         public static string DefaultType;

@@ -49,22 +49,19 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        private void NotifyWithoutButton(Environment env, string message)
+        public void NotifyWithoutButton(Environment env, string message)
         {
             Notify(env, message, string.Empty, null);
         }
-        private void NotifyOK(Environment env, string message, ServiceCall followUp)
+        public void NotifyOK(Environment env, string message, ServiceCall followUp)
         {
             Notify(env, message, "OK", followUp);
         }
 
-        private void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
+        public void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
         {
-            Notification note = new Notification();
-            note.Message = message;
-            note.ButtonText = buttonText;
             env.Data = new List<object>();
-            env.Data.Add(note);
+            env.Data.Add(new Notification(message, buttonText));
             env.State = State.Notification;
             SessionInfo sinfo = env.Session;
             if (sinfo.Sid != null && m_Sessions.Contains(sinfo.Sid))
@@ -72,6 +69,18 @@ namespace Diva.Wifi
                 sinfo.NotifyFollowUp = followUp;
                 m_Sessions.Update(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
                 env.Session = sinfo;
+            }
+        }
+
+        class Notification
+        {
+            public string Message;
+            public string ButtonText;
+
+            public Notification(string message, string button)
+            {
+                Message = message;
+                ButtonText = button;
             }
         }
     }
