@@ -102,7 +102,7 @@ namespace Diva.Wifi
                 if (updated)
                 {
                     env.Flags = Flags.IsLoggedIn;
-                    env.State = State.UserAccountFormResponse;
+                    NotifyWithoutButton(env, "Your account has been updated.");
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", sinfo.Account.Name);
                     return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }

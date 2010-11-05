@@ -166,8 +166,6 @@ namespace Diva.Wifi
             {
                 if (env.State == State.UserAccountForm)
                     return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
-                if (env.State == State.UserAccountFormResponse)
-                    return "Your account has been updated.";
 
                 if (env.State == State.UserSearchForm)
                     return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
