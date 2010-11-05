@@ -35,6 +35,10 @@ p.textlogo {
   color:#FFF;
 }
 
+.nowrap {
+  white-space:nowrap;
+}
+
 #slogan {
   text-align:left;
   padding-left:9em;
