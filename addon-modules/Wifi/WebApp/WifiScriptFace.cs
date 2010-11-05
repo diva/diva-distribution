@@ -169,13 +169,6 @@ namespace Diva.Wifi
 
             if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
                 return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
-            if (env.State == State.NewAccountFormResponse)
-            {
-                if (m_WebApp.AccountConfirmationRequired)
-                    return "Your account awaits administrator approval.";
-
-                return "Your account has been created.";
-            }
 
             if (env.State == State.Notification)
                 return m_WebApp.ReadFile(env, "notification.html", env.Data);

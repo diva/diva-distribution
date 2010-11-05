@@ -102,7 +102,6 @@ namespace Diva.Wifi
         UserAccountForm = 5,
         UserAccountFormResponse = 6,
         NewAccountForm = 7,
-        NewAccountFormResponse = 8,
         UserSearchForm = 9,
         UserSearchFormResponse = 10,
         UserEditForm = 11,

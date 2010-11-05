@@ -49,10 +49,15 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
+        private void NotifyWithoutButton(Environment env, string message)
+        {
+            Notify(env, message, string.Empty, null);
+        }
         private void NotifyOK(Environment env, string message, ServiceCall followUp)
         {
             Notify(env, message, "OK", followUp);
         }
+
         private void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
         {
             Notification note = new Notification();

@@ -88,6 +88,7 @@ namespace Diva.Wifi
 
                     m_UserAccountService.StoreUserAccount(account);
 
+                    string notification = "Your account has been created.";
                     if (!m_WebApp.AccountConfirmationRequired)
                     {
                         // Create the inventory
@@ -105,9 +106,10 @@ namespace Diva.Wifi
                         message += " is waiting your approval.";
                         message += "\n\n" + m_WebApp.WebAddress + "/wifi";
                         SendEMail(m_WebApp.AdminEmail, "Account waiting approval", message);
+                        notification = "Your account awaits administrator approval.";
                     }
 
-                    env.State = State.NewAccountFormResponse;
+                    NotifyWithoutButton(env, notification);
                     m_log.DebugFormat("[Wifi]: Created account for user {0}", account.Name);
                 }
                 else
