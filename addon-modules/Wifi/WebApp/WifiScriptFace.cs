@@ -174,16 +174,9 @@ namespace Diva.Wifi
 
                 if (env.State == State.UserEditForm)
                     return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
-                if (env.State == State.UserEditFormResponse)
-                    return "The account has been updated.";
                 
                 if (env.State == State.UserDeleteForm)
                     return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
-                if (env.State == State.UserDeleteFormResponse)
-                    return "The account has been deleted.";
-
-                if (env.State == State.UserActivateResponse)
-                    return "The account has been activated.";
 
                 if (env.State == State.HyperlinkList)
                     return GetHyperlinks(env);
@@ -330,6 +323,16 @@ namespace Diva.Wifi
             SessionInfo sinfo = env.Session;
             if (sinfo.Account != null && sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                 return m_WebApp.ConsolePass;
+
+            return string.Empty;
+        }
+
+        public string GetPendingUserList(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (env.Data != null && env.Data.Count > 0 &&
+                sinfo.Account != null && sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
+                return m_WebApp.ReadFile(env, "userpendinglist.html", env.Data);
 
             return string.Empty;
         }

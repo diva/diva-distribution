@@ -133,7 +133,7 @@ namespace Diva.Wifi
                     m_UserAccountService.StoreUserAccount(account);
 
                     env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
-                    env.State = State.UserEditFormResponse;
+                    NotifyWithoutButton(env, "The account has been updated.");
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
@@ -148,7 +148,7 @@ namespace Diva.Wifi
 
         public string UserEditPostRequest(Environment env, UUID userID, string password)
         {
-            m_log.DebugFormat("[Wifi]: UserEditPostRequest (passord) {0}", userID);
+            m_log.DebugFormat("[Wifi]: UserEditPostRequest (password) {0}", userID);
             Request request = env.Request;
 
             SessionInfo sinfo;
@@ -162,7 +162,7 @@ namespace Diva.Wifi
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
-                    env.State = State.UserEditFormResponse;
+                    NotifyWithoutButton(env, "The account has been updated.");
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
@@ -185,7 +185,7 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
-                env.State = State.UserActivateResponse;
+                NotifyWithoutButton(env, "The account has been activated.");
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
@@ -281,7 +281,7 @@ namespace Diva.Wifi
                     m_InventoryService.DeleteUserInventory(userID);
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
-                    env.State = State.UserDeleteFormResponse ;
+                    NotifyWithoutButton(env, "The account has been deleted.");
                     m_log.DebugFormat("[Wifi]: Deleted account for user {0}", account.Name);
                 }
                 else
