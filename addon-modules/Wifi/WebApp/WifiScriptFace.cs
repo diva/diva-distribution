@@ -151,14 +151,10 @@ namespace Diva.Wifi
 
             if (env.State == State.ForgotPassword)
                 return m_WebApp.ReadFile(env, "forgotpasswordform.html");
-            if (env.State == State.PasswordRecoveryMessageSent)
-                return "<p>Check your email. You must reset your password within 60 minutes.</p>";
             if (env.State == State.RecoveringPassword)
                 return m_WebApp.ReadFile(env, "recoveringpassword.html");
-            if (env.State == State.PasswordRecovered)
-                return "<p>Your password has been reset.</p>";
-            if (env.State == State.BadPassword)
-                return "<p>The password must be at least 3 characters.</p>";
+            //if (env.State == State.BadPassword)
+            //    return "<p>The password must be at least 3 characters.</p>";
 
             if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
                 return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);

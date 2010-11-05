@@ -91,7 +91,7 @@ namespace Diva.Wifi
                         m_log.DebugFormat("[Wifi]: Problem sending email: {0}", e.InnerException);
                     }
 
-                    env.State = State.PasswordRecoveryMessageSent;
+                    NotifyWithoutButton(env, "Check your email. You must reset your password within 60 minutes.");
 
                     return m_WebApp.ReadFile(env, "index.html");
                 }
@@ -127,7 +127,7 @@ namespace Diva.Wifi
             }
 
             ResetPassword(email, token, newPassword);
-            env.State = State.PasswordRecovered;
+            NotifyWithoutButton(env, "Your password has been reset.");
 
             return m_WebApp.ReadFile(env, "index.html");
         }
