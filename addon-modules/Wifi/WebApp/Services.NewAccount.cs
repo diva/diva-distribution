@@ -65,8 +65,9 @@ namespace Diva.Wifi
             {
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, first, last);
                 if (account == null)
+                    account = m_UserAccountService.GetUserAccount(UUID.Zero, m_PendingIdentifier + first, last);
+                if (account == null)
                 {
-
                     Dictionary<string, object> urls = new Dictionary<string, object>();
                     urls["HomeURI"] = m_WebApp.LoginURL.ToString();
                     urls["InventoryServerURI"] = m_WebApp.LoginURL.ToString();
@@ -113,7 +114,11 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Created account for user {0}", account.Name);
                 }
                 else
+                {
                     m_log.DebugFormat("[Wifi]: Attempt at creating an account that already exists");
+                    env.State = State.NewAccountForm;
+                    env.Data = GetDefaultAvatarSelectionList();
+                }
             }
             else
             {
