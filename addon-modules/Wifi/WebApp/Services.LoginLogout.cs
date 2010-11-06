@@ -62,7 +62,7 @@ namespace Diva.Wifi
                 sinfo.IpAddress = request.IPEndPoint.Address.ToString();
                 sinfo.Sid = authtoken;
                 sinfo.Account = account;
-                sinfo.NotifyFollowUp = null;
+                sinfo.Notify = new NotificationData();
                 m_Sessions.Add(authtoken, sinfo, m_WebApp.SessionTimeout);
                 env.Request.Query["sid"] = authtoken;
                 env.Session = sinfo;

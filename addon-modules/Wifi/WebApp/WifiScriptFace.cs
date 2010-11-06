@@ -192,9 +192,6 @@ namespace Diva.Wifi
                 if (env.State == State.RegionManagementUnsuccessful)
                     return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
 
-                if (env.State == State.InventoryListLoad)
-                    return string.Format("Loading your inventory, please wait <img src=\"/wifi/images/loader.gif\" /><p>If your browser does not load the next page, then force it by following <a href=\"/wifi/user/inventory/?sid={0}\">this link</a>, please.</p>", env.Session.Sid);
-
                 if (env.State == State.InventoryListForm)
                 //{
                 //    string invListStr = string.Empty;
@@ -225,18 +222,21 @@ namespace Diva.Wifi
 
         public string GetRefresh(Environment env)
         {
-            string refresh = "<meta http-equiv=\"refresh\" content=\"{0}; URL={1}/?sid={2}\" />";
+            const string redirect = "<meta http-equiv=\"refresh\" content=\"{0}; URL={1}/?sid={2}\" />";
 
-            if (env.State == State.InventoryListLoad)
-                return string.Format(refresh, 0, "/wifi/user/inventory", env.Session.Sid);
-
+            if (env.State == State.Notification)
+            {
+                SessionInfo sinfo = env.Session;
+                if (sinfo.Sid != null && sinfo.Notify.RedirectDelay >= 0)
+                    return string.Format(redirect, sinfo.Notify.RedirectDelay, sinfo.Notify.RedirectUrl, sinfo.Sid);
+            }
             return string.Empty;
         }
 
         public string GetNotificationType(Environment env)
         {
             SessionInfo sinfo = env.Session;
-            if (sinfo.NotifyFollowUp == null)
+            if (sinfo.Notify.FollowUp == null)
                 return "hidden";
 
             return "submit";

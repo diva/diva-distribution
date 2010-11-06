@@ -43,7 +43,7 @@ namespace Diva.Wifi
                 if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)
                     env.Flags |= Flags.IsAdmin;
 
-                return sinfo.NotifyFollowUp(env);
+                return sinfo.Notify.FollowUp(env);
             }
             m_log.Debug("[Wifi]: No session info with NotifyRequest");
             return m_WebApp.ReadFile(env, "index.html");
@@ -57,8 +57,12 @@ namespace Diva.Wifi
         {
             Notify(env, message, "OK", followUp);
         }
-
         public void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
+        {
+            NotifyWithRedirect(env, message, buttonText, -1, string.Empty, followUp);
+        }
+        public void NotifyWithRedirect(Environment env, string message, string buttonText,
+            int redirectSeconds, string redirectUrl, ServiceCall followUp)
         {
             env.Data = new List<object>();
             env.Data.Add(new Notification(message, buttonText));
@@ -66,10 +70,21 @@ namespace Diva.Wifi
             SessionInfo sinfo = env.Session;
             if (sinfo.Sid != null && m_Sessions.Contains(sinfo.Sid))
             {
-                sinfo.NotifyFollowUp = followUp;
+                sinfo.Notify.FollowUp = followUp;
+                sinfo.Notify.RedirectUrl = redirectUrl; // used in WifiScriptFace.GetRefresh()
+                sinfo.Notify.RedirectDelay = redirectSeconds;
                 m_Sessions.Update(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
                 env.Session = sinfo;
             }
+        }
+
+        public delegate string ServiceCall(Environment env);
+
+        public struct NotificationData
+        {
+            public ServiceCall FollowUp;
+            public string RedirectUrl;
+            public int RedirectDelay;
         }
 
         class Notification

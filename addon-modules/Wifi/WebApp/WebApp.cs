@@ -345,14 +345,12 @@ namespace Diva.Wifi
         #endregion
     }
 
-    public delegate string ServiceCall(Environment env);
-
     public struct SessionInfo
     {
         public string Sid;
         public string IpAddress;
         public UserAccount Account;
-        public ServiceCall NotifyFollowUp;
+        public Services.NotificationData Notify;
     }
 
     public class Avatar

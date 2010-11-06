@@ -47,7 +47,11 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
-                env.State = State.InventoryListLoad;
+
+                const string message = "Loading your inventory, please wait <img src=\"/wifi/images/loader.gif\" /><p>If your browser does not automatically load the next page, then use the button, please.</p>";
+                NotifyWithRedirect(env, message, "continue", 0, "/wifi/user/inventory",
+                    delegate(Environment e) { return InventoryGetRequest(e); });
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
         }
