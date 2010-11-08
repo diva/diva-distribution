@@ -51,10 +51,8 @@ namespace Diva.Wifi
                 env.Data = GetUserList(env, m_PendingIdentifier);
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
+            
+            return m_WebApp.ReadFile(env, "index.html");
         }
 
         public string UserSearchPostRequest(Environment env, string terms)
@@ -104,10 +102,8 @@ namespace Diva.Wifi
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
+            
+            return m_WebApp.ReadFile(env, "index.html");
         }
 
         public string UserEditPostRequest(Environment env, UUID userID, string first, string last, string email, int level, int flags, string title)
@@ -137,7 +133,10 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
+                {
+                    NotifyWithoutButton(env, "The account does not exist.");
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
+                }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
@@ -167,7 +166,10 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
+                {
+                    NotifyWithoutButton(env, "The account does not exist.");
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
+                }
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
@@ -231,10 +233,8 @@ namespace Diva.Wifi
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
+
+            return m_WebApp.ReadFile(env, "index.html");
         }
 
         public string UserDeleteGetRequest(Environment env, UUID userID)
@@ -259,10 +259,8 @@ namespace Diva.Wifi
 
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
-            else
-            {
-                return m_WebApp.ReadFile(env, "index.html");
-            }
+
+            return m_WebApp.ReadFile(env, "index.html");
         }
 
 
@@ -288,11 +286,15 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Deleted account for user {0}", account.Name);
                 }
                 else
+                {
+                    NotifyWithoutButton(env, "Unable to delete account because it does not exist.");
                     m_log.DebugFormat("[Wifi]: Attempt at deleting an inexistent account");
+                }
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
-            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
-
+            return m_WebApp.ReadFile(env, "index.html");
         }
     }
 }
