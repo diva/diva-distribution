@@ -155,6 +155,7 @@ namespace Diva.Wifi
             if (TryGetSessionInfo(request, out sinfo) &&
                 (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
+                env.Session = sinfo;
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
@@ -167,6 +168,8 @@ namespace Diva.Wifi
                 }
                 else
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
+
+                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
