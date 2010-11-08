@@ -1,0 +1,29 @@
+<!-- Diva.Data.SQLite -->
+<Project frameworkVersion="v3_5" name="Diva.Data.SQLite" path="addon-modules/0Data/SQLite" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../../bin/</ReferencePath>
+  <Reference name="System"/>
+  <Reference name="System.Core"/>
+
+  <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Data"/>
+  <Reference name="OpenSim.Data.SQLite"/>
+
+  <Reference name="Diva.Data"/>
+
+  <Files>
+    <Match pattern="*.cs" recurse="true">
+      <Exclude pattern="Tests" />
+    </Match>
+  </Files>
+</Project>

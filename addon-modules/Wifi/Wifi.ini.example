@@ -59,4 +59,7 @@
 [AuthenticationService]
 
 [GridUserService]
+    ;; MySQL
     StorageProvider = "Diva.Data.MySQL.dll"
+    ;; SQLite
+    ;StorageProvider = "Diva.Data.SQLite.dll"

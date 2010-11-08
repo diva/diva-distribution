@@ -1,6 +1,5 @@
-/*
- * Copyright (c) Contributors, http://opensimulator.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
+﻿/*
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,25 +24,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 using OpenSim.Data;
-using OpenSim.Data.MySQL;
 
-namespace Diva.Data.MySQL
+namespace Diva.Data
 {
-    public class MySQLGridUserData : OpenSim.Data.MySQL.MySQLGridUserData, IGridUserData
+    public interface IGridUserData : OpenSim.Data.IGridUserData
     {
-        public MySQLGridUserData(string connectionString, string realm)
-                : base(connectionString, realm)
-        {
-        }
-
-        public GridUserData[] GetOnlineUsers()
-        {
-            return Get("Online", true.ToString());
-        }
+        GridUserData[] GetOnlineUsers();
     }
 }

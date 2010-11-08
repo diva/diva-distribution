@@ -27,15 +27,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using log4net;
 using Nini.Config;
-using OpenSim.Framework;
-using OpenSim.Data;
-using OpenSim.Services.Interfaces;
-using OpenSim.Services.UserAccountService;
-using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
 using OpenMetaverse;
-using log4net;
+using OpenSim.Data;
+using OpenSim.Framework;
+using OpenSim.Services.Interfaces;
 
 namespace Diva.OpenSimServices
 {
@@ -53,14 +51,14 @@ namespace Diva.OpenSimServices
             List<GridUserInfo> onlineList = new List<GridUserInfo>();
             try
             {
-                GridUserData[] onlines = ((Diva.Data.MySQL.MySQLGridUserData)m_Database).GetOnlineUsers();
+                GridUserData[] onlines = ((Diva.Data.IGridUserData)m_Database).GetOnlineUsers();
                 foreach (GridUserData d in onlines)
                     onlineList.Add(ToGridUserInfo(d));
 
             }
             catch (InvalidCastException)
             {
-                m_log.WarnFormat("[DivaData]: Invalid cast for GridUser store. Diva.Data.MySQL required for method GetOnlineUsers.");
+                m_log.WarnFormat("[DivaData]: Invalid cast for GridUser store. Diva.Data required for method GetOnlineUsers.");
             }
 
             return onlineList;

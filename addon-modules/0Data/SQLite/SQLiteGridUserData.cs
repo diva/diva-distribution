@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -30,16 +29,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 using OpenSim.Data;
-using OpenSim.Data.MySQL;
 
-namespace Diva.Data.MySQL
+namespace Diva.Data.SQLite
 {
-    public class MySQLGridUserData : OpenSim.Data.MySQL.MySQLGridUserData, IGridUserData
+    public class SQLiteGridUserData : OpenSim.Data.SQLite.SQLiteGridUserData, IGridUserData
     {
-        public MySQLGridUserData(string connectionString, string realm)
-                : base(connectionString, realm)
-        {
-        }
+        public SQLiteGridUserData(string connectionString, string realm) 
+            : base(connectionString, realm) {}
 
         public GridUserData[] GetOnlineUsers()
         {

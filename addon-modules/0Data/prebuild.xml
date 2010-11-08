@@ -1,35 +1,24 @@
-<!-- Diva.Data.MySql -->
-<Project frameworkVersion="v3_5" name="Diva.Data.MySQL" path="addon-modules/0Data/MySQL" type="Library">
+<!-- Diva.Data -->
+<Project frameworkVersion="v3_5" name="Diva.Data" path="addon-modules/0Data" type="Library">
   <Configuration name="Debug">
     <Options>
-      <OutputPath>../../../bin/</OutputPath>
+      <OutputPath>../../bin/</OutputPath>
     </Options>
   </Configuration>
   <Configuration name="Release">
     <Options>
-      <OutputPath>../../../bin/</OutputPath>
+      <OutputPath>../../bin/</OutputPath>
     </Options>
   </Configuration>
 
-  <ReferencePath>../../../bin/</ReferencePath>
+  <ReferencePath>../../bin/</ReferencePath>
   <Reference name="System"/>
   <Reference name="System.Core"/>
-  <Reference name="System.Web"/>
-  <Reference name="System.Xml"/>
-
-  <Reference name="Nini.dll"/>
-  <Reference name="Mono.Addins.dll"/>
-  <Reference name="log4net.dll"/>
-  <Reference name="OpenMetaverse.dll"/>
-  <Reference name="OpenMetaverseTypes.dll"/>
-
-  <Reference name="OpenSim.Framework"/>
+  
   <Reference name="OpenSim.Data"/>
-  <Reference name="OpenSim.Data.MySQL"/>
-  <Reference name="OpenSim.Region.Framework"/>
 
   <Files>
-    <Match pattern="*.cs" recurse="true">
+    <Match pattern="*.cs" recurse="false">
       <Exclude pattern="Tests" />
     </Match>
   </Files>

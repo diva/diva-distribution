@@ -1,17 +1,17 @@
-<!-- Diva.WifiUserAccountService -->
-<Project frameworkVersion="v3_5" name="Diva.OpenSimServices" path="addon-modules/1DivaOpenSimServices" type="Library">
+<!-- Diva.Data.MySql -->
+<Project frameworkVersion="v3_5" name="Diva.Data.MySQL" path="addon-modules/0Data/MySQL" type="Library">
   <Configuration name="Debug">
     <Options>
-      <OutputPath>../../bin/</OutputPath>
+      <OutputPath>../../../bin/</OutputPath>
     </Options>
   </Configuration>
   <Configuration name="Release">
     <Options>
-      <OutputPath>../../bin/</OutputPath>
+      <OutputPath>../../../bin/</OutputPath>
     </Options>
   </Configuration>
 
-  <ReferencePath>../../bin/</ReferencePath>
+  <ReferencePath>../../../bin/</ReferencePath>
   <Reference name="System"/>
   <Reference name="System.Core"/>
   <Reference name="System.Web"/>
@@ -25,13 +25,8 @@
 
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>
-  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-  <Reference name="OpenSim.Services.Base"/>
-  <Reference name="OpenSim.Services.Interfaces"/>
-  <Reference name="OpenSim.Services.UserAccountService"/>
-  <Reference name="OpenSim.Services.AuthenticationService"/>
-  <Reference name="OpenSim.Services.InventoryService"/>
-  <Reference name="OpenSim.Services.GridService"/>
+  <Reference name="OpenSim.Data.MySQL"/>
+  <Reference name="OpenSim.Region.Framework"/>
 
   <Reference name="Diva.Data"/>
 
