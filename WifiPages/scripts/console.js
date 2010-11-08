@@ -26,8 +26,7 @@ var loginAreaRule;
 var outputAreaRule;
 // Global variables
 var wifi = false;
-var settings = null; // Ref to settings form
-var messageArea = null;
+var element = new Object(); // References to frequently used elements
 var consoles = new Object();
 var activeConsole;
 var simulatorNode;
@@ -44,18 +43,25 @@ function DoOnload() {
   loginAreaRule = AddCSSRule(CSSINDEX, '#console #login');
   loginAreaRule.style.display = 'none';
   logMessageRule = AddCSSRule(CSSINDEX, '#console #messages .' + TRACE);
+  // Set up element references
+  element.TABULATORS = document.getElementById(ID.TABULATORS);
+  element.SETTINGS = document.forms[NAME.SETTINGS];
+  element.OPTIONS = document.getElementById(ID.OPTIONS);
+  element.CREDENTIALS = document.forms[NAME.CREDENTIALS];
+  element.DEFAULT_CONSOLE = document.getElementById(ID.DEFAULT_CONSOLE);
+  element.MESSAGES = document.getElementById(ID.MESSAGES);
   // Define the default console that connects to the Wifi server
   activeConsole = new Console(ID.DEFAULT_CONSOLE);
   activeConsole.rule = AddCSSRule(CSSINDEX, '#console #messages .' + ID.DEFAULT_CONSOLE);
   activeConsole.rule.style.display = 'block';
   consoles[activeConsole.name] = activeConsole;
   consoles.count = 1;
-  document.getElementById(ID.DEFAULT_CONSOLE).getElementsByTagName('span')[0].style.display = 'none';
-  document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'none';
+  element.DEFAULT_CONSOLE.getElementsByTagName('span')[0].style.display = 'none';
+  element.OPTIONS.getElementsByTagName('li')[1].style.display = 'none';
   document.getElementById(ID.LOGIN).getElementsByTagName('div')[0].style.display = 'none';
   //document.getElementById(ID.SIMULATORS).style.display = 'none';
   // Amend event handlers of some menu options
-  var options = document.getElementById(ID.OPTIONS).getElementsByTagName('li');
+  var options = element.OPTIONS.getElementsByTagName('li');
   options[2].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.MONOSPACE)[0]);
   options[3].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[0]);
   options[4].onclick = AmendCheckboxOptionEvent(document.getElementsByName(NAME.TRACING)[1]);
@@ -66,15 +72,13 @@ function DoOnload() {
   );
   // Initialize other globals
   NO_CONNECTION = document.getElementsByName(NAME.TEXT)[0].value;
-  settings = document.forms[NAME.SETTINGS];
-  messageArea = document.getElementById(ID.MESSAGES);
-  DebugMode(settings[NAME.DEBUG].value);
+  DebugMode(element.SETTINGS[NAME.DEBUG].value);
   // Get default parameters from form
   ChangedOption(NAME.TRACING);
   ChangedOption(NAME.MONOSPACE);
   // With Wifi, we have all data ready and can connect immediately
-  document.forms[NAME.CREDENTIALS].address.value = location.host;
-  if (document.forms[NAME.CREDENTIALS].user.value && document.forms[NAME.CREDENTIALS].password.value) {
+  element.CREDENTIALS.address.value = location.host;
+  if (element.CREDENTIALS.user.value && element.CREDENTIALS.password.value) {
     wifi = {
       HEARTBEAT_THRESHOLD:60, // No. of ReadResponses requests before a heartbeat is sent
       heartbeatCounter:0
@@ -109,21 +113,21 @@ function Console(identifier) {
 }
 
 function Connect() {
-  var address = document.forms[NAME.CREDENTIALS].address.value;
+  var address = element.CREDENTIALS.address.value;
   if (!address) {
     if (simulators.length > 1) {
-      for (var i = 0; i < document.forms[NAME.CREDENTIALS].simulator.length; ++i)
-        if (document.forms[NAME.CREDENTIALS].simulator[i].checked) {
-          address = document.forms[NAME.CREDENTIALS].simulator[i].value;
+      for (var i = 0; i < element.CREDENTIALS.simulator.length; ++i)
+        if (element.CREDENTIALS.simulator[i].checked) {
+          address = element.CREDENTIALS.simulator[i].value;
           break;
         }
     }
     else
-      address = document.forms[NAME.CREDENTIALS].simulator.value;
+      address = element.CREDENTIALS.simulator.value;
   }
   activeConsole.serviceURL = "http://" + address;
-  activeConsole.user = document.forms[NAME.CREDENTIALS].user.value;
-  activeConsole.password = document.forms[NAME.CREDENTIALS].password.value;
+  activeConsole.user = element.CREDENTIALS.user.value;
+  activeConsole.password = element.CREDENTIALS.password.value;
   StartSession(activeConsole);
 }
 function CreateConsole() {
@@ -136,7 +140,7 @@ function CreateConsole() {
   console.rule = AddCSSRule(CSSINDEX, '#console #messages .' + name);
   console.rule.style.display = 'none'; // hide messages for now
   // New tab (clone from default)
-  var node = document.getElementById(ID.DEFAULT_CONSOLE).cloneNode(true);
+  var node = element.DEFAULT_CONSOLE.cloneNode(true);
   node.setAttribute('id', name);
   var children = node.getElementsByTagName('span');
   //children[0].style.cursor = 'pointer';
@@ -144,7 +148,7 @@ function CreateConsole() {
   
   children[1].firstChild.data = "New\xA0Console";
   children[2].setAttribute('class', 'normal');
-  document.getElementById(ID.TABULATORS).appendChild(node);
+  element.TABULATORS.appendChild(node);
   // Make new console the current one
   ToggleTab(activeConsole, false);
   ToggleTab(console, true);
@@ -163,7 +167,7 @@ function Disconnect() {
   if (console.name != ID.DEFAULT_CONSOLE) {
     // Remove tab
     var tab = document.getElementById(console.name);
-    document.getElementById(ID.TABULATORS).removeChild(tab);
+    element.TABULATORS.removeChild(tab);
   }
 }
 function SwitchConsole(name) {
@@ -184,7 +188,7 @@ function ToggleTab(console, active) {
     styleClass = styleClass.replace(/\s*inactive/, '');
     tab.onclick = null;
     if (console.name != ID.DEFAULT_CONSOLE) {
-      document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'block';
+      element.OPTIONS.getElementsByTagName('li')[1].style.display = 'block';
       /*
       // Show close button
       tab.getElementsByTagName('span')[0].style.display = 'inline';
@@ -194,7 +198,7 @@ function ToggleTab(console, active) {
     }
   }
   else {
-    ScrollBottom.Save(console, messageArea);
+    ScrollBottom.Save(console, element.MESSAGES);
     styleClass += ' inactive';
     /*
     tab.getElementsByTagName('span')[0].style.display = 'none'; // hide close button
@@ -202,7 +206,7 @@ function ToggleTab(console, active) {
     */
     tab.onclick = new Function('SwitchConsole("' + console.name + '")');
     if (console.name != ID.DEFAULT_CONSOLE) {
-      document.getElementById(ID.OPTIONS).getElementsByTagName('li')[1].style.display = 'none';
+      element.OPTIONS.getElementsByTagName('li')[1].style.display = 'none';
     }
   }
   tab.setAttribute('class', styleClass);
@@ -210,10 +214,10 @@ function ToggleTab(console, active) {
 function ToggleConsole(visible) {
   loginAreaRule.style.display = (visible ? 'none' : 'block');
   outputAreaRule.style.display = (visible ? 'block' : 'none');
-  messageArea.style.display = (visible ? 'block' : 'none');
+  element.MESSAGES.style.display = (visible ? 'block' : 'none');
   if (visible) {
     activeConsole.rule.style.display = 'block';
-    ScrollBottom.Restore(activeConsole, messageArea);
+    ScrollBottom.Restore(activeConsole, element.MESSAGES);
   }
 }
 
@@ -260,15 +264,15 @@ function SelectSimulator() {
           option.appendChild(document.createTextNode(" " + regions.join(", ") + "."));
           chooser.appendChild(option);
           // Prepare credentials
-          document.forms[NAME.CREDENTIALS].address.value = '';
-          document.forms[NAME.CREDENTIALS].user.value = consoles[ID.DEFAULT_CONSOLE].user;
-          document.forms[NAME.CREDENTIALS].password.value = consoles[ID.DEFAULT_CONSOLE].password;
+          element.CREDENTIALS.address.value = '';
+          element.CREDENTIALS.user.value = consoles[ID.DEFAULT_CONSOLE].user;
+          element.CREDENTIALS.password.value = consoles[ID.DEFAULT_CONSOLE].password;
          }
         chooser.style.display = 'block';
       }
       else {
         Disconnect();
-        alert(settings[NAME.TEXT][1].value);
+        alert(element.SETTINGS[NAME.TEXT][1].value);
       }
     }
   );
@@ -334,7 +338,7 @@ function ReadResponses(console, xml, status) {
     var pattern = /(\d{2}:\d{2}:\d{2}\s*-\s*\[)([\w\s!]*)(\]:*\s*)(.*)$/;
     elements = xml.getElementsByTagName('Line');
     if (elements) {
-      ScrollBottom.Save(console, messageArea);
+      ScrollBottom.Save(console, element.MESSAGES);
       UpdateScrollback(elements.length);
       for (var i = 0; i < elements.length; ++i) {
         var lineNode = elements[i];
@@ -377,7 +381,7 @@ function ReadResponses(console, xml, status) {
         //  line.push(document.createTextNode(lines[l]));
         Output(MSG + " " + console.name, line, true);
       }
-      ScrollBottom.Restore(console, messageArea);
+      ScrollBottom.Restore(console, element.MESSAGES);
     }
   }
   if (console.sessionId) {
@@ -451,24 +455,24 @@ function SetPrompt(console, newPrompt) {
 function ChangedOption(name) {
   if (NAME.MONOSPACE == name) {
     // Use monospace or proportional font
-    if (settings[name].checked)
-      messageArea.setAttribute('class', 'monospace');
+    if (element.SETTINGS[name].checked)
+      element.MESSAGES.setAttribute('class', 'monospace');
     else
-      messageArea.removeAttribute('class');
+      element.MESSAGES.removeAttribute('class');
   }
   else if (NAME.TRACING == name) {
     // Hide or show trace message elements
-    ScrollBottom.Save(activeConsole, messageArea);
-    logMessageRule.style.display = (settings[name][1].checked ? 'none' : 'block');
-    ScrollBottom.Restore(activeConsole, messageArea);
+    ScrollBottom.Save(activeConsole, element.MESSAGES);
+    logMessageRule.style.display = (element.SETTINGS[name][1].checked ? 'none' : 'block');
+    ScrollBottom.Restore(activeConsole, element.MESSAGES);
   }
   else if (NAME.BUFSIZE == name)
     UpdateScrollback();
 }
 function UpdateScrollback(addLines) {
-  var excessLines = messageArea.childNodes.length + (addLines ? addLines : 0) - settings.bufsize.value;
-  while (excessLines-- > 0 && messageArea.childNodes.length)
-    messageArea.removeChild(messageArea.firstChild);
+  var excessLines = element.MESSAGES.childNodes.length + (addLines ? addLines : 0) - element.SETTINGS.bufsize.value;
+  while (excessLines-- > 0 && element.MESSAGES.childNodes.length)
+    element.MESSAGES.removeChild(element.MESSAGES.firstChild);
 }
 
 // AJAX functions
@@ -514,6 +518,7 @@ function AjaxSend(url, postData, callback, request) {
     }
     else {
       request.xhr.open(method, url, async);
+      //request.xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); // This forces a preflight request
       if (async)
           request.xhr.onreadystatechange = function() { AjaxReceive(request); };
     }
@@ -563,23 +568,23 @@ function AjaxReceive(request) {
 
 // Auxiliary functions
 function Output(cssClass, logObj, noBufferMaintenance) {
-  if (cssClass == TRACE && !settings.trace[0].checked)
+  if (cssClass == TRACE && !element.SETTINGS.trace[0].checked)
     return;
-  var element = document.createElement('div');
-  element.setAttribute('class', cssClass);
+  var elem = document.createElement('div');
+  elem.setAttribute('class', cssClass);
   if (typeof(logObj) == 'string')
-    element.appendChild(document.createTextNode(logObj));
+    elem.appendChild(document.createTextNode(logObj));
   else { // assume an array with nodes
     for (var i = 0; i < logObj.length; ++i)
-      element.appendChild(logObj[i]);
+      elem.appendChild(logObj[i]);
   }
   if (!noBufferMaintenance) {
-    ScrollBottom.Save(activeConsole, messageArea);
+    ScrollBottom.Save(activeConsole, element.MESSAGES);
     UpdateScrollback(1);
   }
-  messageArea.appendChild(element);
+  element.MESSAGES.appendChild(elem);
   if (!noBufferMaintenance)
-    ScrollBottom.Restore(activeConsole, messageArea);
+    ScrollBottom.Restore(activeConsole, element.MESSAGES);
 }
 function AddCSSRule(styleSheetIndex, ruleName) {
   if (styleSheetIndex < 0)
