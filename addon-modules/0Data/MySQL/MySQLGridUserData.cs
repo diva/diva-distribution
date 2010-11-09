@@ -31,19 +31,28 @@ using System.Collections.Generic;
 
 using OpenSim.Data;
 using OpenSim.Data.MySQL;
+using MySql.Data.MySqlClient;
 
 namespace Diva.Data.MySQL
 {
     public class MySQLGridUserData : OpenSim.Data.MySQL.MySQLGridUserData, IGridUserData
     {
+        private MySQLGenericTableHandler<GridUserData> m_DatabaseHandler;
+
         public MySQLGridUserData(string connectionString, string realm)
                 : base(connectionString, realm)
         {
+            m_DatabaseHandler = new MySQLGenericTableHandler<GridUserData>(connectionString, realm, "GridUserStore");
         }
 
         public GridUserData[] GetOnlineUsers()
         {
-            return Get("Online", true.ToString());
+            return m_DatabaseHandler.Get("Online", true.ToString());
+        }
+
+        public long GetOnlineUserCount()
+        {
+            return m_DatabaseHandler.GetCount("Online", true.ToString());
         }
     }
 }

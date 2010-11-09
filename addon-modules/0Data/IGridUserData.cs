@@ -31,5 +31,6 @@ namespace Diva.Data
     public interface IGridUserData : OpenSim.Data.IGridUserData
     {
         GridUserData[] GetOnlineUsers();
+        long GetOnlineUserCount();
     }
 }

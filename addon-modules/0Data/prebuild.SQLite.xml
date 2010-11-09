@@ -14,6 +14,9 @@
   <ReferencePath>../../../bin/</ReferencePath>
   <Reference name="System"/>
   <Reference name="System.Core"/>
+  <Reference name="System.Data"/>
+
+  <Reference name="Mono.Data.Sqlite"/>
 
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>

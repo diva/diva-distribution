@@ -206,8 +206,7 @@ namespace Diva.Wifi
         public void ComputeStatistics()
         {
             // Users in world
-            List<GridUserInfo> onlines = m_GridUserService.GetOnlineUsers();
-            m_WebApp.Statistics["UsersInworld"] = onlines.Count;
+            m_WebApp.Statistics["UsersInworld"] = m_GridUserService.GetOnlineUserCount();
             
             // For the other stats, let's check less often
             DateTime now = DateTime.Now;

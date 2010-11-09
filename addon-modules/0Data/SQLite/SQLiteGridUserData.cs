@@ -34,12 +34,22 @@ namespace Diva.Data.SQLite
 {
     public class SQLiteGridUserData : OpenSim.Data.SQLite.SQLiteGridUserData, IGridUserData
     {
+        private SQLiteGenericTableHandler<GridUserData> m_DatabaseHandler;
+        
         public SQLiteGridUserData(string connectionString, string realm) 
-            : base(connectionString, realm) {}
+            : base(connectionString, realm)
+        {
+            m_DatabaseHandler = new SQLiteGenericTableHandler<GridUserData>(connectionString, realm, "GridUserStore");
+        }
 
         public GridUserData[] GetOnlineUsers()
         {
-            return Get("Online", true.ToString());
+            return m_DatabaseHandler.Get("Online", true.ToString());
+        }
+
+        public long GetOnlineUserCount()
+        {
+            return m_DatabaseHandler.GetCount("Online", true.ToString());
         }
     }
 }

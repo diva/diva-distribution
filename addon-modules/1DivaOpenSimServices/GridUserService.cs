@@ -40,6 +40,7 @@ namespace Diva.OpenSimServices
     public class GridUserService : OpenSim.Services.UserAccountService.GridUserService, IGridUserService
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string m_CastWarning = "[DivaData]: Invalid cast for GridUser store. Diva.Data required for method {0}.";
 
         public GridUserService(IConfigSource config)
             : base(config)
@@ -58,10 +59,24 @@ namespace Diva.OpenSimServices
             }
             catch (InvalidCastException)
             {
-                m_log.WarnFormat("[DivaData]: Invalid cast for GridUser store. Diva.Data required for method GetOnlineUsers.");
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
             }
 
             return onlineList;
+        }
+
+        public long GetOnlineUserCount()
+        {
+            try
+            {
+                return ((Diva.Data.IGridUserData)m_Database).GetOnlineUserCount();
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
+
+            return 0;
         }
 
         protected GridUserInfo ToGridUserInfo(GridUserData d)
