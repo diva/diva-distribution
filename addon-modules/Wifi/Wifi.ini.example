@@ -55,11 +55,13 @@
 	SmtpPassword = "your_password_in_this_mail_server"
 
 [UserAccountService]
+	StorageProvider = "Diva.Data.MySQL.dll"
 
 [AuthenticationService]
 
 [GridUserService]
-    ;; MySQL
-    StorageProvider = "Diva.Data.MySQL.dll"
-    ;; SQLite
-    ;StorageProvider = "Diva.Data.SQLite.dll"
+	StorageProvider = "Diva.Data.MySQL.dll"
+
+;; To use Wifi with SQLite, put WifiSQLite.ini in directory bin/config-include/storage
+;; (Robust.exe will not read any includes.)
+Include-WifiSQLite = config-include/storage/WifiSQLite.ini

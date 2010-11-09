@@ -17,6 +17,7 @@
   <Reference name="System.Data"/>
 
   <Reference name="Mono.Data.Sqlite"/>
+  <Reference name="OpenMetaverseTypes.dll"/>
 
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>

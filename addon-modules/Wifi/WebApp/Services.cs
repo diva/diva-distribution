@@ -215,8 +215,7 @@ namespace Diva.Wifi
             m_LastStatisticsUpdate = now;
 
             // Total users
-            List<object> accounts = GetActiveUserList(null, " ");
-            m_WebApp.Statistics["UsersTotal"] = accounts.Count;
+            m_WebApp.Statistics["UsersTotal"] = m_UserAccountService.GetActiveAccountsCount(UUID.Zero, m_PendingIdentifier);
 
             // Total local regions
             List<GridRegion> allRegions = m_GridService.GetRegionsByName(UUID.Zero, "", 99999);
@@ -296,17 +295,6 @@ namespace Diva.Wifi
                 return new List<object>();
             }
 
-        }
-
-        private List<object> GetActiveUserList(Environment env, string terms)
-        {
-            List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
-            if (accounts != null)
-            {
-                IEnumerable<UserAccount> nonPending = accounts.Where(user => !user.FirstName.StartsWith(m_PendingIdentifier));
-                return Objectify<UserAccount>(nonPending);
-            }
-            return new List<object>();
         }
 
         private List<object> GetDefaultAvatarSelectionList()

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) Contributors, http://opensimulator.org/
- * See CONTRIBUTORS.TXT for a full list of copyright holders.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,23 +27,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
+
+using Mono.Data.Sqlite;
 
 using OpenMetaverse;
 using OpenSim.Data;
-using OpenSim.Data.MySQL;
-using MySql.Data.MySqlClient;
 
-namespace Diva.Data.MySQL
+namespace Diva.Data.SQLite
 {
-    public class MySQLUserAccountData : OpenSim.Data.MySQL.MySqlUserAccountData, IUserAccountData
+    public class SQLiteUserAccountData : OpenSim.Data.SQLite.SQLiteUserAccountData, IUserAccountData
     {
-        private MySQLGenericTableHandler<UserAccountData> m_DatabaseHandler;
+        private SQLiteGenericTableHandler<UserAccountData> m_DatabaseHandler;
 
-        public MySQLUserAccountData(string connectionString, string realm)
-                : base(connectionString, realm)
+        public SQLiteUserAccountData(string connectionString, string realm) 
+            : base(connectionString, realm)
         {
-            m_DatabaseHandler = new MySQLGenericTableHandler<UserAccountData>(connectionString, realm, "UserAccount");
+            m_DatabaseHandler = new SQLiteGenericTableHandler<UserAccountData>(connectionString, realm, "UserAccount");
         }
 
         public UserAccountData[] GetActiveAccounts(UUID scopeID, string query, string excludeTerm)
@@ -67,23 +65,18 @@ namespace Diva.Data.MySQL
             if (words.Length > 2)
                 return new UserAccountData[0];
 
-            MySqlCommand cmd = new MySqlCommand();
+            SqliteCommand cmd = new SqliteCommand();
 
             if (words.Length == 1)
             {
-                cmd.CommandText = String.Format("select * from {0} where (ScopeID=?ScopeID or ScopeID='00000000-0000-0000-0000-000000000000') and (FirstName like ?search or LastName like ?search)", m_Realm);
-                cmd.Parameters.AddWithValue("?search", "%" + words[0] + "%");
-                cmd.Parameters.AddWithValue("?ScopeID", scopeID.ToString());
+                cmd.CommandText = String.Format("select * from {0} where (ScopeID='{1}' or ScopeID='00000000-0000-0000-0000-000000000000') and (FirstName like '{2}%' or LastName like '{2}%') and (FirstName not like '{3}%')",
+                    m_Realm, scopeID.ToString(), words[0], excludeTerm);
             }
             else
             {
-                cmd.CommandText = String.Format("select * from {0} where (ScopeID=?ScopeID or ScopeID='00000000-0000-0000-0000-000000000000') and (FirstName like ?searchFirst or LastName like ?searchLast)", m_Realm);
-                cmd.Parameters.AddWithValue("?searchFirst", "%" + words[0] + "%");
-                cmd.Parameters.AddWithValue("?searchLast", "%" + words[1] + "%");
-                cmd.Parameters.AddWithValue("?ScopeID", scopeID.ToString());
+                cmd.CommandText = String.Format("select * from {0} where (ScopeID='{1}' or ScopeID='00000000-0000-0000-0000-000000000000') and (FirstName like '{2}%' or LastName like '{3}%') and (FirstName not like '{4}%')",
+                    m_Realm, scopeID.ToString(), words[0], words[1], excludeTerm);
             }
-            cmd.CommandText = cmd.CommandText + " and (FirstName not like ?exclude)";
-            cmd.Parameters.AddWithValue("?exclude", excludeTerm + "%");
 
             return m_DatabaseHandler.DoQuery(cmd);
         }

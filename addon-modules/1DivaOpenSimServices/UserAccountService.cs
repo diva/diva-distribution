@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Crista Lopes (aka Diva). All rights reserved.
+ * Copyright (c) Crista Lopes (aka Diva) and Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,21 +26,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using log4net;
 using Nini.Config;
-using OpenSim.Data;
-using OpenSim.Services.Interfaces;
-using OpenSim.Services.UserAccountService;
-using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
 using OpenMetaverse;
-using log4net;
+using OpenSim.Data;
+using OpenSim.Services.Interfaces;
 
 namespace Diva.OpenSimServices
 {
     public class UserAccountService : OpenSim.Services.UserAccountService.UserAccountService, IUserAccountService
     {
-        //private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string m_CastWarning = "[DivaData]: Invalid cast for UserAccount store. Diva.Data required for method {0}.";
 
         public UserAccountService(IConfigSource config)
             : base(config)
@@ -50,6 +50,47 @@ namespace Diva.OpenSimServices
         public bool DeleteAccount(UUID scopeID, UUID userID)
         {
             return m_Database.Delete("PrincipalID", userID.ToString());
+        }
+
+        public List<UserAccount> GetActiveAccounts(UUID scopeID, string term, string excludeTerm)
+        {
+            List<UserAccount> activeAccounts = new List<UserAccount>();
+            try
+            {
+                UserAccountData[] accounts = ((Diva.Data.IUserAccountData)m_Database).GetActiveAccounts(scopeID, term, excludeTerm);
+                foreach (UserAccountData d in accounts)
+                    activeAccounts.Add(ToUserAccount(d));
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
+
+            return activeAccounts;
+        }
+
+        public long GetActiveAccountsCount(UUID scopeID, string excludeTerm)
+        {
+            try
+            {
+                return ((Diva.Data.IUserAccountData)m_Database).GetActiveAccountsCount(scopeID, excludeTerm);
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
+
+            return 0;
+        }
+
+        protected UserAccount ToUserAccount(UserAccountData d)
+        {
+            UserAccount account = new UserAccount(d.Data.ToDictionary(p => p.Key, p => (object)p.Value));
+            account.PrincipalID = d.PrincipalID;
+            account.ScopeID = d.ScopeID;
+            account.FirstName = d.FirstName;
+            account.LastName = d.LastName;
+            return account;
         }
     }
 }

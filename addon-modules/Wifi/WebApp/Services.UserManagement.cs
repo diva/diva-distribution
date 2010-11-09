@@ -70,7 +70,9 @@ namespace Diva.Wifi
                     env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                     env.State = State.UserSearchFormResponse;
                     // Put the list in the environment
-                    env.Data = GetActiveUserList(env, terms);
+                    List<UserAccount> accounts = m_UserAccountService.GetActiveAccounts(UUID.Zero, terms, m_PendingIdentifier);
+                    env.Data = Objectify<UserAccount>(accounts);
+
                     return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
                 else

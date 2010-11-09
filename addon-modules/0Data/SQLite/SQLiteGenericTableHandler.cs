@@ -90,5 +90,10 @@ namespace Diva.Data.SQLite
                 return cmd.ExecuteScalar();
             }
         }
+
+        new public virtual T[] DoQuery(SqliteCommand cmd)
+        {
+            return base.DoQuery(cmd);
+        }
     }
 }

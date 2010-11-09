@@ -84,7 +84,7 @@ namespace Diva.Data.MySQL
             }
         }
 
-        protected object DoQueryScalar(MySqlCommand cmd)
+        public virtual object DoQueryScalar(MySqlCommand cmd)
         {
             using (MySqlConnection dbcon = new MySqlConnection(m_connectionString))
             {
@@ -94,6 +94,12 @@ namespace Diva.Data.MySQL
                 return cmd.ExecuteScalar();
             }
         }
+
+        new public virtual T[] DoQuery(MySqlCommand cmd)
+        {
+            return base.DoQuery(cmd);
+        }
+
     }
 
 }
