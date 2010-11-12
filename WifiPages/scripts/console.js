@@ -22,6 +22,7 @@ var NAME = {
 }
 var NO_CONNECTION;
 var Colors = new Palette(['orange', 'yellow', 'aqua', 'fuchsia', 'gray', 'lime', 'red', 'silver', 'teal']);
+var LinePattern = /(\d{2}:\d{2}:\d{2}\s*-\s*\[)([\w\s!]*)(\]:*\s*)(.*)/;
 var loginAreaRule;
 var outputAreaRule;
 // Global variables
@@ -334,8 +335,6 @@ function ReadResponses(console, xml, status) {
   ShowStatus(console, status);
   if (xml) {
     Output(TRACE, "[ReadResponses:".concat(console.name, "] Processing response"));
-    // 153:normal:19:18:39 - [MODULES]: [XmlRpcRouterModule]: Initializing.
-    var pattern = /(\d{2}:\d{2}:\d{2}\s*-\s*\[)([\w\s!]*)(\]:*\s*)(.*)$/;
     elements = xml.getElementsByTagName('Line');
     if (elements) {
       ScrollBottom.Save(console, element.MESSAGES);
@@ -358,7 +357,7 @@ function ReadResponses(console, xml, status) {
           UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] Long line with ", line.length, " bytes"), true);
         }
         // Format line
-        var matches = line.match(pattern);
+        var matches = line.match(LinePattern);
         //line = new Array();
         if (matches) {
           line = new Array();
