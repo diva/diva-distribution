@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Crista Lopes (aka Diva) and Marcus Kirsch (aka Marck). All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,42 +26,44 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using OpenMetaverse;
 using OpenSim.Data;
-using OpenSim.Data.MySQL;
 
-namespace Diva.Data.MySQL
+namespace Diva.Data.SQLite
 {
-    /// <summary>
-    /// A RegionData Interface to the MySQL database
-    /// </summary>
-    public class MySQLRegionData : OpenSim.Data.MySQL.MySqlRegionData, IRegionData
+    public class SQLiteRegionData : OpenSim.Data.Null.NullRegionData, IRegionData
     {
-        private MySQLGenericTableHandler<RegionData> m_DatabaseHandler;
-
-        public MySQLRegionData(string connectionString, string realm)
-            : base(connectionString, realm)
-        {
-            m_DatabaseHandler = new MySQLGenericTableHandler<RegionData>(connectionString, realm, "GridStore");
-        }
+        public SQLiteRegionData(string connectionString, string realm) 
+            : base(connectionString, realm) { }
 
         public RegionData[] Get(UUID scopeID, int regionFlags, int excludeFlags)
         {
-            return m_DatabaseHandler.Get(CreateWhereClause(scopeID, regionFlags, excludeFlags));
+            return GetList(scopeID, regionFlags, excludeFlags).ToArray();
         }
 
         public long GetCount(UUID scopeID, int regionFlags, int excludeFlags)
         {
-            return m_DatabaseHandler.GetCount(CreateWhereClause(scopeID, regionFlags, excludeFlags));
+            return GetList(scopeID, regionFlags, excludeFlags).Count;
         }
 
-        private string CreateWhereClause(UUID scopeID, int regionFlags, int excludeFlags)
+        private List<RegionData> GetList(UUID scopeID, int regionFlags, int excludeFlags)
         {
-            string where = "(flags & {0}) <> 0 and (flags & {1}) = 0";
-            if (scopeID != UUID.Zero)
-                where += " and ScopeID = " + scopeID.ToString();
-            return string.Format(where, regionFlags.ToString(), excludeFlags.ToString());
+            List<RegionData> regions = Get("%", scopeID);
+            if (regions == null)
+                regions = new List<RegionData>();
+
+            int index = 0;
+            while (index < regions.Count)
+            {
+                int flags = Convert.ToInt32(regions.ElementAt(index).Data["flags"]);
+                if (((flags & regionFlags) != 0) && ((flags & excludeFlags) == 0))
+                    ++index;
+                else
+                    regions.RemoveAt(index);
+            }
+            return regions;
         }
     }
 }

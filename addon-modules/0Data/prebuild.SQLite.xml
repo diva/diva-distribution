@@ -21,6 +21,7 @@
 
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>
+  <Reference name="OpenSim.Data.Null"/>
   <Reference name="OpenSim.Data.SQLite"/>
 
   <Reference name="Diva.Data"/>

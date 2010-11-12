@@ -1,5 +1,5 @@
-/*
- * Copyright (c) Crista Lopes (aka Diva) and Marcus Kirsch (aka Marck). All rights reserved.
+﻿/*
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,44 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-
 using OpenMetaverse;
+
 using OpenSim.Data;
-using OpenSim.Data.MySQL;
 
-namespace Diva.Data.MySQL
+namespace Diva.Data
 {
-    /// <summary>
-    /// A RegionData Interface to the MySQL database
-    /// </summary>
-    public class MySQLRegionData : OpenSim.Data.MySQL.MySqlRegionData, IRegionData
+    public interface IRegionData : OpenSim.Data.IRegionData
     {
-        private MySQLGenericTableHandler<RegionData> m_DatabaseHandler;
-
-        public MySQLRegionData(string connectionString, string realm)
-            : base(connectionString, realm)
-        {
-            m_DatabaseHandler = new MySQLGenericTableHandler<RegionData>(connectionString, realm, "GridStore");
-        }
-
-        public RegionData[] Get(UUID scopeID, int regionFlags, int excludeFlags)
-        {
-            return m_DatabaseHandler.Get(CreateWhereClause(scopeID, regionFlags, excludeFlags));
-        }
-
-        public long GetCount(UUID scopeID, int regionFlags, int excludeFlags)
-        {
-            return m_DatabaseHandler.GetCount(CreateWhereClause(scopeID, regionFlags, excludeFlags));
-        }
-
-        private string CreateWhereClause(UUID scopeID, int regionFlags, int excludeFlags)
-        {
-            string where = "(flags & {0}) <> 0 and (flags & {1}) = 0";
-            if (scopeID != UUID.Zero)
-                where += " and ScopeID = " + scopeID.ToString();
-            return string.Format(where, regionFlags.ToString(), excludeFlags.ToString());
-        }
+        RegionData[] Get(UUID scopeID, int regionFlags, int excludeFlags);
+        long GetCount(UUID scopeID, int regionFlags, int excludeFlags);
     }
 }

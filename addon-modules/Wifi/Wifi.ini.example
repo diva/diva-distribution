@@ -54,6 +54,9 @@
 	SmtpUsername = "your_account_in_this_mail_server"
 	SmtpPassword = "your_password_in_this_mail_server"
 
+[GridService]
+	StorageProvider = "Diva.Data.MySQL.dll"
+  
 [UserAccountService]
 	StorageProvider = "Diva.Data.MySQL.dll"
 

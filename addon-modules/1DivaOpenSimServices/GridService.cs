@@ -25,15 +25,24 @@
  * 
  */
 
+using System;
+using System.Reflection;
+
+using log4net;
 using Nini.Config;
 using OpenMetaverse;
+
 using OpenSim.Services.Interfaces;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
+using RegionFlags = OpenSim.Data.RegionFlags;
 
 namespace Diva.OpenSimServices
 {
     public class GridService : OpenSim.Services.GridService.GridService, IGridService
     {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly string m_CastWarning = "[DivaData]: Invalid cast for Grid store. Diva.Data required for method {0}.";
+        
         public GridService(IConfigSource config) : base(config) { }
 
         public GridRegion TryLinkRegionToCoords(UUID scopeID, string address, uint xloc, uint yloc, UUID ownerID, out string reason)
@@ -46,6 +55,19 @@ namespace Diva.OpenSimServices
             return m_HypergridLinker.TryUnlinkRegion(mapName);
         }
 
+        public long GetLocalRegionsCount(UUID scopeID)
+        {
+            try
+            {
+                const RegionFlags flags = RegionFlags.RegionOnline;
+                const RegionFlags excludeFlags = RegionFlags.Hyperlink;
+                return ((Diva.Data.IRegionData)m_Database).GetCount(scopeID, (int)flags, (int)excludeFlags);
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
+            return 0;
+        }
     }
-
 }
