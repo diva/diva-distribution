@@ -116,7 +116,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[Wifi]: Administrator account {0} {1} does not exist. Creating it...", m_WebApp.AdminFirst, m_WebApp.AdminLast);
                 // Doesn't exist. Create one
                 god = new UserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast, m_WebApp.AdminEmail);
-                god.UserLevel = 100;
+                god.UserLevel = m_WebApp.AdminUserLevel;
                 god.UserTitle = "Administrator";
                 god.UserFlags = 0;
                 SetServiceURLs(god);
@@ -138,10 +138,10 @@ namespace Diva.Wifi
                 m_WebApp.IsInstalled = true;
             }
 
-            if (god.UserLevel < 100)
+            if (god.UserLevel < m_WebApp.AdminUserLevel)
             {
                 // Might have existed but had wrong UserLevel
-                god.UserLevel = 100;
+                god.UserLevel = m_WebApp.AdminUserLevel;
                 m_UserAccountService.StoreUserAccount(god);
             }
 
