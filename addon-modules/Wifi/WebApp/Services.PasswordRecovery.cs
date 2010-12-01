@@ -72,26 +72,27 @@ namespace Diva.Wifi
                 string token = m_AuthenticationService.GetToken(account.PrincipalID, 60);
                 if (token != string.Empty)
                 {
-                    string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
-
-                    MailMessage msg = new MailMessage();
-                    msg.From = new MailAddress(m_WebApp.SmtpUsername);
-                    msg.To.Add(email);
-                    msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
-                    msg.Body = "\nYour account is " + account.FirstName + " " + account.LastName ;
-                    msg.Body += "\nClick here to reset your password:\n";
-                    msg.Body += url;
-                    //m_Client.SendAsync(msg, email);
                     try
                     {
+                        string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
+
+                        MailMessage msg = new MailMessage();
+                        msg.From = new MailAddress(m_WebApp.SmtpUsername);
+                        msg.To.Add(email);
+                        msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
+                        msg.Body = "\nYour account is " + account.FirstName + " " + account.LastName;
+                        msg.Body += "\nClick here to reset your password:\n";
+                        msg.Body += url;
+                        //m_Client.SendAsync(msg, email);
                         m_Client.Send(msg);
+
+                        NotifyWithoutButton(env, "Check your email. You must reset your password within 60 minutes.");
                     }
                     catch (Exception e)
                     {
-                        m_log.DebugFormat("[Wifi]: Problem sending email: {0}", e.InnerException);
+                        m_log.WarnFormat("[Wifi]: Problem sending email: {0}", e);
+                        NotifyWithoutButton(env, "Email could not be sent.");
                     }
-
-                    NotifyWithoutButton(env, "Check your email. You must reset your password within 60 minutes.");
 
                     return m_WebApp.ReadFile(env, "index.html");
                 }
