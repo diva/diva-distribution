@@ -5,8 +5,8 @@
 	port = 8002
 
 [DatabaseService]
-    StorageProvider = "OpenSim.Data.MySQL.dll"
-    ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
+	StorageProvider = "OpenSim.Data.MySQL.dll"
+	ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
 
 [WifiService]
 	GridName = "My World"
@@ -54,9 +54,32 @@
 	SmtpUsername = "your_account_in_this_mail_server"
 	SmtpPassword = "your_password_in_this_mail_server"
 
+	;; ### Localization
+
+	;; Enable localization by setting this to a value other than 0.
+	;; This specifies the time in hours before the internally cached
+	;; localization data expires. The default value is 0 which disables
+	;; all localizations and uses the English default.
+	; LocalizationCachingPeriod = 24
+
+	;; Set language for automatic messages to the administrator, e.g. for
+	;; account creation e-mails.
+	;; This is used only when localization is enabled.
+	; AdminLanguage = "en-US"
+
+	;; Log warnings about missing translations.
+	;; This is mainly useful for identifying demand for new translations
+	;; or for debugging localization resources. Default setting is 1.
+	;; 0 disables all warnings about missing translations.
+	;; 1 warns about phrases without translations in any of the available
+	;;   languages.
+	;; 2 additionally warns when phrases can not be translated into one or
+	;;   more of the languages requested by a user.
+	; LogMissingTranslations = 0
+
 [GridService]
 	StorageProvider = "Diva.Data.MySQL.dll"
-  
+
 [UserAccountService]
 	StorageProvider = "Diva.Data.MySQL.dll"
 

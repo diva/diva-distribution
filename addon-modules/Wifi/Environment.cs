@@ -24,12 +24,9 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
-using System.Text;
-
-using Nini.Config;
 using log4net;
 
 using Diva.Wifi.WifiScript;
@@ -76,6 +73,11 @@ namespace Diva.Wifi
         {
             get { return m_Data; }
             set { m_Data = value; }
+        }
+
+        public CultureInfo[] LanguageInfo
+        {
+            get { return m_Request.LanguageInfo; }
         }
 
         public Environment(Request req)

@@ -27,6 +27,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -83,6 +84,17 @@ namespace Diva.Wifi
             get { return m_StatisticsUpdateInterval; }
         }
 
+        private TimeSpan m_LocalizationCachingPeriod;
+        public TimeSpan LocalizationCachingPeriod
+        {
+            get { return m_LocalizationCachingPeriod; }
+        }
+        private short m_LogMissingTranslations;
+        public short LogMissingTranslations
+        {
+            get { return m_LogMissingTranslations; }
+        }
+
         private Type m_ExtensionMethods;
 
         #region IWebApp variables accessible to the WifiScript engine
@@ -135,6 +147,16 @@ namespace Diva.Wifi
         public string AdminPassword
         {
             get { return m_AdminPassword; }
+        }
+        private CultureInfo m_AdminLanguage;
+        public CultureInfo[] AdminLanguage
+        {
+            get {
+                if (m_LocalizationCachingPeriod == TimeSpan.Zero)
+                    return null;
+                else
+                    return new CultureInfo[] { m_AdminLanguage };
+            }
         }
 
         private string m_RemoteAdminPassword;
@@ -255,12 +277,16 @@ namespace Diva.Wifi
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
             m_AdminPassword = appConfig.GetString("AdminPassword", string.Empty);
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
+            m_AdminLanguage = new CultureInfo(appConfig.GetString("AdminLanguage", "en"));
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
 
             m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 0));
+
+            m_LocalizationCachingPeriod = TimeSpan.FromHours(Math.Abs(appConfig.GetDouble("LocalizationCachingPeriod", 0.0)));
+            m_LogMissingTranslations = (short)appConfig.GetInt("LogMissingTranslations", 1);
 
             // Read list of default avatars and their account names
             const string avatarParamPrefix = "AvatarAccount_";
@@ -312,7 +338,9 @@ namespace Diva.Wifi
                 m_ConsolePass = serverConfig.GetString("ConsolePass", string.Empty);
             }
 
-            m_log.DebugFormat("[Wifi]: WebApp configs loaded. Admin account is {0} {1}", m_AdminFirst, m_AdminLast);
+            m_log.DebugFormat("[Wifi]: WebApp configs loaded. Admin account is {0} {1}. Localization is {2}.",
+                m_AdminFirst, m_AdminLast,
+                (m_LocalizationCachingPeriod == TimeSpan.Zero) ? "disabled" : "enabled");
         }
 
 

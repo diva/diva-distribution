@@ -24,9 +24,8 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-using System;
 using System.Collections;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Web;
 
@@ -38,5 +37,6 @@ namespace Diva.Wifi
         public HttpCookieCollection Cookies;
         public IPEndPoint IPEndPoint;
         public Hashtable Query;
+        public CultureInfo[] LanguageInfo;
     }
 }

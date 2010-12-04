@@ -109,11 +109,7 @@ namespace Diva.Wifi
             last = request["lastname"].ToString();
             password = request["password"].ToString();
 
-            Request req;
-            req.Cookies = httpRequest.Cookies;
-            req.IPEndPoint = httpRequest.RemoteIPEndPoint;
-            req.Query = httpRequest.Query;
-            req.Resource = resource;
+            Request req = WifiUtils.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
             string result = m_WebApp.Services.LoginRequest(env, first, last, password);

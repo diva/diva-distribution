@@ -140,6 +140,7 @@ namespace Diva.Wifi
             request.Cookies = httpRequest.Cookies;
             request.IPEndPoint = httpRequest.RemoteIPEndPoint;
             request.Query = httpRequest.Query;
+            request.LanguageInfo = Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language"));
 
             return request;
         }
