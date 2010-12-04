@@ -36,6 +36,7 @@ namespace Diva.Wifi
         public string DefaultRequest(Environment env)
         {
             m_log.DebugFormat("[Wifi]: DefaultRequest");
+
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.Request, out sinfo))
             {
@@ -45,7 +46,7 @@ namespace Diva.Wifi
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "splash.html"));
             }
 
-            string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, "splash.html");
+            string resourcePath = Localization.LocalizePath(env, "splash.html");
             Processor p = new Processor(m_WebApp.WifiScriptFace, env);
             return p.Process(WifiUtils.ReadTextResource(resourcePath));
         }

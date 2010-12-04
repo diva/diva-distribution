@@ -353,7 +353,7 @@ namespace Diva.Wifi
 
         public string ReadFile(Environment env, string path, List<object> lot)
         {
-            string file = Path.Combine(WifiUtils.DocsPath, path);
+            string file = Localization.LocalizePath(env, path);
             try
             {
                 using (StreamReader sr = new StreamReader(file))

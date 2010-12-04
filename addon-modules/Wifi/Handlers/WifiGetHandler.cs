@@ -105,6 +105,7 @@ namespace Diva.Wifi
                     if (m_WebApp.StatisticsUpdateInterval != TimeSpan.Zero)
                         m_WebApp.Services.ComputeStatistics();
 
+                    resourcePath = Localization.LocalizePath(env, resource);
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
                     string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
                     if (res == string.Empty)
