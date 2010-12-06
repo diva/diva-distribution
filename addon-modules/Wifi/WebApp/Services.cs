@@ -28,6 +28,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -222,6 +223,15 @@ namespace Diva.Wifi
         }
 
 
+        private static string _(string textId, Environment env)
+        {
+            return Localization.Translate(env.LanguageInfo, textId);
+        }
+        private static string _(string textId, CultureInfo[] languages)
+        {
+            return Localization.Translate(languages, textId);
+        }
+
         // <a href="wifi/..." ...>
         static Regex href = new Regex("(<a\\s+.*href\\s*=\\s*\\\"(\\S+\\\")).*>");
         static Regex action = new Regex("(<form\\s+.*action\\s*=\\s*\\\"(\\S+\\\")).*>");
@@ -326,8 +336,9 @@ namespace Diva.Wifi
             return listOfObjects;
         }
 
-        private void SendEMail(string to, string subject, string message)
+        private bool SendEMail(string to, string subject, string message)
         {
+            bool success = true;
             try
             {
                 MailMessage msg = new MailMessage();
@@ -340,7 +351,9 @@ namespace Diva.Wifi
             catch (Exception e)
             {
                 m_log.WarnFormat("[Wifi]: Exception on sending mail to {0}: {1}", to, e.Message);
+                success = false;
             }
+            return success;
         }
 
         private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)

@@ -152,8 +152,13 @@ namespace Diva.Wifi
                     return "&nbsp;&nbsp;&nbsp;";
 
             string commandDelete = string.Format("<a href=\"{0}{1}\">{2}</a>",
-                "/wifi/linkregion/delete/", region.RegionID, "delete");
+                "/wifi/linkregion/delete/", region.RegionID, _("delete", env));
             return commandDelete;
+        }
+
+        private static string _(string textId, IEnvironment env)
+        {
+            return Localization.Translate(env, textId);
         }
     }
 }

@@ -26,6 +26,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 using log4net;
 using OpenMetaverse;
@@ -131,12 +132,12 @@ namespace Diva.Wifi
                     m_UserAccountService.StoreUserAccount(account);
 
                     env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
-                    NotifyWithoutButton(env, "The account has been updated.");
+                    NotifyWithoutButton(env, _("The account has been updated.", env));
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
                 {
-                    NotifyWithoutButton(env, "The account does not exist.");
+                    NotifyWithoutButton(env, _("The account does not exist.", env));
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
                 }
 
@@ -164,12 +165,12 @@ namespace Diva.Wifi
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
-                    NotifyWithoutButton(env, "The account has been updated.");
+                    NotifyWithoutButton(env, _("The account has been updated.", env));
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", account.Name);
                 }
                 else
                 {
-                    NotifyWithoutButton(env, "The account does not exist.");
+                    NotifyWithoutButton(env, _("The account does not exist.", env));
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
                 }
 
@@ -192,14 +193,14 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
-                NotifyWithoutButton(env, "The account has been activated.");
+                NotifyWithoutButton(env, _("The account has been activated.", env));
                 UserAccount account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
                 if (account != null)
                 {
-                    //remove pending identifier in name
+                    // Remove pending identifier in name
                     account.FirstName = account.FirstName.Replace(m_PendingIdentifier, "");
 
-                    //set serviceURLs back to normal
+                    // Retrieve saved user data from serviceURLs and set them back to normal
                     string password = (string)account.ServiceURLs["Password"];
                     account.ServiceURLs.Remove("Password");
 
@@ -208,7 +209,15 @@ namespace Diva.Wifi
                     account.ServiceURLs.Remove("Avatar");
                     string avatarType = (string)value;
 
-                    //save changes
+                    //string[] languages = null;
+                    //if (account.ServiceURLs.TryGetValue("Language", out value))
+                    //    languages = ((string)value).Split(',');
+                    CultureInfo[] languages = null;
+                    if (account.ServiceURLs.TryGetValue("Language", out value))
+                        languages = Localization.GetLanguageInfo((string)value);
+                    account.ServiceURLs.Remove("Language");
+
+                    // Save changes to user account
                     m_UserAccountService.StoreUserAccount(account);
 
                     // Create the inventory
@@ -220,16 +229,17 @@ namespace Diva.Wifi
                     // Set the avatar
                     if (avatarType != null)
                     {
-                        SetAvatar(account.PrincipalID, avatarType);
+                        SetAvatar(env, account.PrincipalID, avatarType);
                     }
 
                     if (account.Email != string.Empty)
                     {
-                        string message = "Your account has been activated.\n";
-                        message += "\nFirst name: " + account.FirstName;
-                        message += "\nLast name: " + account.LastName;
-                        message += "\n\nLoginURI: " + m_WebApp.LoginURL;
-                        SendEMail(account.Email, "Account activated", message);
+                        string message = string.Format("{0}\n\n{1} {2}\n{3} {4}\n\n{5} {6}",
+                            _("Your account has been activated.", languages),
+                            _("First name:", languages), account.FirstName,
+                            _("Last name:", languages), account.LastName,
+                            _("LoginURI:", languages), m_WebApp.LoginURL);
+                        SendEMail(account.Email, _("Account activated", languages), message);
                     }
                 }
 
@@ -284,12 +294,12 @@ namespace Diva.Wifi
                     m_InventoryService.DeleteUserInventory(userID);
 
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
-                    NotifyWithoutButton(env, "The account has been deleted.");
+                    NotifyWithoutButton(env, _("The account has been deleted.", env));
                     m_log.DebugFormat("[Wifi]: Deleted account for user {0}", account.Name);
                 }
                 else
                 {
-                    NotifyWithoutButton(env, "Unable to delete account because it does not exist.");
+                    NotifyWithoutButton(env, _("Unable to delete account because it does not exist.", env));
                     m_log.DebugFormat("[Wifi]: Attempt at deleting an inexistent account");
                 }
 

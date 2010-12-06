@@ -60,7 +60,9 @@ namespace Diva.Wifi
                     m_AuthenticationService.SetPassword(god.PrincipalID, password);
                     // And this finishes the installation procedure
                     m_WebApp.IsInstalled = true;
-                    NotifyWithoutButton(env, "Your Wifi has been installed. The administrator account is " + m_WebApp.AdminFirst + " " + m_WebApp.AdminLast);
+                    NotifyWithoutButton(env,
+                        string.Format(_("Your Wifi has been installed. The administrator account is {0} {1}", env),
+                        m_WebApp.AdminFirst, m_WebApp.AdminLast));
                 }
             }
             return m_WebApp.ReadFile(env, "index.html");

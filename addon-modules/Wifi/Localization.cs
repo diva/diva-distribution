@@ -109,6 +109,19 @@ namespace Diva.Wifi
         }
 
         /// <summary>
+        /// Creates a string representation from language information.
+        /// The result can be parsed by GetLanguageInfo().
+        /// </summary>
+        /// <param name="languageInfo"></param>
+        /// <returns>
+        /// A string containing a list of culture names.
+        /// </returns>
+        public static string LanguageInfoToString(CultureInfo[] languageInfo)
+        {
+            return string.Join(",", languageInfo.Select(ci => ci.Name).ToArray());
+        }
+
+        /// <summary>
         /// Translates a text according to the language information of the given environment context.
         /// </summary>
         /// <param name="env">The environment data with information about preferred languages</param>
@@ -177,7 +190,6 @@ namespace Diva.Wifi
             if (env.LanguageInfo != null)
             {
                 // Try to find a file that is localized for one of the accepted languages
-                char[] separator = { '-' };
                 foreach (CultureInfo language in env.LanguageInfo)
                 {
                     string localizedPath;

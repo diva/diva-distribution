@@ -72,27 +72,16 @@ namespace Diva.Wifi
                 string token = m_AuthenticationService.GetToken(account.PrincipalID, 60);
                 if (token != string.Empty)
                 {
-                    try
-                    {
-                        string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
+                    string url = m_WebApp.WebAddress + "/wifi/recover/" + token + "?email=" + HttpUtility.UrlEncode(email);
 
-                        MailMessage msg = new MailMessage();
-                        msg.From = new MailAddress(m_WebApp.SmtpUsername);
-                        msg.To.Add(email);
-                        msg.Subject = "[" + m_WebApp.GridName + "] Password Reset";
-                        msg.Body = "\nYour account is " + account.FirstName + " " + account.LastName;
-                        msg.Body += "\nClick here to reset your password:\n";
-                        msg.Body += url;
-                        //m_Client.SendAsync(msg, email);
-                        m_Client.Send(msg);
-
-                        NotifyWithoutButton(env, "Check your email. You must reset your password within 60 minutes.");
-                    }
-                    catch (Exception e)
-                    {
-                        m_log.WarnFormat("[Wifi]: Problem sending email: {0}", e);
-                        NotifyWithoutButton(env, "Email could not be sent.");
-                    }
+                    string message = string.Format("\n{0}\n{1}\n{2}",
+                        string.Format(_("Your account is {0} {1}", env), account.FirstName, account.LastName),
+                        _("Click here to reset your password:", env),
+                        url);
+                    if (SendEMail(email, _("Password Reset", env), message))
+                        NotifyWithoutButton(env, _("Check your email. You must reset your password within 60 minutes.", env));
+                    else
+                        NotifyWithoutButton(env, _("Email could not be sent.", env));
 
                     return m_WebApp.ReadFile(env, "index.html");
                 }
@@ -115,7 +104,7 @@ namespace Diva.Wifi
             }
             else
             {
-                return "<p>Invalid token.</p>";
+                return "<p>" + _("Invalid token.", env) + "</p>";
             }
         }
 
@@ -128,7 +117,7 @@ namespace Diva.Wifi
             }
 
             ResetPassword(email, token, newPassword);
-            NotifyWithoutButton(env, "Your password has been reset.");
+            NotifyWithoutButton(env, _("Your password has been reset.", env));
 
             return m_WebApp.ReadFile(env, "index.html");
         }

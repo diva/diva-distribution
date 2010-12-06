@@ -55,7 +55,7 @@ namespace Diva.Wifi
         }
         public void NotifyOK(Environment env, string message, ServiceCall followUp)
         {
-            Notify(env, message, "OK", followUp);
+            Notify(env, message, _("OK", env), followUp);
         }
         public void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
         {

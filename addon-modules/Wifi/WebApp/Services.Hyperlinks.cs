@@ -88,12 +88,12 @@ namespace Diva.Wifi
                             xloc = xloc * Constants.RegionSize;
                             yloc = yloc * Constants.RegionSize;
                             if (m_GridService.TryLinkRegionToCoords(UUID.Zero, address, xloc, yloc, owner, out reason) == null)
-                                reason = "Failed to link region: " + reason;
+                                reason = string.Format(_("Failed to link region: {0}", env), reason);
                             else
-                                reason = "Region link to " + address + " established. (If this link already existed, then it will remain at the original location.)";
+                                reason = string.Format(_("Region link to {0} established. (If this link already existed, then it will remain at the original location.)", env), address);
                         }
                         else
-                            reason = "Invalid region address.";
+                            reason = _("Invalid region address.", env);
                         NotifyOK(env, reason, delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
                     else
@@ -141,7 +141,8 @@ namespace Diva.Wifi
                     {
                         m_log.WarnFormat("[Wifi]: Attempt to delete an inexistent region link for UUID {0} by {1} ({2})",
                             regionID, sinfo.Account.Name, sinfo.Account.PrincipalID);
-                        NotifyOK(env, "Region link not found", delegate(Environment e) { return HyperlinkGetRequest(e); });
+                        NotifyOK(env, _("Region link not found.", env),
+                            delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
                 }
             }
@@ -170,10 +171,12 @@ namespace Diva.Wifi
                             (region.EstateOwner == sinfo.Account.PrincipalID))
                         {
                             if (m_GridService.TryUnlinkRegion(region.RegionName))
-                                NotifyOK(env, "Deleted region link " + region.RegionName,
+                                NotifyOK(env,
+                                    string.Format(_("Deleted region link {0}.", env), region.RegionName),
                                     delegate(Environment e) { return HyperlinkGetRequest(e); });
                             else
-                                NotifyOK(env, "Deletion of region link " + region.RegionName + " failed.",
+                                NotifyOK(env,
+                                    string.Format(_("Deletion of region link {0} failed.", env), region.RegionName),
                                     delegate(Environment e) { return HyperlinkGetRequest(e); });
                         }
                         else
@@ -184,7 +187,8 @@ namespace Diva.Wifi
                     {
                         m_log.WarnFormat("[Wifi]: Attempt to delete an inexistent region link for UUID {0} by {1} ({2})",
                             regionID, sinfo.Account.Name, sinfo.Account.PrincipalID);
-                        NotifyOK(env, "Region link not found", delegate(Environment e) { return HyperlinkGetRequest(e); });
+                        NotifyOK(env, _("Region link not found.", env),
+                            delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
                 }
                 return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));

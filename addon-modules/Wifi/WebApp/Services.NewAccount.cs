@@ -80,6 +80,9 @@ namespace Diva.Wifi
                         // Store the password temporarily here
                         urls["Password"] = password;
                         urls["Avatar"] = avatarType;
+                        if (env.LanguageInfo != null)
+                            urls["Language"] = Localization.LanguageInfoToString(env.LanguageInfo);
+                            //urls["Language"] = string.Join(",", env.Languages);
                     }
 
                     // Create the account
@@ -89,7 +92,7 @@ namespace Diva.Wifi
 
                     m_UserAccountService.StoreUserAccount(account);
 
-                    string notification = "Your account has been created.";
+                    string notification = _("Your account has been created.", env);
                     if (!m_WebApp.AccountConfirmationRequired)
                     {
                         // Create the inventory
@@ -99,15 +102,20 @@ namespace Diva.Wifi
                         m_AuthenticationService.SetPassword(account.PrincipalID, password);
 
                         // Set avatar
-                        SetAvatar(account.PrincipalID, avatarType);
+                        SetAvatar(env, account.PrincipalID, avatarType);
                     }
                     else if (m_WebApp.AdminEmail != string.Empty)
                     {
-                        string message = "New account " + first + " " + last + " created in " + m_WebApp.GridName;
-                        message += " is waiting your approval.";
+                        string message = string.Format(
+                            _("New account {0} {1} created in {2} is awaiting your approval.",
+                            m_WebApp.AdminLanguage),
+                            first, last, m_WebApp.GridName);
                         message += "\n\n" + m_WebApp.WebAddress + "/wifi";
-                        SendEMail(m_WebApp.AdminEmail, "Account waiting approval", message);
-                        notification = "Your account awaits administrator approval.";
+                        SendEMail(
+                            m_WebApp.AdminEmail,
+                            _("Account awaiting approval", m_WebApp.AdminLanguage),
+                            message);
+                        notification = _("Your account awaits administrator approval.", env);
                     }
 
                     NotifyWithoutButton(env, notification);
@@ -131,7 +139,7 @@ namespace Diva.Wifi
 
         }
 
-        private void SetAvatar(UUID newUser, string avatarType)
+        private void SetAvatar(Environment env, UUID newUser, string avatarType)
         {
             UserAccount account = null;
             string[] parts = null;
@@ -162,7 +170,7 @@ namespace Diva.Wifi
 
             // Get and replicate the attachments
             // and put them in a folder named after the avatar type under Clothing
-            string folderName = "Default Avatar " + defaultAvatar.PrettyType;
+            string folderName = _("Default Avatar", env) + " " + _(defaultAvatar.PrettyType, env);
             UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, folderName.Trim());
 
             if (defaultFolderID != UUID.Zero)

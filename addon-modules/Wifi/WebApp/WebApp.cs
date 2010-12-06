@@ -389,6 +389,7 @@ namespace Diva.Wifi
 
         public string Type = string.Empty;
         public string Name;
+        [Translate]
         public string PrettyType
         {
             get { return Type.Replace('_', ' '); }
@@ -435,6 +436,7 @@ namespace Diva.Wifi
             get { return m_OwnerID; }
             set { m_OwnerID = value; }
         }
+        [Translate]
         public string RegionOwner
         {
             get { return m_Owner; }

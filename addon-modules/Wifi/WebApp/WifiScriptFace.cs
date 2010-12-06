@@ -280,7 +280,7 @@ namespace Diva.Wifi
                 return sinfo.Account.FirstName + " " + sinfo.Account.LastName;
             }
 
-            return "Who are you?";
+            return _("Who are you?", env);
         }
 
         public string GetUserEmail(Environment env)
@@ -289,12 +289,12 @@ namespace Diva.Wifi
             if (sinfo.Account != null)
             {
                 if (sinfo.Account.Email == string.Empty)
-                    return "No email on file";
+                    return _("No email on file", env);
 
                 return sinfo.Account.Email;
             }
 
-            return "Who are you?";
+            return _("Who are you?", env);
         }
 
         public string GetUserImage(Environment env)
@@ -342,7 +342,7 @@ namespace Diva.Wifi
             if (env.Data != null && env.Data.Count > 0)
                 return m_WebApp.ReadFile(env, "linkregionlist.html", env.Data);
 
-            return "No linked regions found";
+            return _("No linked regions found", env);
         }
 
         public string LocalizePath(IEnvironment env, string path)
@@ -356,12 +356,17 @@ namespace Diva.Wifi
 
         #endregion
 
+        private static string _(string textId, Environment env)
+        {
+            return Localization.Translate(env, textId);
+        }
+
         private string GetUserList(Environment env)
         {
             if (env.Data != null && env.Data.Count > 0)
                 return m_WebApp.ReadFile(env, "userlist.html", env.Data);
 
-            return "No users found";
+            return _("No users found", env);
         }
 
         private string GetRegionManagementForm(Environment env)
@@ -369,7 +374,7 @@ namespace Diva.Wifi
             if (env.Data != null && env.Data.Count > 0)
                 return m_WebApp.ReadFile(env, "region-form.html", env.Data);
 
-            return "No regions found";
+            return _("No regions found", env);
         }
 
     }

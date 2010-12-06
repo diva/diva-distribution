@@ -54,7 +54,7 @@ namespace Diva.Wifi
             if (account != null)
                 authtoken = m_AuthenticationService.Authenticate(account.PrincipalID, encpass, 30);
             if (string.IsNullOrEmpty(authtoken))
-                notification = "Login failed.";
+                notification = _("Login failed.", env);
             else
             {
                 // Successful login
@@ -71,7 +71,7 @@ namespace Diva.Wifi
                 loo.Add(account);
                 env.Data = loo;
                 env.Flags = Flags.IsLoggedIn;
-                notification = "Welcome to " + m_WebApp.GridName + "!";
+                notification = string.Format(_("Welcome to {0}!", env), m_WebApp.GridName);
             }
             NotifyWithoutButton(env, notification);
             return PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
