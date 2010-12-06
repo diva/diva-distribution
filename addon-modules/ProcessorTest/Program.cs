@@ -48,6 +48,15 @@ namespace Diva.Wifi.ProcessorTest
             get { return string.Empty; }
         }
 
+        public string LocalizePath(IEnvironment env, string path)
+        {
+            return path;
+        }
+        public string Translate(IEnvironment env, string textId)
+        {
+            return textId;
+        }
+
         public static void Main(string[] args)
         {
             ConsoleAppender consoleAppender = new ConsoleAppender();

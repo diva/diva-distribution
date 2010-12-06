@@ -145,7 +145,7 @@ namespace Diva.Wifi.WifiScript
                 string name = match.Groups[1].Value;
                 string value = match.Groups[2].Value;
                 // ignore the name which should be file
-                string file = Path.Combine(m_WebApp.DocsPath, value);
+                string file = m_WebApp.LocalizePath(m_Env, value);
                 //m_log.DebugFormat("[WifiScript]: Including file {0} with index = {1} (previous file is {2})", file, m_Index, m_FileName);
                 
                 using (StreamReader sr = new StreamReader(file))
@@ -187,6 +187,7 @@ namespace Diva.Wifi.WifiScript
                 string keyname = string.Empty;
 
                 object value = null;
+                bool translate = false;
 
                 if (kind == "var")
                 {
@@ -206,8 +207,8 @@ namespace Diva.Wifi.WifiScript
                             try
                             {
                                 pinfo = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty | BindingFlags.DeclaredOnly);
-                                value = pinfo.GetValue(o, null).ToString();
-                                m_log.DebugFormat("[WifiScript] Replaced {0} with {1}", name, value);
+                                value = pinfo.GetValue(o, null);
+                                //m_log.DebugFormat("[WifiScript] Replaced {0} with {1}", name, value.ToString());
                             }
                             catch (Exception e)
                             {
@@ -216,7 +217,10 @@ namespace Diva.Wifi.WifiScript
                         }
 
                     }
+                    if (pinfo != null)
+                        translate = Attribute.IsDefined(pinfo, typeof(TranslateAttribute));
                 }
+                /*
                 //when a 'get method' is performed, the named method is invoked
                 //on list of objects and the string representation of output is returned
                 // [Obsolete] This should be removed when the other options are proven to work
@@ -238,6 +242,7 @@ namespace Diva.Wifi.WifiScript
                         }
                     }
                 }
+                */
                 else if (kind == "field")
                 {
                     if (m_ListOfObjects != null && m_ListOfObjects.Count > 0 && m_Index < m_ListOfObjects.Count)
@@ -247,17 +252,22 @@ namespace Diva.Wifi.WifiScript
                         Type type = o.GetType();
                         FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                         if (finfo != null)
+                        {
                             value = finfo.GetValue(o);
+                            translate = Attribute.IsDefined(finfo, typeof(TranslateAttribute));
+                        }
                         else
                             m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}; {2}", name, type, argStr);
                     }
                 }
 
                 if (value != null)
-                    return value.ToString();
-                else
-                    return string.Empty;
-
+                {
+                    if (translate)
+                        return m_WebApp.Translate(m_Env, value.ToString());
+                    else
+                        return value.ToString();
+                }
             }
 
             return string.Empty;

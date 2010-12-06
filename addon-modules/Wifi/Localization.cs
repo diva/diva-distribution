@@ -34,6 +34,8 @@ using System.Resources;
 using log4net;
 using OpenMetaverse;
 
+using Diva.Wifi.WifiScript;
+
 // Set English as the neutral resources language for assembly.
 // (This does not work with Mono, so we implement a work-around in Localization.GetLanguageInfo().)
 //[assembly: NeutralResourcesLanguageAttribute("en", UltimateResourceFallbackLocation.Satellite)]
@@ -114,7 +116,7 @@ namespace Diva.Wifi
         /// <returns>
         /// A translation of textId. If no translation is available, then textId is returned
         /// </returns>
-        public static string Translate(Environment env, string textId)
+        public static string Translate(IEnvironment env, string textId)
         {
             return Translate(env.LanguageInfo, textId);
         }
@@ -170,7 +172,7 @@ namespace Diva.Wifi
         /// The complete file path to a localized version of the resource. If there is not any
         /// localized version available, then the complete path to the original resource is returned.
         /// </returns>
-        public static string LocalizePath(Environment env, string path)
+        public static string LocalizePath(IEnvironment env, string path)
         {
             if (env.LanguageInfo != null)
             {

@@ -36,5 +36,8 @@ namespace Diva.Wifi.WifiScript
         {
             get;
         }
+
+        string LocalizePath(IEnvironment env, string path);
+        string Translate(IEnvironment env, string textId);
     }
 }

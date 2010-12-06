@@ -1,5 +1,5 @@
 ﻿/**
- * Copyright (c) Crista Lopes (aka Diva). All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -24,15 +24,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-using System.Globalization;
+
+using System;
+using Diva.Wifi;
 
 namespace Diva.Wifi.WifiScript
 {
-    public interface IEnvironment
-    {
-        CultureInfo[] LanguageInfo
-        {
-            get;
-        }
-    }
+    /// <summary>
+    /// Custom attribute for requesting translation of WifiScript properties
+    /// </summary>
+    public class TranslateAttribute : Attribute  {  }
 }

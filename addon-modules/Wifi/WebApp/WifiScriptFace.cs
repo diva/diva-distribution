@@ -345,6 +345,15 @@ namespace Diva.Wifi
             return "No linked regions found";
         }
 
+        public string LocalizePath(IEnvironment env, string path)
+        {
+            return Localization.LocalizePath(env, path);
+        }
+        public string Translate(IEnvironment env, string textId)
+        {
+            return Localization.Translate(env, textId);
+        }
+
         #endregion
 
         private string GetUserList(Environment env)
