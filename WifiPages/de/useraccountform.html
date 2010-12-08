@@ -1,0 +1,23 @@
+﻿<p >Dein Benutzerkonto:</p>
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
+  <p class="bodytext"> 
+    E-Mail:<br/>
+    <input name="email" type="text" value="<!-- #get field=Email -->" class="inputstyle" />
+    <input type="submit" value="ändern" class="button" />
+  </p>
+  </form>
+
+<p>&nbsp;</p>
+
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
+  <p class="bodytext"> 
+    Altes Kennwort:<br/>
+    <input name="oldpassword" type="password" class="inputstyle" /><br/><br/>
+    Neues Kennwort:<br/>
+    <input name="newpassword" type="password" class="inputstyle" /><br/><br/>
+    Wiederhole neues Kennwort:<br/>
+    <input name="newpassword2" type="password" class="inputstyle" />
+
+    <input type="submit" value="ändern" class="button" />
+  </p>
+  </form>

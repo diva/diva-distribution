@@ -1,0 +1,14 @@
+﻿  <p>Benutzer suchen</p>
+  <ul>
+    <li>Bei Eingabe eines einzelnen Leerzeichens werden alle Konten aufgelistet.</li>
+    <li>Andere Suchbegriffe müssen mindestens 3 Zeichen lang sein.</li>
+    <li>Groß- und Kleinschreibung wird ignoriert, wenn der Suchbegriff mit einem Leerzeichen beginnt.</li>
+  </ul>
+  <form action="/wifi/admin/users" method="post">
+  <p class="bodytext"> 
+    <input name="terms" type="text" class="inputstyle" />&nbsp;
+    <input type="submit" value="suchen" class="button" />
+  </p>
+  </form>
+
+  <!-- #call method=GetPendingUserList --> 

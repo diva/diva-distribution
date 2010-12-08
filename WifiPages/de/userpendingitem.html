@@ -1,0 +1,16 @@
+﻿  <tr class="bodytext">
+    <td class="username"><!-- #get field=FirstName --> <!-- #get field=LastName --></td>
+    <td class="email"><!-- #get field=Email --></td>
+    <td class="date">
+      <script type="text/javascript">
+        ConvertAndWriteDate("<!-- #call method=GetAccountCreated -->");
+      </script>
+      <noscript><!-- #call method=GetAccountCreated --></noscript>
+    </td>
+    <td class="command"><a href="/wifi/admin/users/activate/<!-- #get field=PrincipalID -->">aktivieren</a></td>
+    <td class="command"><a href="/wifi/admin/users/delete/<!-- #get field=PrincipalID -->">ignorieren</a></td>
+  </tr>
+
+    <!-- Recursion ! -->
+  <!-- #include file=userpendingitem.html -->
+

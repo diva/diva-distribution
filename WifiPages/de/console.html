@@ -1,0 +1,58 @@
+﻿    <script src="/wifi/scripts/console.js" type="text/javascript"></script>
+
+    <div id="noscript">Diese Funktion benötigt JavaScript. Bitte dem Webbrowser die Ausführung von JavaScript erlauben.</div>
+    <div id="console" style="display:none">
+      
+      <div id="tabulators">
+        <div class="cssmenu tab">
+          <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
+            <input type="hidden" name="debug" value="">
+            <input type="hidden" name="text" value="Kein Verbindung">
+            <input type="hidden" name="text" value="Keine weiteren aktiven Simulatoren gefunden.">
+            <ul id="options">
+              <li onclick="CreateConsole()"> Neue Konsole </li>
+              <li onclick="Disconnect()"> Aktive Konsole schliessen </li>
+              <li><input type="checkbox" name="mono" value="enable" onclick="ChangedOption(this.name)" /> Mono-Schrift verwenden </li>
+              <li><input type="checkbox" name="trace" value="enable" onclick="ChangedOption(this.name)" checked="checked" /> Ablaufverfolgung einschalten </li>
+              <li><input type="checkbox" name="trace" value="hide" onclick="ChangedOption(this.name)" /> Ablaufverfolgung ausblenden </li>
+              <li><input type="text" name="bufsize" value="1000" size="4" onchange="ChangedOption(this.name)" /> Zeilen puffern </li>
+              <li onclick="UpdateScrollback(99999)"> Alle Zeilen löschen </li>
+            </ul>
+          </form>
+          <span class="symbol">&#x25A4;</span>
+        </div>
+        
+        <div id="rootconsole" class="tab" title="No status">
+          <span class="symbol"><!--&#x22A0;&nbsp;--></span>
+          <span>Konsole</span>&nbsp;
+          <span class="normal"><span class="symbol"><!--&#x25CF;-->&#x25C9;</span></span>
+        </div>
+      </div>
+        
+      <div id="login">
+        <form name="credentials" onsubmit="Connect(); return false" action="#">
+          <div id="simulators">
+            <span>Bitte einen Simulator wählen:</span>
+            <p><input type="radio" name="simulator" value="address" />Simulator an <span>%address%</span> mit Region(en) </p>
+          </div>
+          <p>Adresse & Port: <input name="address" type="text" value="" /></p>
+          <p>Benutzername: <input name="user" type="text" value="<!-- #call method=GetConsoleUser -->" /></p>
+          <p>Kennwort: <input name="password" type="password" value="<!-- #call method=GetConsolePass -->" /></p>
+          <input type="submit" value="Verbinden" class="button" />
+        </form>
+      </div>
+
+      <div id="messages"></div>
+        
+      <div id="command">
+        <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">
+          <div id="prompt">Eingabeaufforderung</div>
+          <div class="inputstyle cmdinput">
+            <input name="command" type="text" value="Befehl" class="inputstyle" />
+          </div>
+          <input type="submit" value="Senden" class="button" />
+          <input type="button" value="Trennen" onclick="Disconnect()" class="button" />
+        </form>
+      </div>
+
+    </div>

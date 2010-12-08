@@ -1,0 +1,209 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Diva.Wifi\n"
+"Report-Msgid-Bugs-To: marck00@nexgo.de\n"
+"POT-Creation-Date: 2010-12-08 17:42+0100\n"
+"PO-Revision-Date: 2010-12-08 18:01+0100\n"
+"Last-Translator: Marck <marck00@nexgo.de>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Female"
+msgstr "Frau"
+
+msgid "Male"
+msgstr "Mann"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Default"
+msgstr "Standard"
+
+msgid "nobody"
+msgstr "niemand"
+
+#: ../ExtensionMethods.cs:155
+msgid "delete"
+msgstr "löschen"
+
+#: ../WebApp/Services.ChangeUserAccount.cs:105
+msgid "Your account has been updated."
+msgstr "Dein Konto wurde aktualisiert."
+
+#: ../WebApp/Services.Hyperlinks.cs:91
+#, csharp-format
+msgid "Failed to link region: {0}"
+msgstr "Es konnte keine Verbindung zur Region hergestellt werden: {0}"
+
+#: ../WebApp/Services.Hyperlinks.cs:93
+#, csharp-format
+msgid "Region link to {0} established. (If this link already existed, then it will remain at the original location.)"
+msgstr "Verbindung zu Region {0} hergestellt. (Falls diese Verbindung bereits vorhanden war, dann hat sie ihre bisherige Position auf der Landkarte behalten.)"
+
+#: ../WebApp/Services.Hyperlinks.cs:96
+msgid "Invalid region address."
+msgstr "Die Adresse der Region ist ungültig."
+
+#: ../WebApp/Services.Hyperlinks.cs:144
+#: ../WebApp/Services.Hyperlinks.cs:190
+msgid "Region link not found."
+msgstr "Hyperlink nicht gefunden."
+
+#: ../WebApp/Services.Hyperlinks.cs:175
+#, csharp-format
+msgid "Deleted region link {0}."
+msgstr "Verbindung zu Region {0} wurde entfernt."
+
+#: ../WebApp/Services.Hyperlinks.cs:179
+#, csharp-format
+msgid "Deletion of region link {0} failed."
+msgstr "Die Verbindung zu Region {0} konnte nicht entfernt werden."
+
+#: ../WebApp/Services.Install.cs:64
+#, csharp-format
+msgid "Your Wifi has been installed. The administrator account is {0} {1}"
+msgstr "Dein Wifi ist jetzt eingerichtet. Das Administratorkonto ist {0} {1}"
+
+#: ../WebApp/Services.Inventory.cs:52
+msgid "Loading your inventory, please wait"
+msgstr "Dein Inventar wird geladen, bitte warten"
+
+#: ../WebApp/Services.Inventory.cs:53
+msgid "If your browser does not automatically load the next page, then use the button, please."
+msgstr "Falls der Browser nicht automatisch auf die nächste Seite wechselt, dann bitte den Knopf benutzen."
+
+#: ../WebApp/Services.Inventory.cs:54
+msgid "continue"
+msgstr "weiter"
+
+#: ../WebApp/Services.LoginLogout.cs:57
+msgid "Login failed."
+msgstr "Anmeldung ist fehlgeschlagen."
+
+#: ../WebApp/Services.LoginLogout.cs:74
+#, csharp-format
+msgid "Welcome to {0}!"
+msgstr "Willkommen zu {0}!"
+
+#: ../WebApp/Services.NewAccount.cs:95
+msgid "Your account has been created."
+msgstr "Dein Nutzerkonto wurde erstellt."
+
+#: ../WebApp/Services.NewAccount.cs:110
+#, csharp-format
+msgid "New account {0} {1} created in {2} is awaiting your approval."
+msgstr "Neues Konto {0} {1} für {2} wartet auf eine Freigabe."
+
+#: ../WebApp/Services.NewAccount.cs:116
+msgid "Account awaiting approval"
+msgstr "Nutzerkonto wartet auf Freigabe."
+
+#: ../WebApp/Services.NewAccount.cs:118
+msgid "Your account awaits administrator approval."
+msgstr "Dein Konto muss vom Administrator freigegeben werden."
+
+#: ../WebApp/Services.NewAccount.cs:173
+msgid "Default Avatar"
+msgstr "Startavatar"
+
+#: ../WebApp/Services.Notify.cs:58
+msgid "OK"
+msgstr "OK"
+
+#: ../WebApp/Services.PasswordRecovery.cs:78
+#, csharp-format
+msgid "Your account is {0} {1}"
+msgstr "Dein Nutzerkonto ist {0} {1}."
+
+#: ../WebApp/Services.PasswordRecovery.cs:79
+msgid "Click here to reset your password:"
+msgstr "Klicke hier, um dein Kennwort neu zu setzen:"
+
+#: ../WebApp/Services.PasswordRecovery.cs:81
+msgid "Password Reset"
+msgstr "Kennwort zurücksetzen"
+
+#: ../WebApp/Services.PasswordRecovery.cs:82
+msgid "Check your email. You must reset your password within 60 minutes."
+msgstr "Eine E-Mail wurde an dich gesendet. Das Kennwort muss innerhalb von 60 Minuten neu gesetzt werden."
+
+#: ../WebApp/Services.PasswordRecovery.cs:84
+msgid "Email could not be sent."
+msgstr "E-Mail konnte nicht gesendet werden."
+
+#: ../WebApp/Services.PasswordRecovery.cs:107
+msgid "Invalid token."
+msgstr "Ungültiges Kennzeichen."
+
+#: ../WebApp/Services.PasswordRecovery.cs:120
+msgid "Your password has been reset."
+msgstr "Dein Kennwort wurde neu gesetzt."
+
+#: ../WebApp/Services.UserManagement.cs:135
+#: ../WebApp/Services.UserManagement.cs:168
+msgid "The account has been updated."
+msgstr "Das Konto wurde aktualisiert."
+
+#: ../WebApp/Services.UserManagement.cs:140
+#: ../WebApp/Services.UserManagement.cs:173
+msgid "The account does not exist."
+msgstr "Dieses Nutzerkonto gibt es nicht."
+
+#: ../WebApp/Services.UserManagement.cs:196
+msgid "The account has been activated."
+msgstr "Das Nutzerkonto wurde freigeschaltet."
+
+#: ../WebApp/Services.UserManagement.cs:238
+msgid "Your account has been activated."
+msgstr "Dein Nutzerkonto wurde freigeschaltet."
+
+#: ../WebApp/Services.UserManagement.cs:239
+msgid "First name:"
+msgstr "Vorname:"
+
+#: ../WebApp/Services.UserManagement.cs:240
+msgid "Last name:"
+msgstr "Nachname:"
+
+#: ../WebApp/Services.UserManagement.cs:241
+msgid "LoginURI:"
+msgstr "LoginURI:"
+
+#: ../WebApp/Services.UserManagement.cs:242
+msgid "Account activated"
+msgstr "Nutzerkonto aktiviert."
+
+#: ../WebApp/Services.UserManagement.cs:297
+msgid "The account has been deleted."
+msgstr "Das Nutzerkonto wurde gelöscht."
+
+#: ../WebApp/Services.UserManagement.cs:302
+msgid "Unable to delete account because it does not exist."
+msgstr "Das Nutzerkonto konnte nicht gelöscht werden, weil es unbekannt ist."
+
+#: ../WebApp/WifiScriptFace.cs:283
+#: ../WebApp/WifiScriptFace.cs:297
+msgid "Who are you?"
+msgstr "Wer da?"
+
+#: ../WebApp/WifiScriptFace.cs:292
+msgid "No email on file"
+msgstr "Keine E-Mail-Adresse vorhanden."
+
+#: ../WebApp/WifiScriptFace.cs:345
+msgid "No linked regions found"
+msgstr "Keine Hyperlink-Regionen gefunden."
+
+#: ../WebApp/WifiScriptFace.cs:369
+msgid "No users found"
+msgstr "Keine Benutzer gefunden."
+
+#: ../WebApp/WifiScriptFace.cs:377
+msgid "No regions found"
+msgstr "Keine Regionen gefunden."
+
+#~ msgid "Region link not found"
+#~ msgstr "Hyperlink nicht gefunden."
