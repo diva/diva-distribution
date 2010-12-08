@@ -1,0 +1,209 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Diva.Wifi\n"
+"Report-Msgid-Bugs-To: marck00@nexgo.de\n"
+"POT-Creation-Date: 2010-12-08 17:42+0100\n"
+"PO-Revision-Date: 2010-12-08 17:57+0100\n"
+"Last-Translator: Marck <marck00@nexgo.de>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Female"
+msgstr "Female"
+
+msgid "Male"
+msgstr "Male"
+
+msgid "Neutral"
+msgstr "Neutral"
+
+msgid "Default"
+msgstr "Default"
+
+msgid "nobody"
+msgstr "nobody"
+
+#: ../ExtensionMethods.cs:155
+msgid "delete"
+msgstr "delete"
+
+#: ../WebApp/Services.ChangeUserAccount.cs:105
+msgid "Your account has been updated."
+msgstr "Your account has been updated."
+
+#: ../WebApp/Services.Hyperlinks.cs:91
+#, csharp-format
+msgid "Failed to link region: {0}"
+msgstr "Failed to link region: {0}"
+
+#: ../WebApp/Services.Hyperlinks.cs:93
+#, csharp-format
+msgid "Region link to {0} established. (If this link already existed, then it will remain at the original location.)"
+msgstr "Region link to {0} established. (If this link already existed, then it will remain at the original location.)"
+
+#: ../WebApp/Services.Hyperlinks.cs:96
+msgid "Invalid region address."
+msgstr "Invalid region address."
+
+#: ../WebApp/Services.Hyperlinks.cs:144
+#: ../WebApp/Services.Hyperlinks.cs:190
+msgid "Region link not found."
+msgstr "Region link not found."
+
+#: ../WebApp/Services.Hyperlinks.cs:175
+#, csharp-format
+msgid "Deleted region link {0}."
+msgstr "Deleted region link {0}."
+
+#: ../WebApp/Services.Hyperlinks.cs:179
+#, csharp-format
+msgid "Deletion of region link {0} failed."
+msgstr "Deletion of region link {0} failed."
+
+#: ../WebApp/Services.Install.cs:64
+#, csharp-format
+msgid "Your Wifi has been installed. The administrator account is {0} {1}"
+msgstr "Your Wifi has been installed. The administrator account is {0} {1}"
+
+#: ../WebApp/Services.Inventory.cs:52
+msgid "Loading your inventory, please wait"
+msgstr "Loading your inventory, please wait"
+
+#: ../WebApp/Services.Inventory.cs:53
+msgid "If your browser does not automatically load the next page, then use the button, please."
+msgstr "If your browser does not automatically load the next page, then use the button, please."
+
+#: ../WebApp/Services.Inventory.cs:54
+msgid "continue"
+msgstr "continue"
+
+#: ../WebApp/Services.LoginLogout.cs:57
+msgid "Login failed."
+msgstr "Login failed."
+
+#: ../WebApp/Services.LoginLogout.cs:74
+#, csharp-format
+msgid "Welcome to {0}!"
+msgstr "Welcome to {0}!"
+
+#: ../WebApp/Services.NewAccount.cs:95
+msgid "Your account has been created."
+msgstr "Your account has been created."
+
+#: ../WebApp/Services.NewAccount.cs:110
+#, csharp-format
+msgid "New account {0} {1} created in {2} is awaiting your approval."
+msgstr "New account {0} {1} created in {2} is awaiting your approval."
+
+#: ../WebApp/Services.NewAccount.cs:116
+msgid "Account awaiting approval"
+msgstr "Account awaiting approval"
+
+#: ../WebApp/Services.NewAccount.cs:118
+msgid "Your account awaits administrator approval."
+msgstr "Your account awaits administrator approval."
+
+#: ../WebApp/Services.NewAccount.cs:173
+msgid "Default Avatar"
+msgstr "Default Avatar"
+
+#: ../WebApp/Services.Notify.cs:58
+msgid "OK"
+msgstr "OK"
+
+#: ../WebApp/Services.PasswordRecovery.cs:78
+#, csharp-format
+msgid "Your account is {0} {1}"
+msgstr "Your account is {0} {1}"
+
+#: ../WebApp/Services.PasswordRecovery.cs:79
+msgid "Click here to reset your password:"
+msgstr "Click here to reset your password:"
+
+#: ../WebApp/Services.PasswordRecovery.cs:81
+msgid "Password Reset"
+msgstr "Password Reset"
+
+#: ../WebApp/Services.PasswordRecovery.cs:82
+msgid "Check your email. You must reset your password within 60 minutes."
+msgstr "Check your email. You must reset your password within 60 minutes."
+
+#: ../WebApp/Services.PasswordRecovery.cs:84
+msgid "Email could not be sent."
+msgstr "Email could not be sent."
+
+#: ../WebApp/Services.PasswordRecovery.cs:107
+msgid "Invalid token."
+msgstr "Invalid token."
+
+#: ../WebApp/Services.PasswordRecovery.cs:120
+msgid "Your password has been reset."
+msgstr "Your password has been reset."
+
+#: ../WebApp/Services.UserManagement.cs:135
+#: ../WebApp/Services.UserManagement.cs:168
+msgid "The account has been updated."
+msgstr "The account has been updated."
+
+#: ../WebApp/Services.UserManagement.cs:140
+#: ../WebApp/Services.UserManagement.cs:173
+msgid "The account does not exist."
+msgstr "The account does not exist."
+
+#: ../WebApp/Services.UserManagement.cs:196
+msgid "The account has been activated."
+msgstr "The account has been activated."
+
+#: ../WebApp/Services.UserManagement.cs:238
+msgid "Your account has been activated."
+msgstr "Your account has been activated."
+
+#: ../WebApp/Services.UserManagement.cs:239
+msgid "First name:"
+msgstr "First name:"
+
+#: ../WebApp/Services.UserManagement.cs:240
+msgid "Last name:"
+msgstr "Last name:"
+
+#: ../WebApp/Services.UserManagement.cs:241
+msgid "LoginURI:"
+msgstr "LoginURI:"
+
+#: ../WebApp/Services.UserManagement.cs:242
+msgid "Account activated"
+msgstr "Account activated"
+
+#: ../WebApp/Services.UserManagement.cs:297
+msgid "The account has been deleted."
+msgstr "The account has been deleted."
+
+#: ../WebApp/Services.UserManagement.cs:302
+msgid "Unable to delete account because it does not exist."
+msgstr "Unable to delete account because it does not exist."
+
+#: ../WebApp/WifiScriptFace.cs:283
+#: ../WebApp/WifiScriptFace.cs:297
+msgid "Who are you?"
+msgstr "Who are you?"
+
+#: ../WebApp/WifiScriptFace.cs:292
+msgid "No email on file"
+msgstr "No email on file"
+
+#: ../WebApp/WifiScriptFace.cs:345
+msgid "No linked regions found"
+msgstr "No linked regions found"
+
+#: ../WebApp/WifiScriptFace.cs:369
+msgid "No users found"
+msgstr "No users found"
+
+#: ../WebApp/WifiScriptFace.cs:377
+msgid "No regions found"
+msgstr "No regions found"
+
+#~ msgid "Region link not found"
+#~ msgstr "Region link not found"
