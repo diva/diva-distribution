@@ -61,11 +61,10 @@ namespace Diva.Wifi
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;
 
-        private readonly int m_AdminUserLevel = 100;
-        public int AdminUserLevel
-        {
-            get { return m_AdminUserLevel; }
-        }
+        public readonly Services Services;
+        public readonly WifiScriptFace WifiScriptFace;
+
+        #region Properties with default settings
 
         private readonly string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
         public string DocsPath
@@ -77,6 +76,116 @@ namespace Diva.Wifi
         public TimeSpan SessionTimeout
         {
             get { return m_SessionTimeout; }
+        }
+
+        private readonly int m_AdminUserLevel = 100;
+        public int AdminUserLevel
+        {
+            get { return m_AdminUserLevel; }
+        }
+
+        private bool m_Installed = false;
+        public bool IsInstalled
+        {
+            get { return m_Installed; }
+            set { m_Installed = value; }
+        }
+
+        #endregion
+
+        #region Properties used by the WifiScript engine and Services
+
+        private int m_Port;
+        public int Port
+        {
+            get { return m_Port; }
+        }
+
+        private string m_GridName;
+        public string GridName
+        {
+            get { return m_GridName; }
+        }
+
+        private string m_LoginURL;
+        public string LoginURL
+        {
+            get { return m_LoginURL; }
+        }
+
+        private string m_WebAddress;
+        public string WebAddress
+        {
+            get { return m_WebAddress; }
+        }
+
+        private string m_AdminFirst;
+        public string AdminFirst
+        {
+            get { return m_AdminFirst; }
+        }
+
+        private string m_AdminLast;
+        public string AdminLast
+        {
+            get { return m_AdminLast; }
+        }
+
+        private string m_AdminEmail;
+        public string AdminEmail
+        {
+            get { return m_AdminEmail; }
+        }
+
+        private string m_ConsoleUser;
+        public string ConsoleUser
+        {
+            get { return m_ConsoleUser; }
+        }
+        private string m_ConsolePass;
+        public string ConsolePass
+        {
+            get { return m_ConsolePass; }
+        }
+
+        private StatisticsDict m_Statistics;
+        public StatisticsDict Statistics
+        {
+            get { return m_Statistics; }
+        }
+
+        #endregion
+
+        #region Properties used by Services
+
+        private string m_AdminPassword;
+        public string AdminPassword
+        {
+            get { return m_AdminPassword; }
+        }
+
+        private CultureInfo m_AdminLanguage;
+        public CultureInfo[] AdminLanguage
+        {
+            get
+            {
+                if (m_LocalizationCachingPeriod == TimeSpan.Zero)
+                    return null;
+                else
+                    return new CultureInfo[] { m_AdminLanguage };
+            }
+        }
+
+        private bool m_AccountConfirmationRequired;
+        public bool AccountConfirmationRequired
+        {
+            get { return m_AccountConfirmationRequired; }
+        }
+
+        private string m_RemoteAdminPassword;
+        public string RemoteAdminPassword
+        {
+            get { return m_RemoteAdminPassword; }
         }
 
         private TimeSpan m_StatisticsUpdateInterval;
@@ -94,76 +203,6 @@ namespace Diva.Wifi
         public short LogMissingTranslations
         {
             get { return m_LogMissingTranslations; }
-        }
-
-        private Type m_ExtensionMethods;
-
-        #region IWebApp variables accessible to the WifiScript engine
-
-        private bool m_Installed = false;
-        public bool IsInstalled
-        {
-            get { return m_Installed; }
-            set { m_Installed = value; }
-        }
-
-        private int m_Port;
-        public int Port
-        {
-            get { return m_Port; }
-        }
-
-        private string m_GridName;
-        public string GridName
-        {
-            get { return m_GridName; }
-        }
-        private string m_LoginURL;
-        public string LoginURL
-        {
-            get { return m_LoginURL; }
-        }
-        private string m_WebAddress;
-        public string WebAddress
-        {
-            get { return m_WebAddress; }
-        }
-
-        private string m_AdminFirst;
-        public string AdminFirst
-        {
-            get { return m_AdminFirst; }
-        }
-        private string m_AdminLast;
-        public string AdminLast
-        {
-            get { return m_AdminLast; }
-        }
-        private string m_AdminEmail;
-        public string AdminEmail
-        {
-            get { return m_AdminEmail; }
-        }
-        private string m_AdminPassword;
-        public string AdminPassword
-        {
-            get { return m_AdminPassword; }
-        }
-        private CultureInfo m_AdminLanguage;
-        public CultureInfo[] AdminLanguage
-        {
-            get {
-                if (m_LocalizationCachingPeriod == TimeSpan.Zero)
-                    return null;
-                else
-                    return new CultureInfo[] { m_AdminLanguage };
-            }
-        }
-
-        private string m_RemoteAdminPassword;
-        public string RemoteAdminPassword
-        {
-            get { return m_RemoteAdminPassword; }
         }
 
         private string m_SmtpHost;
@@ -190,12 +229,6 @@ namespace Diva.Wifi
             get { return m_SmtpPassword; }
         }
 
-        private bool m_AccountConfirmationRequired;
-        public bool AccountConfirmationRequired
-        {
-            get { return m_AccountConfirmationRequired; }
-        }
-
         private Avatar[] m_DefaultAvatars;
         public Avatar[] DefaultAvatars
         {
@@ -218,28 +251,10 @@ namespace Diva.Wifi
         {
             get { return m_HyperlinksShowAll; }
         }
-
-        private string m_ConsoleUser;
-        public string ConsoleUser
-        {
-            get { return m_ConsoleUser; }
-        }
-        private string m_ConsolePass;
-        public string ConsolePass
-        {
-            get { return m_ConsolePass; }
-        }
-
-        private StatisticsDict m_Statistics;
-        public StatisticsDict Statistics
-        {
-            get { return m_Statistics; }
-        }
-
+        
         #endregion
 
-        public readonly Services Services;
-        public readonly WifiScriptFace WifiScriptFace;
+        private Type m_ExtensionMethods;
 
 
         public WebApp(IConfigSource config, string configName, IHttpServer server)
