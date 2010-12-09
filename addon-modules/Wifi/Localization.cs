@@ -63,7 +63,7 @@ namespace Diva.Wifi
         /// </summary>
         /// <param name="acceptLanguage">The value of HTTP header Accept-Language</param>
         /// <returns>
-        /// An array of language codes.
+        /// An array of the preferred languages.
         /// Null, if header is empty or if localization is disabled.
         /// </returns>
         public static CultureInfo[] GetLanguageInfo(string acceptLanguage)
@@ -80,11 +80,15 @@ namespace Diva.Wifi
             if (index != -1)
                 acceptLanguage = acceptLanguage.Remove(index);
 
-            // Assume languages are already ordered by priority and thus discard any
-            // quality values that may be associated with the language codes
+            // Generate CultureInfo from language codes
             List<CultureInfo> languageInfo = new List<CultureInfo>();
             string[] languages = acceptLanguage.Split(new char[] { ',', ' ' },
                 StringSplitOptions.RemoveEmptyEntries);
+            // TODO: Use this instead after the next merge with OpenSim core,
+            //       when WebUtil.QBasedComparer() becomes available
+            //ArrayList languages = new ArrayList(acceptLanguage.Split(new char[] { ',', ' ' },
+            //    StringSplitOptions.RemoveEmptyEntries));
+            //languages.Sort(new WebUtil.QBasedComparer());
             char[] separator = { ';' };
             foreach (string language in languages)
             {

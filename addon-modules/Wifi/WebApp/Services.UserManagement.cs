@@ -209,9 +209,6 @@ namespace Diva.Wifi
                     account.ServiceURLs.Remove("Avatar");
                     string avatarType = (string)value;
 
-                    //string[] languages = null;
-                    //if (account.ServiceURLs.TryGetValue("Language", out value))
-                    //    languages = ((string)value).Split(',');
                     CultureInfo[] languages = null;
                     if (account.ServiceURLs.TryGetValue("Language", out value))
                         languages = Localization.GetLanguageInfo((string)value);

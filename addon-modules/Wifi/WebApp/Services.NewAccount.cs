@@ -82,7 +82,6 @@ namespace Diva.Wifi
                         urls["Avatar"] = avatarType;
                         if (env.LanguageInfo != null)
                             urls["Language"] = Localization.LanguageInfoToString(env.LanguageInfo);
-                            //urls["Language"] = string.Join(",", env.Languages);
                     }
 
                     // Create the account
