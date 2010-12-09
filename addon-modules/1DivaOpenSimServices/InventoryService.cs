@@ -139,20 +139,27 @@ namespace Diva.OpenSimServices
             return "Name: " + Name;
         }
 
-        public string GetNodeType()
+        public string NodeType
         {
-            if (IsFolder())
-                return "folder";
+            get
+            {
+                if (IsFolder())
+                    return "folder";
 
-            return "item";
+                return "item";
+            }
         }
 
-        public string GetItemType()
+        [Translate]
+        public string ItemType
         {
-            if (Children == null)
-                return Type.ToString();
+            get
+            {
+                if (Children == null)
+                    return Type.ToString();
 
-            return string.Empty;
+                return string.Empty;
+            }
         }
 
 

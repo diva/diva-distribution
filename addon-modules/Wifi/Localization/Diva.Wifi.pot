@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diva.Wifi\n"
 "Report-Msgid-Bugs-To: marck00@nexgo.de\n"
-"POT-Creation-Date: 2010-12-09 18:13+0100\n"
+"POT-Creation-Date: 2010-12-09 18:39+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Marck <marck00@nexgo.de>\n"
 "Language-Team: \n"
@@ -58,7 +58,7 @@ msgstr ""
 msgid "Calling Cards"
 msgstr ""
 
-# Inventory system folder
+# Inventory system folder and asset type
 msgid "Clothing"
 msgstr ""
 
@@ -108,6 +108,130 @@ msgstr ""
 
 # Inventory system folder
 msgid "Trash"
+msgstr ""
+
+# Asset type
+msgid "Unknown"
+msgstr ""
+
+# Asset type
+msgid "Texture"
+msgstr ""
+
+# Asset type
+msgid "Sound"
+msgstr ""
+
+# Asset type
+msgid "CallingCard"
+msgstr ""
+
+# Asset type
+msgid "Landmark"
+msgstr ""
+
+# Asset type
+msgid "Object"
+msgstr ""
+
+# Asset type
+msgid "Notecard"
+msgstr ""
+
+# Asset type
+msgid "Folder"
+msgstr ""
+
+# Asset type
+msgid "RootFolder"
+msgstr ""
+
+# Asset type
+msgid "LSLText"
+msgstr ""
+
+# Asset type
+msgid "LSLBytecode"
+msgstr ""
+
+# Asset type
+msgid "TextureTGA"
+msgstr ""
+
+# Asset type
+msgid "Bodypart"
+msgstr ""
+
+# Asset type
+msgid "TrashFolder"
+msgstr ""
+
+# Asset type
+msgid "SnapshotFolder"
+msgstr ""
+
+# Asset type
+msgid "LostAndFoundFolder"
+msgstr ""
+
+# Asset type
+msgid "SoundWAV"
+msgstr ""
+
+# Asset type
+msgid "ImageTGA"
+msgstr ""
+
+# Asset type
+msgid "ImageJPEG"
+msgstr ""
+
+# Asset type
+msgid "Animation"
+msgstr ""
+
+# Asset type
+msgid "Gesture"
+msgstr ""
+
+# Asset type
+msgid "Simstate"
+msgstr ""
+
+# Asset type
+msgid "FavoriteFolder"
+msgstr ""
+
+# Asset type
+msgid "Link"
+msgstr ""
+
+# Asset type
+msgid "LinkFolder"
+msgstr ""
+
+# Asset type
+msgid "EnsembleStart"
+msgstr ""
+
+# Asset type
+msgid "EnsembleEnd"
+msgstr ""
+
+# Asset type
+msgid "CurrentOutfitFolder"
+msgstr ""
+
+# Asset type
+msgid "OutfitFolder"
+msgstr ""
+
+# Asset type
+msgid "MyOutfitsFolder"
+msgstr ""
+
+# Asset type
+msgid "Mesh"
 msgstr ""
 
 # Button Label

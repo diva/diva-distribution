@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diva.Wifi\n"
 "Report-Msgid-Bugs-To: marck00@nexgo.de\n"
-"POT-Creation-Date: 2010-12-09 18:13+0100\n"
-"PO-Revision-Date: 2010-12-09 18:20+0100\n"
+"POT-Creation-Date: 2010-12-09 18:39+0100\n"
+"PO-Revision-Date: 2010-12-09 18:47+0100\n"
 "Last-Translator: Marck <marck00@nexgo.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -81,6 +81,99 @@ msgstr "Textures"
 
 msgid "Trash"
 msgstr "Trash"
+
+msgid "Unknown"
+msgstr "Unknown"
+
+msgid "Texture"
+msgstr "Texture"
+
+msgid "Sound"
+msgstr "Sound"
+
+msgid "CallingCard"
+msgstr "Calling Card"
+
+msgid "Landmark"
+msgstr "Landmark"
+
+msgid "Object"
+msgstr "Object"
+
+msgid "Notecard"
+msgstr "Notecard"
+
+msgid "Folder"
+msgstr "Folder"
+
+msgid "RootFolder"
+msgstr "Root Folder"
+
+msgid "LSLText"
+msgstr "LSL Text"
+
+msgid "LSLBytecode"
+msgstr "LSL Bytecode"
+
+msgid "TextureTGA"
+msgstr "Texture TGA"
+
+msgid "Bodypart"
+msgstr "Body Part"
+
+msgid "TrashFolder"
+msgstr "Trash Folder"
+
+msgid "SnapshotFolder"
+msgstr "Snapshot Folder"
+
+msgid "LostAndFoundFolder"
+msgstr "Lost And Found Folder"
+
+msgid "SoundWAV"
+msgstr "Sound WAV"
+
+msgid "ImageTGA"
+msgstr "Image TGA"
+
+msgid "ImageJPEG"
+msgstr "Image JPEG"
+
+msgid "Animation"
+msgstr "Animation"
+
+msgid "Gesture"
+msgstr "Gesture"
+
+msgid "Simstate"
+msgstr "Sim State"
+
+msgid "FavoriteFolder"
+msgstr "Favorite Folder"
+
+msgid "Link"
+msgstr "Link"
+
+msgid "LinkFolder"
+msgstr "Link Folder"
+
+msgid "EnsembleStart"
+msgstr "Ensemble Start"
+
+msgid "EnsembleEnd"
+msgstr "Ensemble End"
+
+msgid "CurrentOutfitFolder"
+msgstr "Current Outfit Folder"
+
+msgid "OutfitFolder"
+msgstr "Outfit Folder"
+
+msgid "MyOutfitsFolder"
+msgstr "My Outfits Folder"
+
+msgid "Mesh"
+msgstr "Mesh"
 
 #: ../ExtensionMethods.cs:155
 msgid "delete"

@@ -26,9 +26,8 @@
  */
 
 using System;
-using Diva.Wifi;
 
-namespace Diva.Wifi.WifiScript
+namespace Diva.OpenSimServices
 {
     /// <summary>
     /// Custom attribute for requesting translation of WifiScript properties

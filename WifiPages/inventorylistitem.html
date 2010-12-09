@@ -1,8 +1,8 @@
   <div class="bodytext">
-    <input class="checkbox" type="checkbox" name="inv-<!-- #get field=ID -->" value="<!-- #call method=GetNodeType -->" />
+    <input class="checkbox" type="checkbox" name="inv-<!-- #get field=ID -->" value="<!-- #get var=NodeType -->" />
     <span class="item">
       <span class="itemname"><!-- #call method=Indent --><!-- #call method=GetNodeName --></span>
-      <span class="itemtype"><!-- #call method=GetItemType --></span>
+      <span class="itemtype"><!-- #get var=ItemType --></span>
     </span>
     <!-- #call method=GetInventoryChildren -->
   </div>

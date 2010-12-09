@@ -19,6 +19,8 @@
   <Reference name="Nini.dll"/>
   <Reference name="log4net.dll"/>
 
+  <Reference name="Diva.OpenSimServices"/>
+
   <Files>
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
