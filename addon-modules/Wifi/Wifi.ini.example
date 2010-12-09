@@ -1,92 +1,92 @@
 [Startup]
-	ServiceConnectors = "Diva.Wifi.dll:WifiServerConnector"
+    ServiceConnectors = "Diva.Wifi.dll:WifiServerConnector"
 
 [Network]
-	port = 8002
+    port = 8002
 
 [DatabaseService]
-	StorageProvider = "OpenSim.Data.MySQL.dll"
-	ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
+    StorageProvider = "OpenSim.Data.MySQL.dll"
+    ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
 
 [WifiService]
-	GridName = "My World"
-	LoginURL = "http://localhost:8002"
-	WebAddress = "http://localhost:8002"
+    GridName = "My World"
+    LoginURL = "http://localhost:8002"
+    WebAddress = "http://localhost:8002"
 
-	;; The Wifi Administrator account
-	AdminFirst = "Admin"
-	AdminLast = "Admin"
-	AdminEmail = "your@email.com"
+    ;; The Wifi Administrator account
+    AdminFirst = "Admin"
+    AdminLast = "Admin"
+    AdminEmail = "your@email.com"
 
-	;; Do you want to be able to control grid registrations?
-	AccountConfirmationRequired = false
+    ;; Do you want to be able to control grid registrations?
+    AccountConfirmationRequired = false
 
-	;; Time interval in seconds for updating statistics data for variables like
-	;; UsersInworld, UsersTotal, and RegionsTotal.
-	;; Default value 0 disables data updates.
-	; StatisticsUpdateInterval = 60
+    ;; Time interval in seconds for updating statistics data for variables like
+    ;; UsersInworld, UsersTotal, and RegionsTotal.
+    ;; Default value 0 disables data updates.
+    ; StatisticsUpdateInterval = 60
 
-	;; Default avatars for new account registration
-	;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"
-	;;         (replace spaces in <AvatarType> with underscore)
-	;; Appearance and attachments are copied from avatar <FirstName> <LastName>.
-	AvatarAccount_Female = "Female Avatar"
-	AvatarAccount_Male = "Male Avatar"
-	AvatarAccount_Neutral = "Neutral Avatar"
+    ;; Default avatars for new account registration
+    ;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"
+    ;;         (replace spaces in <AvatarType> with underscore)
+    ;; Appearance and attachments are copied from avatar <FirstName> <LastName>.
+    AvatarAccount_Female = "Female Avatar"
+    AvatarAccount_Male = "Male Avatar"
+    AvatarAccount_Neutral = "Neutral Avatar"
 
-	;; Preselection for default avatar in new account registration
-	AvatarPreselection = "Neutral"
+    ;; Preselection for default avatar in new account registration
+    AvatarPreselection = "Neutral"
 
-	;; Home location for new accounts
-	;; If empty or not set, then the selected default avatar's home location is used.
-	; HomeLocation = "<RegionName>/<X>/<Y>/<Z>"
+    ;; Home location for new accounts
+    ;; If empty or not set, then the selected default avatar's home location is used.
+    ; HomeLocation = "<RegionName>/<X>/<Y>/<Z>"
 
-	;; Accounts with this or a higher user level are able to create links to
-	;; hypergrid regions. Other users are only able to view existing hyperlinks.
-	HyperlinkServiceUserLevel = 50
-	;; Show everbody's hyperlinks or only global and their own linked regions to users
-	HyperlinkServiceUsersSeeAll = true
+    ;; Accounts with this or a higher user level are able to create links to
+    ;; hypergrid regions. Other users are only able to view existing hyperlinks.
+    HyperlinkServiceUserLevel = 50
+    ;; Show everbody's hyperlinks or only global and their own linked regions to users
+    HyperlinkServiceUsersSeeAll = true
 
-	;; Variables for your mail server
-	;; Users will get email notifications from this account
-	SmtpHost = "smtp.gmail.com"
-	SmtpPort = "587"
-	SmtpUsername = "your_account_in_this_mail_server"
-	SmtpPassword = "your_password_in_this_mail_server"
+    ;; Variables for your mail server
+    ;; Users will get email notifications from this account
+    SmtpHost = "smtp.gmail.com"
+    SmtpPort = "587"
+    SmtpUsername = "your_account_in_this_mail_server"
+    SmtpPassword = "your_password_in_this_mail_server"
 
-	;; ### Localization
+    ;; ### Localization
 
-	;; Enable localization by setting this to a value other than 0.
-	;; This specifies the time in hours before the internally cached
-	;; localization data expires. The default value is 0 which disables
-	;; all localizations and uses the English default.
-	; LocalizationCachingPeriod = 24
+    ;; Enable localization by setting this to a value other than 0.
+    ;; This specifies the time in hours before the internally cached
+    ;; localization data expires. The default value is 0 which disables
+    ;; all localizations and uses the English default.
+    ; LocalizationCachingPeriod = 24
 
-	;; Set language for automatic messages to the administrator, e.g. for
-	;; account creation e-mails.
-	;; This is used only when localization is enabled.
-	; AdminLanguage = "en-US"
+    ;; Set language for automatic messages to the administrator, e.g. for
+    ;; account creation e-mails.
+    ;; This is used only when localization is enabled.
+    ; AdminLanguage = "en-US"
 
-	;; Log warnings about missing translations.
-	;; This is mainly useful for identifying demand for new translations
-	;; or for debugging localization resources. Default setting is 1.
-	;; 0 disables all warnings about missing translations.
-	;; 1 warns about phrases without translations in any of the available
-	;;   languages.
-	;; 2 additionally warns when phrases can not be translated into one or
-	;;   more of the languages requested by a user.
-	; LogMissingTranslations = 0
+    ;; Log warnings about missing translations.
+    ;; This is mainly useful for identifying demand for new translations
+    ;; or for debugging localization resources. Default setting is 1.
+    ;; 0 disables all warnings about missing translations.
+    ;; 1 warns about phrases without translations in any of the available
+    ;;   languages.
+    ;; 2 additionally warns when phrases can not be translated into one or
+    ;;   more of the languages requested by a user.
+    ; LogMissingTranslations = 0
 
 [GridService]
-	StorageProvider = "Diva.Data.MySQL.dll"
+        StorageProvider = "Diva.Data.MySQL.dll"
 
 [UserAccountService]
-	StorageProvider = "Diva.Data.MySQL.dll"
+        StorageProvider = "Diva.Data.MySQL.dll"
 
 [AuthenticationService]
 
 [GridUserService]
-	StorageProvider = "Diva.Data.MySQL.dll"
+        StorageProvider = "Diva.Data.MySQL.dll"
 
 ;; To use Wifi with SQLite, put WifiSQLite.ini in directory bin/config-include/storage
 ;; (Robust.exe will not read any includes.)
