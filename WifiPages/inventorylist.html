@@ -1,21 +1,21 @@
 <script src="/wifi/scripts/inventorylist.js" type="text/javascript"></script>
 
-<form action="/wifi/user/inventory" method="post" id="inventory" >
+<form id="inventory" action="/wifi/user/inventory" method="post" >
   <p>
     <select name="folder">
       <!-- #call method=GetFolders-->
     </select>
-    <input type="submit" name="action" value="&lsaquo;&ndash; new folder" class="button" /> 
+    <input type="submit" name="action-new" value="&lsaquo;&ndash; new folder" class="button" /> 
     <input type="text" name="newFolderName" class="inputstyle" /> 
   </p>
   <p>
-    <input type="submit" name="action" value="&darr; move to &uarr;" class="button" />
+    <input type="submit" name="action-move" value="&darr; move to &uarr;" class="button" />
     <span id="loading" class="white">Preparing inventory <img src="/wifi/images/loader.gif" /></span>
   </p>
 
   <!-- #include file=inventorylistitem.html -->
 
   <p>
-    <input type="submit" name="action" value="&uarr; delete" class="button" />
+    <input type="submit" name="action-delete" value="&uarr; delete" class="button" />
   </p>
 </form>

@@ -5,17 +5,17 @@
     <select name="folder">
       <!-- #call method=GetFolders-->
     </select>
-    <input type="submit" name="action" value="&lsaquo;&ndash; Neuer Ordner" class="button" /> 
+    <input type="submit" name="action-new" value="&lsaquo;&ndash; Neuer Ordner" class="button" /> 
     <input type="text" name="newFolderName" class="inputstyle" /> 
   </p>
   <p>
-    <input type="submit" name="action" value="&darr; verschieben &uarr;" class="button" />
+    <input type="submit" name="action-move" value="&darr; verschieben &uarr;" class="button" />
     <span id="loading" class="white">Inventar wird aufbereitet <img src="/wifi/images/loader.gif" /></span>
   </p>
 
   <!-- #include file=inventorylistitem.html -->
 
   <p>
-    <input type="submit" name="action" value="&uarr; löschen" class="button" />
+    <input type="submit" name="action-delete" value="&uarr; löschen" class="button" />
   </p>
 </form>

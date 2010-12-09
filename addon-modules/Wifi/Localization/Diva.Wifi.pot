@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diva.Wifi\n"
 "Report-Msgid-Bugs-To: marck00@nexgo.de\n"
-"POT-Creation-Date: 2010-12-08 17:42+0100\n"
+"POT-Creation-Date: 2010-12-09 18:13+0100\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Marck <marck00@nexgo.de>\n"
 "Language-Team: \n"
@@ -32,6 +32,82 @@ msgstr ""
 
 # Region owner name for hyperlinks owned by nobody.
 msgid "nobody"
+msgstr ""
+
+# Inventory system folder
+msgid "My Inventory"
+msgstr ""
+
+# Inventory system folder
+msgid "My Outfits"
+msgstr ""
+
+# Inventory system folder
+msgid "My Suitcase"
+msgstr ""
+
+# Inventory system folder
+msgid "Animations"
+msgstr ""
+
+# Inventory system folder
+msgid "Body Parts"
+msgstr ""
+
+# Inventory system folder
+msgid "Calling Cards"
+msgstr ""
+
+# Inventory system folder
+msgid "Clothing"
+msgstr ""
+
+# Inventory system folder
+msgid "Current Outfit"
+msgstr ""
+
+# Inventory system folder
+msgid "Favorites"
+msgstr ""
+
+# Inventory system folder
+msgid "Gestures"
+msgstr ""
+
+# Inventory system folder
+msgid "Landmarks"
+msgstr ""
+
+# Inventory system folder
+msgid "Lost And Found"
+msgstr ""
+
+# Inventory system folder
+msgid "Notecards"
+msgstr ""
+
+# Inventory system folder
+msgid "Objects"
+msgstr ""
+
+# Inventory system folder
+msgid "Photo Album"
+msgstr ""
+
+# Inventory system folder
+msgid "Scripts"
+msgstr ""
+
+# Inventory system folder
+msgid "Sounds"
+msgstr ""
+
+# Inventory system folder
+msgid "Textures"
+msgstr ""
+
+# Inventory system folder
+msgid "Trash"
 msgstr ""
 
 # Button Label

@@ -109,11 +109,11 @@ namespace Diva.Wifi
             {
                 env.Session = sinfo;
 
-                if (action.Contains("delete"))
+                if (action == "delete")
                     Delete(sinfo.Account.PrincipalID, nodes, types);
-                else if (action.Contains("move"))
+                else if (action == "move")
                     Move(sinfo.Account.PrincipalID, nodes, types, folder);
-                else if (action.Contains("new"))
+                else if (action == "new")
                     NewFolder(sinfo.Account.PrincipalID, newFolderName, folder);
 
                 // Send the [new] inventory list

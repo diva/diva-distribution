@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Diva.Wifi\n"
 "Report-Msgid-Bugs-To: marck00@nexgo.de\n"
-"POT-Creation-Date: 2010-12-08 17:42+0100\n"
-"PO-Revision-Date: 2010-12-08 17:57+0100\n"
+"POT-Creation-Date: 2010-12-09 18:13+0100\n"
+"PO-Revision-Date: 2010-12-09 18:20+0100\n"
 "Last-Translator: Marck <marck00@nexgo.de>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -24,6 +24,63 @@ msgstr "Default"
 
 msgid "nobody"
 msgstr "nobody"
+
+msgid "My Inventory"
+msgstr "My Inventory"
+
+msgid "My Outfits"
+msgstr "My Outfits"
+
+msgid "My Suitcase"
+msgstr "My Suitcase"
+
+msgid "Animations"
+msgstr "Animations"
+
+msgid "Body Parts"
+msgstr "Body Parts"
+
+msgid "Calling Cards"
+msgstr "Calling Cards"
+
+msgid "Clothing"
+msgstr "Clothing"
+
+msgid "Current Outfit"
+msgstr "Current Outfit"
+
+msgid "Favorites"
+msgstr "Favorites"
+
+msgid "Gestures"
+msgstr "Gestures"
+
+msgid "Landmarks"
+msgstr "Landmarks"
+
+msgid "Lost And Found"
+msgstr "Lost And Found"
+
+msgid "Notecards"
+msgstr "Notecards"
+
+msgid "Objects"
+msgstr "Objects"
+
+msgid "Photo Album"
+msgstr "Photo Album"
+
+msgid "Scripts"
+msgstr "Scripts"
+
+msgid "Sounds"
+msgstr "Sounds"
+
+msgid "Textures"
+msgstr "Textures"
+
+msgid "Trash"
+msgstr "Trash"
 
 #: ../ExtensionMethods.cs:155
 msgid "delete"

@@ -26,6 +26,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
@@ -88,6 +89,13 @@ namespace Diva.Wifi
             return indent;
         }
 
+        public static string GetNodeName(this InventoryTreeNode node, IEnvironment env)
+        {
+            if (node.Depth <= 2 && node.IsFolder())
+                return Localization.Translate(env, node.Name); // translate system folder names
+            return node.Name;
+        }
+
         public static string GetFolders(this InventoryTreeNode node, IEnvironment env)
         {
             Environment env2 = (Environment)env;
@@ -100,21 +108,21 @@ namespace Diva.Wifi
                 try
                 {
                     InventoryTreeNode n = (InventoryTreeNode)obj;
-                    if (n.Children != null) // it's a folder
+                    if (n.IsFolder())
                     {
                         // first node is the very top root, UUID.Zero
                         foreach (InventoryTreeNode child in n.Children)
                         {
-                            string name = child.Name;
+                            string name = Localization.Translate(env, child.Name);
                             if (name.Length > 40)
                                 name = name.Substring(0, 40);
                             result += "<option value=\"" + child.ID + "\">" + name + "</option>\n";
-                            foreach (InventoryTreeNode gchild in child.Children)
+                            foreach (InventoryTreeNode gchild in child.Children.Where(c => c.IsFolder()))
                             {
-                                name = child.Name + "/" + gchild.Name;
-                                if (name.Length > 40)
-                                    name = name.Substring(0, 40);
-                                result += "<option value=\"" + gchild.ID + "\">" + name + "</option>\n";
+                                string childName = name + "/" + Localization.Translate(env, gchild.Name);
+                                if (childName.Length > 40)
+                                    childName = childName.Substring(0, 40);
+                                result += "<option value=\"" + gchild.ID + "\">" + childName + "</option>\n";
                             }
                         }
                     }

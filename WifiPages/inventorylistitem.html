@@ -1,7 +1,7 @@
   <div class="bodytext">
     <input class="checkbox" type="checkbox" name="inv-<!-- #get field=ID -->" value="<!-- #call method=GetNodeType -->" />
     <span class="item">
-      <span class="itemname"><!-- #call method=Indent --><!-- #get field=Name --></span>
+      <span class="itemname"><!-- #call method=Indent --><!-- #call method=GetNodeName --></span>
       <span class="itemtype"><!-- #call method=GetItemType --></span>
     </span>
     <!-- #call method=GetInventoryChildren -->

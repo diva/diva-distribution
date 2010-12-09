@@ -24,27 +24,14 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-
-using Nini.Config;
-using log4net;
-using System;
-using System.Reflection;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Web;
-
 using System.Collections.Generic;
-using OpenSim.Server.Base;
-using OpenSim.Services.Interfaces;
-using OpenSim.Framework;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using OpenSim.Framework.Servers.HttpServer;
-using OpenMetaverse;
+using OpenSim.Server.Base;
 
-using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
 {
@@ -98,7 +85,7 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
             httpResponse.ContentType = "text/html";
             string resource = GetParam(path);
-            //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
+            //m_log.DebugFormat("[INVENTORY HANDLER HANDLER GET]: resource {0}", resource);
 
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
@@ -133,7 +120,7 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
             httpResponse.ContentType = "text/html";
             string resource = GetParam(path);
-            //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
+            //m_log.DebugFormat("[INVENTORY HANDLER POST]: resource {0}", resource);
 
             StreamReader sr = new StreamReader(requestData);
             string body = sr.ReadToEnd();
@@ -145,14 +132,17 @@ namespace Diva.Wifi
             Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
-            string action = string.Empty;
+            string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));
+            if (action == null)
+                action = string.Empty;
+            else
+                action = action.Substring("action-".Length);
+            
             string folder = string.Empty;
             string newFolderName = string.Empty;
             List<string> nodes = new List<string>();
             List<string> types = new List<string>();
 
-            if (postdata.ContainsKey("action"))
-                action = postdata["action"].ToString();
             if (postdata.ContainsKey("folder"))
                 folder = postdata["folder"].ToString();
             if (postdata.ContainsKey("newFolderName"))
