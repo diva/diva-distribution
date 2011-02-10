@@ -191,7 +191,7 @@ namespace Diva.Wifi
                 if (m_Sessions.Contains(sid))
                 {
                     SessionInfo session;
-                    if (m_Sessions.TryGetValue(sid, out session) && 
+                    if (m_Sessions.TryGetValue(sid, out session) &&
                         session.IpAddress == request.IPEndPoint.Address.ToString())
                     {
                         sinfo = session;

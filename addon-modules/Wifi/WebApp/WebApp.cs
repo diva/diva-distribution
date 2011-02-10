@@ -72,8 +72,8 @@ namespace Diva.Wifi
             get { return m_DocsPath; }
         }
 
-        private readonly TimeSpan m_SessionTimeout = TimeSpan.FromMinutes(30.0d);
-        public TimeSpan SessionTimeout
+        private readonly double m_SessionTimeout = 30*60; // 30 minutes
+        public double SessionTimeout
         {
             get { return m_SessionTimeout; }
         }
