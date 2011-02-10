@@ -69,6 +69,7 @@ namespace OpenSim.Region.Framework.Scenes
         public bool IsDeleted
         {
             get { return m_isDeleted; }
+            set { m_isDeleted = value; }
         }
         protected bool m_isDeleted;
 
@@ -130,8 +131,6 @@ namespace OpenSim.Region.Framework.Scenes
         {
             return (EntityBase) MemberwiseClone();
         }
-
-        public abstract void SetText(string text, Vector3 color, double alpha);
     }
 
     //Nested Classes

@@ -30,7 +30,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
 using log4net;
-using Mono.Data.Sqlite;
+#if CSharpSqlite
+    using Community.CsharpSqlite.Sqlite;
+#else
+    using Mono.Data.Sqlite;
+#endif
 using OpenMetaverse;
 using OpenSim.Framework;
 
@@ -152,7 +156,7 @@ namespace OpenSim.Data.SQLite
             item.InvType = Convert.ToInt32(row["invType"]);
             item.Folder = new UUID((string) row["parentFolderID"]);
             item.Owner = new UUID((string) row["avatarID"]);
-            item.CreatorId = (string)row["creatorsID"];
+            item.CreatorIdentification = (string)row["creatorsID"];
             item.Name = (string) row["inventoryName"];
             item.Description = (string) row["inventoryDescription"];
 
@@ -197,7 +201,7 @@ namespace OpenSim.Data.SQLite
             row["invType"] = item.InvType;
             row["parentFolderID"] = item.Folder.ToString();
             row["avatarID"] = item.Owner.ToString();
-            row["creatorsID"] = item.CreatorId.ToString();
+            row["creatorsID"] = item.CreatorIdentification.ToString();
             row["inventoryName"] = item.Name;
             row["inventoryDescription"] = item.Description;
 
@@ -731,12 +735,12 @@ namespace OpenSim.Data.SQLite
          **********************************************************************/
 
         protected void CreateDataSetMapping(IDataAdapter da, string tableName)
-        {       
+        {
             ITableMapping dbMapping = da.TableMappings.Add(tableName, tableName);
             foreach (DataColumn col in ds.Tables[tableName].Columns)
-            {       
+            {
                 dbMapping.ColumnMappings.Add(col.ColumnName, col.ColumnName);
-            }       
+            }
         }
 
         /// <summary>

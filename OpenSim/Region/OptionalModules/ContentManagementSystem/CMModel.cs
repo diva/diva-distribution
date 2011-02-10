@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -167,9 +167,12 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         public void RemoveOrUpdateDeletedEntity(SceneObjectGroup group)
         {
             // Deal with new parts not revisioned that have been deleted.
-            foreach (SceneObjectPart part in group.Children.Values)
-                if (m_MetaEntityCollection.Auras.ContainsKey(part.UUID))
-                    m_MetaEntityCollection.RemoveNewlyCreatedEntityAura(part.UUID);
+            SceneObjectPart[] parts = group.Parts;
+            for (int i = 0; i < parts.Length; i++)
+            {
+                if (m_MetaEntityCollection.Auras.ContainsKey(parts[i].UUID))
+                        m_MetaEntityCollection.RemoveNewlyCreatedEntityAura(parts[i].UUID);
+            }
         }
 
         /// <summary>
@@ -207,8 +210,11 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                 {
                     temp = SceneObjectSerializer.FromXml2Format(xml);
                     temp.SetScene(scene);
-                    foreach (SceneObjectPart part in temp.Children.Values)
-                        part.RegionHandle = scene.RegionInfo.RegionHandle;
+
+                    SceneObjectPart[] parts = temp.Parts;
+                    for (int i = 0; i < parts.Length; i++)
+                        parts[i].RegionHandle = scene.RegionInfo.RegionHandle;
+                    
                     ReplacementList.Add(temp.UUID, (EntityBase)temp);
                 }
                 catch (Exception e)
@@ -255,7 +261,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                     scene.PhysicsScene.RemovePrim(((SceneObjectGroup)scene.Entities[uuid]).RootPart.PhysActor);
                     scene.SendKillObject(scene.Entities[uuid].LocalId);
                     scene.SceneGraph.DeleteSceneObject(uuid, false);
-                    ((SceneObjectGroup)scene.Entities[uuid]).DeleteGroup(false);
+                    ((SceneObjectGroup)scene.Entities[uuid]).DeleteGroupFromScene(false);
                 }
                 catch(Exception e)
                 {
@@ -292,7 +298,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                 }
             }
             m_log.Info("[CMMODEL]: Scheduling a backup of new scene object groups to backup.");
-            scene.Backup();
+            scene.Backup(true);
         }
 
         /// <summary>
@@ -338,15 +344,19 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
             System.Collections.ArrayList auraList = new System.Collections.ArrayList();
             if (group == null)
                 return null;
-            foreach (SceneObjectPart part in group.Children.Values)
+
+            SceneObjectPart[] parts = group.Parts;
+            for (int i = 0; i < parts.Length; i++)
             {
+                SceneObjectPart part = parts[i];
                 if (m_MetaEntityCollection.Auras.ContainsKey(part.UUID))
                 {
-                    ((AuraMetaEntity)m_MetaEntityCollection.Auras[part.UUID]).SetAura(new Vector3(0,254,0), part.Scale);
+                    ((AuraMetaEntity)m_MetaEntityCollection.Auras[part.UUID]).SetAura(new Vector3(0, 254, 0), part.Scale);
                     ((AuraMetaEntity)m_MetaEntityCollection.Auras[part.UUID]).RootPart.GroupPosition = part.GetWorldPosition();
                     auraList.Add((AuraMetaEntity)m_MetaEntityCollection.Auras[part.UUID]);
                 }
             }
+            
             return auraList;
         }
 

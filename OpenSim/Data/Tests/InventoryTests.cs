@@ -37,10 +37,6 @@ using log4net;
 using System.Reflection;
 using System.Data.Common;
 
-#if !NUNIT25
-using NUnit.Framework.SyntaxHelpers;
-#endif
-
 // DBMS-specific:
 using MySql.Data.MySqlClient;
 using OpenSim.Data.MySQL;
@@ -327,7 +323,8 @@ namespace OpenSim.Data.Tests
                                     .IgnoreProperty(x => x.InvType)
                                     .IgnoreProperty(x => x.CreatorIdAsUuid)
                                     .IgnoreProperty(x => x.Description)
-                                    .IgnoreProperty(x => x.CreatorId));
+                                    .IgnoreProperty(x => x.CreatorIdentification)
+                                    .IgnoreProperty(x => x.CreatorData));
 
             inventoryScrambler.Scramble(expected);
             db.updateInventoryItem(expected);
@@ -337,7 +334,8 @@ namespace OpenSim.Data.Tests
                                     .IgnoreProperty(x => x.InvType)
                                     .IgnoreProperty(x => x.CreatorIdAsUuid)
                                     .IgnoreProperty(x => x.Description)
-                                    .IgnoreProperty(x => x.CreatorId));
+                                    .IgnoreProperty(x => x.CreatorIdentification)
+                                    .IgnoreProperty(x => x.CreatorData));
         }
 
         [Test]

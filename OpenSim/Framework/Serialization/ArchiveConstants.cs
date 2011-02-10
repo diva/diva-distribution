@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using OpenMetaverse;
 
 namespace OpenSim.Framework.Serialization
@@ -111,6 +112,7 @@ namespace OpenSim.Framework.Serialization
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.LostAndFoundFolder]  = ASSET_EXTENSION_SEPARATOR + "lostandfoundfolder.txt";   // Not sure if we'll ever see this
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.LSLBytecode]         = ASSET_EXTENSION_SEPARATOR + "bytecode.lso";
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.LSLText]             = ASSET_EXTENSION_SEPARATOR + "script.lsl";
+            ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.Mesh]                = ASSET_EXTENSION_SEPARATOR + "mesh.llmesh";
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.Notecard]            = ASSET_EXTENSION_SEPARATOR + "notecard.txt";
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.Object]              = ASSET_EXTENSION_SEPARATOR + "object.xml";
             ASSET_TYPE_TO_EXTENSION[(sbyte)AssetType.RootFolder]          = ASSET_EXTENSION_SEPARATOR + "rootfolder.txt";   // Not sure if we'll ever see this
@@ -134,6 +136,7 @@ namespace OpenSim.Framework.Serialization
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "lostandfoundfolder.txt"]   = (sbyte)AssetType.LostAndFoundFolder;
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "bytecode.lso"]             = (sbyte)AssetType.LSLBytecode;
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "script.lsl"]               = (sbyte)AssetType.LSLText;
+            EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "mesh.llmesh"]              = (sbyte)AssetType.Mesh;
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "notecard.txt"]             = (sbyte)AssetType.Notecard;
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "object.xml"]               = (sbyte)AssetType.Object;
             EXTENSION_TO_ASSET_TYPE[ASSET_EXTENSION_SEPARATOR + "rootfolder.txt"]           = (sbyte)AssetType.RootFolder;
@@ -156,9 +159,9 @@ namespace OpenSim.Framework.Serialization
         public static string CreateOarObjectFilename(string objectName, UUID uuid, Vector3 pos)
         {
             return string.Format(
-                OAR_OBJECT_FILENAME_TEMPLATE, objectName, 
+                OAR_OBJECT_FILENAME_TEMPLATE, objectName,
                 Math.Round(pos.X), Math.Round(pos.Y), Math.Round(pos.Z),
-                uuid);            
+                uuid);
         }
 
         /// <summary>
@@ -170,7 +173,31 @@ namespace OpenSim.Framework.Serialization
         /// <returns></returns>
         public static string CreateOarObjectPath(string objectName, UUID uuid, Vector3 pos)
         {
-            return OBJECTS_PATH + CreateOarObjectFilename(objectName, uuid, pos);          
-        }        
+            return OBJECTS_PATH + CreateOarObjectFilename(objectName, uuid, pos);
+        }
+
+        /// <summary>
+        /// Extract a plain path from an IAR path
+        /// </summary>
+        /// <param name="iarPath"></param>
+        /// <returns></returns>
+        public static string ExtractPlainPathFromIarPath(string iarPath)
+        {
+            List<string> plainDirs = new List<string>();
+
+            string[] iarDirs = iarPath.Split(new char[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string iarDir in iarDirs)
+            {
+                if (!iarDir.Contains(ArchiveConstants.INVENTORY_NODE_NAME_COMPONENT_SEPARATOR))
+                    plainDirs.Add(iarDir);
+
+                int i = iarDir.LastIndexOf(ArchiveConstants.INVENTORY_NODE_NAME_COMPONENT_SEPARATOR);
+
+                plainDirs.Add(iarDir.Remove(i));
+            }
+
+            return string.Join("/", plainDirs.ToArray());
+        }
     }
 }

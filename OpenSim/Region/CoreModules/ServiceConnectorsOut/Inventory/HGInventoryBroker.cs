@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -37,6 +37,7 @@ using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.Connectors;
+using OpenSim.Services.Connectors.SimianGrid;
 using OpenMetaverse;
 
 namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
@@ -198,6 +199,11 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
                                 m_log.DebugFormat("[HG INVENTORY CONNECTOR]: Added {0} to the cache of inventory URLs", inventoryURL);
                                 return;
                             }
+                        }
+                        else
+                        {
+                            m_log.DebugFormat("[HG INVENTORY CONNECTOR]: User {0} does not have InventoryServerURI. OH NOES!", userID);
+                            return;
                         }
                     }
                 }
@@ -538,12 +544,14 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
                 }
                 else
                 {
-                    // We're instantiating this class explicitly, but this won't
-                    // work in general, because the remote grid may be running
-                    // an inventory server that has a different protocol.
-                    // Eventually we will want a piece of protocol asking
-                    // the remote server about its kind. Definitely cool thing to do!
-                    connector = new RemoteXInventoryServicesConnector(url);
+                    // Still not as flexible as I would like this to be,
+                    // but good enough for now
+                    string connectorType = new HeloServicesConnector(url).Helo();
+                    m_log.DebugFormat("[HG INVENTORY SERVICE]: HELO returned {0}", connectorType);
+                    if (connectorType == "opensim-simian")
+                        connector = new SimianInventoryServiceConnector(url);
+                    else
+                        connector = new RemoteXInventoryServicesConnector(url);
                     m_connectors.Add(url, connector);
                 }
             }

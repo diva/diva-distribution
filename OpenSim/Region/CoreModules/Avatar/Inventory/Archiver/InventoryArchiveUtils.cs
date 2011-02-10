@@ -120,6 +120,11 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
                 foundFolders.Add(startFolder);
                 return foundFolders;
             }
+                        
+            // If the path isn't just / then trim any starting extraneous slashes
+            path = path.TrimStart(new char[] { PATH_DELIMITER });
+            
+//            m_log.DebugFormat("[INVENTORY ARCHIVE UTILS]: Adjusted path in FindFolderByPath() is [{0}]", path);
 
             string[] components = SplitEscapedPath(path);
             components[0] = UnescapePath(components[0]);
@@ -199,6 +204,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         public static InventoryItemBase FindItemByPath(
             IInventoryService inventoryService, InventoryFolderBase startFolder, string path)
         {
+            // If the path isn't just / then trim any starting extraneous slashes
+            path = path.TrimStart(new char[] { PATH_DELIMITER });
+            
             string[] components = SplitEscapedPath(path);
             components[0] = UnescapePath(components[0]);
                             

@@ -37,6 +37,7 @@ using log4net;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes.Scripting;
+using OpenSim.Region.Framework.Scenes.Serialization;
 
 namespace OpenSim.Region.Framework.Scenes
 {
@@ -45,7 +46,8 @@ namespace OpenSim.Region.Framework.Scenes
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private string m_inventoryFileName = String.Empty;
-        private int m_inventoryFileNameSerial = 0;
+        private byte[] m_inventoryFileData = new byte[0];
+        private uint m_inventoryFileNameSerial = 0;
         
         /// <value>
         /// The part to which the inventory belongs.
@@ -118,13 +120,14 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="linkNum">Link number for the part</param>
         public void ResetInventoryIDs()
         {
+            if (null == m_part || null == m_part.ParentGroup)
+                return;
+            
             lock (m_items)
             {
                 if (0 == m_items.Count)
                     return;
 
-                HasInventoryChanged = true;
-                m_part.ParentGroup.HasGroupChanged = true;
                 IList<TaskInventoryItem> items = GetInventoryItems();
                 m_items.Clear();
 
@@ -132,6 +135,22 @@ namespace OpenSim.Region.Framework.Scenes
                 {
                     item.ResetIDs(m_part.UUID);
                     m_items.Add(item.ItemID, item);
+                }
+            }
+        }
+
+        public void ResetObjectID()
+        {
+            lock (Items)
+            {
+                IList<TaskInventoryItem> items = new List<TaskInventoryItem>(Items.Values);
+                Items.Clear();
+    
+                foreach (TaskInventoryItem item in items)
+                {
+                    item.ParentPartID = m_part.UUID;
+                    item.ParentID = m_part.UUID;
+                    Items.Add(item.ItemID, item);
                 }
             }
         }
@@ -159,6 +178,8 @@ namespace OpenSim.Region.Framework.Scenes
                 {
                     item.LastOwnerID = item.OwnerID;
                     item.OwnerID = ownerId;
+                    item.PermsMask = 0;
+                    item.PermsGranter = UUID.Zero;
                 }
             }
         }
@@ -177,8 +198,15 @@ namespace OpenSim.Region.Framework.Scenes
                 }
             }
 
-            HasInventoryChanged = true;
-            m_part.ParentGroup.HasGroupChanged = true;
+            // Don't let this set the HasGroupChanged flag for attachments
+            // as this happens during rez and we don't want a new asset
+            // for each attachment each time
+            if (!m_part.ParentGroup.RootPart.IsAttachment)
+            {
+                HasInventoryChanged = true;
+                m_part.ParentGroup.HasGroupChanged = true;
+            }
+
             List<TaskInventoryItem> items = GetInventoryItems();
             foreach (TaskInventoryItem item in items)
             {
@@ -251,7 +279,7 @@ namespace OpenSim.Region.Framework.Scenes
 
             if (!m_part.ParentGroup.Scene.RegionInfo.RegionSettings.DisableScripts)
             {
-                if (stateSource == 1 && // Prim crossing
+                if (stateSource == 2 && // Prim crossing
                         m_part.ParentGroup.Scene.m_trustBinaries)
                 {
                     lock (m_items)
@@ -574,6 +602,77 @@ namespace OpenSim.Region.Framework.Scenes
             return items;
         }
         
+        public SceneObjectGroup GetRezReadySceneObject(TaskInventoryItem item)
+        {
+            AssetBase rezAsset = m_part.ParentGroup.Scene.AssetService.Get(item.AssetID.ToString());
+
+            if (null == rezAsset)
+            {
+                m_log.WarnFormat(
+                    "[PRIM INVENTORY]: Could not find asset {0} for inventory item {1} in {2}", 
+                    item.AssetID, item.Name, m_part.Name);
+                return null;
+            }
+
+            string xmlData = Utils.BytesToString(rezAsset.Data);
+            SceneObjectGroup group = SceneObjectSerializer.FromOriginalXmlFormat(xmlData);
+
+            group.ResetIDs();
+
+            SceneObjectPart rootPart = group.GetChildPart(group.UUID);
+
+            // Since renaming the item in the inventory does not affect the name stored
+            // in the serialization, transfer the correct name from the inventory to the
+            // object itself before we rez.
+            rootPart.Name = item.Name;
+            rootPart.Description = item.Description;
+
+            SceneObjectPart[] partList = group.Parts;
+
+            group.SetGroup(m_part.GroupID, null);
+
+            // TODO: Remove magic number badness
+            if ((rootPart.OwnerID != item.OwnerID) || (item.CurrentPermissions & 16) != 0 || (item.Flags & (uint)InventoryItemFlags.ObjectSlamPerm) != 0) // Magic number
+            {
+                if (m_part.ParentGroup.Scene.Permissions.PropagatePermissions())
+                {
+                    foreach (SceneObjectPart part in partList)
+                    {
+                        if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteEveryone) != 0)
+                            part.EveryoneMask = item.EveryonePermissions;
+                        if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteNextOwner) != 0)
+                            part.NextOwnerMask = item.NextPermissions;
+                        if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteGroup) != 0)
+                            part.GroupMask = item.GroupPermissions;
+                    }
+                    
+                    group.ApplyNextOwnerPermissions();
+                }
+            }
+
+            foreach (SceneObjectPart part in partList)
+            {
+                // TODO: Remove magic number badness
+                if ((part.OwnerID != item.OwnerID) || (item.CurrentPermissions & 16) != 0 || (item.Flags & (uint)InventoryItemFlags.ObjectSlamPerm) != 0) // Magic number
+                {
+                    part.LastOwnerID = part.OwnerID;
+                    part.OwnerID = item.OwnerID;
+                    part.Inventory.ChangeInventoryOwner(item.OwnerID);
+                }
+                
+                if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteEveryone) != 0)
+                    part.EveryoneMask = item.EveryonePermissions;
+                if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteNextOwner) != 0)
+                    part.NextOwnerMask = item.NextPermissions;
+                if ((item.Flags & (uint)InventoryItemFlags.ObjectOverwriteGroup) != 0)
+                    part.GroupMask = item.GroupPermissions;
+            }
+            
+            rootPart.TrimPermissions(); 
+            
+            return group;
+        }
+        
         /// <summary>
         /// Update an existing inventory item.
         /// </summary>
@@ -582,17 +681,22 @@ namespace OpenSim.Region.Framework.Scenes
         /// <returns>false if the item did not exist, true if the update occurred successfully</returns>
         public bool UpdateInventoryItem(TaskInventoryItem item)
         {
-            return UpdateInventoryItem(item, true);
+            return UpdateInventoryItem(item, true, true);
         }
 
         public bool UpdateInventoryItem(TaskInventoryItem item, bool fireScriptEvents)
         {
+            return UpdateInventoryItem(item, fireScriptEvents, true);
+        }
+
+        public bool UpdateInventoryItem(TaskInventoryItem item, bool fireScriptEvents, bool considerChanged)
+        {
             TaskInventoryItem it = GetInventoryItem(item.ItemID);
             if (it != null)
+
             {
                 item.ParentID = m_part.UUID;
                 item.ParentPartID = m_part.UUID;
-                item.Flags = m_items[item.ItemID].Flags;
 
                 // If group permissions have been set on, check that the groupID is up to date in case it has
                 // changed since permissions were last set.
@@ -610,9 +714,11 @@ namespace OpenSim.Region.Framework.Scenes
 
                 if (fireScriptEvents)
                     m_part.TriggerScriptChangedEvent(Changed.INVENTORY);
-
-                HasInventoryChanged = true;
-                m_part.ParentGroup.HasGroupChanged = true;
+                if (considerChanged)
+                {
+                    HasInventoryChanged = true;
+                    m_part.ParentGroup.HasGroupChanged = true;
+                }
                 return true;
             }
             else
@@ -671,39 +777,72 @@ namespace OpenSim.Region.Framework.Scenes
             return -1;
         }
 
-        public string GetInventoryFileName()
+        private bool CreateInventoryFile()
         {
-            if (m_inventoryFileName == String.Empty)
-                m_inventoryFileName = "inventory_" + UUID.Random().ToString() + ".tmp";
-            if (m_inventoryFileNameSerial < m_inventorySerial)
+            if (m_inventoryFileName == String.Empty ||
+                m_inventoryFileNameSerial < m_inventorySerial)
             {
+                // Something changed, we need to create a new file
                 m_inventoryFileName = "inventory_" + UUID.Random().ToString() + ".tmp";
-            }
-            return m_inventoryFileName;
-        }
+                m_inventoryFileNameSerial = m_inventorySerial;
 
-        /// <summary>
-        /// Return the name with which a client can request a xfer of this prim's inventory metadata
-        /// </summary>
-        /// <param name="client"></param>
-        /// <param name="localID"></param>
-        public bool GetInventoryFileName(IClientAPI client, uint localID)
-        {
-//            m_log.DebugFormat(
-//                 "[PRIM INVENTORY]: Received request from client {0} for inventory file name of {1}, {2}",
-//                 client.AgentId, Name, UUID);
+                InventoryStringBuilder invString = new InventoryStringBuilder(m_part.UUID, UUID.Zero);
 
-            if (m_inventorySerial > 0)
-            {
-                client.SendTaskInventory(m_part.UUID, (short)m_inventorySerial,
-                                         Utils.StringToBytes(GetInventoryFileName()));
+                lock (m_items)
+                {
+                    foreach (TaskInventoryItem item in m_items.Values)
+                    {
+                        UUID ownerID = item.OwnerID;
+                        uint everyoneMask = 0;
+                        uint baseMask = item.BasePermissions;
+                        uint ownerMask = item.CurrentPermissions;
+                        uint groupMask = item.GroupPermissions;
+
+                        invString.AddItemStart();
+                        invString.AddNameValueLine("item_id", item.ItemID.ToString());
+                        invString.AddNameValueLine("parent_id", m_part.UUID.ToString());
+
+                        invString.AddPermissionsStart();
+
+                        invString.AddNameValueLine("base_mask", Utils.UIntToHexString(baseMask));
+                        invString.AddNameValueLine("owner_mask", Utils.UIntToHexString(ownerMask));
+                        invString.AddNameValueLine("group_mask", Utils.UIntToHexString(groupMask));
+                        invString.AddNameValueLine("everyone_mask", Utils.UIntToHexString(everyoneMask));
+                        invString.AddNameValueLine("next_owner_mask", Utils.UIntToHexString(item.NextPermissions));
+
+                        invString.AddNameValueLine("creator_id", item.CreatorID.ToString());
+                        invString.AddNameValueLine("owner_id", ownerID.ToString());
+
+                        invString.AddNameValueLine("last_owner_id", item.LastOwnerID.ToString());
+
+                        invString.AddNameValueLine("group_id", item.GroupID.ToString());
+                        invString.AddSectionEnd();
+
+                        invString.AddNameValueLine("asset_id", item.AssetID.ToString());
+                        invString.AddNameValueLine("type", TaskInventoryItem.Types[item.Type]);
+                        invString.AddNameValueLine("inv_type", TaskInventoryItem.InvTypes[item.InvType]);
+                        invString.AddNameValueLine("flags", Utils.UIntToHexString(item.Flags));
+
+                        invString.AddSaleStart();
+                        invString.AddNameValueLine("sale_type", "not");
+                        invString.AddNameValueLine("sale_price", "0");
+                        invString.AddSectionEnd();
+
+                        invString.AddNameValueLine("name", item.Name + "|");
+                        invString.AddNameValueLine("desc", item.Description + "|");
+
+                        invString.AddNameValueLine("creation_date", item.CreationDate.ToString());
+                        invString.AddSectionEnd();
+                    }
+                }
+
+                m_inventoryFileData = Utils.StringToBytes(invString.BuildString);
+
                 return true;
             }
-            else
-            {
-                client.SendTaskInventory(m_part.UUID, 0, new byte[0]);
-                return false;
-            }
+
+            // No need to recreate, the existing file is fine
+            return false;
         }
 
         /// <summary>
@@ -712,75 +851,35 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="xferManager"></param>
         public void RequestInventoryFile(IClientAPI client, IXfer xferManager)
         {
-            byte[] fileData = new byte[0];
+            CreateInventoryFile();
 
-            // Confusingly, the folder item has to be the object id, while the 'parent id' has to be zero.  This matches
-            // what appears to happen in the Second Life protocol.  If this isn't the case. then various functionality
-            // isn't available (such as drag from prim inventory to agent inventory)
-            InventoryStringBuilder invString = new InventoryStringBuilder(m_part.UUID, UUID.Zero);
-
-            List<TaskInventoryItem> items = GetInventoryItems();
-            foreach (TaskInventoryItem item in items)
+            if (m_inventorySerial == 0) // No inventory
             {
-                UUID ownerID = item.OwnerID;
-                uint everyoneMask = 0;
-                uint baseMask = item.BasePermissions;
-                uint ownerMask = item.CurrentPermissions;
-                uint groupMask = item.GroupPermissions;
-
-                invString.AddItemStart();
-                invString.AddNameValueLine("item_id", item.ItemID.ToString());
-                invString.AddNameValueLine("parent_id", m_part.UUID.ToString());
-
-                invString.AddPermissionsStart();
-
-                invString.AddNameValueLine("base_mask", Utils.UIntToHexString(baseMask));
-                invString.AddNameValueLine("owner_mask", Utils.UIntToHexString(ownerMask));
-                invString.AddNameValueLine("group_mask", Utils.UIntToHexString(groupMask));
-                invString.AddNameValueLine("everyone_mask", Utils.UIntToHexString(everyoneMask));
-                invString.AddNameValueLine("next_owner_mask", Utils.UIntToHexString(item.NextPermissions));
-
-                invString.AddNameValueLine("creator_id", item.CreatorID.ToString());
-                invString.AddNameValueLine("owner_id", ownerID.ToString());
-
-                invString.AddNameValueLine("last_owner_id", item.LastOwnerID.ToString());
-
-                invString.AddNameValueLine("group_id", item.GroupID.ToString());
-                invString.AddSectionEnd();
-
-                invString.AddNameValueLine("asset_id", item.AssetID.ToString());
-                invString.AddNameValueLine("type", TaskInventoryItem.Types[item.Type]);
-                invString.AddNameValueLine("inv_type", TaskInventoryItem.InvTypes[item.InvType]);
-                invString.AddNameValueLine("flags", Utils.UIntToHexString(item.Flags));
-
-                invString.AddSaleStart();
-                invString.AddNameValueLine("sale_type", "not");
-                invString.AddNameValueLine("sale_price", "0");
-                invString.AddSectionEnd();
-
-                invString.AddNameValueLine("name", item.Name + "|");
-                invString.AddNameValueLine("desc", item.Description + "|");
-
-                invString.AddNameValueLine("creation_date", item.CreationDate.ToString());
-                invString.AddSectionEnd();
+                client.SendTaskInventory(m_part.UUID, 0, new byte[0]);
+                return;
             }
 
-            fileData = Utils.StringToBytes(invString.BuildString);
+            // In principle, we should only do the rest if the inventory changed;
+            // by sending m_inventorySerial to the client, it ought to know
+            // that nothing changed and that it doesn't need to request the file. 
+            // Unfortunately, it doesn't look like the client optimizes this; 
+            // the client seems to always come back and request the Xfer, 
+            // no matter what value m_inventorySerial has.
 
-            //m_log.Debug(Utils.BytesToString(fileData));
-            //m_log.Debug("[PRIM INVENTORY]: RequestInventoryFile fileData: " + Utils.BytesToString(fileData));
+            if (m_inventoryFileData.Length > 2)
+                // Add the file for Xfer
+                xferManager.AddNewFile(m_inventoryFileName, m_inventoryFileData);
 
-            if (fileData.Length > 2)
-            {
-                xferManager.AddNewFile(m_inventoryFileName, fileData);
-            }
+            // Tell the client we're ready to Xfer the file
+            client.SendTaskInventory(m_part.UUID, (short)m_inventorySerial,
+                    Util.StringToBytes256(m_inventoryFileName));
         }
 
         /// <summary>
         /// Process inventory backup
         /// </summary>
         /// <param name="datastore"></param>
-        public void ProcessInventoryBackup(IRegionDataStore datastore)
+        public void ProcessInventoryBackup(ISimulationDataService datastore)
         {
             if (HasInventoryChanged)
             {
@@ -858,6 +957,13 @@ namespace OpenSim.Region.Framework.Scenes
             {
                 foreach (TaskInventoryItem item in m_items.Values)
                 {
+                    if ((item.CurrentPermissions & item.NextPermissions & (uint)PermissionMask.Copy) == 0)
+                        mask &= ~((uint)PermissionMask.Copy >> 13);
+                    if ((item.CurrentPermissions & item.NextPermissions & (uint)PermissionMask.Transfer) == 0)
+                        mask &= ~((uint)PermissionMask.Transfer >> 13);
+                    if ((item.CurrentPermissions & item.NextPermissions & (uint)PermissionMask.Modify) == 0)
+                        mask &= ~((uint)PermissionMask.Modify >> 13);
+
                     if (item.InvType != (int)InventoryType.Object)
                     {
                         if ((item.CurrentPermissions & item.NextPermissions & (uint)PermissionMask.Copy) == 0)
@@ -903,12 +1009,13 @@ namespace OpenSim.Region.Framework.Scenes
                             item.CurrentPermissions &= ~(uint)PermissionMask.Transfer;
                         if ((item.CurrentPermissions & ((uint)PermissionMask.Modify >> 13)) == 0)
                             item.CurrentPermissions &= ~(uint)PermissionMask.Modify;
-                        item.CurrentPermissions |= 8;
                     }
                     item.CurrentPermissions &= item.NextPermissions;
                     item.BasePermissions &= item.NextPermissions;
                     item.EveryonePermissions &= item.NextPermissions;
                     item.OwnerChanged = true;
+                    item.PermsMask = 0;
+                    item.PermsGranter = UUID.Zero;
                 }
             }
         }
@@ -923,6 +1030,8 @@ namespace OpenSim.Region.Framework.Scenes
                     item.BasePermissions = perms;
                 }
             }
+            m_inventorySerial++;
+            HasInventoryChanged = true;
         }
 
         public bool ContainsScripts()

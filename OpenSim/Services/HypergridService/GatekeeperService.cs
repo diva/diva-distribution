@@ -87,6 +87,8 @@ namespace OpenSim.Services.HypergridService
                 //m_WelcomeMessage = serverConfig.GetString("WelcomeMessage", "Welcome to OpenSim!");
                 m_AllowTeleportsToAnyRegion = serverConfig.GetBoolean("AllowTeleportsToAnyRegion", true);
                 m_ExternalName = serverConfig.GetString("ExternalName", string.Empty);
+                if (m_ExternalName != string.Empty && !m_ExternalName.EndsWith("/"))
+                    m_ExternalName = m_ExternalName + "/";
 
                 Object[] args = new Object[] { config };
                 m_GridService = ServerUtils.LoadPlugin<IGridService>(gridService, args);
@@ -118,46 +120,43 @@ namespace OpenSim.Services.HypergridService
         {
             regionID = UUID.Zero;
             regionHandle = 0;
-            externalName = m_ExternalName;
+            externalName = m_ExternalName + ((regionName != string.Empty) ? " " + regionName : "");
             imageURL = string.Empty;
             reason = string.Empty;
-
+            GridRegion region = null;
 
             m_log.DebugFormat("[GATEKEEPER SERVICE]: Request to link to {0}", (regionName == string.Empty)? "default region" : regionName);
             if (!m_AllowTeleportsToAnyRegion || regionName == string.Empty)
             {
                 List<GridRegion> defs = m_GridService.GetDefaultRegions(m_ScopeID);
                 if (defs != null && defs.Count > 0)
-                    m_DefaultGatewayRegion = defs[0];
-
-                try
                 {
-                    regionID = m_DefaultGatewayRegion.RegionID;
-                    regionHandle = m_DefaultGatewayRegion.RegionHandle;
+                    region = defs[0];
+                    m_DefaultGatewayRegion = region;
                 }
-                catch
+                else
                 {
                     reason = "Grid setup problem. Try specifying a particular region here.";
                     m_log.DebugFormat("[GATEKEEPER SERVICE]: Unable to send information. Please specify a default region for this grid!");
                     return false;
                 }
-
-                return true;
             }
-
-            GridRegion region = m_GridService.GetRegionByName(m_ScopeID, regionName);
-            if (region == null)
+            else
             {
-                reason = "Region not found";
-                return false;
+                region = m_GridService.GetRegionByName(m_ScopeID, regionName);
+                if (region == null)
+                {
+                    reason = "Region not found";
+                    return false;
+                }
             }
 
             regionID = region.RegionID;
             regionHandle = region.RegionHandle;
-            string regionimage = "regionImage" + region.RegionID.ToString();
-            regionimage = regionimage.Replace("-", "");
 
-            imageURL = "http://" + region.ExternalHostName + ":" + region.HttpPort + "/index.php?method=" + regionimage;
+            string regionimage = "regionImage" + regionID.ToString();
+            regionimage = regionimage.Replace("-", "");
+            imageURL = region.ServerURI + "index.php?method=" + regionimage;
 
             return true;
         }
@@ -304,7 +303,7 @@ namespace OpenSim.Services.HypergridService
                 return m_UserAgentService.VerifyAgent(aCircuit.SessionID, aCircuit.ServiceSessionID);
             else
             {
-                Object[] args = new Object[] { userURL };
+//                Object[] args = new Object[] { userURL };
                 IUserAgentService userAgentService = new UserAgentServiceConnector(userURL); 
                 if (userAgentService != null)
                 {
@@ -331,9 +330,12 @@ namespace OpenSim.Services.HypergridService
             if (parts.Length < 2)
                 return false;
 
-            string addressee = parts[0];
-            m_log.DebugFormat("[GATEKEEPER SERVICE]: Verifying {0} against {1}", addressee, m_ExternalName);
-            return (addressee == m_ExternalName);
+            char[] trailing_slash = new char[] { '/' };
+            string addressee = parts[0].TrimEnd(trailing_slash);
+            string externalname = m_ExternalName.TrimEnd(trailing_slash);
+            m_log.DebugFormat("[GATEKEEPER SERVICE]: Verifying {0} against {1}", addressee, externalname);
+
+            return string.Equals(addressee, externalname, StringComparison.OrdinalIgnoreCase);
         }
 
         #endregion

@@ -28,8 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -51,88 +49,59 @@ namespace OpenSim.Services.Connectors.SimianGrid
     /// Connects region registration and neighbor lookups to the SimianGrid
     /// backend
     /// </summary>
-    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
-    public class SimianGridServiceConnector : IGridService, ISharedRegionModule
+    public class SimianGridServiceConnector : IGridService
     {
         private static readonly ILog m_log =
                 LogManager.GetLogger(
                 MethodBase.GetCurrentMethod().DeclaringType);
 
-        private string m_serverUrl = String.Empty;
-        private Dictionary<UUID, Scene> m_scenes = new Dictionary<UUID, Scene>();
-
-        #region ISharedRegionModule
-
-        public Type ReplaceableInterface { get { return null; } }
-        public void RegionLoaded(Scene scene) { }
-        public void PostInitialise() { }
-        public void Close() { }
+        private string m_ServerURI = String.Empty;
+//        private bool m_Enabled = false;
 
         public SimianGridServiceConnector() { }
-        public string Name { get { return "SimianGridServiceConnector"; } }
-        public void AddRegion(Scene scene)
+        public SimianGridServiceConnector(string serverURI)
         {
-            // Every shared region module has to maintain an indepedent list of
-            // currently running regions
-            lock (m_scenes)
-                m_scenes[scene.RegionInfo.RegionID] = scene;
-
-            if (!String.IsNullOrEmpty(m_serverUrl))
-                scene.RegisterModuleInterface<IGridService>(this);
+            m_ServerURI = serverURI.TrimEnd('/');
         }
-        public void RemoveRegion(Scene scene)
-        {
-            lock (m_scenes)
-                m_scenes.Remove(scene.RegionInfo.RegionID);
-
-            if (!String.IsNullOrEmpty(m_serverUrl))
-                scene.UnregisterModuleInterface<IGridService>(this);
-        }
-
-        #endregion ISharedRegionModule
 
         public SimianGridServiceConnector(IConfigSource source)
         {
-            Initialise(source);
+            CommonInit(source);
         }
 
         public void Initialise(IConfigSource source)
         {
-            if (Simian.IsSimianEnabled(source, "GridServices", this.Name))
+            CommonInit(source);
+        }
+
+        private void CommonInit(IConfigSource source)
+        {
+            IConfig gridConfig = source.Configs["GridService"];
+            if (gridConfig == null)
             {
-                IConfig gridConfig = source.Configs["GridService"];
-                if (gridConfig == null)
-                {
-                    m_log.Error("[SIMIAN GRID CONNECTOR]: GridService missing from OpenSim.ini");
-                    throw new Exception("Grid connector init error");
-                }
-
-                string serviceUrl = gridConfig.GetString("GridServerURI");
-                if (String.IsNullOrEmpty(serviceUrl))
-                {
-                    m_log.Error("[SIMIAN GRID CONNECTOR]: No Server URI named in section GridService");
-                    throw new Exception("Grid connector init error");
-                }
-
-                m_serverUrl = serviceUrl;
+                m_log.Error("[SIMIAN GRID CONNECTOR]: GridService missing from OpenSim.ini");
+                throw new Exception("Grid connector init error");
             }
+
+            string serviceUrl = gridConfig.GetString("GridServerURI");
+            if (String.IsNullOrEmpty(serviceUrl))
+            {
+                m_log.Error("[SIMIAN GRID CONNECTOR]: No Server URI named in section GridService");
+                throw new Exception("Grid connector init error");
+            }
+            
+            if (!serviceUrl.EndsWith("/") && !serviceUrl.EndsWith("="))
+                serviceUrl = serviceUrl + '/';
+            m_ServerURI = serviceUrl;
+//            m_Enabled = true;
         }
 
         #region IGridService
 
         public string RegisterRegion(UUID scopeID, GridRegion regionInfo)
         {
-            // Generate and upload our map tile in PNG format to the SimianGrid AddMapTile service
-            Scene scene;
-            if (m_scenes.TryGetValue(regionInfo.RegionID, out scene))
-                UploadMapTile(scene);
-            else
-                m_log.Warn("Registering region " + regionInfo.RegionName + " (" + regionInfo.RegionID + ") that we are not tracking");
-
             Vector3d minPosition = new Vector3d(regionInfo.RegionLocX, regionInfo.RegionLocY, 0.0);
             Vector3d maxPosition = minPosition + new Vector3d(Constants.RegionSize, Constants.RegionSize, 4096.0);
-
-            string httpAddress = "http://" + regionInfo.ExternalHostName + ":" + regionInfo.HttpPort + "/";
 
             OSDMap extraData = new OSDMap
             {
@@ -155,12 +124,12 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "Name", regionInfo.RegionName },
                 { "MinPosition", minPosition.ToString() },
                 { "MaxPosition", maxPosition.ToString() },
-                { "Address", httpAddress },
+                { "Address", regionInfo.ServerURI },
                 { "Enabled", "1" },
                 { "ExtraData", OSDParser.SerializeJsonString(extraData) }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
                 return String.Empty;
             else
@@ -176,7 +145,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "Enabled", "0" }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             bool success = response["Success"].AsBoolean();
 
             if (!success)
@@ -206,7 +175,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
                     }
                 }
 
-                m_log.Debug("[SIMIAN GRID CONNECTOR]: Found " + regions.Count + " neighbors for region " + regionID);
+//                m_log.Debug("[SIMIAN GRID CONNECTOR]: Found " + regions.Count + " neighbors for region " + regionID);
                 return regions;
             }
 
@@ -221,9 +190,12 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "SceneID", regionID.ToString() }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] request region with uuid {0}",regionID.ToString());
+
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
+                // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] uuid request successful {0}",response["Name"].AsString());
                 return ResponseToGridRegion(response);
             }
             else
@@ -246,15 +218,18 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "Enabled", "1" }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] request grid at {0}",position.ToString());
+            
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
+                // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] position request successful {0}",response["Name"].AsString());
                 return ResponseToGridRegion(response);
             }
             else
             {
-                //m_log.InfoFormat("[SIMIAN GRID CONNECTOR]: Grid service did not find a match for region at {0},{1}",
-                //    x / Constants.RegionSize, y / Constants.RegionSize);
+                // m_log.InfoFormat("[SIMIAN GRID CONNECTOR]: Grid service did not find a match for region at {0},{1}",
+                //     x / Constants.RegionSize, y / Constants.RegionSize);
                 return null;
             }
         }
@@ -284,9 +259,13 @@ namespace OpenSim.Services.Connectors.SimianGrid
             if (maxNumber > 0)
                 requestArgs["MaxNumber"] = maxNumber.ToString();
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] request regions with name {0}",name);
+
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
+                // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] found regions with name {0}",name);
+
                 OSDArray array = response["Scenes"] as OSDArray;
                 if (array != null)
                 {
@@ -317,7 +296,10 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "Enabled", "1" }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            //m_log.DebugFormat("[SIMIAN GRID CONNECTOR] request regions by range {0} to {1}",minPosition.ToString(),maxPosition.ToString());
+            
+
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
                 OSDArray array = response["Scenes"] as OSDArray;
@@ -373,7 +355,9 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "SceneID", regionID.ToString() }
             };
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            // m_log.DebugFormat("[SIMIAN GRID CONNECTOR] request region flags for {0}",regionID.ToString());
+
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
                 return response["Enabled"].AsBoolean() ? REGION_ONLINE : 0;
@@ -387,83 +371,6 @@ namespace OpenSim.Services.Connectors.SimianGrid
 
         #endregion IGridService
 
-        private void UploadMapTile(IScene scene)
-        {
-            string errorMessage = null;
-
-            // Create a PNG map tile and upload it to the AddMapTile API
-            byte[] pngData = Utils.EmptyBytes;
-            IMapImageGenerator tileGenerator = scene.RequestModuleInterface<IMapImageGenerator>();
-            if (tileGenerator == null)
-            {
-                m_log.Warn("[SIMIAN GRID CONNECTOR]: Cannot upload PNG map tile without an IMapImageGenerator");
-                return;
-            }
-
-            using (Image mapTile = tileGenerator.CreateMapTile("defaultstripe.png"))
-            {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    mapTile.Save(stream, ImageFormat.Png);
-                    pngData = stream.ToArray();
-                }
-            }
-
-            List<MultipartForm.Element> postParameters = new List<MultipartForm.Element>()
-            {
-                new MultipartForm.Parameter("X", scene.RegionInfo.RegionLocX.ToString()),
-                new MultipartForm.Parameter("Y", scene.RegionInfo.RegionLocY.ToString()),
-                new MultipartForm.File("Tile", "tile.png", "image/png", pngData)
-            };
-
-            // Make the remote storage request
-            try
-            {
-                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(m_serverUrl);
-
-                HttpWebResponse response = MultipartForm.Post(request, postParameters);
-                using (Stream responseStream = response.GetResponseStream())
-                {
-                    string responseStr = null;
-
-                    try
-                    {
-                        responseStr = responseStream.GetStreamString();
-                        OSD responseOSD = OSDParser.Deserialize(responseStr);
-                        if (responseOSD.Type == OSDType.Map)
-                        {
-                            OSDMap responseMap = (OSDMap)responseOSD;
-                            if (responseMap["Success"].AsBoolean())
-                                m_log.Info("[SIMIAN GRID CONNECTOR]: Uploaded " + pngData.Length + " byte PNG map tile to AddMapTile");
-                            else
-                                errorMessage = "Upload failed: " + responseMap["Message"].AsString();
-                        }
-                        else
-                        {
-                            errorMessage = "Response format was invalid:\n" + responseStr;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (!String.IsNullOrEmpty(responseStr))
-                            errorMessage = "Failed to parse the response:\n" + responseStr;
-                        else
-                            errorMessage = "Failed to retrieve the response: " + ex.Message;
-                    }
-                }
-            }
-            catch (WebException ex)
-            {
-                errorMessage = ex.Message;
-            }
-
-            if (!String.IsNullOrEmpty(errorMessage))
-            {
-                m_log.WarnFormat("[SIMIAN GRID CONNECTOR]: Failed to store {0} byte PNG map tile for {1}: {2}",
-                    pngData.Length, scene.RegionInfo.RegionName, errorMessage.Replace('\n', ' '));
-            }
-        }
-
         private GridRegion GetNearestRegion(Vector3d position, bool onlyEnabled)
         {
             NameValueCollection requestArgs = new NameValueCollection
@@ -475,7 +382,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
             if (onlyEnabled)
                 requestArgs["Enabled"] = "1";
 
-            OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
+            OSDMap response = WebUtil.PostToService(m_ServerURI, requestArgs);
             if (response["Success"].AsBoolean())
             {
                 return ResponseToGridRegion(response);

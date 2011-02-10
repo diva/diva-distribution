@@ -26,7 +26,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Scenes;
@@ -40,12 +39,11 @@ namespace OpenSim.Services.Connectors.SimianGrid
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private SimianPresenceServiceConnector m_GridUserService;
-        private Scene m_aScene;
+        private IGridUserService m_GridUserService;
 
-        public SimianActivityDetector(SimianPresenceServiceConnector guservice)
+        public SimianActivityDetector(IGridUserService guService)
         {
-            m_GridUserService = guservice;
+            m_GridUserService = guService;
             m_log.DebugFormat("[SIMIAN ACTIVITY DETECTOR]: Started");
         }
 
@@ -56,9 +54,6 @@ namespace OpenSim.Services.Connectors.SimianGrid
             scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
             scene.EventManager.OnNewClient += OnNewClient;
             scene.EventManager.OnAvatarEnteringNewParcel += OnEnteringNewParcel;
-
-            if (m_aScene == null)
-                m_aScene = scene;
         }
 
         public void RemoveRegion(Scene scene)
@@ -71,7 +66,10 @@ namespace OpenSim.Services.Connectors.SimianGrid
         public void OnMakeRootAgent(ScenePresence sp)
         {
             m_log.DebugFormat("[SIMIAN ACTIVITY DETECTOR]: Detected root presence {0} in {1}", sp.UUID, sp.Scene.RegionInfo.RegionName);
-            m_GridUserService.SetLastPosition(sp.UUID.ToString(), sp.ControllingClient.SessionId, sp.Scene.RegionInfo.RegionID, sp.AbsolutePosition, sp.Lookat);
+            Util.FireAndForget(delegate(object o)
+            {
+                m_GridUserService.SetLastPosition(sp.UUID.ToString(), sp.ControllingClient.SessionId, sp.Scene.RegionInfo.RegionID, sp.AbsolutePosition, sp.Lookat);
+            });
         }
 
         public void OnNewClient(IClientAPI client)
@@ -100,14 +98,17 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 }
 
                 m_log.DebugFormat("[SIMIAN ACTIVITY DETECTOR]: Detected client logout {0} in {1}", client.AgentId, client.Scene.RegionInfo.RegionName);
-                m_GridUserService.LoggedOut(client.AgentId.ToString(), client.Scene.RegionInfo.RegionID, position, lookat);
+                m_GridUserService.LoggedOut(client.AgentId.ToString(), client.SessionId, client.Scene.RegionInfo.RegionID, position, lookat);
             }
-
         }
 
         void OnEnteringNewParcel(ScenePresence sp, int localLandID, UUID regionID)
         {
-            m_GridUserService.SetLastPosition(sp.UUID.ToString(), sp.ControllingClient.SessionId, sp.Scene.RegionInfo.RegionID, sp.AbsolutePosition, sp.Lookat);
+            // Asynchronously update the position stored in the session table for this agent
+            Util.FireAndForget(delegate(object o)
+            {
+                m_GridUserService.SetLastPosition(sp.UUID.ToString(), sp.ControllingClient.SessionId, sp.Scene.RegionInfo.RegionID, sp.AbsolutePosition, sp.Lookat);
+            });
         }
     }
 }

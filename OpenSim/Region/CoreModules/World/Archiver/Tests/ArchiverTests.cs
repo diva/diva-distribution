@@ -48,6 +48,7 @@ using OpenSim.Tests.Common.Setup;
 using ArchiveConstants = OpenSim.Framework.Serialization.ArchiveConstants;
 using TarArchiveReader = OpenSim.Framework.Serialization.TarArchiveReader;
 using TarArchiveWriter = OpenSim.Framework.Serialization.TarArchiveWriter;
+using RegionSettings = OpenSim.Framework.RegionSettings;
 
 namespace OpenSim.Region.CoreModules.World.Archiver.Tests
 {
@@ -121,13 +122,13 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
         }
 
         /// <summary>
-        /// Test saving a V0.2 OpenSim Region Archive.
+        /// Test saving an OpenSim Region Archive.
         /// </summary>
         [Test]
-        public void TestSaveOarV0_2()
+        public void TestSaveOar()
         {
             TestHelper.InMethod();
-            //log4net.Config.XmlConfigurator.Configure();
+//            log4net.Config.XmlConfigurator.Configure();
 
             SceneObjectPart part1 = CreateSceneObjectPart1();
             SceneObjectGroup sog1 = new SceneObjectGroup(part1);
@@ -135,7 +136,9 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
 
             SceneObjectPart part2 = CreateSceneObjectPart2();
             
-            AssetNotecard nc = new AssetNotecard("Hello World!");
+            AssetNotecard nc = new AssetNotecard();
+            nc.BodyText = "Hello World!";
+            nc.Encode();
             UUID ncAssetUuid = new UUID("00000000-0000-0000-1000-000000000000");
             UUID ncItemUuid = new UUID("00000000-0000-0000-1100-000000000000");
             AssetBase ncAsset 
@@ -209,13 +212,13 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
         }
 
         /// <summary>
-        /// Test loading a V0.2 OpenSim Region Archive.
+        /// Test loading an OpenSim Region Archive.
         /// </summary>
         [Test]
-        public void TestLoadOarV0_2()
+        public void TestLoadOar()
         {
             TestHelper.InMethod();
-            //log4net.Config.XmlConfigurator.Configure();
+//            log4net.Config.XmlConfigurator.Configure();
 
             MemoryStream archiveWriteStream = new MemoryStream();
             TarArchiveWriter tar = new TarArchiveWriter(archiveWriteStream);
@@ -227,7 +230,7 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
             // upset load
             tar.WriteDir(ArchiveConstants.TERRAINS_PATH);
             
-            tar.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, ArchiveWriteRequestExecution.Create0p2ControlFile());
+            tar.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, ArchiveWriteRequestPreparation.CreateControlFile(new Dictionary<string, Object>()));
 
             SceneObjectPart part1 = CreateSceneObjectPart1();
             SceneObjectGroup object1 = new SceneObjectGroup(part1);
@@ -314,10 +317,10 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
         }
 
         /// <summary>
-        /// Test loading the region settings of a V0.2 OpenSim Region Archive.
+        /// Test loading the region settings of an OpenSim Region Archive.
         /// </summary>
         [Test]
-        public void TestLoadOarV0_2RegionSettings()
+        public void TestLoadOarRegionSettings()
         {
             TestHelper.InMethod();
             //log4net.Config.XmlConfigurator.Configure();
@@ -326,7 +329,7 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
             TarArchiveWriter tar = new TarArchiveWriter(archiveWriteStream);
             
             tar.WriteDir(ArchiveConstants.TERRAINS_PATH);
-            tar.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, ArchiveWriteRequestExecution.Create0p2ControlFile());
+            tar.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, ArchiveWriteRequestPreparation.CreateControlFile(new Dictionary<string, Object>()));
 
             RegionSettings rs = new RegionSettings();
             rs.AgentLimit = 17;
@@ -406,10 +409,10 @@ namespace OpenSim.Region.CoreModules.World.Archiver.Tests
         }
         
         /// <summary>
-        /// Test merging a V0.2 OpenSim Region Archive into an existing scene
+        /// Test merging an OpenSim Region Archive into an existing scene
         /// </summary>
         //[Test]
-        public void TestMergeOarV0_2()
+        public void TestMergeOar()
         {
             TestHelper.InMethod();
             //XmlConfigurator.Configure();

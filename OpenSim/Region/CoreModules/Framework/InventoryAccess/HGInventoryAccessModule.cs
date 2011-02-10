@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -54,7 +54,10 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
             get { return m_assMapper; }
         }
 
-        private bool m_Initialized = false;
+        private string m_ProfileServerURI;
+        private bool m_OutboundPermission;
+
+//        private bool m_Initialized = false;
 
         #region INonSharedRegionModule
 
@@ -73,6 +76,15 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
                 {
                     m_Enabled = true;
                     m_log.InfoFormat("[HG INVENTORY ACCESS MODULE]: {0} enabled.", Name);
+
+                    IConfig thisModuleConfig = source.Configs["HGInventoryAccessModule"];
+                    if (thisModuleConfig != null)
+                    {
+                        m_ProfileServerURI = thisModuleConfig.GetString("ProfileServerURI", string.Empty);
+                        m_OutboundPermission = thisModuleConfig.GetBoolean("OutboundPermission", true);
+                    }
+                    else
+                        m_log.Warn("[HG INVENTORY ACCESS MODULE]: HGInventoryAccessModule configs not found. ProfileServerURI not set!");
                 }
             }
         }
@@ -83,7 +95,7 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
                 return;
 
             base.AddRegion(scene);
-            m_assMapper = new HGAssetMapper(scene);
+            m_assMapper = new HGAssetMapper(scene, m_ProfileServerURI);
             scene.EventManager.OnNewInventoryItemUploadComplete += UploadInventoryItem;
 
         }
@@ -95,9 +107,9 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
         public void UploadInventoryItem(UUID avatarID, UUID assetID, string name, int userlevel)
         {
             string userAssetServer = string.Empty;
-            if (IsForeignUser(avatarID, out userAssetServer))
+            if (IsForeignUser(avatarID, out userAssetServer) && m_OutboundPermission)
             {
-                m_assMapper.Post(assetID, avatarID, userAssetServer);
+                Util.FireAndForget(delegate { m_assMapper.Post(assetID, avatarID, userAssetServer); });
             }
         }
 
@@ -132,7 +144,7 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
         }
 
         // DO NOT OVERRIDE THE BASE METHOD
-        public virtual UUID DeleteToInventory(DeRezAction action, UUID folderID,
+        public new virtual UUID DeleteToInventory(DeRezAction action, UUID folderID,
                 SceneObjectGroup objectGroup, IClientAPI remoteClient)
         {
             UUID assetID = base.DeleteToInventory(action, folderID, new List<SceneObjectGroup>() {objectGroup}, remoteClient);
@@ -189,7 +201,7 @@ namespace OpenSim.Region.CoreModules.Framework.InventoryAccess
             if (IsForeignUser(sender, out userAssetServer))
                 m_assMapper.Get(item.AssetID, sender, userAssetServer);
 
-            if (IsForeignUser(receiver, out userAssetServer))
+            if (IsForeignUser(receiver, out userAssetServer) && m_OutboundPermission)
                 m_assMapper.Post(item.AssetID, receiver, userAssetServer);
         }
 

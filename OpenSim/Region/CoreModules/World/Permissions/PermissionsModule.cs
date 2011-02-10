@@ -37,56 +37,6 @@ using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
 
-// Temporary fix of wrong GroupPowers constants in OpenMetaverse library
-enum GroupPowers : long
-     {
-        None = 0,
-        LandEjectAndFreeze = 1,
-        Invite = 2,
-        ReturnGroupSet = 2,
-        Eject = 4,
-        ReturnNonGroup = 4,
-        ChangeOptions = 8,
-        LandGardening = 8,
-        CreateRole = 16,
-        DeedObject = 16,
-        ModerateChat = 32,
-        DeleteRole = 32,
-        RoleProperties = 64,
-        ObjectManipulate = 64,
-        ObjectSetForSale = 128,
-        AssignMemberLimited = 128,
-        AssignMember = 256,
-        Accountable = 256,
-        RemoveMember = 512,
-        SendNotices = 1024,
-        ChangeActions = 1024,
-        ChangeIdentity = 2048,
-        ReceiveNotices = 2048,
-        StartProposal = 4096,
-        LandDeed = 4096,
-        VoteOnProposal = 8192,
-        LandRelease = 8192,
-        LandSetSale = 16384,
-        LandDivideJoin = 32768,
-        ReturnGroupOwned = 65536,
-        JoinChat = 65536,
-        FindPlaces = 131072,
-        LandChangeIdentity = 262144,
-        SetLandingPoint = 524288,
-        ChangeMedia = 1048576,
-        LandEdit = 2097152,
-        LandOptions = 4194304,
-        AllowEditLand = 8388608,
-        AllowFly = 16777216,
-        AllowRez = 33554432,
-        AllowLandmark = 67108864,
-        AllowVoiceChat = 134217728,
-        AllowSetHome = 268435456,
-        LandManageAllowed = 536870912,
-        LandManageBanned = 1073741824
-     }
-
 namespace OpenSim.Region.CoreModules.World.Permissions
 {
     public class PermissionsModule : IRegionModule
@@ -164,6 +114,7 @@ namespace OpenSim.Region.CoreModules.World.Permissions
         private Dictionary<string, bool> GrantYP = new Dictionary<string, bool>();
         private IFriendsModule m_friendsModule;
         private IGroupsModule m_groupsModule;
+        private IMoapModule m_moapModule;
 
         #endregion
 
@@ -177,7 +128,7 @@ namespace OpenSim.Region.CoreModules.World.Permissions
 
             string permissionModules = myConfig.GetString("permissionmodules", "DefaultPermissionsModule");
 
-            List<string> modules=new List<string>(permissionModules.Split(','));
+            List<string> modules = new List<string>(permissionModules.Split(','));
 
             if (!modules.Contains("DefaultPermissionsModule"))
                 return;
@@ -209,10 +160,11 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             m_scene.Permissions.OnDeedParcel += CanDeedParcel;
             m_scene.Permissions.OnDeedObject += CanDeedObject;
             m_scene.Permissions.OnIsGod += IsGod;
+            m_scene.Permissions.OnIsAdministrator += IsAdministrator;
             m_scene.Permissions.OnDuplicateObject += CanDuplicateObject;
             m_scene.Permissions.OnDeleteObject += CanDeleteObject; //MAYBE FULLY IMPLEMENTED
             m_scene.Permissions.OnEditObject += CanEditObject; //MAYBE FULLY IMPLEMENTED
-            m_scene.Permissions.OnEditParcel += CanEditParcel; //MAYBE FULLY IMPLEMENTED
+            m_scene.Permissions.OnEditParcelProperties += CanEditParcelProperties; //MAYBE FULLY IMPLEMENTED
             m_scene.Permissions.OnInstantMessage += CanInstantMessage;
             m_scene.Permissions.OnInventoryTransfer += CanInventoryTransfer; //NOT YET IMPLEMENTED
             m_scene.Permissions.OnIssueEstateCommand += CanIssueEstateCommand; //FULLY IMPLEMENTED
@@ -236,7 +188,7 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             m_scene.Permissions.OnEditNotecard += CanEditNotecard; //NOT YET IMPLEMENTED
             m_scene.Permissions.OnEditScript += CanEditScript; //NOT YET IMPLEMENTED
             
-            m_scene.Permissions.OnCreateObjectInventory += CanCreateObjectInventory; //NOT IMPLEMENTED HERE 
+            m_scene.Permissions.OnCreateObjectInventory += CanCreateObjectInventory;
             m_scene.Permissions.OnEditObjectInventory += CanEditObjectInventory;//MAYBE FULLY IMPLEMENTED
             m_scene.Permissions.OnCopyObjectInventory += CanCopyObjectInventory; //NOT YET IMPLEMENTED
             m_scene.Permissions.OnDeleteObjectInventory += CanDeleteObjectInventory; //NOT YET IMPLEMENTED
@@ -248,6 +200,9 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             m_scene.Permissions.OnDeleteUserInventory += CanDeleteUserInventory; //NOT YET IMPLEMENTED
             
             m_scene.Permissions.OnTeleport += CanTeleport; //NOT YET IMPLEMENTED
+            
+            m_scene.Permissions.OnControlPrimMedia += CanControlPrimMedia;
+            m_scene.Permissions.OnInteractWithPrimMedia += CanInteractWithPrimMedia;
 
             m_scene.AddCommand(this, "bypass permissions",
                     "bypass permissions <true / false>",
@@ -392,7 +347,13 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             m_groupsModule = m_scene.RequestModuleInterface<IGroupsModule>();
 
             if (m_groupsModule == null)
-                m_log.Warn("[PERMISSIONS]: Groups module not found, group permissions will not work");        
+                m_log.Warn("[PERMISSIONS]: Groups module not found, group permissions will not work");
+            
+            m_moapModule = m_scene.RequestModuleInterface<IMoapModule>();
+            
+            // This log line will be commented out when no longer required for debugging
+//            if (m_moapModule == null)
+//                m_log.Warn("[PERMISSIONS]: Media on a prim module not found, media on a prim permissions will not work");
         }
 
         public void Close()
@@ -994,12 +955,12 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             return GenericObjectPermission(editorID, objectID, false);
         }
 
-        private bool CanEditParcel(UUID user, ILandObject parcel, Scene scene)
+        private bool CanEditParcelProperties(UUID user, ILandObject parcel, GroupPowers p, Scene scene)
         {
             DebugPermissionInformation(MethodInfo.GetCurrentMethod().Name);
             if (m_bypassPermissions) return m_bypassPermissionsValue;
 
-            return GenericParcelOwnerPermission(user, parcel, (ulong)GroupPowers.LandDivideJoin);
+            return GenericParcelOwnerPermission(user, parcel, (ulong)p);
         }
 
         /// <summary>
@@ -1769,10 +1730,28 @@ namespace OpenSim.Region.CoreModules.World.Permissions
             DebugPermissionInformation(MethodInfo.GetCurrentMethod().Name);
             if (m_bypassPermissions) return m_bypassPermissionsValue;
 
-            if ((int)InventoryType.LSL == invType)
-                if (m_allowedScriptCreators == UserSet.Administrators && !IsAdministrator(userID))
-                    return false;
-            
+            SceneObjectPart part = m_scene.GetSceneObjectPart(objectID);
+            ScenePresence p = m_scene.GetScenePresence(userID);
+
+            if (part == null || p == null)
+                return false;
+
+            if (!IsAdministrator(userID))
+            {
+                if (part.OwnerID != userID)
+                {
+                    // Group permissions
+                    if ((part.GroupID == UUID.Zero) || (p.ControllingClient.GetGroupPowers(part.GroupID) == 0) || ((part.GroupMask & (uint)PermissionMask.Modify) == 0))
+                        return false;
+                } else {
+                    if ((part.OwnerMask & (uint)PermissionMask.Modify) == 0)
+                        return false;
+                }
+                if ((int)InventoryType.LSL == invType)
+                    if (m_allowedScriptCreators == UserSet.Administrators)
+                        return false;
+            }
+
             return true;
         }
         
@@ -1892,6 +1871,81 @@ namespace OpenSim.Region.CoreModules.World.Permissions
                     break;
             }
             return(false);
+        }
+        
+        private bool CanControlPrimMedia(UUID agentID, UUID primID, int face)
+        {
+//            m_log.DebugFormat(
+//                "[PERMISSONS]: Performing CanControlPrimMedia check with agentID {0}, primID {1}, face {2}",
+//                agentID, primID, face);
+            
+            if (null == m_moapModule)
+                return false;
+            
+            SceneObjectPart part = m_scene.GetSceneObjectPart(primID);
+            if (null == part)
+                return false;
+            
+            MediaEntry me = m_moapModule.GetMediaEntry(part, face);
+            
+            // If there is no existing media entry then it can be controlled (in this context, created).
+            if (null == me)
+                return true;
+            
+//            m_log.DebugFormat(
+//                "[PERMISSIONS]: Checking CanControlPrimMedia for {0} on {1} face {2} with control permissions {3}", 
+//                agentID, primID, face, me.ControlPermissions);
+            
+            return GenericPrimMediaPermission(part, agentID, me.ControlPermissions);
+        }
+        
+        private bool CanInteractWithPrimMedia(UUID agentID, UUID primID, int face)
+        {
+//            m_log.DebugFormat(
+//                "[PERMISSONS]: Performing CanInteractWithPrimMedia check with agentID {0}, primID {1}, face {2}",
+//                agentID, primID, face);
+            
+            if (null == m_moapModule)
+                return false;
+            
+            SceneObjectPart part = m_scene.GetSceneObjectPart(primID);
+            if (null == part)
+                return false;
+            
+            MediaEntry me = m_moapModule.GetMediaEntry(part, face);
+            
+            // If there is no existing media entry then it can be controlled (in this context, created).
+            if (null == me)
+                return true;
+            
+//            m_log.DebugFormat(
+//                "[PERMISSIONS]: Checking CanInteractWithPrimMedia for {0} on {1} face {2} with interact permissions {3}", 
+//                agentID, primID, face, me.InteractPermissions);
+            
+            return GenericPrimMediaPermission(part, agentID, me.InteractPermissions);
+        }
+        
+        private bool GenericPrimMediaPermission(SceneObjectPart part, UUID agentID, MediaPermission perms)
+        {
+//            if (IsAdministrator(agentID))
+//                return true;
+            
+            if ((perms & MediaPermission.Anyone) == MediaPermission.Anyone)
+                return true;
+
+            if ((perms & MediaPermission.Owner) == MediaPermission.Owner)
+            {
+                if (agentID == part.OwnerID)
+                    return true;
+            }
+            
+            if ((perms & MediaPermission.Group) == MediaPermission.Group)
+            {
+                if (IsGroupMember(part.GroupID, agentID, 0))
+                    return true;
+            }
+            
+            return false;
         }
     }
 }

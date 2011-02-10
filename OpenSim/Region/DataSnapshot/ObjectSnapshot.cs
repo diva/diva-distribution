@@ -73,7 +73,7 @@ namespace OpenSim.Region.DataSnapshot.Providers
             client.OnGrabUpdate += delegate(UUID objectID, Vector3 offset, Vector3 grapPos,
                 IClientAPI remoteClient, List<SurfaceTouchEventArgs> surfaceArgs) { this.Stale = true; };
             client.OnObjectAttach += delegate(IClientAPI remoteClient, uint objectLocalID, uint AttachmentPt,
-                Quaternion rot, bool silent) { this.Stale = true; };
+                bool silent) { this.Stale = true; };
             client.OnObjectDuplicate += delegate(uint localID, Vector3 offset, uint dupeFlags, UUID AgentID,
                 UUID GroupID) { this.Stale = true; };
             client.OnObjectDuplicateOnRay += delegate(uint localID, uint dupeFlags, UUID AgentID, UUID GroupID,
@@ -101,7 +101,8 @@ namespace OpenSim.Region.DataSnapshot.Providers
             XmlNode parent = nodeFactory.CreateNode(XmlNodeType.Element, "objectdata", "");
             XmlNode node;
 
-            foreach (EntityBase entity in m_scene.Entities)
+            EntityBase[] entities = m_scene.Entities.GetEntities();
+            foreach (EntityBase entity in entities)
             {
                 // only objects, not avatars
                 if (entity is SceneObjectGroup)
@@ -135,7 +136,7 @@ namespace OpenSim.Region.DataSnapshot.Providers
                             xmlobject.AppendChild(node);
 
                             node = nodeFactory.CreateNode(XmlNodeType.Element, "flags", "");
-                            node.InnerText = String.Format("{0:x}", m_rootPart.ObjectFlags);
+                            node.InnerText = String.Format("{0:x}", (uint)m_rootPart.Flags);
                             xmlobject.AppendChild(node);
 
                             node = nodeFactory.CreateNode(XmlNodeType.Element, "regionuuid", "");

@@ -62,6 +62,8 @@ namespace OpenSim.Data.MySQL
             if (scopeID != UUID.Zero)
                 command += " and ScopeID = ?scopeID";
 
+            command += " order by regionName";
+
             using (MySqlCommand cmd = new MySqlCommand(command))
             {
                 cmd.Parameters.AddWithValue("?regionName", regionName);
@@ -210,8 +212,8 @@ namespace OpenSim.Data.MySQL
             if (data.Data.ContainsKey("locY"))
                 data.Data.Remove("locY");
 
-            if (data.RegionName.Length > 32)
-                data.RegionName = data.RegionName.Substring(0, 32);
+            if (data.RegionName.Length > 128)
+                data.RegionName = data.RegionName.Substring(0, 128);
 
             string[] fields = new List<string>(data.Data.Keys).ToArray();
 
@@ -292,8 +294,10 @@ namespace OpenSim.Data.MySQL
 
         public List<RegionData> GetFallbackRegions(UUID scopeID, int x, int y)
         {
-            // TODO: distance-sort results
-            return Get((int)RegionFlags.FallbackRegion, scopeID);
+            List<RegionData> regions = Get((int)RegionFlags.FallbackRegion, scopeID);
+            RegionDataDistanceCompare distanceComparer = new RegionDataDistanceCompare(x, y);
+            regions.Sort(distanceComparer);
+            return regions;
         }
 
         public List<RegionData> GetHyperlinks(UUID scopeID)

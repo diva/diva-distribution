@@ -91,6 +91,7 @@ namespace OpenSim.Region.CoreModules.World.LightShare
                 m_scene.EventManager.OnMakeRootAgent += EventManager_OnMakeRootAgent;
                 m_scene.EventManager.OnSaveNewWindlightProfile += EventManager_OnSaveNewWindlightProfile;
                 m_scene.EventManager.OnSendNewWindlightProfileTargeted += EventManager_OnSendNewWindlightProfileTargeted;
+                m_scene.LoadWindlightProfile();
             }
 
             InstallCommands();
@@ -193,7 +194,8 @@ namespace OpenSim.Region.CoreModules.World.LightShare
         }
         private void EventManager_OnSaveNewWindlightProfile()
         {
-            m_scene.ForEachScenePresence(SendProfileToClient);
+            if (m_scene.RegionInfo.WindlightSettings.valid)
+                m_scene.ForEachScenePresence(SendProfileToClient);
         }
 
         public void PostInitialise()

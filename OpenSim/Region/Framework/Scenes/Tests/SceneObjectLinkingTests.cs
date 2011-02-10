@@ -26,13 +26,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using NUnit.Framework.SyntaxHelpers;
 using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Communications;
-
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
@@ -81,12 +81,12 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             // FIXME: Can't do this test yet since group 2 still has its root part!  We can't yet null this since
             // it might cause SOG.ProcessBackup() to fail due to the race condition.  This really needs to be fixed.
             Assert.That(grp2.IsDeleted, "SOG 2 was not registered as deleted after link.");
-            Assert.That(grp2.Children.Count, Is.EqualTo(0), "Group 2 still contained children after delink.");
-            Assert.That(grp1.Children.Count == 2);
+            Assert.That(grp2.Parts.Length, Is.EqualTo(0), "Group 2 still contained children after delink.");
+            Assert.That(grp1.Parts.Length == 2);
 
             if (debugtest)
             {
-                m_log.Debug("parts: " + grp1.Children.Count);
+                m_log.Debug("parts: " + grp1.Parts.Length);
                 m_log.Debug("Group1: Pos:"+grp1.AbsolutePosition+", Rot:"+grp1.Rotation);
                 m_log.Debug("Group1: Prim1: OffsetPosition:"+ part1.OffsetPosition+", OffsetRotation:"+part1.RotationOffset);
                 m_log.Debug("Group1: Prim2: OffsetPosition:"+part2.OffsetPosition+", OffsetRotation:"+part2.RotationOffset);
@@ -121,13 +121,14 @@ namespace OpenSim.Region.Framework.Scenes.Tests
                 "Not exactly sure what this is asserting...");
 
             // Delink part 2
-            grp1.DelinkFromGroup(part2.LocalId);
+            SceneObjectGroup grp3 = grp1.DelinkFromGroup(part2.LocalId);
 
             if (debugtest)
                 m_log.Debug("Group2: Prim2: OffsetPosition:" + part2.AbsolutePosition + ", OffsetRotation:" + part2.RotationOffset);
 
-            Assert.That(grp1.Children.Count, Is.EqualTo(1), "Group 1 still contained part2 after delink.");
+            Assert.That(grp1.Parts.Length, Is.EqualTo(1), "Group 1 still contained part2 after delink.");
             Assert.That(part2.AbsolutePosition == Vector3.Zero, "The absolute position should be zero");
+            Assert.That(grp3.HasGroupChangedDueToDelink, Is.True);
         }
 
         [Test]
@@ -177,22 +178,22 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             grp3.LinkToGroup(grp4);
             
             // At this point we should have 4 parts total in two groups.
-            Assert.That(grp1.Children.Count == 2, "Group1 children count should be 2");
+            Assert.That(grp1.Parts.Length == 2, "Group1 children count should be 2");
             Assert.That(grp2.IsDeleted, "Group 2 was not registered as deleted after link.");
-            Assert.That(grp2.Children.Count, Is.EqualTo(0), "Group 2 still contained parts after delink.");
-            Assert.That(grp3.Children.Count == 2, "Group3 children count should be 2");
+            Assert.That(grp2.Parts.Length, Is.EqualTo(0), "Group 2 still contained parts after delink.");
+            Assert.That(grp3.Parts.Length == 2, "Group3 children count should be 2");
             Assert.That(grp4.IsDeleted, "Group 4 was not registered as deleted after link.");
-            Assert.That(grp4.Children.Count, Is.EqualTo(0), "Group 4 still contained parts after delink.");
+            Assert.That(grp4.Parts.Length, Is.EqualTo(0), "Group 4 still contained parts after delink.");
             
             if (debugtest)
             {
                 m_log.Debug("--------After Link-------");
-                m_log.Debug("Group1: parts:" + grp1.Children.Count);
+                m_log.Debug("Group1: parts:" + grp1.Parts.Length);
                 m_log.Debug("Group1: Pos:"+grp1.AbsolutePosition+", Rot:"+grp1.Rotation);
                 m_log.Debug("Group1: Prim1: OffsetPosition:" + part1.OffsetPosition + ", OffsetRotation:" + part1.RotationOffset);
                 m_log.Debug("Group1: Prim2: OffsetPosition:"+part2.OffsetPosition+", OffsetRotation:"+ part2.RotationOffset);
-                
-                m_log.Debug("Group3: parts:"+grp3.Children.Count);
+
+                m_log.Debug("Group3: parts:" + grp3.Parts.Length);
                 m_log.Debug("Group3: Pos:"+grp3.AbsolutePosition+", Rot:"+grp3.Rotation);
                 m_log.Debug("Group3: Prim1: OffsetPosition:"+part3.OffsetPosition+", OffsetRotation:"+part3.RotationOffset);
                 m_log.Debug("Group3: Prim2: OffsetPosition:"+part4.OffsetPosition+", OffsetRotation:"+part4.RotationOffset);
@@ -240,12 +241,12 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             if (debugtest)
             {
                 m_log.Debug("--------After De-Link-------");
-                m_log.Debug("Group1: parts:" + grp1.Children.Count);
+                m_log.Debug("Group1: parts:" + grp1.Parts.Length);
                 m_log.Debug("Group1: Pos:" + grp1.AbsolutePosition + ", Rot:" + grp1.Rotation);
                 m_log.Debug("Group1: Prim1: OffsetPosition:" + part1.OffsetPosition + ", OffsetRotation:" + part1.RotationOffset);
                 m_log.Debug("Group1: Prim2: OffsetPosition:" + part2.OffsetPosition + ", OffsetRotation:" + part2.RotationOffset);
 
-                m_log.Debug("Group3: parts:" + grp3.Children.Count);
+                m_log.Debug("Group3: parts:" + grp3.Parts.Length);
                 m_log.Debug("Group3: Pos:" + grp3.AbsolutePosition + ", Rot:" + grp3.Rotation);
                 m_log.Debug("Group3: Prim1: OffsetPosition:" + part3.OffsetPosition + ", OffsetRotation:" + part3.RotationOffset);
                 m_log.Debug("Group3: Prim2: OffsetPosition:" + part4.OffsetPosition + ", OffsetRotation:" + part4.RotationOffset);
@@ -259,6 +260,90 @@ namespace OpenSim.Region.Framework.Scenes.Tests
                 && (part4.RotationOffset.Z - compareQuaternion.Z < 0.00003) 
                 && (part4.RotationOffset.W - compareQuaternion.W < 0.00003),
                 "Badness 3");
+        }
+        
+        /// <summary>
+        /// Test that a new scene object which is already linked is correctly persisted to the persistence layer.
+        /// </summary>
+        [Test]
+        public void TestNewSceneObjectLinkPersistence()
+        {
+            TestHelper.InMethod();
+            //log4net.Config.XmlConfigurator.Configure();
+            
+            TestScene scene = SceneSetupHelpers.SetupScene();
+            
+            string rootPartName = "rootpart";
+            UUID rootPartUuid = new UUID("00000000-0000-0000-0000-000000000001");
+            string linkPartName = "linkpart";
+            UUID linkPartUuid = new UUID("00000000-0000-0000-0001-000000000000");
+
+            SceneObjectPart rootPart
+                = new SceneObjectPart(UUID.Zero, PrimitiveBaseShape.Default, Vector3.Zero, Quaternion.Identity, Vector3.Zero) 
+                    { Name = rootPartName, UUID = rootPartUuid };
+            SceneObjectPart linkPart
+                = new SceneObjectPart(UUID.Zero, PrimitiveBaseShape.Default, Vector3.Zero, Quaternion.Identity, Vector3.Zero) 
+                    { Name = linkPartName, UUID = linkPartUuid };
+
+            SceneObjectGroup sog = new SceneObjectGroup(rootPart);
+            sog.AddPart(linkPart);
+            scene.AddNewSceneObject(sog, true);
+            
+            // In a test, we have to crank the backup handle manually.  Normally this would be done by the timer invoked
+            // scene backup thread.
+            scene.Backup(true);
+            
+            List<SceneObjectGroup> storedObjects = scene.SimulationDataService.LoadObjects(scene.RegionInfo.RegionID);
+            
+            Assert.That(storedObjects.Count, Is.EqualTo(1));
+            Assert.That(storedObjects[0].Parts.Length, Is.EqualTo(2));
+            Assert.That(storedObjects[0].ContainsPart(rootPartUuid));
+            Assert.That(storedObjects[0].ContainsPart(linkPartUuid));
+        }
+        
+        /// <summary>
+        /// Test that a delink of a previously linked object is correctly persisted to the database
+        /// </summary>
+        [Test]
+        public void TestDelinkPersistence()
+        {
+            TestHelper.InMethod();
+            //log4net.Config.XmlConfigurator.Configure();
+            
+            TestScene scene = SceneSetupHelpers.SetupScene();
+            
+            string rootPartName = "rootpart";
+            UUID rootPartUuid = new UUID("00000000-0000-0000-0000-000000000001");
+            string linkPartName = "linkpart";
+            UUID linkPartUuid = new UUID("00000000-0000-0000-0001-000000000000");
+
+            SceneObjectPart rootPart
+                = new SceneObjectPart(UUID.Zero, PrimitiveBaseShape.Default, Vector3.Zero, Quaternion.Identity, Vector3.Zero) 
+                    { Name = rootPartName, UUID = rootPartUuid };
+            SceneObjectPart linkPart
+                = new SceneObjectPart(UUID.Zero, PrimitiveBaseShape.Default, Vector3.Zero, Quaternion.Identity, Vector3.Zero) 
+                    { Name = linkPartName, UUID = linkPartUuid };
+
+            SceneObjectGroup sog = new SceneObjectGroup(rootPart);
+            sog.AddPart(linkPart);
+            scene.AddNewSceneObject(sog, true);            
+            
+            // In a test, we have to crank the backup handle manually.  Normally this would be done by the timer invoked
+            // scene backup thread.
+            scene.Backup(true);
+                        
+            // These changes should occur immediately without waiting for a backup pass
+            SceneObjectGroup groupToDelete = sog.DelinkFromGroup(linkPart, false);
+            
+            Assert.That(groupToDelete.HasGroupChangedDueToDelink, Is.True);
+            scene.DeleteSceneObject(groupToDelete, false);
+            Assert.That(groupToDelete.HasGroupChangedDueToDelink, Is.False);
+            
+            List<SceneObjectGroup> storedObjects = scene.SimulationDataService.LoadObjects(scene.RegionInfo.RegionID);
+            
+            Assert.That(storedObjects.Count, Is.EqualTo(1));
+            Assert.That(storedObjects[0].Parts.Length, Is.EqualTo(1));
+            Assert.That(storedObjects[0].ContainsPart(rootPartUuid));
         }
     }
 }

@@ -111,7 +111,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         }
 
         // Check if there are SceneObjectGroups in the list that do not have corresponding ContentManagementGroups in the CMEntityHash
-        public System.Collections.ArrayList CheckForMissingEntities(System.Collections.Generic.List<EntityBase> currList)
+        public System.Collections.ArrayList CheckForMissingEntities(EntityBase[] currList)
         {
             System.Collections.ArrayList missingList = new System.Collections.ArrayList();
             SceneObjectGroup temp = null;
@@ -123,13 +123,13 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
 
                 if (m_CMEntityHash.ContainsKey(temp.UUID))
                 {
-                    foreach (SceneObjectPart part in temp.Children.Values)
+                    foreach (SceneObjectPart part in temp.Parts)
                         if (!((ContentManagementEntity)m_CMEntityHash[temp.UUID]).HasChildPrim(part.UUID))
                             missingList.Add(part);
                 }
                 else //Entire group is missing from revision. (and is a new part in region)
                 {
-                    foreach (SceneObjectPart part in temp.Children.Values)
+                    foreach (SceneObjectPart part in temp.Parts)
                         missingList.Add(part);
                 }
             }

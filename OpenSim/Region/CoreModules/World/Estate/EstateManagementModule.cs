@@ -231,7 +231,23 @@ namespace OpenSim.Region.CoreModules.World.Estate
 
         private void handleEstateRestartSimRequest(IClientAPI remoteClient, int timeInSeconds)
         {
-            m_scene.Restart(timeInSeconds);
+            IRestartModule restartModule = m_scene.RequestModuleInterface<IRestartModule>();
+            if (restartModule != null)
+            {
+                List<int> times = new List<int>();
+                while (timeInSeconds > 0)
+                {
+                    times.Add(timeInSeconds);
+                    if (timeInSeconds > 300)
+                        timeInSeconds -= 120;
+                    else if (timeInSeconds > 30)
+                        timeInSeconds -= 30;
+                    else
+                        timeInSeconds -= 15;
+                }
+
+                restartModule.ScheduleRestart(UUID.Zero, "Region will restart in {0}", times.ToArray(), true);
+            }
         }
 
         private void handleChangeEstateCovenantRequest(IClientAPI remoteClient, UUID estateCovenantID)
@@ -343,7 +359,6 @@ namespace OpenSim.Region.CoreModules.World.Estate
                         {
                             if (!s.IsChildAgent)
                             {
-                                s.ControllingClient.SendTeleportLocationStart();
                                 m_scene.TeleportClientHome(user, s.ControllingClient);
                             }
                         }
@@ -478,7 +493,6 @@ namespace OpenSim.Region.CoreModules.World.Estate
                 ScenePresence s = m_scene.GetScenePresence(prey);
                 if (s != null)
                 {
-                    s.ControllingClient.SendTeleportLocationStart(); 
                     m_scene.TeleportClientHome(prey, s.ControllingClient);
                 }
             }
@@ -498,7 +512,6 @@ namespace OpenSim.Region.CoreModules.World.Estate
                     // Also make sure they are actually in the region
                     if (p != null && !p.IsChildAgent)
                     {
-                        p.ControllingClient.SendTeleportLocationStart();
                         m_scene.TeleportClientHome(p.UUID, p.ControllingClient);
                     }
                 }
@@ -542,37 +555,12 @@ namespace OpenSim.Region.CoreModules.World.Estate
 
                 try
                 {
+                    MemoryStream terrainStream = new MemoryStream(terrainData);
+                    terr.LoadFromStream(filename, terrainStream);
+                    terrainStream.Close();
 
-                    string localfilename = "terrain.raw";
-
-                    if (terrainData.Length == 851968)
-                    {
-                        localfilename = Path.Combine(Util.dataDir(),"terrain.raw"); // It's a .LLRAW
-                    }
-
-                    if (terrainData.Length == 196662) // 24-bit 256x256 Bitmap
-                        localfilename = Path.Combine(Util.dataDir(), "terrain.bmp");
-
-                    if (terrainData.Length == 256 * 256 * 4) // It's a .R32
-                        localfilename = Path.Combine(Util.dataDir(), "terrain.r32");
-
-                    if (terrainData.Length == 256 * 256 * 8) // It's a .R64
-                        localfilename = Path.Combine(Util.dataDir(), "terrain.r64");
-
-                    if (File.Exists(localfilename))
-                    {
-                        File.Delete(localfilename);
-                    }
-
-                    FileStream input = new FileStream(localfilename, FileMode.CreateNew);
-                    input.Write(terrainData, 0, terrainData.Length);
-                    input.Close();
-
-                    FileInfo x = new FileInfo(localfilename);
-
-                    terr.LoadFromFile(localfilename);
-                    remoteClient.SendAlertMessage("Your terrain was loaded as a ." + x.Extension + " file. It may take a few moments to appear.");
-
+                    FileInfo x = new FileInfo(filename);
+                    remoteClient.SendAlertMessage("Your terrain was loaded as a " + x.Extension + " file. It may take a few moments to appear.");
                 }
                 catch (IOException e)
                 {
@@ -673,6 +661,7 @@ namespace OpenSim.Region.CoreModules.World.Estate
            args.useEstateSun = m_scene.RegionInfo.RegionSettings.UseEstateSun;
            args.waterHeight = (float)m_scene.RegionInfo.RegionSettings.WaterHeight;
            args.simName = m_scene.RegionInfo.RegionName;
+           args.regionType = m_scene.RegionInfo.RegionType;
 
            remote_client.SendRegionInfoToEstateMenu(args);
         }
@@ -684,6 +673,9 @@ namespace OpenSim.Region.CoreModules.World.Estate
 
         private void HandleLandStatRequest(int parcelID, uint reportType, uint requestFlags, string filter, IClientAPI remoteClient)
         {
+            if (!m_scene.Permissions.CanIssueEstateCommand(remoteClient.AgentId, false))
+                return;
+
             Dictionary<uint, float> SceneData = new Dictionary<uint,float>();
             List<UUID> uuidNameLookupList = new List<UUID>();
 
@@ -750,6 +742,7 @@ namespace OpenSim.Region.CoreModules.World.Estate
             LookupUUIDS icon = (LookupUUIDS)iar.AsyncState;
             icon.EndInvoke(iar);
         }
+        
         private void LookupUUID(List<UUID> uuidLst)
         {
             LookupUUIDS d = LookupUUIDsAsync;
@@ -758,6 +751,7 @@ namespace OpenSim.Region.CoreModules.World.Estate
                           LookupUUIDSCompleted,
                           d);
         }
+        
         private void LookupUUIDsAsync(List<UUID> uuidLst)
         {
             UUID[] uuidarr;
@@ -770,8 +764,14 @@ namespace OpenSim.Region.CoreModules.World.Estate
             for (int i = 0; i < uuidarr.Length; i++)
             {
                 // string lookupname = m_scene.CommsManager.UUIDNameRequestString(uuidarr[i]);
-                m_scene.GetUserName(uuidarr[i]);
+
+                IUserManagement userManager = m_scene.RequestModuleInterface<IUserManagement>();
+                if (userManager != null)
+                    userManager.GetUserName(uuidarr[i]);
+                
                 // we drop it.  It gets cached though...  so we're ready for the next request.
+                // diva commnent 11/21/2010: uh?!? wft?
+                // justincc comment 21/01/2011: A side effect of userManager.GetUserName() I presume.
             }
         }
         #endregion
@@ -1097,12 +1097,14 @@ namespace OpenSim.Region.CoreModules.World.Estate
             if (m_scene.RegionInfo.RegionSettings.AllowLandJoinDivide)
                 flags |= RegionFlags.AllowParcelChanges;
             if (m_scene.RegionInfo.RegionSettings.BlockShowInSearch)
-                flags |= (RegionFlags)(1 << 29);
+                flags |= RegionFlags.BlockParcelSearch;
 
             if (m_scene.RegionInfo.RegionSettings.FixedSun)
                 flags |= RegionFlags.SunFixed;
             if (m_scene.RegionInfo.RegionSettings.Sandbox)
                 flags |= RegionFlags.Sandbox;
+            if (m_scene.RegionInfo.EstateSettings.AllowVoice)
+                flags |= RegionFlags.AllowVoice;
 
             // Fudge these to always on, so the menu options activate
             //

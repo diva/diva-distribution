@@ -54,9 +54,14 @@ namespace OpenSim.Server.Handlers.Hypergrid
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private IUserAgentService m_UserAgentService;
 
-        public HomeAgentHandler(IUserAgentService userAgentService)
+        private string m_LoginServerIP;
+        private bool m_Proxy = false;
+
+        public HomeAgentHandler(IUserAgentService userAgentService, string loginServerIP, bool proxy)
         {
             m_UserAgentService = userAgentService;
+            m_LoginServerIP = loginServerIP;
+            m_Proxy = proxy;
         }
 
         public Hashtable Handler(Hashtable request)
@@ -119,14 +124,22 @@ namespace OpenSim.Server.Handlers.Hypergrid
             UUID uuid = UUID.Zero;
             string regionname = string.Empty;
             string gatekeeper_host = string.Empty;
+            string gatekeeper_serveruri = string.Empty;
+            string destination_serveruri = string.Empty;
             int gatekeeper_port = 0;
+            IPEndPoint client_ipaddress = null;
 
             if (args.ContainsKey("gatekeeper_host") && args["gatekeeper_host"] != null)
                 gatekeeper_host = args["gatekeeper_host"].AsString();
             if (args.ContainsKey("gatekeeper_port") && args["gatekeeper_port"] != null)
                 Int32.TryParse(args["gatekeeper_port"].AsString(), out gatekeeper_port);
+            if (args.ContainsKey("gatekeeper_serveruri") && args["gatekeeper_serveruri"] !=null)
+                gatekeeper_serveruri = args["gatekeeper_serveruri"];
+            if (args.ContainsKey("destination_serveruri") && args["destination_serveruri"] !=null)
+                destination_serveruri = args["destination_serveruri"];
 
             GridRegion gatekeeper = new GridRegion();
+            gatekeeper.ServerURI = gatekeeper_serveruri;
             gatekeeper.ExternalHostName = gatekeeper_host;
             gatekeeper.HttpPort = (uint)gatekeeper_port;
             gatekeeper.InternalEndPoint = new IPEndPoint(IPAddress.Parse("0.0.0.0"), 0);
@@ -144,12 +157,31 @@ namespace OpenSim.Server.Handlers.Hypergrid
             if (args.ContainsKey("destination_name") && args["destination_name"] != null)
                 regionname = args["destination_name"].ToString();
 
+            if (args.ContainsKey("client_ip") && args["client_ip"] != null)
+            {
+                string ip_str = args["client_ip"].ToString();
+                try
+                {
+                    string callerIP = GetCallerIP(request);
+                    // Verify if this caller has authority to send the client IP
+                    if (callerIP == m_LoginServerIP)
+                        client_ipaddress = new IPEndPoint(IPAddress.Parse(ip_str), 0);
+                    else // leaving this for now, but this warning should be removed
+                        m_log.WarnFormat("[HOME AGENT HANDLER]: Unauthorized machine {0} tried to set client ip to {1}", callerIP, ip_str);
+                }
+                catch
+                {
+                    m_log.DebugFormat("[HOME AGENT HANDLER]: Exception parsing client ip address from {0}", ip_str);
+                }
+            }
+
             GridRegion destination = new GridRegion();
             destination.RegionID = uuid;
             destination.RegionLocX = x;
             destination.RegionLocY = y;
             destination.RegionName = regionname;
-
+            destination.ServerURI = destination_serveruri;
+            
             AgentCircuitData aCircuit = new AgentCircuitData();
             try
             {
@@ -166,7 +198,7 @@ namespace OpenSim.Server.Handlers.Hypergrid
             OSDMap resp = new OSDMap(2);
             string reason = String.Empty;
 
-            bool result = m_UserAgentService.LoginAgentToGrid(aCircuit, gatekeeper, destination, out reason);
+            bool result = m_UserAgentService.LoginAgentToGrid(aCircuit, gatekeeper, destination, client_ipaddress, out reason);
 
             resp["reason"] = OSD.FromString(reason);
             resp["success"] = OSD.FromBoolean(result);
@@ -176,6 +208,32 @@ namespace OpenSim.Server.Handlers.Hypergrid
             responsedata["str_response_string"] = OSDParser.SerializeJsonString(resp);
         }
 
+        private string GetCallerIP(Hashtable request)
+        {
+            if (!m_Proxy)
+                return Util.GetCallerIP(request);
+
+            // We're behind a proxy
+            Hashtable headers = (Hashtable)request["headers"];
+            string xff = "X-Forwarded-For";
+            if (headers.ContainsKey(xff.ToLower()))
+                xff = xff.ToLower();
+
+            if (!headers.ContainsKey(xff) || headers[xff] == null)
+            {
+                m_log.WarnFormat("[AGENT HANDLER]: No XFF header");
+                return Util.GetCallerIP(request);
+            }
+
+            m_log.DebugFormat("[AGENT HANDLER]: XFF is {0}", headers[xff]);
+
+            IPEndPoint ep = Util.GetClientIPFromXFF((string)headers[xff]);
+            if (ep != null)
+                return ep.Address.ToString();
+
+            // Oops
+            return Util.GetCallerIP(request);
+        }
     }
 
 }

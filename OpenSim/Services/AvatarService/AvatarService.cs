@@ -51,14 +51,29 @@ namespace OpenSim.Services.AvatarService
             m_log.Debug("[AVATAR SERVICE]: Starting avatar service");
         }
 
+        public AvatarAppearance GetAppearance(UUID principalID)
+        {
+            AvatarData avatar = GetAvatar(principalID);
+            return avatar.ToAvatarAppearance(principalID);
+        }
+        
+        public bool SetAppearance(UUID principalID, AvatarAppearance appearance)
+        {
+            AvatarData avatar = new AvatarData(appearance);
+            return SetAvatar(principalID,avatar);
+        }
+
         public AvatarData GetAvatar(UUID principalID)
         {
             AvatarBaseData[] av = m_Database.Get("PrincipalID", principalID.ToString());
-            if (av.Length == 0)
-                return null;
-
             AvatarData ret = new AvatarData();
             ret.Data = new Dictionary<string,string>();
+
+            if (av.Length == 0)
+            {
+                ret.AvatarType = 1; // SL avatar
+                return ret;
+            }
 
             foreach (AvatarBaseData b in av)
             {

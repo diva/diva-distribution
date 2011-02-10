@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -29,9 +29,9 @@ using System;
 using Nini.Config;
 using OpenSim.Framework;
 using OpenSim.Framework.Communications;
-
 using OpenSim.Framework.Servers;
 using OpenSim.Region.Framework;
+using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 
 namespace OpenSim.Tests.Common.Mock
@@ -40,10 +40,10 @@ namespace OpenSim.Tests.Common.Mock
     {
         public TestScene(
             RegionInfo regInfo, AgentCircuitManager authen,
-            SceneCommunicationService sceneGridService, StorageManager storeManager,
+            SceneCommunicationService sceneGridService, ISimulationDataService simDataService, IEstateDataService estateDataService,
             ModuleLoader moduleLoader, bool dumpAssetsToFile, bool physicalPrim,
             bool SeeIntoRegionFromNeighbor, IConfigSource config, string simulatorVersion)
-            : base(regInfo, authen, sceneGridService, storeManager, moduleLoader,
+            : base(regInfo, authen, sceneGridService, simDataService, estateDataService, moduleLoader,
                    dumpAssetsToFile, physicalPrim, SeeIntoRegionFromNeighbor, config, simulatorVersion)
         {
         }
@@ -65,6 +65,6 @@ namespace OpenSim.Tests.Common.Mock
         public AsyncSceneObjectGroupDeleter SceneObjectGroupDeleter
         {
             get { return m_asyncSceneObjectDeleter; }
-        }      
+        }
     }
 }

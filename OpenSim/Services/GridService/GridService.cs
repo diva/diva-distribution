@@ -286,7 +286,7 @@ namespace OpenSim.Services.GridService
                     }
 
             }
-            m_log.DebugFormat("[GRID SERVICE]: region {0} has {1} neighours", region.RegionName, rinfos.Count);
+            m_log.DebugFormat("[GRID SERVICE]: region {0} has {1} neighbours", region.RegionName, rinfos.Count);
             return rinfos;
         }
 
@@ -323,7 +323,7 @@ namespace OpenSim.Services.GridService
         {
             m_log.DebugFormat("[GRID SERVICE]: GetRegionsByName {0}", name);
 
-            List<RegionData> rdatas = m_Database.Get("%" + name + "%", scopeID);
+            List<RegionData> rdatas = m_Database.Get(name + "%", scopeID);
 
             int count = 0;
             List<GridRegion> rinfos = new List<GridRegion>();
@@ -479,7 +479,7 @@ namespace OpenSim.Services.GridService
                 OpenSim.Data.RegionFlags flags = (OpenSim.Data.RegionFlags)Convert.ToInt32(r.Data["flags"]);
                 MainConsole.Instance.Output(String.Format("{0,-20} {1}\n{2,-20} {3}\n{4,-39} {5}\n\n",
                         r.RegionName, r.RegionID,
-                        String.Format("{0},{1}", r.posX, r.posY), "http://" + r.Data["serverIP"].ToString() + ":" + r.Data["serverPort"].ToString(),
+                        String.Format("{0},{1}", r.posX, r.posY), r.Data["serverURI"],
                         r.Data["owner_uuid"].ToString(), flags.ToString()));
             }
             return;

@@ -31,12 +31,16 @@ using System.Collections.Generic;
 using OpenSim.Framework;
 using OpenSim.Region.Physics.Manager;
 using OpenMetaverse;
+using OpenMetaverse.StructuredData;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO.Compression;
 using PrimMesher;
 using log4net;
+using Nini.Config;
 using System.Reflection;
 using System.IO;
+using ComponentAce.Compression.Libs.zlib;
 
 namespace OpenSim.Region.Physics.Meshing
 {
@@ -51,9 +55,9 @@ namespace OpenSim.Region.Physics.Meshing
             return "Meshmerizer";
         }
 
-        public IMesher GetMesher()
+        public IMesher GetMesher(IConfigSource config)
         {
-            return new Meshmerizer();
+            return new Meshmerizer(config);
         }
     }
 
@@ -70,22 +74,29 @@ namespace OpenSim.Region.Physics.Meshing
 #endif
 
         private bool cacheSculptMaps = true;
-        private string decodedScultMapPath = "j2kDecodeCache";
+        private string decodedSculptMapPath = null;
+        private bool useMeshiesPhysicsMesh = false;
 
         private float minSizeForComplexMesh = 0.2f; // prims with all dimensions smaller than this will have a bounding box mesh
 
         private Dictionary<ulong, Mesh> m_uniqueMeshes = new Dictionary<ulong, Mesh>();
 
-        public Meshmerizer()
+        public Meshmerizer(IConfigSource config)
         {
+            IConfig start_config = config.Configs["Startup"];
+
+            decodedSculptMapPath = start_config.GetString("DecodedSculptMapPath","j2kDecodeCache");
+            cacheSculptMaps = start_config.GetBoolean("CacheSculptMaps", cacheSculptMaps);
+            useMeshiesPhysicsMesh = start_config.GetBoolean("UseMeshiesPhysicsMesh", useMeshiesPhysicsMesh);
+
             try
             {
-                if (!Directory.Exists(decodedScultMapPath))
-                    Directory.CreateDirectory(decodedScultMapPath);
+                if (!Directory.Exists(decodedSculptMapPath))
+                    Directory.CreateDirectory(decodedSculptMapPath);
             }
             catch (Exception e)
             {
-                m_log.WarnFormat("[SCULPT]: Unable to create {0} directory: ", decodedScultMapPath, e.Message);
+                m_log.WarnFormat("[SCULPT]: Unable to create {0} directory: ", decodedSculptMapPath, e.Message);
             }
 
         }
@@ -250,102 +261,223 @@ namespace OpenSim.Region.Physics.Meshing
             PrimMesh primMesh;
             PrimMesher.SculptMesh sculptMesh;
 
-            List<Coord> coords;
-            List<Face> faces;
+            List<Coord> coords = new List<Coord>();
+            List<Face> faces = new List<Face>();
 
             Image idata = null;
             string decodedSculptFileName = "";
 
             if (primShape.SculptEntry)
             {
-                if (cacheSculptMaps && primShape.SculptTexture != UUID.Zero)
+                if (((OpenMetaverse.SculptType)primShape.SculptType) == SculptType.Mesh)
                 {
-                    decodedSculptFileName = System.IO.Path.Combine(decodedScultMapPath, "smap_" + primShape.SculptTexture.ToString());
-                    try
+                    if (!useMeshiesPhysicsMesh)
+                        return null;
+
+                    m_log.Debug("[MESH]: experimental mesh proxy generation");
+
+                    OSD meshOsd = null;
+
+                    if (primShape.SculptData.Length <= 0)
                     {
-                        if (File.Exists(decodedSculptFileName))
+                        m_log.Error("[MESH]: asset data is zero length");
+                        return null;
+                    }
+
+                    long start = 0;
+                    using (MemoryStream data = new MemoryStream(primShape.SculptData))
+                    {
+                        try
                         {
-                            idata = Image.FromFile(decodedSculptFileName);
+                            meshOsd = (OSDMap)OSDParser.DeserializeLLSDBinary(data);
+                        }
+                        catch (Exception e)
+                        {
+                            m_log.Error("[MESH]: Exception deserializing mesh asset header:" + e.ToString());
+                        }
+                        start = data.Position;
+                    }
+
+                    if (meshOsd is OSDMap)
+                    {
+                        OSDMap map = (OSDMap)meshOsd;
+                        OSDMap physicsParms = (OSDMap)map["physics_shape"];
+                        int physOffset = physicsParms["offset"].AsInteger() + (int)start;
+                        int physSize = physicsParms["size"].AsInteger();
+
+                        if (physOffset < 0 || physSize == 0)
+                            return null; // no mesh data in asset
+
+                        OSD decodedMeshOsd = new OSD();
+                        byte[] meshBytes = new byte[physSize];
+                        System.Buffer.BlockCopy(primShape.SculptData, physOffset, meshBytes, 0, physSize);
+//                        byte[] decompressed = new byte[physSize * 5];
+                        try
+                        {
+                            using (MemoryStream inMs = new MemoryStream(meshBytes))
+                            {
+                                using (MemoryStream outMs = new MemoryStream())
+                                {
+                                    using (ZOutputStream zOut = new ZOutputStream(outMs))
+                                    {
+                                        byte[] readBuffer = new byte[2048];
+                                        int readLen = 0;
+                                        while ((readLen = inMs.Read(readBuffer, 0, readBuffer.Length)) > 0)
+                                        {
+                                            zOut.Write(readBuffer, 0, readLen);
+                                        }
+                                        zOut.Flush();
+                                        outMs.Seek(0, SeekOrigin.Begin);
+
+                                        byte[] decompressedBuf = outMs.GetBuffer();
+
+                                        decodedMeshOsd = OSDParser.DeserializeLLSDBinary(decompressedBuf);
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            m_log.Error("[MESH]: exception decoding physical mesh: " + e.ToString());
+                            return null;
+                        }
+
+                        OSDArray decodedMeshOsdArray = null;
+
+                        // physics_shape is an array of OSDMaps, one for each submesh
+                        if (decodedMeshOsd is OSDArray)
+                        {
+                            decodedMeshOsdArray = (OSDArray)decodedMeshOsd;
+                            foreach (OSD subMeshOsd in decodedMeshOsdArray)
+                            {
+                                if (subMeshOsd is OSDMap)
+                                {
+                                    OSDMap subMeshMap = (OSDMap)subMeshOsd;
+
+                                    OpenMetaverse.Vector3 posMax = ((OSDMap)subMeshMap["PositionDomain"])["Max"].AsVector3();
+                                    OpenMetaverse.Vector3 posMin = ((OSDMap)subMeshMap["PositionDomain"])["Min"].AsVector3();
+                                    ushort faceIndexOffset = (ushort)coords.Count;
+
+                                    byte[] posBytes = subMeshMap["Position"].AsBinary();
+                                    for (int i = 0; i < posBytes.Length; i += 6)
+                                    {
+                                        ushort uX = Utils.BytesToUInt16(posBytes, i);
+                                        ushort uY = Utils.BytesToUInt16(posBytes, i + 2);
+                                        ushort uZ = Utils.BytesToUInt16(posBytes, i + 4);
+
+                                        Coord c = new Coord(
+                                        Utils.UInt16ToFloat(uX, posMin.X, posMax.X) * size.X,
+                                        Utils.UInt16ToFloat(uY, posMin.Y, posMax.Y) * size.Y,
+                                        Utils.UInt16ToFloat(uZ, posMin.Z, posMax.Z) * size.Z);
+
+                                        coords.Add(c);
+                                    }
+
+                                    byte[] triangleBytes = subMeshMap["TriangleList"].AsBinary();
+                                    for (int i = 0; i < triangleBytes.Length; i += 6)
+                                    {
+                                        ushort v1 = (ushort)(Utils.BytesToUInt16(triangleBytes, i) + faceIndexOffset);
+                                        ushort v2 = (ushort)(Utils.BytesToUInt16(triangleBytes, i + 2) + faceIndexOffset);
+                                        ushort v3 = (ushort)(Utils.BytesToUInt16(triangleBytes, i + 4) + faceIndexOffset);
+                                        Face f = new Face(v1, v2, v3);
+                                        faces.Add(f);
+                                    }
+                                }
+                            }
                         }
                     }
-                    catch (Exception e)
-                    {
-                        m_log.Error("[SCULPT]: unable to load cached sculpt map " + decodedSculptFileName + " " + e.Message);
-
-                    }
-                    //if (idata != null)
-                    //    m_log.Debug("[SCULPT]: loaded cached map asset for map ID: " + primShape.SculptTexture.ToString());
                 }
-
-                if (idata == null)
+                else
                 {
-                    if (primShape.SculptData == null || primShape.SculptData.Length == 0)
-                        return null;
-
-                    try
+                    if (cacheSculptMaps && primShape.SculptTexture != UUID.Zero)
                     {
-                        OpenMetaverse.Imaging.ManagedImage unusedData;
-                        OpenMetaverse.Imaging.OpenJPEG.DecodeToImage(primShape.SculptData, out unusedData, out idata);
-                        unusedData = null;
-
-                        //idata = CSJ2K.J2kImage.FromBytes(primShape.SculptData);
-
-                        if (cacheSculptMaps && idata != null)
+                        decodedSculptFileName = System.IO.Path.Combine(decodedSculptMapPath, "smap_" + primShape.SculptTexture.ToString());
+                        try
                         {
-                            try { idata.Save(decodedSculptFileName, ImageFormat.MemoryBmp); }
-                            catch (Exception e) { m_log.Error("[SCULPT]: unable to cache sculpt map " + decodedSculptFileName + " " + e.Message); }
+                            if (File.Exists(decodedSculptFileName))
+                            {
+                                idata = Image.FromFile(decodedSculptFileName);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            m_log.Error("[SCULPT]: unable to load cached sculpt map " + decodedSculptFileName + " " + e.Message);
+
+                        }
+                        //if (idata != null)
+                        //    m_log.Debug("[SCULPT]: loaded cached map asset for map ID: " + primShape.SculptTexture.ToString());
+                    }
+
+                    if (idata == null)
+                    {
+                        if (primShape.SculptData == null || primShape.SculptData.Length == 0)
+                            return null;
+
+                        try
+                        {
+                            OpenMetaverse.Imaging.ManagedImage unusedData;
+                            OpenMetaverse.Imaging.OpenJPEG.DecodeToImage(primShape.SculptData, out unusedData, out idata);
+                            unusedData = null;
+
+                            //idata = CSJ2K.J2kImage.FromBytes(primShape.SculptData);
+
+                            if (cacheSculptMaps && idata != null)
+                            {
+                                try { idata.Save(decodedSculptFileName, ImageFormat.MemoryBmp); }
+                                catch (Exception e) { m_log.Error("[SCULPT]: unable to cache sculpt map " + decodedSculptFileName + " " + e.Message); }
+                            }
+                        }
+                        catch (DllNotFoundException)
+                        {
+                            m_log.Error("[PHYSICS]: OpenJpeg is not installed correctly on this system. Physics Proxy generation failed.  Often times this is because of an old version of GLIBC.  You must have version 2.4 or above!");
+                            return null;
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            m_log.Error("[PHYSICS]: OpenJpeg was unable to decode this. Physics Proxy generation failed");
+                            return null;
+                        }
+                        catch (Exception ex)
+                        {
+                            m_log.Error("[PHYSICS]: Unable to generate a Sculpty physics proxy. Sculpty texture decode failed: " + ex.Message);
+                            return null;
                         }
                     }
-                    catch (DllNotFoundException)
+
+                    PrimMesher.SculptMesh.SculptType sculptType;
+                    switch ((OpenMetaverse.SculptType)primShape.SculptType)
                     {
-                        m_log.Error("[PHYSICS]: OpenJpeg is not installed correctly on this system. Physics Proxy generation failed.  Often times this is because of an old version of GLIBC.  You must have version 2.4 or above!");
-                        return null;
+                        case OpenMetaverse.SculptType.Cylinder:
+                            sculptType = PrimMesher.SculptMesh.SculptType.cylinder;
+                            break;
+                        case OpenMetaverse.SculptType.Plane:
+                            sculptType = PrimMesher.SculptMesh.SculptType.plane;
+                            break;
+                        case OpenMetaverse.SculptType.Torus:
+                            sculptType = PrimMesher.SculptMesh.SculptType.torus;
+                            break;
+                        case OpenMetaverse.SculptType.Sphere:
+                            sculptType = PrimMesher.SculptMesh.SculptType.sphere;
+                            break;
+                        default:
+                            sculptType = PrimMesher.SculptMesh.SculptType.plane;
+                            break;
                     }
-                    catch (IndexOutOfRangeException)
-                    {
-                        m_log.Error("[PHYSICS]: OpenJpeg was unable to decode this. Physics Proxy generation failed");
-                        return null;
-                    }
-                    catch (Exception ex)
-                    {
-                        m_log.Error("[PHYSICS]: Unable to generate a Sculpty physics proxy. Sculpty texture decode failed: " + ex.Message);
-                        return null;
-                    }
+
+                    bool mirror = ((primShape.SculptType & 128) != 0);
+                    bool invert = ((primShape.SculptType & 64) != 0);
+
+                    sculptMesh = new PrimMesher.SculptMesh((Bitmap)idata, sculptType, (int)lod, false, mirror, invert);
+                    
+                    idata.Dispose();
+
+                    sculptMesh.DumpRaw(baseDir, primName, "primMesh");
+
+                    sculptMesh.Scale(size.X, size.Y, size.Z);
+
+                    coords = sculptMesh.coords;
+                    faces = sculptMesh.faces;
                 }
-
-                PrimMesher.SculptMesh.SculptType sculptType;
-                switch ((OpenMetaverse.SculptType)primShape.SculptType)
-                {
-                    case OpenMetaverse.SculptType.Cylinder:
-                        sculptType = PrimMesher.SculptMesh.SculptType.cylinder;
-                        break;
-                    case OpenMetaverse.SculptType.Plane:
-                        sculptType = PrimMesher.SculptMesh.SculptType.plane;
-                        break;
-                    case OpenMetaverse.SculptType.Torus:
-                        sculptType = PrimMesher.SculptMesh.SculptType.torus;
-                        break;
-                    case OpenMetaverse.SculptType.Sphere:
-                        sculptType = PrimMesher.SculptMesh.SculptType.sphere;
-                        break;
-                    default:
-                        sculptType = PrimMesher.SculptMesh.SculptType.plane;
-                        break;
-                }
-
-                bool mirror = ((primShape.SculptType & 128) != 0);
-                bool invert = ((primShape.SculptType & 64) != 0);
-
-                sculptMesh = new PrimMesher.SculptMesh((Bitmap)idata, sculptType, (int)lod, false, mirror, invert);
-                
-                idata.Dispose();
-
-                sculptMesh.DumpRaw(baseDir, primName, "primMesh");
-
-                sculptMesh.Scale(size.X, size.Y, size.Z);
-
-                coords = sculptMesh.coords;
-                faces = sculptMesh.faces;
             }
             else
             {

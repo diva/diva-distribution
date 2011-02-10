@@ -46,9 +46,9 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
         private static readonly ILog m_log = 
             LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private Commander m_commander = new Commander("export");
+//        private Commander m_commander = new Commander("export");
         private List<Scene> m_regions = new List<Scene>();
-        private string m_savedir = "exports" + "/";
+        private string m_savedir = "exports";
         private List<IFileSerialiser> m_serialisers = new List<IFileSerialiser>();
 
         #region ISharedRegionModule Members
@@ -77,14 +77,13 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
                 m_serialisers.Add(new SerialiseObjects());
             }
 
-            LoadCommanderCommands();
+//            LoadCommanderCommands();
         }
-
 
         public void AddRegion(Scene scene)
         {
-            scene.RegisterModuleCommander(m_commander);
-            scene.EventManager.OnPluginConsole += EventManager_OnPluginConsole;
+//            scene.RegisterModuleCommander(m_commander);
+//            scene.EventManager.OnPluginConsole += EventManager_OnPluginConsole;
             scene.RegisterModuleInterface<IRegionSerialiserModule>(this);
 
             lock (m_regions)
@@ -160,17 +159,17 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
             return SceneXmlLoader.DeserializeGroupFromXml2(xmlString);
         }
 
-        public string SerializeGroupToXml2(SceneObjectGroup grp)
+        public string SerializeGroupToXml2(SceneObjectGroup grp, Dictionary<string, object> options)
         {
-            return SceneXmlLoader.SaveGroupToXml2(grp);
+            return SceneXmlLoader.SaveGroupToXml2(grp, options);
         }
 
-        public void SavePrimListToXml2(List<EntityBase> entityList, string fileName)
+        public void SavePrimListToXml2(EntityBase[] entityList, string fileName)
         {
             SceneXmlLoader.SavePrimListToXml2(entityList, fileName);
         }
 
-        public void SavePrimListToXml2(List<EntityBase> entityList, TextWriter stream, Vector3 min, Vector3 max)
+        public void SavePrimListToXml2(EntityBase[] entityList, TextWriter stream, Vector3 min, Vector3 max)
         {
             SceneXmlLoader.SavePrimListToXml2(entityList, stream, min, max);
         }
@@ -192,14 +191,14 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
                 }
             }
 
-            TextWriter regionInfoWriter = new StreamWriter(saveDir + "README.TXT");
+            TextWriter regionInfoWriter = new StreamWriter(Path.Combine(saveDir, "README.TXT"));
             regionInfoWriter.WriteLine("Region Name: " + scene.RegionInfo.RegionName);
             regionInfoWriter.WriteLine("Region ID: " + scene.RegionInfo.RegionID.ToString());
             regionInfoWriter.WriteLine("Backup Time: UTC " + DateTime.UtcNow.ToString());
             regionInfoWriter.WriteLine("Serialise Version: 0.1");
             regionInfoWriter.Close();
 
-            TextWriter manifestWriter = new StreamWriter(saveDir + "region.manifest");
+            TextWriter manifestWriter = new StreamWriter(Path.Combine(saveDir, "region.manifest"));
             foreach (string line in results)
             {
                 manifestWriter.WriteLine(line);
@@ -211,18 +210,18 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
 
         #endregion
 
-        private void EventManager_OnPluginConsole(string[] args)
-        {
-            if (args[0] == "export")
-            {
-                string[] tmpArgs = new string[args.Length - 2];
-                int i = 0;
-                for (i = 2; i < args.Length; i++)
-                    tmpArgs[i - 2] = args[i];
-
-                m_commander.ProcessConsoleCommand(args[1], tmpArgs);
-            }
-        }
+//        private void EventManager_OnPluginConsole(string[] args)
+//        {
+//            if (args[0] == "export")
+//            {
+//                string[] tmpArgs = new string[args.Length - 2];
+//                int i = 0;
+//                for (i = 2; i < args.Length; i++)
+//                    tmpArgs[i - 2] = args[i];
+//
+//                m_commander.ProcessConsoleCommand(args[1], tmpArgs);
+//            }
+//        }
 
         private void InterfaceSaveRegion(Object[] args)
         {
@@ -231,7 +230,7 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
                 if (region.RegionInfo.RegionName == (string) args[0])
                 {
                     // List<string> results = SerialiseRegion(region, m_savedir + region.RegionInfo.RegionID.ToString() + "/");
-                    SerialiseRegion(region, m_savedir + region.RegionInfo.RegionID.ToString() + "/");
+                    SerialiseRegion(region, Path.Combine(m_savedir, region.RegionInfo.RegionID.ToString()));
                 }
             }
         }
@@ -241,19 +240,19 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
             foreach (Scene region in m_regions)
             {
                 // List<string> results = SerialiseRegion(region, m_savedir + region.RegionInfo.RegionID.ToString() + "/");
-                SerialiseRegion(region, m_savedir + region.RegionInfo.RegionID.ToString() + "/");
+                SerialiseRegion(region, Path.Combine(m_savedir, region.RegionInfo.RegionID.ToString()));
             }
         }
 
-        private void LoadCommanderCommands()
-        {
-            Command serialiseSceneCommand = new Command("save", CommandIntentions.COMMAND_NON_HAZARDOUS, InterfaceSaveRegion, "Saves the named region into the exports directory.");
-            serialiseSceneCommand.AddArgument("region-name", "The name of the region you wish to export", "String");
-
-            Command serialiseAllScenesCommand = new Command("save-all",CommandIntentions.COMMAND_NON_HAZARDOUS,  InterfaceSaveAllRegions, "Saves all regions into the exports directory.");
-
-            m_commander.RegisterCommand("save", serialiseSceneCommand);
-            m_commander.RegisterCommand("save-all", serialiseAllScenesCommand);
-        }
+//        private void LoadCommanderCommands()
+//        {
+//            Command serialiseSceneCommand = new Command("save", CommandIntentions.COMMAND_NON_HAZARDOUS, InterfaceSaveRegion, "Saves the named region into the exports directory.");
+//            serialiseSceneCommand.AddArgument("region-name", "The name of the region you wish to export", "String");
+//
+//            Command serialiseAllScenesCommand = new Command("save-all",CommandIntentions.COMMAND_NON_HAZARDOUS,  InterfaceSaveAllRegions, "Saves all regions into the exports directory.");
+//
+//            m_commander.RegisterCommand("save", serialiseSceneCommand);
+//            m_commander.RegisterCommand("save-all", serialiseAllScenesCommand);
+//        }
     }
 }

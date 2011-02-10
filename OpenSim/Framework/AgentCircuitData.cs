@@ -26,7 +26,9 @@
  */
 
 using System;
+using System.Reflection;
 using System.Collections.Generic;
+using log4net;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
 
@@ -38,6 +40,12 @@ namespace OpenSim.Framework
     /// </summary>
     public class AgentCircuitData
     {
+// DEBUG ON
+        private static readonly ILog m_log =
+                LogManager.GetLogger(
+                MethodBase.GetCurrentMethod().DeclaringType);
+// DEBUG OFF
+
         /// <summary>
         /// Avatar Unique Agent Identifier
         /// </summary>
@@ -108,9 +116,29 @@ namespace OpenSim.Framework
         public string ServiceSessionID = string.Empty;
 
         /// <summary>
-        /// Viewer's version string
+        /// The client's IP address, as captured by the login service
+        /// </summary>
+        public string IPAddress;
+
+        /// <summary>
+        /// Viewer's version string as reported by the viewer at login
         /// </summary>
         public string Viewer;
+
+        /// <summary>
+        /// The channel strinf sent by the viewer at login
+        /// </summary>
+        public string Channel;
+
+        /// <summary>
+        /// The Mac address as reported by the viewer at login
+        /// </summary>
+        public string Mac;
+
+        /// <summary>
+        /// The id0 as reported by the viewer at login
+        /// </summary>
+        public string Id0;
 
         /// <summary>
         /// Position the Agent's Avatar starts in the region
@@ -175,42 +203,25 @@ namespace OpenSim.Framework
             args["inventory_folder"] = OSD.FromUUID(InventoryFolder);
             args["secure_session_id"] = OSD.FromUUID(SecureSessionID);
             args["session_id"] = OSD.FromUUID(SessionID);
-            
+
             args["service_session_id"] = OSD.FromString(ServiceSessionID);
             args["start_pos"] = OSD.FromString(startpos.ToString());
-            args["appearance_serial"] = OSD.FromInteger(Appearance.Serial);
+            args["client_ip"] = OSD.FromString(IPAddress);
             args["viewer"] = OSD.FromString(Viewer);
+            args["channel"] = OSD.FromString(Channel);
+            args["mac"] = OSD.FromString(Mac);
+            args["id0"] = OSD.FromString(Id0);
 
             if (Appearance != null)
             {
-                //System.Console.WriteLine("XXX Before packing Wearables");
-                if ((Appearance.Wearables != null) && (Appearance.Wearables.Length > 0))
-                {
-                    OSDArray wears = new OSDArray(Appearance.Wearables.Length * 2);
-                    foreach (AvatarWearable awear in Appearance.Wearables)
-                    {
-                        wears.Add(OSD.FromUUID(awear.ItemID));
-                        wears.Add(OSD.FromUUID(awear.AssetID));
-                        //System.Console.WriteLine("XXX ItemID=" + awear.ItemID + " assetID=" + awear.AssetID);
-                    }
-                    args["wearables"] = wears;
-                }
+                args["appearance_serial"] = OSD.FromInteger(Appearance.Serial);
 
-                //System.Console.WriteLine("XXX Before packing Attachments");
-                Dictionary<int, UUID[]> attachments = Appearance.GetAttachmentDictionary();
-                if ((attachments != null) && (attachments.Count > 0))
-                {
-                    OSDArray attachs = new OSDArray(attachments.Count);
-                    foreach (KeyValuePair<int, UUID[]> kvp in attachments)
-                    {
-                        AttachmentData adata = new AttachmentData(kvp.Key, kvp.Value[0], kvp.Value[1]);
-                        attachs.Add(adata.PackUpdateMessage());
-                        //System.Console.WriteLine("XXX att.pt=" + kvp.Key + "; itemID=" + kvp.Value[0] + "; assetID=" + kvp.Value[1]);
-                    }
-                    args["attachments"] = attachs;
-                }
+                OSDMap appmap = Appearance.Pack();
+                args["packed_appearance"] = appmap;
             }
 
+            // Old, bad  way. Keeping it fow now for backwards compatibility
+            // OBSOLETE -- soon to be deleted
             if (ServiceURLs != null && ServiceURLs.Count > 0)
             {
                 OSDArray urls = new OSDArray(ServiceURLs.Count * 2);
@@ -222,6 +233,19 @@ namespace OpenSim.Framework
                 }
                 args["service_urls"] = urls;
             }
+
+            // again, this time the right way
+            if (ServiceURLs != null && ServiceURLs.Count > 0)
+            {
+                OSDMap urls = new OSDMap();
+                foreach (KeyValuePair<string, object> kvp in ServiceURLs)
+                {
+                    //System.Console.WriteLine("XXX " + kvp.Key + "=" + kvp.Value);
+                    urls[kvp.Key] = OSD.FromString((kvp.Value == null) ? string.Empty : kvp.Value.ToString());
+                }
+                args["serviceurls"] = urls;
+            }
+
 
             return args;
         }
@@ -279,42 +303,59 @@ namespace OpenSim.Framework
                 SessionID = args["session_id"].AsUUID();
             if (args["service_session_id"] != null)
                 ServiceSessionID = args["service_session_id"].AsString();
+            if (args["client_ip"] != null)
+                IPAddress = args["client_ip"].AsString();
             if (args["viewer"] != null)
                 Viewer = args["viewer"].AsString();
+            if (args["channel"] != null)
+                Channel = args["channel"].AsString();
+            if (args["mac"] != null)
+                Mac = args["mac"].AsString();
+            if (args["id0"] != null)
+                Id0 = args["id0"].AsString();
 
             if (args["start_pos"] != null)
                 Vector3.TryParse(args["start_pos"].AsString(), out startpos);
 
-            Appearance = new AvatarAppearance(AgentID);
-            if (args["appearance_serial"] != null)
-                Appearance.Serial = args["appearance_serial"].AsInteger();
-            if ((args["wearables"] != null) && (args["wearables"]).Type == OSDType.Array)
-            {
-                OSDArray wears = (OSDArray)(args["wearables"]);
-                for (int i = 0; i < wears.Count / 2; i++) 
-                {
-                    Appearance.Wearables[i].ItemID = wears[i*2].AsUUID();
-                    Appearance.Wearables[i].AssetID = wears[(i*2)+1].AsUUID();
-                }
-           }
+            m_log.InfoFormat("[AGENTCIRCUITDATA] agentid={0}, child={1}, startpos={2}",AgentID,child,startpos.ToString());
+            
+            try {
+                // Unpack various appearance elements
+                Appearance = new AvatarAppearance(AgentID);
 
-            if ((args["attachments"] != null) && (args["attachments"]).Type == OSDType.Array)
-            {
-                OSDArray attachs = (OSDArray)(args["attachments"]);
-                AttachmentData[] attachments = new AttachmentData[attachs.Count];
-                int i = 0;
-                foreach (OSD o in attachs)
+                // Eventually this code should be deprecated, use full appearance
+                // packing in packed_appearance
+                if (args["appearance_serial"] != null)
+                    Appearance.Serial = args["appearance_serial"].AsInteger();
+
+                if (args.ContainsKey("packed_appearance") && (args["packed_appearance"].Type == OSDType.Map))
                 {
-                    if (o.Type == OSDType.Map)
-                    {
-                        attachments[i++] = new AttachmentData((OSDMap)o);
-                    }
+                    Appearance.Unpack((OSDMap)args["packed_appearance"]);
+                    m_log.InfoFormat("[AGENTCIRCUITDATA] unpacked appearance");
                 }
-                Appearance.SetAttachments(attachments);
+                else
+                    m_log.Warn("[AGENTCIRCUITDATA] failed to find a valid packed_appearance");
             }
-
+            catch (Exception e)
+            {
+                m_log.ErrorFormat("[AGENTCIRCUITDATA] failed to unpack appearance; {0}",e.Message);
+            }
+            
             ServiceURLs = new Dictionary<string, object>();
-            if (args.ContainsKey("service_urls") && args["service_urls"] != null && (args["service_urls"]).Type == OSDType.Array)
+            // Try parse the new way, OSDMap
+            if (args.ContainsKey("serviceurls") && args["serviceurls"] != null && (args["serviceurls"]).Type == OSDType.Map)
+            {
+                OSDMap urls = (OSDMap)(args["serviceurls"]);
+                foreach (KeyValuePair<String, OSD> kvp in urls)
+                {
+                    ServiceURLs[kvp.Key] = kvp.Value.AsString();
+                    //System.Console.WriteLine("XXX " + kvp.Key + "=" + ServiceURLs[kvp.Key]);
+
+                }
+            }
+            // else try the old way, OSDArray
+            // OBSOLETE -- soon to be deleted
+            else if (args.ContainsKey("service_urls") && args["service_urls"] != null && (args["service_urls"]).Type == OSDType.Array)
             {
                 OSDArray urls = (OSDArray)(args["service_urls"]);
                 for (int i = 0; i < urls.Count / 2; i++)
@@ -349,6 +390,9 @@ namespace OpenSim.Framework
         public float startposy;
         public float startposz;
         public string Viewer;
+        public string Channel;
+        public string Mac;
+        public string Id0;
 
         public sAgentCircuitData()
         {

@@ -64,7 +64,7 @@ namespace OpenSim.Region.CoreModules.World.Land
         #endregion
 
         private readonly Scene m_scene;
-        private readonly LandManagementModule m_landManagementModule;
+        private readonly LandManagementModule m_landManagementModule;        
 
         public LandChannel(Scene scene, LandManagementModule landManagementMod)
         {
@@ -115,6 +115,12 @@ namespace OpenSim.Region.CoreModules.World.Land
             }
 
             return new List<ILandObject>();
+        }
+        
+        public void Clear(bool setupDefaultParcel)
+        {
+            if (m_landManagementModule != null)
+                m_landManagementModule.Clear(setupDefaultParcel);
         }
 
         public List<ILandObject> ParcelsNearPoint(Vector3 position)

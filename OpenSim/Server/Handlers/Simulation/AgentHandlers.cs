@@ -52,6 +52,8 @@ namespace OpenSim.Server.Handlers.Simulation
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private ISimulationService m_SimulationService;
 
+        protected bool m_Proxy = false;
+
         public AgentHandler() { }
 
         public AgentHandler(ISimulationService sim)
@@ -106,6 +108,11 @@ namespace OpenSim.Server.Handlers.Simulation
             else if (method.Equals("DELETE"))
             {
                 DoAgentDelete(request, responsedata, agentID, action, regionID);
+                return responsedata;
+            }
+            else if (method.Equals("QUERYACCESS"))
+            {
+                DoQueryAccess(request, responsedata, agentID, regionID);
                 return responsedata;
             }
             else
@@ -184,6 +191,38 @@ namespace OpenSim.Server.Handlers.Simulation
             // TODO: add reason if not String.Empty?
             responsedata["int_response_code"] = HttpStatusCode.OK;
             responsedata["str_response_string"] = OSDParser.SerializeJsonString(resp);
+        }
+
+        private string GetCallerIP(Hashtable request)
+        {
+            if (!m_Proxy)
+                return Util.GetCallerIP(request);
+
+            // We're behind a proxy
+            Hashtable headers = (Hashtable)request["headers"];
+
+            //// DEBUG
+            //foreach (object o in headers.Keys)
+            //    m_log.DebugFormat("XXX {0} = {1}", o.ToString(), (headers[o] == null? "null" : headers[o].ToString()));
+
+            string xff = "X-Forwarded-For";
+            if (headers.ContainsKey(xff.ToLower()))
+                xff = xff.ToLower();
+
+            if (!headers.ContainsKey(xff) || headers[xff] == null)
+            {
+                m_log.WarnFormat("[AGENT HANDLER]: No XFF header");
+                return Util.GetCallerIP(request);
+            }
+
+            m_log.DebugFormat("[AGENT HANDLER]: XFF is {0}", headers[xff]);
+
+            IPEndPoint ep = Util.GetClientIPFromXFF((string)headers[xff]);
+            if (ep != null)
+                return ep.Address.ToString();
+
+            // Oops
+            return Util.GetCallerIP(request);
         }
 
         // subclasses can override this
@@ -280,6 +319,34 @@ namespace OpenSim.Server.Handlers.Simulation
             return m_SimulationService.UpdateAgent(destination, agent);
         }
 
+        protected virtual void DoQueryAccess(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
+        {
+            if (m_SimulationService == null)
+            {
+                m_log.Debug("[AGENT HANDLER]: Agent QUERY called. Harmless but useless.");
+                responsedata["content_type"] = "application/json";
+                responsedata["int_response_code"] = HttpStatusCode.NotImplemented;
+                responsedata["str_response_string"] = string.Empty;
+
+                return;
+            }
+
+            // m_log.DebugFormat("[AGENT HANDLER]: Received QUERYACCESS with {0}", (string)request["body"]);
+            OSDMap args = Utils.GetOSDMap((string)request["body"]);
+
+            Vector3 position = Vector3.Zero;
+            if (args.ContainsKey("position"))
+                position = Vector3.Parse(args["position"].AsString());
+
+            GridRegion destination = new GridRegion();
+            destination.RegionID = regionID;
+
+            bool result = m_SimulationService.QueryAccess(destination, id, position);
+
+            responsedata["int_response_code"] = HttpStatusCode.OK;
+            responsedata["str_response_string"] = result.ToString();
+        }
+
         protected virtual void DoAgentGet(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
         {
             if (m_SimulationService == null)
@@ -355,23 +422,6 @@ namespace OpenSim.Server.Handlers.Simulation
             m_SimulationService.ReleaseAgent(regionID, id, "");
         }
 
-        private string GetCallerIP(Hashtable req)
-        {
-            if (req.ContainsKey("headers"))
-            {
-                try
-                {
-                    Hashtable headers = (Hashtable)req["headers"];
-                    if (headers.ContainsKey("remote_addr") && headers["remote_addr"] != null)
-                        return headers["remote_addr"].ToString();
-                }
-                catch (Exception e)
-                {
-                    m_log.WarnFormat("[AGENT HANDLER]: exception in GetCallerIP: {0}", e.Message);
-                }
-            }
-            return string.Empty;
-        }
     }
 
 }

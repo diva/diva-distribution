@@ -26,7 +26,9 @@
  */
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -51,8 +53,6 @@ namespace OpenSim.Services.GridService
                 LogManager.GetLogger(
                 MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static UUID m_HGMapImage = new UUID("00000000-0000-1111-9999-000000000013");
-
         private static uint m_autoMappingX = 0;
         private static uint m_autoMappingY = 0;
         private static bool m_enableAutoMapping = false;
@@ -64,6 +64,7 @@ namespace OpenSim.Services.GridService
 
         protected UUID m_ScopeID = UUID.Zero;
         protected bool m_Check4096 = true;
+        protected string m_MapTileDirectory = string.Empty;
 
         // Hyperlink regions are hyperlinks on the map
         public readonly Dictionary<UUID, GridRegion> m_HyperlinkRegions = new Dictionary<UUID, GridRegion>();
@@ -120,22 +121,40 @@ namespace OpenSim.Services.GridService
 
                 m_Check4096 = gridConfig.GetBoolean("Check4096", true);
 
+                m_MapTileDirectory = gridConfig.GetString("MapTileDirectory", string.Empty);
+
                 m_GatekeeperConnector = new GatekeeperServiceConnector(m_AssetService);
 
-                m_log.DebugFormat("[HYPERGRID LINKER]: Loaded all services...");
+                m_log.Debug("[HYPERGRID LINKER]: Loaded all services...");
+            }
+
+            if (!string.IsNullOrEmpty(m_MapTileDirectory))
+            {
+                try
+                {
+                    Directory.CreateDirectory(m_MapTileDirectory);
+                }
+                catch (Exception e)
+                {
+                    m_log.WarnFormat("[HYPERGRID LINKER]: Could not create map tile storage directory {0}: {1}", m_MapTileDirectory, e);
+                    m_MapTileDirectory = string.Empty;
+                }
             }
 
             if (MainConsole.Instance != null)
             {
                 MainConsole.Instance.Commands.AddCommand("hypergrid", false, "link-region",
-                    "link-region <Xloc> <Yloc> <HostName>:<HttpPort>[:<RemoteRegionName>] <cr>",
-                    "Link a hypergrid region", RunCommand);
+                    "link-region <Xloc> <Yloc> <ServerURI> [<RemoteRegionName>]",
+                    "Link a HyperGrid Region. Examples for <ServerURI>: http://grid.net:8002/ or http://example.org/path/foo.php", RunCommand);
+                MainConsole.Instance.Commands.AddCommand("hypergrid", false, "link-region",
+                    "link-region <Xloc> <Yloc> <RegionIP> <RegionPort> [<RemoteRegionName>]",
+                    "Link a hypergrid region (deprecated)", RunCommand);
                 MainConsole.Instance.Commands.AddCommand("hypergrid", false, "unlink-region",
-                    "unlink-region <local name> or <HostName>:<HttpPort> <cr>",
+                    "unlink-region <local name>",
                     "Unlink a hypergrid region", RunCommand);
-                MainConsole.Instance.Commands.AddCommand("hypergrid", false, "link-mapping", "link-mapping [<x> <y>] <cr>",
+                MainConsole.Instance.Commands.AddCommand("hypergrid", false, "link-mapping", "link-mapping [<x> <y>]",
                     "Set local coordinate to map HG regions to", RunCommand);
-                MainConsole.Instance.Commands.AddCommand("hypergrid", false, "show hyperlinks", "show hyperlinks <cr>",
+                MainConsole.Instance.Commands.AddCommand("hypergrid", false, "show hyperlinks", "show hyperlinks",
                     "List the HG regions", HandleShow);
             }
         }
@@ -143,6 +162,7 @@ namespace OpenSim.Services.GridService
 
         #region Link Region
 
+        // from map search
         public GridRegion LinkRegion(UUID scopeID, string regionDescriptor)
         {
             string reason = string.Empty;
@@ -152,7 +172,7 @@ namespace OpenSim.Services.GridService
 
         private static Random random = new Random();
 
-        // From the command line link-region
+        // From the command line link-region (obsolete) and the map
         public GridRegion TryLinkRegionToCoords(UUID scopeID, string mapName, int xloc, int yloc, out string reason)
         {
             return TryLinkRegionToCoords(scopeID, mapName, xloc, yloc, UUID.Zero, out reason);
@@ -161,80 +181,98 @@ namespace OpenSim.Services.GridService
         public GridRegion TryLinkRegionToCoords(UUID scopeID, string mapName, int xloc, int yloc, UUID ownerID, out string reason)
         {
             reason = string.Empty;
-            string host = "127.0.0.1";
-            string portstr;
-            string regionName = "";
-            uint port = 9000;
-            string[] parts = mapName.Split(new char[] { ':' });
-            if (parts.Length >= 1)
-            {
-                host = parts[0];
-            }
-            if (parts.Length >= 2)
-            {
-                portstr = parts[1];
-                //m_log.Debug("-- port = " + portstr);
-                if (!UInt32.TryParse(portstr, out port))
-                    regionName = parts[1];
-            }
-            // always take the last one
-            if (parts.Length >= 3)
-            {
-                regionName = parts[2];
-            }
+            GridRegion regInfo = null;
 
-            // Sanity check. 
-            //IPAddress ipaddr = null;
-            try
+            if (!mapName.StartsWith("http"))
             {
-                //ipaddr = Util.GetHostFromDNS(host);
-                Util.GetHostFromDNS(host);
-            }
-            catch 
-            {
-                reason = "Malformed hostname";
-                return null;
-            }
+                string host = "127.0.0.1";
+                string portstr;
+                string regionName = "";
+                uint port = 0;
+                string[] parts = mapName.Split(new char[] { ':' });
+                if (parts.Length >= 1)
+                {
+                    host = parts[0];
+                }
+                if (parts.Length >= 2)
+                {
+                    portstr = parts[1];
+                    //m_log.Debug("-- port = " + portstr);
+                    if (!UInt32.TryParse(portstr, out port))
+                        regionName = parts[1];
+                }
+                // always take the last one
+                if (parts.Length >= 3)
+                {
+                    regionName = parts[2];
+                }
 
-            GridRegion regInfo;
-            bool success = TryCreateLink(scopeID, xloc, yloc, regionName, port, host, ownerID, out regInfo, out reason);
-            if (success)
+
+                bool success = TryCreateLink(scopeID, xloc, yloc, regionName, port, host, ownerID, out regInfo, out reason);
+                if (success)
+                {
+                    regInfo.RegionName = mapName;
+                    return regInfo;
+                }
+            }
+            else
             {
-                regInfo.RegionName = mapName;
-                return regInfo;
+                string[] parts = mapName.Split(new char[] {' '});
+                string regionName = String.Empty;
+                if (parts.Length > 1)
+                {
+                    regionName = mapName.Substring(parts[0].Length + 1);
+                    regionName = regionName.Trim(new char[] {'"'});
+                }
+                if (TryCreateLink(scopeID, xloc, yloc, regionName, 0, null, parts[0], ownerID, out regInfo, out reason))
+                {
+                    regInfo.RegionName = mapName; 
+                    return regInfo;
+                }
             }
 
             return null;
         }
-
-
-        // From the command line and the 2 above
-        public bool TryCreateLink(UUID scopeID, int xloc, int yloc,
-            string externalRegionName, uint externalPort, string externalHostName, UUID ownerID,
-            out GridRegion regInfo, out string reason)
+                
+        public bool TryCreateLink(UUID scopeID, int xloc, int yloc, string remoteRegionName, uint externalPort, string externalHostName, UUID ownerID, out GridRegion regInfo, out string reason)
         {
-            m_log.DebugFormat("[HYPERGRID LINKER]: Link to {0}:{1}:{2}, in {3}-{4}", externalHostName, externalPort, externalRegionName, xloc, yloc);
+            return TryCreateLink(scopeID, xloc, yloc, remoteRegionName, externalPort, externalHostName, null, ownerID, out regInfo, out reason);
+        }
+        
+        public bool TryCreateLink(UUID scopeID, int xloc, int yloc, string remoteRegionName, uint externalPort, string externalHostName, string serverURI, UUID ownerID, out GridRegion regInfo, out string reason)
+        {
+            m_log.DebugFormat("[HYPERGRID LINKER]: Link to {0} {1}, in {2}-{3}", 
+                ((serverURI == null) ? (externalHostName + ":" + externalPort) : serverURI),
+                remoteRegionName, xloc / Constants.RegionSize, yloc / Constants.RegionSize);
 
             reason = string.Empty;
             regInfo = new GridRegion();
-            regInfo.RegionName = externalRegionName;
-            regInfo.HttpPort = externalPort;
-            regInfo.ExternalHostName = externalHostName;
+            if ( externalPort > 0)
+                regInfo.HttpPort = externalPort;
+            else
+                regInfo.HttpPort = 0;
+            if ( externalHostName != null)
+                regInfo.ExternalHostName = externalHostName;
+            else
+                regInfo.ExternalHostName = "0.0.0.0";
+            if ( serverURI != null)
+                regInfo.ServerURI = serverURI;
+            
+            if ( remoteRegionName != string.Empty )
+                regInfo.RegionName = remoteRegionName;
+                
             regInfo.RegionLocX = xloc;
             regInfo.RegionLocY = yloc;
             regInfo.ScopeID = scopeID;
             regInfo.EstateOwner = ownerID;
 
-            // Big HACK for Simian Grid !!!
-            // We need to clean up all URLs used in OpenSim !!!
-            if (externalHostName.Contains("/"))
-                regInfo.ServerURI = externalHostName;
-
             // Check for free coordinates
             GridRegion region = m_GridService.GetRegionByPosition(regInfo.ScopeID, regInfo.RegionLocX, regInfo.RegionLocY);
             if (region != null)
             {
-                m_log.WarnFormat("[HYPERGRID LINKER]: Coordinates {0}-{1} are already occupied by region {2} with uuid {3}", regInfo.RegionLocX, regInfo.RegionLocY, region.RegionName, region.RegionID);
+                m_log.WarnFormat("[HYPERGRID LINKER]: Coordinates {0}-{1} are already occupied by region {2} with uuid {3}",
+                    regInfo.RegionLocX / Constants.RegionSize, regInfo.RegionLocY / Constants.RegionSize,
+                    region.RegionName, region.RegionID);
                 reason = "Coordinates are already in use";
                 return false;
             }
@@ -258,34 +296,20 @@ namespace OpenSim.Services.GridService
             if (!m_GatekeeperConnector.LinkRegion(regInfo, out regionID, out handle, out externalName, out imageURL, out reason))
                 return false;
 
-            if (regionID != UUID.Zero)
-            {
-                region = m_GridService.GetRegionByUUID(scopeID, regionID);
-                if (region != null)
-                {
-                    m_log.DebugFormat("[HYPERGRID LINKER]: Region already exists in coordinates {0} {1}", region.RegionLocX / Constants.RegionSize, region.RegionLocY / Constants.RegionSize);
-                    regInfo = region;
-                    return true;
-                }
-
-                regInfo.RegionID = regionID;
-                if (regInfo.RegionName == string.Empty)
-                    regInfo.RegionName = regInfo.ExternalHostName;
-
-                // Try get the map image
-                //regInfo.TerrainImage = m_GatekeeperConnector.GetMapImage(regionID, imageURL);
-                // I need a texture that works for this... the one I tried doesn't seem to be working
-                regInfo.TerrainImage = m_HGMapImage;
-
-                AddHyperlinkRegion(regInfo, handle);
-                m_log.Info("[HYPERGRID LINKER]: Successfully linked to region_uuid " + regInfo.RegionID);
-
-            }
-            else
+            if (regionID == UUID.Zero)
             {
                 m_log.Warn("[HYPERGRID LINKER]: Unable to link region");
                 reason = "Remote region could not be found";
                 return false;
+            }
+
+            region = m_GridService.GetRegionByUUID(scopeID, regionID);
+            if (region != null)
+            {
+                m_log.DebugFormat("[HYPERGRID LINKER]: Region already exists in coordinates {0} {1}",
+                    region.RegionLocX / Constants.RegionSize, region.RegionLocY / Constants.RegionSize);
+                regInfo = region;
+                return true;
             }
 
             uint x, y;
@@ -297,7 +321,20 @@ namespace OpenSim.Services.GridService
                 return false;
             }
 
-            m_log.Debug("[HYPERGRID LINKER]: link region succeeded");
+            regInfo.RegionID = regionID;
+
+            if (externalName == string.Empty)
+                regInfo.RegionName = regInfo.ServerURI;
+             else
+                regInfo.RegionName = externalName;
+
+            m_log.Debug("[HYPERGRID LINKER]: naming linked region " + regInfo.RegionName);
+                
+            // Get the map image
+            regInfo.TerrainImage = m_GatekeeperConnector.GetMapImage(regionID, imageURL, m_MapTileDirectory);
+
+            AddHyperlinkRegion(regInfo, handle);
+            m_log.InfoFormat("[HYPERGRID LINKER]: Successfully linked to region {0} with image {1}", regInfo.RegionName, regInfo.TerrainImage);
             return true;
         }
 
@@ -317,13 +354,6 @@ namespace OpenSim.Services.GridService
                     regInfo.ScopeID = m_ScopeID;
                 }
             }
-
-            //foreach (GridRegion r in m_HyperlinkRegions.Values)
-            //{
-            //    m_log.DebugFormat("XXX Comparing {0}:{1} with {2}:{3}", host, port, r.ExternalHostName, r.HttpPort);
-            //    if (host.Equals(r.ExternalHostName) && (port == r.HttpPort))
-            //        regInfo = r;
-            //}
 
             if (regInfo != null)
             {
@@ -417,15 +447,14 @@ namespace OpenSim.Services.GridService
                 return;
             }
 
-            MainConsole.Instance.Output("Region Name                             Region UUID");
-            MainConsole.Instance.Output("Location                                URI");
-            MainConsole.Instance.Output("-------------------------------------------------------------------------------");
+            MainConsole.Instance.Output("Region Name");
+            MainConsole.Instance.Output("Location                         Region UUID");
+            MainConsole.Instance.Output(new string('-', 72));
             foreach (RegionData r in regions)
             {
-                MainConsole.Instance.Output(String.Format("{0,-39} {1}\n{2,-39} {3}\n",
-                        r.RegionName, r.RegionID,
-                        String.Format("{0},{1} ({2},{3})", r.posX, r.posY, r.posX / 256, r.posY / 256),
-                        "http://" + r.Data["serverIP"].ToString() + ":" + r.Data["serverHttpPort"].ToString()));
+                MainConsole.Instance.Output(String.Format("{0}\n{2,-32} {1}\n",
+                        r.RegionName, r.RegionID, String.Format("{0},{1} ({2},{3})", r.posX, r.posY,
+                            r.posX / Constants.RegionSize, r.posY / Constants.RegionSize)));
             }
             return;
         }
@@ -443,6 +472,24 @@ namespace OpenSim.Services.GridService
 
             RunHGCommand(command, cmdparams);
 
+        }
+        
+        private void RunLinkRegionCommand(string[] cmdparams)
+        {
+            int xloc, yloc;
+            string serverURI;
+            string remoteName = null;
+            xloc = Convert.ToInt32(cmdparams[0]) * (int)Constants.RegionSize;
+            yloc = Convert.ToInt32(cmdparams[1]) * (int)Constants.RegionSize;
+            serverURI = cmdparams[2];
+            if (cmdparams.Length > 3)
+                remoteName = string.Join(" ", cmdparams, 3, cmdparams.Length - 3);
+            string reason = string.Empty;
+            GridRegion regInfo;
+            if (TryCreateLink(UUID.Zero, xloc, yloc, remoteName, 0, null, serverURI, UUID.Zero, out regInfo, out reason))
+                MainConsole.Instance.Output("Hyperlink established");
+            else
+                MainConsole.Instance.Output("Failed to link region: " + reason);
         }
 
         private void RunHGCommand(string command, string[] cmdparams)
@@ -480,37 +527,25 @@ namespace OpenSim.Services.GridService
                     return;
                 }
 
-                if (cmdparams[2].Contains(":"))
+                //this should be the prefererred way of setting up hg links now
+                if (cmdparams[2].StartsWith("http"))
+                {
+                    RunLinkRegionCommand(cmdparams);
+                } 
+                else if (cmdparams[2].Contains(":"))
                 {
                     // New format
-                    int xloc, yloc;
-                    string mapName;
-                    try
+                    string[] parts = cmdparams[2].Split(':');
+                    if (parts.Length > 2)
                     {
-                        xloc = Convert.ToInt32(cmdparams[0]);
-                        yloc = Convert.ToInt32(cmdparams[1]);
-                        mapName = cmdparams[2];
-                        if (cmdparams.Length > 3)
-                            for (int i = 3; i < cmdparams.Length; i++)
-                                mapName += " " + cmdparams[i];
-
-                        //m_log.Info(">> MapName: " + mapName);
+                        // Insert remote region name
+                        ArrayList parameters = new ArrayList(cmdparams);
+                        parameters.Insert(3, parts[2]);
+                        cmdparams = (string[])parameters.ToArray(typeof(string));
                     }
-                    catch (Exception e)
-                    {
-                        MainConsole.Instance.Output("[HGrid] Wrong format for link-region command: " + e.Message);
-                        LinkRegionCmdUsage();
-                        return;
-                    }
+                    cmdparams[2] = "http://" + parts[0] + ':' + parts[1];
 
-                    // Convert cell coordinates given by the user to meters
-                    xloc = xloc * (int)Constants.RegionSize;
-                    yloc = yloc * (int)Constants.RegionSize;
-                    string reason = string.Empty;
-                    if (TryLinkRegionToCoords(UUID.Zero, mapName, xloc, yloc, out reason) == null)
-                        MainConsole.Instance.Output("Failed to link region: " + reason);
-                    else
-                        MainConsole.Instance.Output("Hyperlink established");
+                    RunLinkRegionCommand(cmdparams);
                 }
                 else
                 {
@@ -539,14 +574,16 @@ namespace OpenSim.Services.GridService
                     xloc = xloc * (int)Constants.RegionSize;
                     yloc = yloc * (int)Constants.RegionSize;
                     string reason = string.Empty;
-                    if (TryCreateLink(UUID.Zero, xloc, yloc, "", externalPort, externalHostName, UUID.Zero, out regInfo, out reason))
+                    if (TryCreateLink(UUID.Zero, xloc, yloc, string.Empty, externalPort, externalHostName, UUID.Zero, out regInfo, out reason))
                     {
-                        if (cmdparams.Length >= 5)
-                        {
-                            regInfo.RegionName = "";
-                            for (int i = 4; i < cmdparams.Length; i++)
-                                regInfo.RegionName += cmdparams[i] + " ";
-                        }
+                        // What is this? The GridRegion instance will be discarded anyway,
+                        // which effectively ignores any local name given with the command.
+                        //if (cmdparams.Length >= 5)
+                        //{
+                        //    regInfo.RegionName = "";
+                        //    for (int i = 4; i < cmdparams.Length; i++)
+                        //        regInfo.RegionName += cmdparams[i] + " ";
+                        //}
                     }
                 }
                 return;
@@ -558,10 +595,11 @@ namespace OpenSim.Services.GridService
                     UnlinkRegionCmdUsage();
                     return;
                 }
-                if (TryUnlinkRegion(cmdparams[0]))
-                    MainConsole.Instance.Output("Successfully unlinked " + cmdparams[0]);
+                string region = string.Join(" ", cmdparams);
+                if (TryUnlinkRegion(region))
+                    MainConsole.Instance.Output("Successfully unlinked " + region);
                 else
-                    MainConsole.Instance.Output("Unable to unlink " + cmdparams[0] + ", region not found.");
+                    MainConsole.Instance.Output("Unable to unlink " + region + ", region not found.");
             }
         }
 
@@ -641,7 +679,7 @@ namespace OpenSim.Services.GridService
                 xloc = xloc * (int)Constants.RegionSize;
                 yloc = yloc * (int)Constants.RegionSize;
                 string reason = string.Empty;
-                if (TryCreateLink(UUID.Zero, xloc, yloc, "", externalPort, externalHostName, UUID.Zero, out regInfo, out reason))
+                if (TryCreateLink(UUID.Zero, xloc, yloc, string.Empty, externalPort, externalHostName, UUID.Zero, out regInfo, out reason))
                 {
                     regInfo.RegionName = config.GetString("localName", "");
                 }
@@ -653,14 +691,14 @@ namespace OpenSim.Services.GridService
 
         private void LinkRegionCmdUsage()
         {
-            MainConsole.Instance.Output("Usage: link-region <Xloc> <Yloc> <HostName>:<HttpPort>[:<RemoteRegionName>]");
-            MainConsole.Instance.Output("Usage: link-region <Xloc> <Yloc> <HostName> <HttpPort> [<LocalName>]");
+            MainConsole.Instance.Output("Usage: link-region <Xloc> <Yloc> <ServerURI> [<RemoteRegionName>]");
+            MainConsole.Instance.Output("Usage (deprecated): link-region <Xloc> <Yloc> <HostName>:<HttpPort>[:<RemoteRegionName>]");
+            MainConsole.Instance.Output("Usage (deprecated): link-region <Xloc> <Yloc> <HostName> <HttpPort> [<LocalName>]");
             MainConsole.Instance.Output("Usage: link-region <URI_of_xml> [<exclude>]");
         }
 
         private void UnlinkRegionCmdUsage()
         {
-            MainConsole.Instance.Output("Usage: unlink-region <HostName>:<HttpPort>");
             MainConsole.Instance.Output("Usage: unlink-region <LocalName>");
         }
 

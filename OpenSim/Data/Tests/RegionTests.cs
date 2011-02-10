@@ -40,10 +40,6 @@ using log4net;
 using System.Reflection;
 using System.Data.Common;
 
-#if !NUNIT25
-using NUnit.Framework.SyntaxHelpers;
-#endif
-
 // DBMS-specific:
 using MySql.Data.MySqlClient;
 using OpenSim.Data.MySQL;
@@ -65,17 +61,17 @@ namespace OpenSim.Data.Tests
 #else
 
     [TestFixture(Description = "Region store tests (SQLite)")]
-    public class SQLiteRegionTests : RegionTests<SqliteConnection, SQLiteRegionData>
+    public class SQLiteRegionTests : RegionTests<SqliteConnection, SQLiteSimulationData>
     {
     }
 
     [TestFixture(Description = "Region store tests (MySQL)")]
-    public class MySqlRegionTests : RegionTests<MySqlConnection, MySQLDataStore>
+    public class MySqlRegionTests : RegionTests<MySqlConnection, MySQLSimulationData>
     {
     }
 
     [TestFixture(Description = "Region store tests (MS SQL Server)")]
-    public class MSSQLRegionTests : RegionTests<SqlConnection, MSSQLRegionDataStore>
+    public class MSSQLRegionTests : RegionTests<SqlConnection, MSSQLSimulationData>
     {
     }
 
@@ -83,11 +79,11 @@ namespace OpenSim.Data.Tests
 
     public class RegionTests<TConn, TRegStore> : BasicDataServiceTest<TConn, TRegStore>
         where TConn : DbConnection, new()
-        where TRegStore : class, IRegionDataStore, new()
+        where TRegStore : class, ISimulationDataStore, new()
     {
         bool m_rebuildDB;
 
-        public IRegionDataStore db;
+        public ISimulationDataStore db;
         public UUID zero = UUID.Zero;
         public UUID region1 = UUID.Random();
         public UUID region2 = UUID.Random();
@@ -126,7 +122,7 @@ namespace OpenSim.Data.Tests
         protected override void InitService(object service)
         {
             ClearDB();
-            db = (IRegionDataStore)service;
+            db = (ISimulationDataStore)service;
             db.Initialise(m_connStr);
         }
 
@@ -236,15 +232,15 @@ namespace OpenSim.Data.Tests
             sog.AddPart(p2);
             sog.AddPart(p3);
             
-            SceneObjectPart[] parts = sog.GetParts();
+            SceneObjectPart[] parts = sog.Parts;
             Assert.That(parts.Length,Is.EqualTo(4), "Assert.That(parts.Length,Is.EqualTo(4))");
             
             db.StoreObject(sog, newregion);
             List<SceneObjectGroup> sogs = db.LoadObjects(newregion);
             Assert.That(sogs.Count,Is.EqualTo(1), "Assert.That(sogs.Count,Is.EqualTo(1))");
             SceneObjectGroup newsog = sogs[0];
-                        
-            SceneObjectPart[] newparts = newsog.GetParts();
+
+            SceneObjectPart[] newparts = newsog.Parts;
             Assert.That(newparts.Length,Is.EqualTo(4), "Assert.That(newparts.Length,Is.EqualTo(4))");
             
             Assert.That(newsog.HasChildPrim(tmp0), "Assert.That(newsog.HasChildPrim(tmp0))");
@@ -317,7 +313,7 @@ namespace OpenSim.Data.Tests
             sop.CreatorID = creator;
             sop.InventorySerial = iserial;
             sop.TaskInventory = dic;
-            sop.ObjectFlags = objf;
+            sop.Flags = (PrimFlags)objf;
             sop.Name = name;
             sop.Material = material;
             sop.ScriptAccessPin = pin;
@@ -350,7 +346,7 @@ namespace OpenSim.Data.Tests
             // Modified in-class
             // Assert.That(iserial,Is.EqualTo(sop.InventorySerial), "Assert.That(iserial,Is.EqualTo(sop.InventorySerial))");
             Assert.That(dic,Is.EqualTo(sop.TaskInventory), "Assert.That(dic,Is.EqualTo(sop.TaskInventory))");
-            Assert.That(objf,Is.EqualTo(sop.ObjectFlags), "Assert.That(objf,Is.EqualTo(sop.ObjectFlags))");
+            Assert.That(objf, Is.EqualTo((uint)sop.Flags), "Assert.That(objf,Is.EqualTo(sop.Flags))");
             Assert.That(name,Is.EqualTo(sop.Name), "Assert.That(name,Is.EqualTo(sop.Name))");
             Assert.That(material,Is.EqualTo(sop.Material), "Assert.That(material,Is.EqualTo(sop.Material))");
             Assert.That(pin,Is.EqualTo(sop.ScriptAccessPin), "Assert.That(pin,Is.EqualTo(sop.ScriptAccessPin))");
@@ -373,7 +369,7 @@ namespace OpenSim.Data.Tests
             Assert.That(updatef,Is.EqualTo(sop.UpdateFlag), "Assert.That(updatef,Is.EqualTo(sop.UpdateFlag))");
             
             // This is necessary or object will not be inserted in DB
-            sop.ObjectFlags = 0;
+            sop.Flags = PrimFlags.None;
 
             SceneObjectGroup sog = new SceneObjectGroup(sop);
             
@@ -398,7 +394,7 @@ namespace OpenSim.Data.Tests
             Assert.That(creator,Is.EqualTo(p.CreatorID), "Assert.That(creator,Is.EqualTo(p.CreatorID))");
             //Assert.That(iserial,Is.EqualTo(p.InventorySerial), "Assert.That(iserial,Is.EqualTo(p.InventorySerial))");
             Assert.That(dic,Is.EqualTo(p.TaskInventory), "Assert.That(dic,Is.EqualTo(p.TaskInventory))");
-            //Assert.That(objf,Is.EqualTo(p.ObjectFlags), "Assert.That(objf,Is.EqualTo(p.ObjectFlags))");
+            //Assert.That(objf, Is.EqualTo((uint)p.Flags), "Assert.That(objf,Is.EqualTo(p.Flags))");
             Assert.That(name,Is.EqualTo(p.Name), "Assert.That(name,Is.EqualTo(p.Name))");
             Assert.That(material,Is.EqualTo(p.Material), "Assert.That(material,Is.EqualTo(p.Material))");
             Assert.That(pin,Is.EqualTo(p.ScriptAccessPin), "Assert.That(pin,Is.EqualTo(p.ScriptAccessPin))");
@@ -564,7 +560,7 @@ namespace OpenSim.Data.Tests
             }
             
             SceneObjectGroup retsog = FindSOG("Test SOG", region4);
-            SceneObjectPart[] parts = retsog.GetParts();
+            SceneObjectPart[] parts = retsog.Parts;
             for (int i=0;i<30;i++)
             {
                 SceneObjectPart cursop = mydic[parts[i].UUID];
@@ -611,7 +607,7 @@ namespace OpenSim.Data.Tests
             sog.AddPart(p2);
             sog.AddPart(p3);
 
-            SceneObjectPart[] parts = sog.GetParts();
+            SceneObjectPart[] parts = sog.Parts;
             Assert.That(parts.Length, Is.EqualTo(4), "Assert.That(parts.Length,Is.EqualTo(4))");
 
             db.StoreObject(sog, newregion);
@@ -619,7 +615,7 @@ namespace OpenSim.Data.Tests
             Assert.That(sogs.Count, Is.EqualTo(1), "Assert.That(sogs.Count,Is.EqualTo(1))");
             SceneObjectGroup newsog = sogs[0];
 
-            SceneObjectPart[] newparts = newsog.GetParts();
+            SceneObjectPart[] newparts = newsog.Parts;
             Assert.That(newparts.Length, Is.EqualTo(4), "Assert.That(newparts.Length,Is.EqualTo(4))");
 
             Assert.That(newsog, Constraints.PropertyCompareConstraint(sog)
@@ -629,7 +625,7 @@ namespace OpenSim.Data.Tests
                 .IgnoreProperty(x=>x.RegionHandle)
                 .IgnoreProperty(x=>x.RegionUUID)
                 .IgnoreProperty(x=>x.Scene)
-                .IgnoreProperty(x=>x.Children)
+                .IgnoreProperty(x=>x.Parts)
                 .IgnoreProperty(x=>x.PassCollision)
                 .IgnoreProperty(x=>x.RootPart));
         }

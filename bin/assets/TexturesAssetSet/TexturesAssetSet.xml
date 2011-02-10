@@ -1,4 +1,10 @@
 <Nini>
+  <Section Name="Default Alpha">
+    <Key Name="assetID" Value="1578a2b1-5179-4b53-b618-fe00ca5a5594" />
+    <Key Name="name" Value="alpha" />
+    <Key Name="assetType" Value="0" />
+    <Key Name="fileName" Value="default_alpha.jp2" />
+  </Section>
   <Section Name="texture1">
     <Key Name="assetID" Value="00000000-0000-2222-3333-000000000099" />
     <Key Name="name" Value="femface" />
@@ -404,6 +410,15 @@
   <Section Name="Default Transparent Texture">
     <Key Name="assetID" Value="8dcd4a48-2d37-4909-9f78-f7a9eb4ef903"/>
     <Key Name="name" Value="Default Transparent Texture"/>
+    <Key Name="assetType" Value="0" />
+    <Key Name="fileName" Value="default_clear.jp2" />
+  </Section>
+
+  <!-- 3a367d1c-bef1-6d43-7595-e88c1e3aadb3 is a UUID that viewers assume exists in the asset server -->
+  <!-- See http://opensimulator.org/mantis/bug_view_advanced_page.php?bug_id=4751 for more details -->
+  <Section Name="Default Alpha Layer Texture">
+    <Key Name="assetID" Value="3a367d1c-bef1-6d43-7595-e88c1e3aadb3"/>
+    <Key Name="name" Value="Default Alpha Layer Texture"/>
     <Key Name="assetType" Value="0" />
     <Key Name="fileName" Value="default_clear.jp2" />
   </Section>

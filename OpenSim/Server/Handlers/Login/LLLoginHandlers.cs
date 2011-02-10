@@ -52,15 +52,24 @@ namespace OpenSim.Server.Handlers.Login
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         private ILoginService m_LocalService;
+        private bool m_Proxy;
 
-        public LLLoginHandlers(ILoginService service)
+        public LLLoginHandlers(ILoginService service, bool hasProxy)
         {
             m_LocalService = service;
+            m_Proxy = hasProxy;
         }
 
         public XmlRpcResponse HandleXMLRPCLogin(XmlRpcRequest request, IPEndPoint remoteClient)
         {
             Hashtable requestData = (Hashtable)request.Params[0];
+            if (m_Proxy && request.Params[3] != null)
+            {
+                IPEndPoint ep = Util.GetClientIPFromXFF((string)request.Params[3]);
+                if (ep != null)
+                    // Bang!
+                    remoteClient = ep;
+            }
 
             if (requestData != null)
             {
@@ -79,14 +88,26 @@ namespace OpenSim.Server.Handlers.Login
                         startLocation = requestData["start"].ToString();
 
                     string clientVersion = "Unknown";
-                    if (requestData.Contains("version"))
+                    if (requestData.Contains("version") && requestData["version"] != null)
                         clientVersion = requestData["version"].ToString();
                     // We should do something interesting with the client version...
 
+                    string channel = "Unknown";
+                    if (requestData.Contains("channel") && requestData["channel"] != null)
+                        channel = requestData["channel"].ToString();
+
+                    string mac = "Unknown";
+                    if (requestData.Contains("mac") && requestData["mac"] != null)
+                        mac = requestData["mac"].ToString();
+
+                    string id0 = "Unknown";
+                    if (requestData.Contains("id0") && requestData["id0"] != null)
+                        id0 = requestData["id0"].ToString();
+                    
                     //m_log.InfoFormat("[LOGIN]: XMLRPC Login Requested for {0} {1}, starting in {2}, using {3}", first, last, startLocation, clientVersion);
 
                     LoginResponse reply = null;
-                    reply = m_LocalService.Login(first, last, passwd, startLocation, scopeID, clientVersion, remoteClient);
+                    reply = m_LocalService.Login(first, last, passwd, startLocation, scopeID, clientVersion, channel, mac, id0, remoteClient);
 
                     XmlRpcResponse response = new XmlRpcResponse();
                     response.Value = reply.ToHashtable();
@@ -157,7 +178,8 @@ namespace OpenSim.Server.Handlers.Login
                     m_log.Info("[LOGIN]: LLSD Login Requested for: '" + map["first"].AsString() + "' '" + map["last"].AsString() + "' / " + startLocation);
 
                     LoginResponse reply = null;
-                    reply = m_LocalService.Login(map["first"].AsString(), map["last"].AsString(), map["passwd"].AsString(), startLocation, scopeID, String.Empty, remoteClient);
+                    reply = m_LocalService.Login(map["first"].AsString(), map["last"].AsString(), map["passwd"].AsString(), startLocation, scopeID,
+                        map["version"].AsString(), map["channel"].AsString(), map["mac"].AsString(), map["id0"].AsString(), remoteClient);
                     return reply.ToOSDMap();
 
                 }
@@ -189,6 +211,7 @@ namespace OpenSim.Server.Handlers.Login
 
             return map;
         }
+
     }
 
 }

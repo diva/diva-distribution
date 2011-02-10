@@ -91,6 +91,11 @@
   the assembly here as an exec, and you add the fail clause later.
   This lets all the unit tests run and tells you if they fail at the
   end, instead of stopping short -->
+  <exec program="${nunitcmd}" failonerror="true" resultproperty="testresult.opensim.tests">
+    <arg value="./bin/OpenSim.Tests.dll" />
+  </exec>
+  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.tests)==0}" /> 
+
   <exec program="${nunitcmd}" failonerror="true" resultproperty="testresult.opensim.framework.tests">
     <arg value="./bin/OpenSim.Framework.Tests.dll" />
   </exec>
@@ -122,6 +127,11 @@
     <arg value="./bin/OpenSim.Region.CoreModules.Tests.dll" />
   </exec>
   <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.coremodules.tests)==0}" /> 
+
+  <exec program="${nunitcmd}" failonerror="true" resultproperty="testresult.opensim.region.optionalmodules.tests">
+    <arg value="./bin/OpenSim.Region.OptionalModules.Tests.dll" />
+  </exec>
+  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.optionalmodules.tests)==0}" /> 
 
   <exec program="${nunitcmd}" failonerror="true" resultproperty="testresult.opensim.region.framework.tests">
     <arg value="./bin/OpenSim.Region.Framework.Tests.dll" />
@@ -196,6 +206,17 @@
     <exec program="monocov">
       <arg value="--export-html=./cov/OpenSim.Region.CoreModules ./cov/OpenSim.Region.CoreModules.cov" />
     </exec>    
+    
+    <exec program="mono">
+      <arg value="--debug" />
+      <arg value="--profile=monocov:outfile=./cov/OpenSim.Region.OptionalModules.cov,+[OpenSim.Region.OptionalModules]" />
+      <arg value="/usr/lib/nunit/nunit-console.exe" />
+      <arg value="./bin/OpenSim.Region.OptionalModules.Tests.dll" />
+    </exec>
+    <delete dir="./cov/OpenSim.Region.OptionalModules" />
+    <exec program="monocov">
+      <arg value="--export-html=./cov/OpenSim.Region.OptionalModules ./cov/OpenSim.Region.OptionalModules.cov" />
+    </exec>    
 
     <exec program="mono">
       <arg value="--debug" />
@@ -256,6 +277,11 @@
 
   <mkdir dir="test-results" failonerror="false" />
   <!-- Unit Test Assembly -->
+  <exec program="${nunitcmd}" failonerror="false" resultproperty="testresult.opensim.tests">
+    <arg value="./bin/OpenSim.Tests.dll" />
+    <arg value="-xml=test-results/OpenSim.Tests.dll-Results.xml" />
+  </exec>
+
   <exec program="${nunitcmd}" failonerror="false" resultproperty="testresult.opensim.framework.tests">
     <arg value="./bin/OpenSim.Framework.Tests.dll" />
     <arg value="-xml=test-results/OpenSim.Framework.Tests.dll-Results.xml" />
@@ -288,6 +314,11 @@
     <arg value="-xml=test-results/OpenSim.Region.CoreModules.Tests.dll-Results.xml" />
   </exec>
 
+ <exec program="${nunitcmd}" failonerror="false" resultproperty="testresult.opensim.region.optionalmodules.tests">
+    <arg value="./bin/OpenSim.Region.OptionalModules.Tests.dll" />
+    <arg value="-xml=test-results/OpenSim.Region.OptionalModules.Tests.dll-Results.xml" />
+  </exec>
+
  <exec program="${nunitcmd}" failonerror="false" resultproperty="testresult.opensim.region.framework.tests">
     <arg value="./bin/OpenSim.Region.Framework.Tests.dll" />
     <arg value="-xml=test-results/OpenSim.Region.Framework.Tests.dll-Results.xml" />
@@ -298,11 +329,13 @@
     <arg value="-xml=test-results/OpenSim.Data.Tests.dll-Results.xml" />
   </exec>
 
+ <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.tests)==0}" /> 
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.framework.tests)==0}" /> 
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.framework.servers.tests)==0}" /> 
 <!-- <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.clientstack.lindenudp.tests)==0}" /> -->
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.scriptengine.tests)==0}" /> 
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.coremodules.tests)==0}" /> 
+ <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.optionalmodules.tests)==0}" /> 
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.region.framework.tests)==0}" /> 
  <fail message="Failures reported in unit tests." unless="${int::parse(testresult.opensim.data.tests)==0}" /> 
 
@@ -327,6 +360,7 @@
 <!--           <include name="./bin/OpenSim.Region.ClientStack.LindenUDP.Tests.dll" /> -->
 <!--           <include name="./bin/OpenSim.Region.ScriptEngine.Tests.dll" /> -->
 <!--           <include name="./bin/OpenSim.Region.CoreModules.Tests.dll" /> -->
+<!--           <include name="./bin/OpenSim.Region.OptionalModules.Tests.dll" /> -->
 <!--           <include name="./bin/OpenSim.Region.Framework.Tests.dll" /> -->
 <!--           <include name="./bin/OpenSim.Data.SQLite.Tests.dll" /> -->
 <!--           <include name="./bin/OpenSim.Data.MySQL.Tests.dll" /> -->

@@ -28,7 +28,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.IO;
 using System.Reflection;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
@@ -49,12 +48,15 @@ namespace OpenSim.Services.Connectors.SimianGrid
     [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
     public class SimianUserAccountServiceConnector : IUserAccountService, ISharedRegionModule
     {
+        private const double CACHE_EXPIRATION_SECONDS = 120.0;
+
         private static readonly ILog m_log =
                 LogManager.GetLogger(
                 MethodBase.GetCurrentMethod().DeclaringType);
 
         private string m_serverUrl = String.Empty;
-        private ExpiringCache<UUID, UserAccount> m_accountCache;
+        private ExpiringCache<UUID, UserAccount> m_accountCache = new ExpiringCache<UUID,UserAccount>();
+        private bool m_Enabled;
 
         #region ISharedRegionModule
 
@@ -65,37 +67,44 @@ namespace OpenSim.Services.Connectors.SimianGrid
 
         public SimianUserAccountServiceConnector() { }
         public string Name { get { return "SimianUserAccountServiceConnector"; } }
-        public void AddRegion(Scene scene) { if (!String.IsNullOrEmpty(m_serverUrl)) { scene.RegisterModuleInterface<IUserAccountService>(this); } }
-        public void RemoveRegion(Scene scene) { if (!String.IsNullOrEmpty(m_serverUrl)) { scene.UnregisterModuleInterface<IUserAccountService>(this); } }
+        public void AddRegion(Scene scene) { if (m_Enabled) { scene.RegisterModuleInterface<IUserAccountService>(this); } }
+        public void RemoveRegion(Scene scene) { if (m_Enabled) { scene.UnregisterModuleInterface<IUserAccountService>(this); } }
 
         #endregion ISharedRegionModule
 
         public SimianUserAccountServiceConnector(IConfigSource source)
         {
-            Initialise(source);
+            CommonInit(source);
         }
 
         public void Initialise(IConfigSource source)
         {
-            if (Simian.IsSimianEnabled(source, "UserAccountServices", this.Name))
+            IConfig moduleConfig = source.Configs["Modules"];
+            if (moduleConfig != null)
             {
-                IConfig assetConfig = source.Configs["UserAccountService"];
-                if (assetConfig == null)
-                {
-                    m_log.Error("[SIMIAN ACCOUNT CONNECTOR]: UserAccountService missing from OpenSim.ini");
-                    throw new Exception("User account connector init error");
-                }
-
-                string serviceURI = assetConfig.GetString("UserAccountServerURI");
-                if (String.IsNullOrEmpty(serviceURI))
-                {
-                    m_log.Error("[SIMIAN ACCOUNT CONNECTOR]: No UserAccountServerURI in section UserAccountService, skipping SimianUserAccountServiceConnector");
-                    throw new Exception("User account connector init error");
-                }
-
-                m_accountCache = new ExpiringCache<UUID, UserAccount>();
-                m_serverUrl = serviceURI;
+                string name = moduleConfig.GetString("UserAccountServices", "");
+                if (name == Name)
+                    CommonInit(source);
             }
+        }
+
+        private void CommonInit(IConfigSource source)
+        {
+            IConfig gridConfig = source.Configs["UserAccountService"];
+            if (gridConfig != null)
+            {
+                string serviceUrl = gridConfig.GetString("UserAccountServerURI");
+                if (!String.IsNullOrEmpty(serviceUrl))
+                {
+                    if (!serviceUrl.EndsWith("/") && !serviceUrl.EndsWith("="))
+                        serviceUrl = serviceUrl + '/';
+                    m_serverUrl = serviceUrl;
+                    m_Enabled = true;
+                }
+            }
+
+            if (String.IsNullOrEmpty(m_serverUrl))
+                m_log.Info("[SIMIAN ACCOUNT CONNECTOR]: No UserAccountServerURI specified, disabling connector");
         }
 
         public UserAccount GetUserAccount(UUID scopeID, string firstName, string lastName)
@@ -133,14 +142,22 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 { "UserID", userID.ToString() }
             };
 
-            return GetUser(requestArgs);
+            account = GetUser(requestArgs);
+
+            if (account == null)
+            {
+                // Store null responses too, to avoid repeated lookups for missing accounts
+                m_accountCache.AddOrUpdate(userID, null, CACHE_EXPIRATION_SECONDS);
+            }
+
+            return account;
         }
 
         public List<UserAccount> GetUserAccounts(UUID scopeID, string query)
         {
             List<UserAccount> accounts = new List<UserAccount>();
 
-            m_log.DebugFormat("[SIMIAN ACCOUNT CONNECTOR]: Searching for user accounts with name query " + query);
+//            m_log.DebugFormat("[SIMIAN ACCOUNT CONNECTOR]: Searching for user accounts with name query " + query);
 
             NameValueCollection requestArgs = new NameValueCollection
             {
@@ -176,7 +193,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
 
         public bool StoreUserAccount(UserAccount data)
         {
-            m_log.InfoFormat("[SIMIAN ACCOUNT CONNECTOR]: Storing user account for " + data.Name);
+//            m_log.InfoFormat("[SIMIAN ACCOUNT CONNECTOR]: Storing user account for " + data.Name);
 
             NameValueCollection requestArgs = new NameValueCollection
             {
@@ -208,7 +225,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 if (success)
                 {
                     // Cache the user account info
-                    m_accountCache.AddOrUpdate(data.PrincipalID, data, DateTime.Now + TimeSpan.FromMinutes(2.0d));
+                    m_accountCache.AddOrUpdate(data.PrincipalID, data, CACHE_EXPIRATION_SECONDS);
                 }
                 else
                 {
@@ -233,7 +250,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
         private UserAccount GetUser(NameValueCollection requestArgs)
         {
             string lookupValue = (requestArgs.Count > 1) ? requestArgs[1] : "(Unknown)";
-            m_log.DebugFormat("[SIMIAN ACCOUNT CONNECTOR]: Looking up user account with query: " + lookupValue);
+//            m_log.DebugFormat("[SIMIAN ACCOUNT CONNECTOR]: Looking up user account with query: " + lookupValue);
 
             OSDMap response = WebUtil.PostToService(m_serverUrl, requestArgs);
             if (response["Success"].AsBoolean())
@@ -273,7 +290,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
             GetFirstLastName(response["Name"].AsString(), out account.FirstName, out account.LastName);
 
             // Cache the user account info
-            m_accountCache.AddOrUpdate(account.PrincipalID, account, DateTime.Now + TimeSpan.FromMinutes(2.0d));
+            m_accountCache.AddOrUpdate(account.PrincipalID, account, CACHE_EXPIRATION_SECONDS);
 
             return account;
         }

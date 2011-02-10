@@ -98,10 +98,9 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
 
         #region Public Properties
 
-        public Dictionary<UUID, SceneObjectPart> Children
+        public SceneObjectPart[] Parts
         {
-            get { return m_Entity.Children; }
-            set { m_Entity.Children = value; }
+            get { return m_Entity.Parts; }
         }
 
         public uint LocalId
@@ -150,7 +149,8 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         {
             //make new uuids
             Dictionary<UUID, SceneObjectPart> parts = new Dictionary<UUID, SceneObjectPart>();
-            foreach (SceneObjectPart part in m_Entity.Children.Values)
+
+            foreach (SceneObjectPart part in m_Entity.Parts)
             {
                 part.ResetIDs(part.LinkNum);
                 parts.Add(part.UUID, part);
@@ -158,7 +158,8 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
 
             //finalize
             m_Entity.RootPart.PhysActor = null;
-            m_Entity.Children = parts;
+            foreach (SceneObjectPart part in parts.Values)
+                m_Entity.AddPart(part);
         }
 
         #endregion Protected Methods
@@ -173,7 +174,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
             //This deletes the group without removing from any databases.
             //This is important because we are not IN any database.
             //m_Entity.FakeDeleteGroup();
-            foreach (SceneObjectPart part in m_Entity.Children.Values)
+            foreach (SceneObjectPart part in m_Entity.Parts)
                 client.SendKillObject(m_Entity.RegionHandle, part.LocalId);
         }
 
@@ -182,7 +183,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         /// </summary>
         public virtual void HideFromAll()
         {
-            foreach (SceneObjectPart part in m_Entity.Children.Values)
+            foreach (SceneObjectPart part in m_Entity.Parts)
             {
                 m_Entity.Scene.ForEachClient(
                     delegate(IClientAPI controller)

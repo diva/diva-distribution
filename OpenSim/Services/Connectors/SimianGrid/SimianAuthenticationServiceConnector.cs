@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -51,6 +51,7 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 MethodBase.GetCurrentMethod().DeclaringType);
 
         private string m_serverUrl = String.Empty;
+        private bool m_Enabled = false;
 
         #region ISharedRegionModule
 
@@ -61,36 +62,44 @@ namespace OpenSim.Services.Connectors.SimianGrid
 
         public SimianAuthenticationServiceConnector() { }
         public string Name { get { return "SimianAuthenticationServiceConnector"; } }
-        public void AddRegion(Scene scene) { if (!String.IsNullOrEmpty(m_serverUrl)) { scene.RegisterModuleInterface<IAuthenticationService>(this); } }
-        public void RemoveRegion(Scene scene) { if (!String.IsNullOrEmpty(m_serverUrl)) { scene.UnregisterModuleInterface<IAuthenticationService>(this); } }
+        public void AddRegion(Scene scene) { if (m_Enabled) { scene.RegisterModuleInterface<IAuthenticationService>(this); } }
+        public void RemoveRegion(Scene scene) { if (m_Enabled) { scene.UnregisterModuleInterface<IAuthenticationService>(this); } }
 
         #endregion ISharedRegionModule
 
         public SimianAuthenticationServiceConnector(IConfigSource source)
         {
-            Initialise(source);
+            CommonInit(source);
         }
 
         public void Initialise(IConfigSource source)
         {
-            if (Simian.IsSimianEnabled(source, "AuthenticationServices", this.Name))
+            IConfig moduleConfig = source.Configs["Modules"];
+            if (moduleConfig != null)
             {
-                IConfig assetConfig = source.Configs["AuthenticationService"];
-                if (assetConfig == null)
-                {
-                    m_log.Error("[SIMIAN AUTH CONNECTOR]: AuthenticationService missing from OpenSim.ini");
-                    throw new Exception("Authentication connector init error");
-                }
-
-                string serviceURI = assetConfig.GetString("AuthenticationServerURI");
-                if (String.IsNullOrEmpty(serviceURI))
-                {
-                    m_log.Error("[SIMIAN AUTH CONNECTOR]: No Server URI named in section AuthenticationService");
-                    throw new Exception("Authentication connector init error");
-                }
-
-                m_serverUrl = serviceURI;
+                string name = moduleConfig.GetString("AuthenticationServices", "");
+                if (name == Name)
+                    CommonInit(source);
             }
+        }
+
+        private void CommonInit(IConfigSource source)
+        {
+            IConfig gridConfig = source.Configs["AuthenticationService"];
+            if (gridConfig != null)
+            {
+                string serviceUrl = gridConfig.GetString("AuthenticationServerURI");
+                if (!String.IsNullOrEmpty(serviceUrl))
+                {
+                    if (!serviceUrl.EndsWith("/") && !serviceUrl.EndsWith("="))
+                        serviceUrl = serviceUrl + '/';
+                    m_serverUrl = serviceUrl;
+                    m_Enabled = true;
+                }
+            }
+
+            if (String.IsNullOrEmpty(m_serverUrl))
+                m_log.Info("[SIMIAN AUTH CONNECTOR]: No AuthenticationServerURI specified, disabling connector");
         }
 
         public string Authenticate(UUID principalID, string password, int lifetime)
@@ -253,7 +262,8 @@ namespace OpenSim.Services.Connectors.SimianGrid
                 if (password == simianGridCredential ||
                     "$1$" + password == simianGridCredential ||
                     "$1$" + Utils.MD5String(password) == simianGridCredential ||
-                    Utils.MD5String(password) == simianGridCredential)
+                    Utils.MD5String(password) == simianGridCredential ||
+                    "$1$" + Utils.MD5String(password + ":") == simianGridCredential)
                 {
                     authorizeResult = Authorize(userID);
                     return true;

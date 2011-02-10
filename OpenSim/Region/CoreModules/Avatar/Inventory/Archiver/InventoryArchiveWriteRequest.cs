@@ -36,8 +36,6 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Serialization;
 using OpenSim.Framework.Serialization.External;
-using OpenSim.Framework.Communications;
-using OpenSim.Framework.Communications.Osp;
 using OpenSim.Region.CoreModules.World.Archiver;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
@@ -120,40 +118,39 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         {
             Exception reportedException = null;
             bool succeeded = true;
-            
+             
             try
             {
-                // We're almost done.  Just need to write out the control file now
-                m_archiveWriter.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, Create0p1ControlFile());
-                m_log.InfoFormat("[ARCHIVER]: Added control file to archive.");
-
                 m_archiveWriter.Close();
             }
             catch (Exception e)
             {
-                m_saveStream.Close();
                 reportedException = e;
                 succeeded = false;
+            }
+            finally
+            {
+                m_saveStream.Close();
             }
 
             m_module.TriggerInventoryArchiveSaved(
                 m_id, succeeded, m_userInfo, m_invPath, m_saveStream, reportedException);
         }
 
-        protected void SaveInvItem(InventoryItemBase inventoryItem, string path)
+        protected void SaveInvItem(InventoryItemBase inventoryItem, string path, Dictionary<string, object> options, IUserAccountService userAccountService)
         {
+            if (options.ContainsKey("verbose"))
+                m_log.InfoFormat("[INVENTORY ARCHIVER]: Saving item {0} with asset {1}", inventoryItem.ID, inventoryItem.AssetID);
+
             string filename = path + CreateArchiveItemName(inventoryItem);
 
             // Record the creator of this item for user record purposes (which might go away soon)
             m_userUuids[inventoryItem.CreatorIdAsUuid] = 1;
 
-            InventoryItemBase saveItem = (InventoryItemBase)inventoryItem.Clone();
-            saveItem.CreatorId = OspResolver.MakeOspa(saveItem.CreatorIdAsUuid, m_scene.UserAccountService);
-
-            string serialization = UserInventoryItemSerializer.Serialize(saveItem);
+            string serialization = UserInventoryItemSerializer.Serialize(inventoryItem, options, userAccountService);
             m_archiveWriter.WriteFile(filename, serialization);
 
-            m_assetGatherer.GatherAssetUuids(saveItem.AssetID, (AssetType)saveItem.AssetType, m_assetUuids);
+            m_assetGatherer.GatherAssetUuids(inventoryItem.AssetID, (AssetType)inventoryItem.AssetType, m_assetUuids);
         }
 
         /// <summary>
@@ -162,8 +159,15 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         /// <param name="inventoryFolder">The inventory folder to save</param>
         /// <param name="path">The path to which the folder should be saved</param>
         /// <param name="saveThisFolderItself">If true, save this folder itself.  If false, only saves contents</param>
-        protected void SaveInvFolder(InventoryFolderBase inventoryFolder, string path, bool saveThisFolderItself)
+        /// <param name="options"></param>
+        /// <param name="userAccountService"></param>
+        protected void SaveInvFolder(
+            InventoryFolderBase inventoryFolder, string path, bool saveThisFolderItself, 
+            Dictionary<string, object> options, IUserAccountService userAccountService)
         {
+            if (options.ContainsKey("verbose"))
+                m_log.InfoFormat("[INVENTORY ARCHIVER]: Saving folder {0}", inventoryFolder.Name);
+ 
             if (saveThisFolderItself)
             {
                 path += CreateArchiveFolderName(inventoryFolder);
@@ -174,117 +178,101 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
 
             InventoryCollection contents 
                 = m_scene.InventoryService.GetFolderContent(inventoryFolder.Owner, inventoryFolder.ID);
-            //List<InventoryFolderImpl> childFolders = inventoryFolder.RequestListOfFolderImpls();
-            //List<InventoryItemBase> items = inventoryFolder.RequestListOfItems();
-
-            /*
-            Dictionary identicalFolderNames = new Dictionary<string, int>();
-
-            foreach (InventoryFolderImpl folder in inventories)
-            {
-                if (!identicalFolderNames.ContainsKey(folder.Name))
-                    identicalFolderNames[folder.Name] = 0;
-                else
-                    identicalFolderNames[folder.Name] = identicalFolderNames[folder.Name]++;
-
-                int folderNameNumber = identicalFolderName[folder.Name];
-
-                SaveInvDir(
-                    folder,
-                    string.Format(
-                        "{0}{1}{2}/",
-                        path, ArchiveConstants.INVENTORY_NODE_NAME_COMPONENT_SEPARATOR, folderNameNumber));
-            }
-            */
 
             foreach (InventoryFolderBase childFolder in contents.Folders)
             {
-                SaveInvFolder(childFolder, path, true);
+                SaveInvFolder(childFolder, path, true, options, userAccountService);
             }
 
             foreach (InventoryItemBase item in contents.Items)
             {
-                SaveInvItem(item, path);
+                SaveInvItem(item, path, options, userAccountService);
             }
         }
 
         /// <summary>
         /// Execute the inventory write request
         /// </summary>
-        public void Execute()
+        public void Execute(Dictionary<string, object> options, IUserAccountService userAccountService)
         {
-            InventoryFolderBase inventoryFolder = null;
-            InventoryItemBase inventoryItem = null;
-            InventoryFolderBase rootFolder = m_scene.InventoryService.GetRootFolder(m_userInfo.PrincipalID);
-
-            bool foundStar = false;
-
-            // Eliminate double slashes and any leading / on the path.
-            string[] components
-                = m_invPath.Split(
-                    new string[] { InventoryFolderImpl.PATH_DELIMITER }, StringSplitOptions.RemoveEmptyEntries);
-
-            int maxComponentIndex = components.Length - 1;
-
-            // If the path terminates with a STAR then later on we want to archive all nodes in the folder but not the
-            // folder itself.  This may get more sophisicated later on
-            if (maxComponentIndex >= 0 && components[maxComponentIndex] == STAR_WILDCARD)
-            {
-                foundStar = true;
-                maxComponentIndex--;
-            }
-
-            m_invPath = String.Empty;
-            for (int i = 0; i <= maxComponentIndex; i++)
-            {
-                m_invPath += components[i] + InventoryFolderImpl.PATH_DELIMITER;
-            }
-
-            // Annoyingly Split actually returns the original string if the input string consists only of delimiters
-            // Therefore if we still start with a / after the split, then we need the root folder
-            if (m_invPath.Length == 0)
-            {
-                inventoryFolder = rootFolder;
-            }
-            else
-            {
-                m_invPath = m_invPath.Remove(m_invPath.LastIndexOf(InventoryFolderImpl.PATH_DELIMITER));
-                List<InventoryFolderBase> candidateFolders 
-                    = InventoryArchiveUtils.FindFolderByPath(m_scene.InventoryService, rootFolder, m_invPath);
-                if (candidateFolders.Count > 0)
-                    inventoryFolder = candidateFolders[0];
-            }
-
-            // The path may point to an item instead
-            if (inventoryFolder == null)
-            {
-                inventoryItem = InventoryArchiveUtils.FindItemByPath(m_scene.InventoryService, rootFolder, m_invPath);
-                //inventoryItem = m_userInfo.RootFolder.FindItemByPath(m_invPath);
-            }
-
-            if (null == inventoryFolder && null == inventoryItem)
-            {
-                // We couldn't find the path indicated 
-                string errorMessage = string.Format("Aborted save.  Could not find inventory path {0}", m_invPath);
-                m_log.ErrorFormat("[INVENTORY ARCHIVER]: {0}", errorMessage);
-                m_module.TriggerInventoryArchiveSaved(
-                    m_id, false, m_userInfo, m_invPath, m_saveStream,
-                    new Exception(errorMessage));
-                return;
-            }
-            
-            m_archiveWriter = new TarArchiveWriter(m_saveStream);
-
             try
             {
+                InventoryFolderBase inventoryFolder = null;
+                InventoryItemBase inventoryItem = null;
+                InventoryFolderBase rootFolder = m_scene.InventoryService.GetRootFolder(m_userInfo.PrincipalID);
+    
+                bool saveFolderContentsOnly = false;
+    
+                // Eliminate double slashes and any leading / on the path.
+                string[] components
+                    = m_invPath.Split(
+                        new string[] { InventoryFolderImpl.PATH_DELIMITER }, StringSplitOptions.RemoveEmptyEntries);
+    
+                int maxComponentIndex = components.Length - 1;
+    
+                // If the path terminates with a STAR then later on we want to archive all nodes in the folder but not the
+                // folder itself.  This may get more sophisicated later on
+                if (maxComponentIndex >= 0 && components[maxComponentIndex] == STAR_WILDCARD)
+                {
+                    saveFolderContentsOnly = true;
+                    maxComponentIndex--;
+                }
+    
+                m_invPath = String.Empty;
+                for (int i = 0; i <= maxComponentIndex; i++)
+                {
+                    m_invPath += components[i] + InventoryFolderImpl.PATH_DELIMITER;
+                }
+    
+                // Annoyingly Split actually returns the original string if the input string consists only of delimiters
+                // Therefore if we still start with a / after the split, then we need the root folder
+                if (m_invPath.Length == 0)
+                {
+                    inventoryFolder = rootFolder;
+                }
+                else
+                {
+                    m_invPath = m_invPath.Remove(m_invPath.LastIndexOf(InventoryFolderImpl.PATH_DELIMITER));
+                    List<InventoryFolderBase> candidateFolders 
+                        = InventoryArchiveUtils.FindFolderByPath(m_scene.InventoryService, rootFolder, m_invPath);
+                    if (candidateFolders.Count > 0)
+                        inventoryFolder = candidateFolders[0];
+                }
+    
+                // The path may point to an item instead
+                if (inventoryFolder == null)
+                {
+                    inventoryItem = InventoryArchiveUtils.FindItemByPath(m_scene.InventoryService, rootFolder, m_invPath);
+                    //inventoryItem = m_userInfo.RootFolder.FindItemByPath(m_invPath);
+                }
+    
+                if (null == inventoryFolder && null == inventoryItem)
+                {
+                    // We couldn't find the path indicated 
+                    string errorMessage = string.Format("Aborted save.  Could not find inventory path {0}", m_invPath);
+                    Exception e = new InventoryArchiverException(errorMessage);
+                    m_module.TriggerInventoryArchiveSaved(m_id, false, m_userInfo, m_invPath, m_saveStream, e);
+                    throw e;
+                }
+            
+                m_archiveWriter = new TarArchiveWriter(m_saveStream);
+
+                // Write out control file.  This has to be done first so that subsequent loaders will see this file first
+                // XXX: I know this is a weak way of doing it since external non-OAR aware tar executables will not do this
+                // not sure how to fix this though, short of going with a completely different file format.
+                m_archiveWriter.WriteFile(ArchiveConstants.CONTROL_FILE_PATH, CreateControlFile(options));
+                m_log.InfoFormat("[INVENTORY ARCHIVER]: Added control file to archive.");
+                
                 if (inventoryFolder != null)
                 {
                     m_log.DebugFormat(
                         "[INVENTORY ARCHIVER]: Found folder {0} {1} at {2}",
-                        inventoryFolder.Name, inventoryFolder.ID, m_invPath);
+                        inventoryFolder.Name, 
+                        inventoryFolder.ID, 
+                        m_invPath == String.Empty ? InventoryFolderImpl.PATH_DELIMITER : m_invPath);
     
                     //recurse through all dirs getting dirs and files
-                    SaveInvFolder(inventoryFolder, ArchiveConstants.INVENTORY_PATH, !foundStar);
+                    SaveInvFolder(inventoryFolder, ArchiveConstants.INVENTORY_PATH, !saveFolderContentsOnly, options, userAccountService);
                 }
                 else if (inventoryItem != null)
                 {
@@ -292,21 +280,23 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
                         "[INVENTORY ARCHIVER]: Found item {0} {1} at {2}",
                         inventoryItem.Name, inventoryItem.ID, m_invPath);
     
-                    SaveInvItem(inventoryItem, ArchiveConstants.INVENTORY_PATH);
+                    SaveInvItem(inventoryItem, ArchiveConstants.INVENTORY_PATH, options, userAccountService);
                 }
             
                 // Don't put all this profile information into the archive right now.
                 //SaveUsers();
+                            
+                new AssetsRequest(
+                    new AssetsArchiver(m_archiveWriter), 
+                    m_assetUuids, m_scene.AssetService, 
+                    m_scene.UserAccountService, m_scene.RegionInfo.ScopeID,
+                    options, ReceivedAllAssets).Execute();
             }
             catch (Exception)
             {
-                m_archiveWriter.Close();
+                m_saveStream.Close();
                 throw;
             }
-            
-            new AssetsRequest(
-                new AssetsArchiver(m_archiveWriter), m_assetUuids, 
-                m_scene.AssetService, ReceivedAllAssets).Execute();
         }
 
         /// <summary>
@@ -393,18 +383,34 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         }
 
         /// <summary>
-        /// Create the control file for a 0.1 version archive
+        /// Create the control file for the archive
         /// </summary>
+        /// <param name="options"></param>
         /// <returns></returns>
-        public static string Create0p1ControlFile()
+        public static string CreateControlFile(Dictionary<string, object> options)
         {
+            int majorVersion, minorVersion;
+            
+            if (options.ContainsKey("profile"))
+            {
+                majorVersion = 1;
+                minorVersion = 0;
+            }
+            else
+            {
+                majorVersion = 0;
+                minorVersion = 1;
+            }            
+            
+            m_log.InfoFormat("[INVENTORY ARCHIVER]: Creating version {0}.{1} IAR", majorVersion, minorVersion);
+            
             StringWriter sw = new StringWriter();
             XmlTextWriter xtw = new XmlTextWriter(sw);
             xtw.Formatting = Formatting.Indented;
             xtw.WriteStartDocument();
             xtw.WriteStartElement("archive");
-            xtw.WriteAttributeString("major_version", "0");
-            xtw.WriteAttributeString("minor_version", "1");
+            xtw.WriteAttributeString("major_version", majorVersion.ToString());
+            xtw.WriteAttributeString("minor_version", minorVersion.ToString());
             xtw.WriteEndElement();
 
             xtw.Flush();

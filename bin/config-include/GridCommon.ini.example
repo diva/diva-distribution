@@ -1,3 +1,24 @@
+[DatabaseService]
+    ;
+    ; ### Choose the DB
+    ;
+
+    ; SQLite
+    Include-Storage = "config-include/storage/SQLiteStandalone.ini";
+
+    ; Unfortunately the current SQLite database plugin is not compatible with Mac OSX.  You can still use the older
+    ; legacy sqlite library if you are using Mono 2.4.  Please see the notes in OpenSim.ini (search for sqlite)
+    ; for more details
+    ;Include-Storage = "config-include/storage/SQLiteLegacyStandalone.ini";
+
+    ; MySql
+    ; Uncomment these lines if you want to use mysql storage
+    ; Change the connection string to your db details
+    ;StorageProvider = "OpenSim.Data.MySQL.dll"
+    ;ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=***;"
+    ; Uncomment this line if you are using MySQL and want to use a different database for estates
+    ;EstateConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=***;"
+
 [AssetService]
 
     DefaultAssetLoader = "OpenSim.Framework.AssetLoader.Filesystem.dll"
@@ -20,6 +41,9 @@
     ;
     GridServerURI = "http://mygridserver.com:8003"
     ;AllowHypergridMapSearch = true
+
+    ;; Directory for map tile images of linked regions
+    ; MapTileDirectory = "./"
 
 [AvatarService]
     ;
@@ -57,18 +81,33 @@
     ;
     FriendsServerURI = "http://mygridserver.com:8003"
 
+[HGInventoryAccessModule]
+    ;
+    ; === HG ONLY ===
+    ; Change this to your profile server 
+    ; accessible from other grids
+    ;
+    ProfileServerURI = "http://mygridserver.com:8002/user"
+	;; If you want to protect your assets from being copied by foreign visitors
+	;; uncomment the next line. You may want to do this on sims that have licensed content.
+	; OutboundPermission = False
+
+
 [Modules]
     ;; Choose 0 or 1 cache modules, and the corresponding config file, if it exists.
     ;; Copy the config .example file into your own .ini file and change configs there
-        
+
     AssetCaching = "FlotsamAssetCache"
     Include-FlotsamCache = "config-include/FlotsamCache.ini"
 
     ;AssetCaching = "CenomeMemoryAssetCache"
     ;Include-CenomeCache = "config-include/CenomeCache.ini"
-    
+
     ;AssetCaching = "GlynnTuckerAssetCache"
 
     ;; Optionally, the port for the LLProxyLoginModule module can be changed
-    
+
     ;Setup_LLProxyLoginModule = "9090/"
+
+    ;; Authorization is not on by default, as it depends on external php
+    ;AuthorizationServices = "RemoteAuthorizationServicesConnector"

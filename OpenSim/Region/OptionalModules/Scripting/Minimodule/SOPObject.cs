@@ -185,14 +185,17 @@ namespace OpenSim.Region.OptionalModules.Scripting.Minimodule
             get
             {
                 SceneObjectPart my = GetSOP();
-                int total = my.ParentGroup.Children.Count;
+                IObject[] rets = null;
 
-                IObject[] rets = new IObject[total];
+                int total = my.ParentGroup.PrimCount;
+
+                rets = new IObject[total];
 
                 int i = 0;
-                foreach (KeyValuePair<UUID, SceneObjectPart> pair in my.ParentGroup.Children)
+                    
+                foreach (SceneObjectPart part in my.ParentGroup.Parts)
                 {
-                    rets[i++] = new SOPObject(m_rootScene, pair.Value.LocalId, m_security);
+                    rets[i++] = new SOPObject(m_rootScene, part.LocalId, m_security);
                 }
 
                 return rets;
@@ -425,7 +428,7 @@ namespace OpenSim.Region.OptionalModules.Scripting.Minimodule
                 return;
             }
 
-            foreach(string button in buttons)
+            foreach (string button in buttons)
             {
                 if (button == String.Empty)
                 {
@@ -441,7 +444,7 @@ namespace OpenSim.Region.OptionalModules.Scripting.Minimodule
 
             dm.SendDialogToUser(
                 avatar, GetSOP().Name, GetSOP().UUID, GetSOP().OwnerID,
-                message, new UUID("00000000-0000-2222-3333-100000001000"), chat_channel, buttons);         
+                message, new UUID("00000000-0000-2222-3333-100000001000"), chat_channel, buttons);
             
         }
         

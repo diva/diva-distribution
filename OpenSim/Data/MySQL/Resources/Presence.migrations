@@ -13,3 +13,11 @@ CREATE UNIQUE INDEX SessionID ON Presence(SessionID);
 CREATE INDEX UserID ON Presence(UserID);
 
 COMMIT;
+
+:VERSION 2         # -------------------------- 
+
+BEGIN;
+
+ALTER TABLE `Presence` ADD COLUMN LastSeen timestamp;
+
+COMMIT;

@@ -123,8 +123,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 m_log.InfoFormat("[GROUPS]: Initializing {0}", this.Name);
 
                 m_groupNoticesEnabled   = groupsConfig.GetBoolean("NoticesEnabled", true);
-                m_debugEnabled          = groupsConfig.GetBoolean("DebugEnabled", true);
-
+                m_debugEnabled          = groupsConfig.GetBoolean("DebugEnabled", false);
             }
         }
 
@@ -163,9 +162,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 if (m_msgTransferModule == null)
                 {
                     m_groupsEnabled = false;
-                    m_log.Error("[GROUPS]: Could not get MessageTransferModule");
-                    Close();
-                    return;
+                    m_log.Warn("[GROUPS]: Could not get MessageTransferModule");
                 }
             }
 
@@ -599,7 +596,10 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
 
         public List<GroupMembersData> GroupMembersRequest(IClientAPI remoteClient, UUID groupID)
         {
-            if (m_debugEnabled) m_log.DebugFormat("[GROUPS]: {0} called", System.Reflection.MethodBase.GetCurrentMethod().Name);
+            if (m_debugEnabled) 
+                m_log.DebugFormat(
+                    "[GROUPS]: GroupMembersRequest called for {0} from client {1}", groupID, remoteClient.Name);
+            
             List<GroupMembersData> data = m_groupData.GetGroupMembers(GetRequestingAgentID(remoteClient), groupID);
 
             if (m_debugEnabled)
@@ -722,11 +722,11 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
             if (money != null)
             {
                 // do the transaction, that is if the agent has got sufficient funds
-                if (!money.GroupCreationCovered(remoteClient)) {
+                if (!money.AmountCovered(remoteClient, money.GroupCreationCharge)) {
                     remoteClient.SendCreateGroupReply(UUID.Zero, false, "You have got issuficient funds to create a group.");
                     return UUID.Zero;
                 }
-                money.ApplyGroupCreationCharge(GetRequestingAgentID(remoteClient));
+                money.ApplyCharge(GetRequestingAgentID(remoteClient), money.GroupCreationCharge, "Group Creation");
             }
             UUID groupID = m_groupData.CreateGroup(GetRequestingAgentID(remoteClient), name, charter, showInList, insigniaID, membershipFee, openEnrollment, allowPublish, maturePublish, GetRequestingAgentID(remoteClient));
 
@@ -962,7 +962,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
             if ((groupInfo == null) || (account == null))
             {
                 return;
-            }            
+            }
 
             // Send Message to Ejectee
             GridInstantMessage msg = new GridInstantMessage();
@@ -1129,7 +1129,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 OSDMap NewGroupDataMap = new OSDMap(1);
 
                 GroupDataMap.Add("GroupID", OSD.FromUUID(membership.GroupID));
-                GroupDataMap.Add("GroupPowers", OSD.FromBinary(membership.GroupPowers));
+                GroupDataMap.Add("GroupPowers", OSD.FromULong(membership.GroupPowers));
                 GroupDataMap.Add("AcceptNotices", OSD.FromBoolean(membership.AcceptNotices));
                 GroupDataMap.Add("GroupInsigniaID", OSD.FromUUID(membership.GroupPicture));
                 GroupDataMap.Add("Contribution", OSD.FromInteger(membership.Contribution));
@@ -1170,10 +1170,13 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 presence = scene.GetScenePresence(AgentID);
                 if (presence != null)
                 {
-                    presence.Grouptitle = Title;
+                    if (presence.Grouptitle != Title)
+                    {
+                        presence.Grouptitle = Title;
 
-                    // FixMe: Ter suggests a "Schedule" method that I can't find.
-                    presence.SendFullUpdateToAllClients();
+                        if (! presence.IsChildAgent)
+                            presence.SendAvatarDataToAllAgents();
+                    }
                 }
             }
         }
@@ -1293,7 +1296,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 if (m_debugEnabled) m_log.InfoFormat("[GROUPS]: MsgTo ({0}) is local, delivering directly", localClient.Name);
                 localClient.SendInstantMessage(msg);
             }
-            else
+            else if (m_msgTransferModule != null)
             {
                 if (m_debugEnabled) m_log.InfoFormat("[GROUPS]: MsgTo ({0}) is not local, delivering via TransferModule", msgTo);
                 m_msgTransferModule.SendInstantMessage(msg, delegate(bool success) { if (m_debugEnabled) m_log.DebugFormat("[GROUPS]: Message Sent: {0}", success?"Succeeded":"Failed"); });

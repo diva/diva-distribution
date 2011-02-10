@@ -64,7 +64,7 @@ namespace OpenSim.Services.Connectors
             m_GridService = gridServices;
         }
 
-        public virtual LandData GetLandData(ulong regionHandle, uint x, uint y)
+        public virtual LandData GetLandData(UUID scopeID, ulong regionHandle, uint x, uint y, out byte regionAccess)
         {
             LandData landData = null;
             Hashtable hash = new Hashtable();
@@ -74,20 +74,20 @@ namespace OpenSim.Services.Connectors
 
             IList paramList = new ArrayList();
             paramList.Add(hash);
+            regionAccess = 42; // Default to adult. Better safe...
 
             try
             {
                 uint xpos = 0, ypos = 0;
                 Utils.LongToUInts(regionHandle, out xpos, out ypos);
-                GridRegion info = m_GridService.GetRegionByPosition(UUID.Zero, (int)xpos, (int)ypos);
+                GridRegion info = m_GridService.GetRegionByPosition(scopeID, (int)xpos, (int)ypos);
                 if (info != null) // just to be sure
                 {
                     XmlRpcRequest request = new XmlRpcRequest("land_data", paramList);
-                    string uri = "http://" + info.ExternalEndPoint.Address + ":" + info.HttpPort + "/";
-                    XmlRpcResponse response = request.Send(uri, 10000);
+                    XmlRpcResponse response = request.Send(info.ServerURI, 10000);
                     if (response.IsFault)
                     {
-                        m_log.ErrorFormat("[LAND CONNECTOR] remote call returned an error: {0}", response.FaultString);
+                        m_log.ErrorFormat("[LAND CONNECTOR]: remote call returned an error: {0}", response.FaultString);
                     }
                     else
                     {
@@ -107,19 +107,25 @@ namespace OpenSim.Services.Connectors
                             landData.SalePrice = Convert.ToInt32(hash["SalePrice"]);
                             landData.SnapshotID = new UUID((string)hash["SnapshotID"]);
                             landData.UserLocation = Vector3.Parse((string)hash["UserLocation"]);
-                            m_log.DebugFormat("[OGS1 GRID SERVICES] Got land data for parcel {0}", landData.Name);
+                            if (hash["RegionAccess"] != null)
+                                regionAccess = (byte)Convert.ToInt32((string)hash["RegionAccess"]);
+                            m_log.DebugFormat("[LAND CONNECTOR]: Got land data for parcel {0}", landData.Name);
                         }
                         catch (Exception e)
                         {
-                            m_log.Error("[LAND CONNECTOR] Got exception while parsing land-data:", e);
+                            m_log.ErrorFormat(
+                                "[LAND CONNECTOR]: Got exception while parsing land-data: {0} {1}", 
+                                e.Message, e.StackTrace);
                         }
                     }
                 }
-                else m_log.WarnFormat("[LAND CONNECTOR] Couldn't find region with handle {0}", regionHandle);
+                else 
+                    m_log.WarnFormat("[LAND CONNECTOR]: Couldn't find region with handle {0}", regionHandle);
             }
             catch (Exception e)
             {
-                m_log.ErrorFormat("[LAND CONNECTOR] Couldn't contact region {0}: {1}", regionHandle, e);
+                m_log.ErrorFormat(
+                    "[LAND CONNECTOR]: Couldn't contact region {0}: {1} {2}", regionHandle, e.Message, e.StackTrace);
             }
         
             return landData;

@@ -49,6 +49,21 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
 
         private IInventoryService m_InventoryService;
 
+        private Scene m_Scene;
+
+        private IUserManagement m_UserManager;
+        private IUserManagement UserManager
+        {
+            get
+            {
+                if (m_UserManager == null)
+                {
+                    m_UserManager = m_Scene.RequestModuleInterface<IUserManagement>();
+                }
+                return m_UserManager;
+            }
+        }
+
         private bool m_Enabled = false;
 
         public Type ReplaceableInterface 
@@ -115,6 +130,9 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
                 return;
             
             scene.RegisterModuleInterface<IInventoryService>(this);
+
+            if (m_Scene == null)
+                m_Scene = scene;
         }
 
         public void RemoveRegion(Scene scene)
@@ -163,7 +181,12 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
 
         public InventoryCollection GetFolderContent(UUID userID, UUID folderID)
         {
-            return m_InventoryService.GetFolderContent(userID, folderID);
+            InventoryCollection invCol = m_InventoryService.GetFolderContent(userID, folderID);
+            if (UserManager != null)
+                foreach (InventoryItemBase item in invCol.Items)
+                    UserManager.AddUser(item.CreatorIdAsUuid, item.CreatorData);
+
+            return invCol;
         }
 
         public List<InventoryItemBase> GetFolderItems(UUID userID, UUID folderID)
@@ -218,26 +241,9 @@ namespace OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory
 
         public bool AddItem(InventoryItemBase item)
         {
-            m_log.DebugFormat(
-                "[LOCAL INVENTORY SERVICES CONNECTOR]: Adding inventory item {0} to user {1} folder {2}", 
-                item.Name, item.Owner, item.Folder);            
-
-            if (UUID.Zero == item.Folder)
-            {
-                InventoryFolderBase f = m_InventoryService.GetFolderForType(item.Owner, (AssetType)item.AssetType);
-                if (f != null)
-                {
-                    item.Folder = f.ID;
-                }
-                else
-                {
-                    f = m_InventoryService.GetRootFolder(item.Owner);
-                    if (f != null)
-                        item.Folder = f.ID;
-                    else
-                        return false;
-                }
-            }
+//            m_log.DebugFormat(
+//                "[LOCAL INVENTORY SERVICES CONNECTOR]: Adding inventory item {0} to user {1} folder {2}", 
+//                item.Name, item.Owner, item.Folder);
             
             return m_InventoryService.AddItem(item);
         }

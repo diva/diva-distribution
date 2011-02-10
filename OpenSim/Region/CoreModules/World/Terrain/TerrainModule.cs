@@ -68,7 +68,7 @@ namespace OpenSim.Region.CoreModules.World.Terrain
         #endregion
 
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
+        
         private readonly Commander m_commander = new Commander("terrain");
 
         private readonly Dictionary<StandardTerrainEffects, ITerrainFloodEffect> m_floodeffects =
@@ -131,7 +131,6 @@ namespace OpenSim.Region.CoreModules.World.Terrain
                 m_scene.EventManager.OnNewClient += EventManager_OnNewClient;
                 m_scene.EventManager.OnPluginConsole += EventManager_OnPluginConsole;
                 m_scene.EventManager.OnTerrainTick += EventManager_OnTerrainTick;
-                InstallInterfaces();
             }
 
             InstallDefaultEffects();
@@ -140,6 +139,9 @@ namespace OpenSim.Region.CoreModules.World.Terrain
 
         public void RegionLoaded(Scene scene)
         {
+            //Do this here to give file loaders time to initialize and
+            //register their supported file extensions and file formats.
+            InstallInterfaces();
         }
 
         public void RemoveRegion(Scene scene)
@@ -381,8 +383,13 @@ namespace OpenSim.Region.CoreModules.World.Terrain
         private void LoadPlugins()
         {
             m_plugineffects = new Dictionary<string, ITerrainEffect>();
+            string plugineffectsPath = "Terrain";
+            
             // Load the files in the Terrain/ dir
-            string[] files = Directory.GetFiles("Terrain");
+            if (!Directory.Exists(plugineffectsPath))
+                return;
+            
+            string[] files = Directory.GetFiles(plugineffectsPath);
             foreach (string file in files)
             {
                 m_log.Info("Loading effects in " + file);
@@ -581,8 +588,9 @@ namespace OpenSim.Region.CoreModules.World.Terrain
             client.OnModifyTerrain += client_OnModifyTerrain;
             client.OnBakeTerrain += client_OnBakeTerrain;
             client.OnLandUndo += client_OnLandUndo;
+            client.OnUnackedTerrain += client_OnUnackedTerrain;
         }
-
+        
         /// <summary>
         /// Checks to see if the terrain has been modified since last check
         /// but won't attempt to limit those changes to the limits specified in the estate settings
@@ -802,6 +810,12 @@ namespace OpenSim.Region.CoreModules.World.Terrain
             {
                 InterfaceBakeTerrain(null); //bake terrain does not use the passed in parameter
             }
+        }
+        
+        protected void client_OnUnackedTerrain(IClientAPI client, int patchX, int patchY)
+        {
+            //m_log.Debug("Terrain packet unacked, resending patch: " + patchX + " , " + patchY);
+             client.SendLayerData(patchX, patchY, m_scene.Heightmap.GetFloatsSerialised());
         }
 
         private void StoreUndoState()
@@ -1070,8 +1084,12 @@ namespace OpenSim.Region.CoreModules.World.Terrain
         {
             // Load / Save
             string supportedFileExtensions = "";
+            string supportedFilesSeparator = "";
             foreach (KeyValuePair<string, ITerrainLoader> loader in m_loaders)
-                supportedFileExtensions += " " + loader.Key + " (" + loader.Value + ")";
+            {
+                supportedFileExtensions += supportedFilesSeparator + loader.Key + " (" + loader.Value + ")";
+                supportedFilesSeparator = ", ";
+            }
 
             Command loadFromFileCommand =
                 new Command("load", CommandIntentions.COMMAND_HAZARDOUS, InterfaceLoadFile, "Loads a terrain from a specified file.");

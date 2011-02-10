@@ -116,9 +116,8 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="remoteClient"></param>
         public void RequestPrim(uint primLocalID, IClientAPI remoteClient)
         {
-            List<EntityBase> EntityList = GetEntities();
-
-            foreach (EntityBase ent in EntityList)
+            EntityBase[] entityList = GetEntities();
+            foreach (EntityBase ent in entityList)
             {
                 if (ent is SceneObjectGroup)
                 {
@@ -138,9 +137,8 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="remoteClient"></param>
         public void SelectPrim(uint primLocalID, IClientAPI remoteClient)
         {
-            List<EntityBase> EntityList = GetEntities();
-
-            foreach (EntityBase ent in EntityList)
+            EntityBase[] entityList = GetEntities();
+            foreach (EntityBase ent in entityList)
             {
                 if (ent is SceneObjectGroup)
                 {
@@ -156,21 +154,27 @@ namespace OpenSim.Region.Framework.Scenes
                         }
                         break;
                     }
-                   else 
-                   {
-                       // We also need to check the children of this prim as they
-                       // can be selected as well and send property information
-                       bool foundPrim = false;
-                       foreach (KeyValuePair<UUID, SceneObjectPart> child in ((SceneObjectGroup) ent).Children)
-                       {
-                           if (child.Value.LocalId == primLocalID) 
-                           {
-                               child.Value.GetProperties(remoteClient);
-                               foundPrim = true;
-                               break;
-                           }
-                       }
-                       if (foundPrim) break;
+                    else 
+                    {
+                        // We also need to check the children of this prim as they
+                        // can be selected as well and send property information
+                        bool foundPrim = false;
+                        
+                        SceneObjectGroup sog = ent as SceneObjectGroup;
+
+                        SceneObjectPart[] partList = sog.Parts;
+                        foreach (SceneObjectPart part in partList)
+                        {
+                            if (part.LocalId == primLocalID) 
+                            {
+                                part.GetProperties(remoteClient);
+                                foundPrim = true;
+                                break;
+                            }
+                        }
+                            
+                        if (foundPrim) 
+                            break;
                    }
                 }
             }
@@ -250,7 +254,7 @@ namespace OpenSim.Region.Framework.Scenes
 
         public virtual void ProcessObjectGrab(uint localID, Vector3 offsetPos, IClientAPI remoteClient, List<SurfaceTouchEventArgs> surfaceArgs)
         {
-            List<EntityBase> EntityList = GetEntities();
+            EntityBase[] EntityList = GetEntities();
 
             SurfaceTouchEventArgs surfaceArg = null;
             if (surfaceArgs != null && surfaceArgs.Count > 0)
@@ -294,7 +298,7 @@ namespace OpenSim.Region.Framework.Scenes
 
         public virtual void ProcessObjectGrabUpdate(UUID objectID, Vector3 offset, Vector3 pos, IClientAPI remoteClient, List<SurfaceTouchEventArgs> surfaceArgs)
         {
-            List<EntityBase> EntityList = GetEntities();
+            EntityBase[] EntityList = GetEntities();
 
             SurfaceTouchEventArgs surfaceArg = null;
             if (surfaceArgs != null && surfaceArgs.Count > 0)
@@ -334,7 +338,7 @@ namespace OpenSim.Region.Framework.Scenes
 
         public virtual void ProcessObjectDeGrab(uint localID, IClientAPI remoteClient, List<SurfaceTouchEventArgs> surfaceArgs)
         {
-            List<EntityBase> EntityList = GetEntities();
+            EntityBase[] EntityList = GetEntities();
 
             SurfaceTouchEventArgs surfaceArg = null;
             if (surfaceArgs != null && surfaceArgs.Count > 0)
@@ -458,22 +462,6 @@ namespace OpenSim.Region.Framework.Scenes
             );
         }
 
-        public void HandleUUIDNameRequest(UUID uuid, IClientAPI remote_client)
-        {
-            if (LibraryService != null && (LibraryService.LibraryRootFolder.Owner == uuid))
-            {
-                remote_client.SendNameReply(uuid, "Mr", "OpenSim");
-            }
-            else
-            {
-                string[] names = GetUserNames(uuid);
-                if (names.Length == 2)
-                {
-                    remote_client.SendNameReply(uuid, names[0], names[1]);
-                }
-
-            }
-        }
 
         /// <summary>
         /// Handle a fetch inventory request from the client
@@ -511,6 +499,9 @@ namespace OpenSim.Region.Framework.Scenes
         public void HandleFetchInventoryDescendents(IClientAPI remoteClient, UUID folderID, UUID ownerID,
                                                     bool fetchFolders, bool fetchItems, int sortOrder)
         {
+            if (folderID == UUID.Zero)
+                return;
+
             // FIXME MAYBE: We're not handling sortOrder!
 
             // TODO: This code for looking in the folder for the library should be folded somewhere else

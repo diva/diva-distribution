@@ -52,7 +52,6 @@ namespace OpenSim.Services.LLLoginService
         protected string m_login;
 
         public static LLFailedLoginResponse UserProblem;
-        public static LLFailedLoginResponse AuthorizationProblem;
         public static LLFailedLoginResponse GridProblem;
         public static LLFailedLoginResponse InventoryProblem;
         public static LLFailedLoginResponse DeadRegionProblem;
@@ -64,9 +63,6 @@ namespace OpenSim.Services.LLLoginService
         {
             UserProblem = new LLFailedLoginResponse("key", 
                 "Could not authenticate your avatar. Please check your username and password, and check the grid if problems persist.",
-                "false");
-            AuthorizationProblem = new LLFailedLoginResponse("key",
-                "Error connecting to grid. Unable to authorize your session into the region.",
                 "false");
             GridProblem = new LLFailedLoginResponse("key",
                 "Error connecting to the desired location. Try connecting to another region.",
@@ -337,34 +333,7 @@ namespace OpenSim.Services.LLLoginService
 
         private void FillOutSeedCap(AgentCircuitData aCircuit, GridRegion destination, IPEndPoint ipepClient)
         {
-            string capsSeedPath = String.Empty;
-
-            // Don't use the following!  It Fails for logging into any region not on the same port as the http server!
-            // Kept here so it doesn't happen again!
-            // response.SeedCapability = regionInfo.ServerURI + capsSeedPath;
-
-            #region IP Translation for NAT
-            if (ipepClient != null)
-            {
-                capsSeedPath
-                    = "http://"
-                      + NetworkUtil.GetHostFor(ipepClient.Address, destination.ExternalHostName)
-                      + ":"
-                      + destination.HttpPort
-                      + CapsUtil.GetCapsSeedPath(aCircuit.CapsPath);
-            }
-            else
-            {
-                capsSeedPath
-                    = "http://"
-                      + destination.ExternalHostName
-                      + ":"
-                      + destination.HttpPort
-                      + CapsUtil.GetCapsSeedPath(aCircuit.CapsPath);
-            }
-            #endregion
-
-            SeedCapability = capsSeedPath;
+            SeedCapability =  destination.ServerURI + CapsUtil.GetCapsSeedPath(aCircuit.CapsPath);
         }
 
         private void SetDefaultValues()
@@ -692,7 +661,7 @@ namespace OpenSim.Services.LLLoginService
         protected virtual ArrayList GetInventoryLibrary(ILibraryService library)
         {
             Dictionary<UUID, InventoryFolderImpl> rootFolders = library.GetAllFolders();
-            m_log.DebugFormat("[LLOGIN]: Library has {0} folders", rootFolders.Count);
+//            m_log.DebugFormat("[LLOGIN]: Library has {0} folders", rootFolders.Count);
             //Dictionary<UUID, InventoryFolderImpl> rootFolders = new Dictionary<UUID,InventoryFolderImpl>();
             ArrayList folderHashes = new ArrayList();
 

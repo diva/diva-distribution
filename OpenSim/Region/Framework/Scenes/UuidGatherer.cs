@@ -86,23 +86,37 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="assetUuids">The assets gathered</param>
         public void GatherAssetUuids(UUID assetUuid, AssetType assetType, IDictionary<UUID, AssetType> assetUuids)
         {
-            assetUuids[assetUuid] = assetType;
+            // avoid infinite loops
+            if (assetUuids.ContainsKey(assetUuid))
+                return;
 
-            if (AssetType.Bodypart == assetType || AssetType.Clothing == assetType)
-            {
-                GetWearableAssetUuids(assetUuid, assetUuids);
+            try
+            {               
+                assetUuids[assetUuid] = assetType;
+    
+                if (AssetType.Bodypart == assetType || AssetType.Clothing == assetType)
+                {
+                    GetWearableAssetUuids(assetUuid, assetUuids);
+                }
+                else if (AssetType.Gesture == assetType)
+                {
+                    GetGestureAssetUuids(assetUuid, assetUuids);
+                }
+                else if (AssetType.LSLText == assetType)
+                {
+                    GetScriptAssetUuids(assetUuid, assetUuids);
+                }
+                else if (AssetType.Object == assetType)
+                {
+                    GetSceneObjectAssetUuids(assetUuid, assetUuids);
+                }
             }
-            else if (AssetType.Gesture == assetType)
+            catch (Exception)
             {
-                GetGestureAssetUuids(assetUuid, assetUuids);
-            }
-            else if (AssetType.LSLText == assetType)
-            {
-                GetScriptAssetUuids(assetUuid, assetUuids);
-            }
-            else if (AssetType.Object == assetType)
-            {
-                GetSceneObjectAssetUuids(assetUuid, assetUuids);
+                m_log.ErrorFormat(
+                    "[UUID GATHERER]: Failed to gather uuids for asset id {0}, type {1}", 
+                    assetUuid, assetType);
+                throw;
             }
         }
 
@@ -121,8 +135,11 @@ namespace OpenSim.Region.Framework.Scenes
 //            m_log.DebugFormat(
 //                "[ASSET GATHERER]: Getting assets for object {0}, {1}", sceneObject.Name, sceneObject.UUID);
 
-            foreach (SceneObjectPart part in sceneObject.GetParts())
+            SceneObjectPart[] parts = sceneObject.Parts;
+            for (int i = 0; i < parts.Length; i++)
             {
+                SceneObjectPart part = parts[i];
+
 //                m_log.DebugFormat(
 //                    "[ARCHIVER]: Getting part {0}, {1} for object {2}", part.Name, part.UUID, sceneObject.UUID);
 
@@ -288,9 +305,16 @@ namespace OpenSim.Region.Framework.Scenes
             }
         }
 
+        /// <summary>
+        /// Get the asset uuid associated with a gesture
+        /// </summary>
+        /// <param name="gestureUuid"></param>
+        /// <param name="assetUuids"></param>
         protected void GetGestureAssetUuids(UUID gestureUuid, IDictionary<UUID, AssetType> assetUuids)
         {
             AssetBase assetBase = GetAsset(gestureUuid);
+            if (null == assetBase)
+                return;
 
             MemoryStream ms = new MemoryStream(assetBase.Data);
             StreamReader sr = new StreamReader(ms);

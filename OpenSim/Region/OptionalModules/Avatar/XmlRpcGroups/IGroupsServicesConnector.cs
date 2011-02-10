@@ -27,14 +27,12 @@
 
 using System;
 using System.Collections.Generic;
-
 using OpenMetaverse;
-
 using OpenSim.Framework;
 
 namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
 {
-    interface IGroupsServicesConnector
+    public interface IGroupsServicesConnector
     {
         UUID CreateGroup(UUID RequestingAgentID, string name, string charter, bool showInList, UUID insigniaID, int membershipFee, bool openEnrollment, bool allowPublish, bool maturePublish, UUID founderID);
         void UpdateGroup(UUID RequestingAgentID, UUID groupID, string charter, bool showInList, UUID insigniaID, int membershipFee, bool openEnrollment, bool allowPublish, bool maturePublish);
@@ -65,7 +63,26 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
         void SetAgentActiveGroupRole(UUID RequestingAgentID, UUID AgentID, UUID GroupID, UUID RoleID);
         void SetAgentGroupInfo(UUID RequestingAgentID, UUID AgentID, UUID GroupID, bool AcceptNotices, bool ListInProfile);
 
+        /// <summary>
+        /// Get information about a specific group to which the user belongs.
+        /// </summary>
+        /// <param name="RequestingAgentID">The agent requesting the information.</param>
+        /// <param name="AgentID">The agent requested.</param>
+        /// <param name="GroupID">The group requested.</param>
+        /// <returns>
+        /// If the user is a member of the group then the data structure is returned.  If not, then null is returned.
+        /// </returns>
         GroupMembershipData GetAgentGroupMembership(UUID RequestingAgentID, UUID AgentID, UUID GroupID);
+        
+        /// <summary>
+        /// Get information about the groups to which a user belongs.
+        /// </summary>
+        /// <param name="RequestingAgentID">The agent requesting the information.</param>
+        /// <param name="AgentID">The agent requested.</param>
+        /// <returns>
+        /// Information about the groups to which the user belongs.  If the user belongs to no groups then an empty
+        /// list is returned.
+        /// </returns>
         List<GroupMembershipData> GetAgentGroupMemberships(UUID RequestingAgentID, UUID AgentID);
 
         void AddGroupNotice(UUID RequestingAgentID, UUID groupID, UUID noticeID, string fromName, string subject, string message, byte[] binaryBucket);

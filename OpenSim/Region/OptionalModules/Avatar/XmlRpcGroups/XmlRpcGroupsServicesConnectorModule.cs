@@ -641,10 +641,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
             }
 
             return Roles;
-
         }
-
-
 
         public List<GroupMembersData> GetGroupMembers(UUID requestingAgentID, UUID GroupID)
         {
@@ -959,7 +956,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 }
             }
             
-            if( resp == null )
+            if (resp == null)
             {
                 string UserService;
                 UUID SessionID;
@@ -988,8 +985,11 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 }
                 catch (Exception e)
                 {
-                    m_log.ErrorFormat("[XMLRPC-GROUPS-CONNECTOR]: An error has occured while attempting to access the XmlRpcGroups server method: {0}", function);
-                    m_log.ErrorFormat("[XMLRPC-GROUPS-CONNECTOR]: {0} ", e.ToString());
+                    m_log.ErrorFormat(
+                        "[XMLRPC-GROUPS-CONNECTOR]: An error has occured while attempting to access the XmlRpcGroups server method {0} at {1}", 
+                        function, m_groupsServerURI);
+                    
+                    m_log.ErrorFormat("[XMLRPC-GROUPS-CONNECTOR]: {0}{1}", e.Message, e.StackTrace);
 
                     foreach (string ResponseLine in req.RequestResponse.Split(new string[] { Environment.NewLine }, StringSplitOptions.None))
                     {
@@ -1058,7 +1058,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
         
         /// <summary>
         /// Group Request Tokens are an attempt to allow the groups service to authenticate 
-        /// requests.  
+        /// requests.
         /// TODO: This broke after the big grid refactor, either find a better way, or discard this
         /// </summary>
         /// <param name="client"></param>

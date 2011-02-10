@@ -8,16 +8,19 @@
     </Dependencies>
 
     <Extension path = "/OpenSim/RegionModules">
+        <RegionModule id="UserManagementModule" type="OpenSim.Region.CoreModules.Framework.UserManagement.UserManagementModule" />
         <RegionModule id="EntityTransferModule" type="OpenSim.Region.CoreModules.Framework.EntityTransfer.EntityTransferModule" />
         <RegionModule id="HGEntityTransferModule" type="OpenSim.Region.CoreModules.Framework.EntityTransfer.HGEntityTransferModule" />
         <RegionModule id="InventoryAccessModule" type="OpenSim.Region.CoreModules.Framework.InventoryAccess.BasicInventoryAccessModule" />
         <RegionModule id="HGInventoryAccessModule" type="OpenSim.Region.CoreModules.Framework.InventoryAccess.HGInventoryAccessModule" />
         <RegionModule id="LandManagementModule" type="OpenSim.Region.CoreModules.World.Land.LandManagementModule" />
+        <RegionModule id="PrimCountModule" type="OpenSim.Region.CoreModules.World.Land.PrimCountModule" />
         <RegionModule id="ExportSerialisationModule" type="OpenSim.Region.CoreModules.World.Serialiser.SerialiserModule" />
         <RegionModule id="ArchiverModule" type="OpenSim.Region.CoreModules.World.Archiver.ArchiverModule" />
         <RegionModule id="CapabilitiesModule" type="OpenSim.Region.CoreModules.Agent.Capabilities.CapabilitiesModule" />
         <RegionModule id="TerrainModule" type="OpenSim.Region.CoreModules.World.Terrain.TerrainModule" />
         <RegionModule id="WorldMapModule" type="OpenSim.Region.CoreModules.World.WorldMap.WorldMapModule" />
+        <RegionModule id="Warp3DImageModule" type="OpenSim.Region.CoreModules.World.Warp3DMap.Warp3DImageModule" />
         <RegionModule id="HGWorldMapModule" type="OpenSim.Region.CoreModules.Hypergrid.HGWorldMapModule" />
         <RegionModule id="UrlModule" type="OpenSim.Region.CoreModules.Scripting.LSLHttp.UrlModule" />
         <RegionModule id="Chat" type="OpenSim.Region.CoreModules.Avatar.Chat.ChatModule" />
@@ -44,7 +47,6 @@
         <RegionModule id="RemoteAuthorizationServicesConnector" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Authorization.RemoteAuthorizationServicesConnector" />
         <RegionModule id="HGAssetBroker" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Asset.HGAssetBroker" />
         <RegionModule id="LocalInventoryServicesConnector" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory.LocalInventoryServicesConnector" />
-        <RegionModule id="RemoteInventoryServicesConnector" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory.RemoteInventoryServicesConnector" />
         <RegionModule id="RemoteXInventoryServicesConnector" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory.RemoteXInventoryServicesConnector" />
         <RegionModule id="HGInventoryBroker" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Inventory.HGInventoryBroker" />
         <RegionModule id="LocalNeighbourServicesConnector" type="OpenSim.Region.CoreModules.ServiceConnectorsOut.Neighbour.LocalNeighbourServicesConnector" />
@@ -75,6 +77,8 @@
         <RegionModule id="GridInfoServiceInConnectorModule" type="OpenSim.Region.CoreModules.ServiceConnectorsIn.Grid.GridInfoServiceInConnectorModule" />    \
         <RegionModule id="AuthenticationServiceInConnectorModule" type="OpenSim.Region.CoreModules.ServiceConnectorsIn.Authentication.AuthenticationServiceInConnectorModule" />
         <RegionModule id="AccessModule" type="OpenSim.Region.CoreModules.World.AccessModule" />    \
+        <RegionModule id="MapImageModule" type="OpenSim.Region.CoreModules.World.LegacyMap.MapImageModule" />    \
+        <RegionModule id="Warp3DImageModule" type="OpenSim.Region.CoreModules.World.Warp3DMap.Warp3DImageModule" />    \
 
     </Extension>
 

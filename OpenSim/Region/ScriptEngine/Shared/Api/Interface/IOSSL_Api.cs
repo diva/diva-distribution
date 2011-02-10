@@ -67,8 +67,10 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         string osSetDynamicTextureDataBlendFace(string dynamicID, string contentType, string data, string extraParams,
                                             bool blend, int disp, int timer, int alpha, int face);
 
-        LSL_Float osTerrainGetHeight(int x, int y);
-        LSL_Integer osTerrainSetHeight(int x, int y, double val);
+        LSL_Float osGetTerrainHeight(int x, int y);
+        LSL_Float osTerrainGetHeight(int x, int y); // Deprecated
+        LSL_Integer osSetTerrainHeight(int x, int y, double val);
+        LSL_Integer osTerrainSetHeight(int x, int y, double val); //Deprecated
         void osTerrainFlush();
 
         int osRegionRestart(double seconds);
@@ -86,6 +88,9 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osTeleportAgent(string agent, string regionName, LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
         void osTeleportAgent(string agent, int regionX, int regionY, LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
         void osTeleportAgent(string agent, LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
+        void osTeleportOwner(string regionName, LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
+        void osTeleportOwner(int regionX, int regionY, LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
+        void osTeleportOwner(LSL_Types.Vector3 position, LSL_Types.Vector3 lookat);
 
         // Animation commands
         void osAvatarPlayAnimation(string avatar, string animation);
@@ -104,7 +109,8 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         string osSetFontName(string drawList, string fontName);
         string osSetFontSize(string drawList, int fontSize);
         string osSetPenSize(string drawList, int penSize);
-        string osSetPenColour(string drawList, string colour);
+        string osSetPenColor(string drawList, string color);
+        string osSetPenColour(string drawList, string colour); // Deprecated
         string osSetPenCap(string drawList, string direction, string type);
         string osDrawImage(string drawList, int width, int height, string imageUrl);
         vector osGetDrawStringSize(string contentType, string text, string fontName, int fontSize);
@@ -116,18 +122,21 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osSetRegionSunSettings(bool useEstateSun, bool sunFixed, double sunHour);
         void osSetEstateSunSettings(bool sunFixed, double sunHour);
         double osGetCurrentSunHour();
-        double osSunGetParam(string param);
-        void osSunSetParam(string param, double value);
+        double osGetSunParam(string param);
+        double osSunGetParam(string param); // Deprecated
+        void osSetSunParam(string param, double value);
+        void osSunSetParam(string param, double value); // Deprecated
 
         // Wind Module Functions
         string osWindActiveModelPluginName();
-        void osWindParamSet(string plugin, string param, float value);
-        float osWindParamGet(string plugin, string param);
+        void osSetWindParam(string plugin, string param, float value);
+        float osGetWindParam(string plugin, string param);
 
         // Parcel commands
         void osParcelJoin(vector pos1, vector pos2);
         void osParcelSubdivide(vector pos1, vector pos2);
-        void osParcelSetDetails(vector pos, LSL_List rules);
+        void osSetParcelDetails(vector pos, LSL_List rules);
+        void osParcelSetDetails(vector pos, LSL_List rules); // Deprecated
 
         string osGetScriptEngineName();
         string osGetSimulatorVersion();
@@ -176,7 +185,11 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Interfaces
         void osCauseDamage(string avatar, double damage);
         LSL_List osGetPrimitiveParams(LSL_Key prim, LSL_List rules);
         void osSetPrimitiveParams(LSL_Key prim, LSL_List rules);
+        void osSetProjectionParams(bool projection, LSL_Key texture, double fov, double focus, double amb);
+        void osSetProjectionParams(LSL_Key prim, bool projection, LSL_Key texture, double fov, double focus, double amb);
+
         LSL_List osGetAvatarList();
 
+        LSL_String osUnixTimeToTimestamp(long time);
     }
 }

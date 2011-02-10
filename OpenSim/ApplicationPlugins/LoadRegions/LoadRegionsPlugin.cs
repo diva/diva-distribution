@@ -106,8 +106,8 @@ namespace OpenSim.ApplicationPlugins.LoadRegions
             m_openSim.ModuleLoader.LoadDefaultSharedModule(new LoadImageURLModule());
             m_log.Info("[LOADREGIONSPLUGIN]: XMLRPCModule...");
             m_openSim.ModuleLoader.LoadDefaultSharedModule(new XMLRPCModule());
-            m_log.Info("[LOADREGIONSPLUGIN]: AssetTransactionModule...");
-            m_openSim.ModuleLoader.LoadDefaultSharedModule(new AssetTransactionModule());
+//            m_log.Info("[LOADREGIONSPLUGIN]: AssetTransactionModule...");
+//            m_openSim.ModuleLoader.LoadDefaultSharedModule(new AssetTransactionModule());
             m_log.Info("[LOADREGIONSPLUGIN]: Done.");
 
             if (!CheckRegionsForSanity(regionsToLoad))
@@ -122,7 +122,9 @@ namespace OpenSim.ApplicationPlugins.LoadRegions
                 m_log.Debug("[LOADREGIONS]: Creating Region: " + regionsToLoad[i].RegionName + " (ThreadID: " +
                             Thread.CurrentThread.ManagedThreadId.ToString() +
                             ")");
+                m_openSim.PopulateRegionEstateInfo(regionsToLoad[i]);
                 m_openSim.CreateRegion(regionsToLoad[i], true, out scene);
+                regionsToLoad[i].EstateSettings.Save();
                 if (scene != null)
                 {
                     m_newRegionCreatedHandler = OnNewRegionCreated;

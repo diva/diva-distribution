@@ -293,13 +293,35 @@ namespace OpenSim.Services.InventoryService
 
         public virtual bool AddFolder(InventoryFolderBase folder)
         {
+            InventoryFolderBase check = GetFolder(folder);
+            if (check != null)
+                return false;
+
             XInventoryFolder xFolder = ConvertFromOpenSim(folder);
             return m_Database.StoreFolder(xFolder);
         }
 
         public virtual bool UpdateFolder(InventoryFolderBase folder)
         {
-            return AddFolder(folder);
+            XInventoryFolder xFolder = ConvertFromOpenSim(folder);
+            InventoryFolderBase check = GetFolder(folder);
+            if (check == null)
+                return AddFolder(folder);
+
+            if (check.Type != -1 || xFolder.type != -1)
+            {
+                if (xFolder.version > check.Version)
+                    return false;
+                check.Version = (ushort)xFolder.version;
+                xFolder = ConvertFromOpenSim(check);
+                return m_Database.StoreFolder(xFolder);
+            }
+
+            if (xFolder.version < check.Version)
+                xFolder.version = check.Version;
+            xFolder.folderID = check.ID;
+
+            return m_Database.StoreFolder(xFolder);
         }
 
         public virtual bool MoveFolder(InventoryFolderBase folder)
@@ -502,7 +524,7 @@ namespace OpenSim.Services.InventoryService
             newItem.ID = item.inventoryID;
             newItem.InvType = item.invType;
             newItem.Folder = item.parentFolderID;
-            newItem.CreatorId = item.creatorID;
+            newItem.CreatorIdentification = item.creatorID;
             newItem.Description = item.inventoryDescription;
             newItem.NextPermissions = (uint)item.inventoryNextPermissions;
             newItem.CurrentPermissions = (uint)item.inventoryCurrentPermissions;
@@ -533,7 +555,7 @@ namespace OpenSim.Services.InventoryService
             newItem.inventoryID = item.ID;
             newItem.invType = item.InvType;
             newItem.parentFolderID = item.Folder;
-            newItem.creatorID = item.CreatorId;
+            newItem.creatorID = item.CreatorIdentification;
             newItem.inventoryDescription = item.Description;
             newItem.inventoryNextPermissions = (int)item.NextPermissions;
             newItem.inventoryCurrentPermissions = (int)item.CurrentPermissions;

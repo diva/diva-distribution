@@ -41,7 +41,7 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
 
         public string WriteToFile(Scene scene, string dir)
         {
-            string targetFileName = dir + "objects.xml";
+            string targetFileName = Path.Combine(dir, "objects.xml");
 
             SaveSerialisedToFile(targetFileName, scene);
 
@@ -80,7 +80,7 @@ namespace OpenSim.Region.CoreModules.World.Serialiser
         {
             string xmlstream = "<scene>";
 
-            List<EntityBase> EntityList = scene.GetEntities();
+            EntityBase[] EntityList = scene.GetEntities();
             List<string> EntityXml = new List<string>();
 
             foreach (EntityBase ent in EntityList)

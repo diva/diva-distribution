@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -127,12 +127,12 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         /// </summary>
         public void FindDifferences()
         {
-            System.Collections.Generic.List<EntityBase> sceneEntityList = m_Entity.Scene.GetEntities();
+            List<EntityBase> sceneEntityList = new List<EntityBase>(m_Entity.Scene.GetEntities());
             DiffersFromSceneGroup = false;
             // if group is not contained in scene's list
             if (!ContainsKey(sceneEntityList, m_UnchangedEntity.UUID))
             {
-                foreach (SceneObjectPart part in m_UnchangedEntity.Children.Values)
+                foreach (SceneObjectPart part in m_UnchangedEntity.Parts)
                 {
                     // if scene list no longer contains this part, display translucent part and mark with red aura
                     if (!ContainsKey(sceneEntityList, part.UUID))
@@ -140,14 +140,14 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                         // if already displaying a red aura over part, make sure its red
                         if (m_AuraEntities.ContainsKey(part.UUID))
                         {
-                            m_AuraEntities[part.UUID].SetAura(new Vector3(254,0,0), part.Scale);
+                            m_AuraEntities[part.UUID].SetAura(new Vector3(254, 0, 0), part.Scale);
                         }
                         else
                         {
                             AuraMetaEntity auraGroup = new AuraMetaEntity(m_Entity.Scene,
                                                                           part.GetWorldPosition(),
                                                                           MetaEntity.TRANSLUCENT,
-                                                                          new Vector3(254,0,0),
+                                                                          new Vector3(254, 0, 0),
                                                                           part.Scale
                                                                           );
                             m_AuraEntities.Add(part.UUID, auraGroup);
@@ -180,9 +180,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         /// </summary>
         public bool HasChildPrim(UUID uuid)
         {
-            if (m_UnchangedEntity.Children.ContainsKey(uuid))
-                return true;
-            return false;
+            return m_UnchangedEntity.ContainsPart(uuid);
         }
 
         /// <summary>
@@ -190,9 +188,10 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
         /// </summary>
         public bool HasChildPrim(uint localID)
         {
-            foreach (SceneObjectPart part in m_UnchangedEntity.Children.Values)
+            foreach (SceneObjectPart part in m_UnchangedEntity.Parts)
                 if (part.LocalId == localID)
                     return true;
+            
             return false;
         }
 
@@ -228,20 +227,20 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
             // Use "UnchangedEntity" to do comparisons because its text, transparency, and other attributes will be just as the user
             // had originally saved.
             // m_Entity will NOT necessarily be the same entity as the user had saved.
-            foreach (SceneObjectPart UnchangedPart in m_UnchangedEntity.Children.Values)
+            foreach (SceneObjectPart UnchangedPart in m_UnchangedEntity.Parts)
             {
                 //This is the part that we use to show changes.
                 metaEntityPart = m_Entity.GetLinkNumPart(UnchangedPart.LinkNum);
-                if (sceneEntityGroup.Children.ContainsKey(UnchangedPart.UUID))
+                if (sceneEntityGroup.ContainsPart(UnchangedPart.UUID))
                 {
-                    sceneEntityPart = sceneEntityGroup.Children[UnchangedPart.UUID];
-                    differences = Difference.FindDifferences(UnchangedPart,  sceneEntityPart);
+                    sceneEntityPart = sceneEntityGroup.GetChildPart(UnchangedPart.UUID);
+                    differences = Difference.FindDifferences(UnchangedPart, sceneEntityPart);
                     if (differences != Diff.NONE)
                         metaEntityPart.Text = "CHANGE: " + differences.ToString();
                     if (differences != 0)
                     {
                         // Root Part that has been modified
-                        if ((differences&Diff.POSITION) > 0)
+                        if ((differences & Diff.POSITION) > 0)
                         {
                             // If the position of any part has changed, make sure the RootPart of the
                             // meta entity is pointing with a beam particle system
@@ -254,7 +253,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                                                                           m_UnchangedEntity.RootPart.GetWorldPosition(),
                                                                           MetaEntity.TRANSLUCENT,
                                                                           sceneEntityPart,
-                                                                          new Vector3(0,0,254)
+                                                                          new Vector3(0, 0, 254)
                                                                           );
                             m_BeamEntities.Add(m_UnchangedEntity.RootPart.UUID, beamGroup);
                         }
@@ -267,7 +266,7 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                         AuraMetaEntity auraGroup = new AuraMetaEntity(m_Entity.Scene,
                                                                       UnchangedPart.GetWorldPosition(),
                                                                       MetaEntity.TRANSLUCENT,
-                                                                      new Vector3(0,0,254),
+                                                                      new Vector3(0, 0, 254),
                                                                       UnchangedPart.Scale
                                                                       );
                         m_AuraEntities.Add(UnchangedPart.UUID, auraGroup);
@@ -300,15 +299,16 @@ namespace OpenSim.Region.OptionalModules.ContentManagement
                     AuraMetaEntity auraGroup = new AuraMetaEntity(m_Entity.Scene,
                                                                   UnchangedPart.GetWorldPosition(),
                                                                   MetaEntity.TRANSLUCENT,
-                                                                  new Vector3(254,0,0),
+                                                                  new Vector3(254, 0, 0),
                                                                   UnchangedPart.Scale
                                                                   );
                     m_AuraEntities.Add(UnchangedPart.UUID, auraGroup);
                     SetPartTransparency(metaEntityPart, MetaEntity.TRANSLUCENT);
-                   
+
                     DiffersFromSceneGroup = true;
                 }
             }
+            
             return changed;
         }
 

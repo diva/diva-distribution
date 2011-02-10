@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (c) Contributors, http://opensimulator.org/
  * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using OpenMetaverse;
 
 namespace OpenSim.Region.ClientStack.LindenUDP
@@ -77,6 +78,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         public void Add(OutgoingPacket packet)
         {
             m_pendingAdds.Enqueue(packet);
+            Interlocked.Add(ref packet.Client.UnackedBytes, packet.Buffer.DataLength);            
         }
 
         /// <summary>
@@ -140,27 +142,31 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         {
             // Process all the pending adds
             OutgoingPacket pendingAdd;
-            while (m_pendingAdds.Dequeue(out pendingAdd))
-                m_packets[pendingAdd.SequenceNumber] = pendingAdd;
-
+            while (m_pendingAdds.TryDequeue(out pendingAdd))
+                if (pendingAdd != null)
+                    m_packets[pendingAdd.SequenceNumber] = pendingAdd;
+            
             // Process all the pending removes, including updating statistics and round-trip times
             PendingAck pendingRemove;
             OutgoingPacket ackedPacket;
-            while (m_pendingRemoves.Dequeue(out pendingRemove))
+            while (m_pendingRemoves.TryDequeue(out pendingRemove))
             {
                 if (m_packets.TryGetValue(pendingRemove.SequenceNumber, out ackedPacket))
                 {
-                    m_packets.Remove(pendingRemove.SequenceNumber);
-
-                    // Update stats
-                    System.Threading.Interlocked.Add(ref ackedPacket.Client.UnackedBytes, -ackedPacket.Buffer.DataLength);
-
-                    if (!pendingRemove.FromResend)
+                    if (ackedPacket != null)
                     {
-                        // Calculate the round-trip time for this packet and its ACK
-                        int rtt = pendingRemove.RemoveTime - ackedPacket.TickCount;
-                        if (rtt > 0)
-                            ackedPacket.Client.UpdateRoundTrip(rtt);
+                        m_packets.Remove(pendingRemove.SequenceNumber);
+
+                        // Update stats
+                        Interlocked.Add(ref ackedPacket.Client.UnackedBytes, -ackedPacket.Buffer.DataLength);
+
+                        if (!pendingRemove.FromResend)
+                        {
+                            // Calculate the round-trip time for this packet and its ACK
+                            int rtt = pendingRemove.RemoveTime - ackedPacket.TickCount;
+                            if (rtt > 0)
+                                ackedPacket.Client.UpdateRoundTrip(rtt);
+                        }
                     }
                 }
             }

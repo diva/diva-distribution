@@ -75,6 +75,11 @@ namespace OpenSim.Framework.Console
         {
             System.Console.WriteLine(text);
         }
+        
+        public virtual void OutputFormat(string format, params object[] components)
+        {
+            Output(string.Format(format, components));
+        }
 
         public string CmdPrompt(string p)
         {
@@ -86,6 +91,57 @@ namespace OpenSim.Framework.Console
             string ret = ReadLine(String.Format("{0} [{1}]: ", p, def), false, true);
             if (ret == String.Empty)
                 ret = def;
+
+            return ret;
+        }
+                
+        public string CmdPrompt(string p, List<char> excludedCharacters)
+        {
+            bool itisdone = false;
+            string ret = String.Empty;
+            while (!itisdone)
+            {
+                itisdone = true;
+                ret = CmdPrompt(p);
+                
+                foreach (char c in excludedCharacters)
+                {
+                    if (ret.Contains(c.ToString()))
+                    {
+                        System.Console.WriteLine("The character \"" + c.ToString() + "\" is not permitted.");
+                        itisdone = false;
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        public string CmdPrompt(string p, string def, List<char> excludedCharacters)
+        {
+            bool itisdone = false;
+            string ret = String.Empty;
+            while (!itisdone)
+            {
+                itisdone = true;
+                ret = CmdPrompt(p, def);
+                
+                if (ret == String.Empty)
+                {
+                    ret = def;
+                }
+                else
+                {
+                    foreach (char c in excludedCharacters)
+                    {
+                        if (ret.Contains(c.ToString()))
+                        {
+                            System.Console.WriteLine("The character \"" + c.ToString() + "\" is not permitted.");
+                            itisdone = false;
+                        }
+                    }
+                }
+            }
 
             return ret;
         }

@@ -302,6 +302,8 @@ namespace OpenSim.Services.Connectors
 
         public bool AddItem(InventoryItemBase item)
         {
+            if (item.CreatorData == null)
+                item.CreatorData = String.Empty;
             Dictionary<string,object> ret = MakeRequest("ADDITEM",
                     new Dictionary<string,object> {
                         { "AssetID", item.AssetID.ToString() },
@@ -312,6 +314,7 @@ namespace OpenSim.Services.Connectors
                         { "InvType", item.InvType.ToString() },
                         { "Folder", item.Folder.ToString() },
                         { "CreatorId", item.CreatorId.ToString() },
+                        { "CreatorData", item.CreatorData.ToString() },
                         { "Description", item.Description.ToString() },
                         { "NextPermissions", item.NextPermissions.ToString() },
                         { "CurrentPermissions", item.CurrentPermissions.ToString() },
@@ -334,6 +337,8 @@ namespace OpenSim.Services.Connectors
 
         public bool UpdateItem(InventoryItemBase item)
         {
+            if (item.CreatorData == null)
+                item.CreatorData = String.Empty;
             Dictionary<string,object> ret = MakeRequest("UPDATEITEM",
                     new Dictionary<string,object> {
                         { "AssetID", item.AssetID.ToString() },
@@ -344,6 +349,7 @@ namespace OpenSim.Services.Connectors
                         { "InvType", item.InvType.ToString() },
                         { "Folder", item.Folder.ToString() },
                         { "CreatorId", item.CreatorId.ToString() },
+                        { "CreatorData", item.CreatorData.ToString() },
                         { "Description", item.Description.ToString() },
                         { "NextPermissions", item.NextPermissions.ToString() },
                         { "CurrentPermissions", item.CurrentPermissions.ToString() },
@@ -526,7 +532,7 @@ namespace OpenSim.Services.Connectors
             InventoryFolderBase folder = new InventoryFolderBase();
 
             try
-            {                
+            {
                 folder.ParentID = new UUID(data["ParentID"].ToString());
                 folder.Type = short.Parse(data["Type"].ToString());
                 folder.Version = ushort.Parse(data["Version"].ToString());
@@ -556,6 +562,10 @@ namespace OpenSim.Services.Connectors
                 item.InvType = int.Parse(data["InvType"].ToString());
                 item.Folder = new UUID(data["Folder"].ToString());
                 item.CreatorId = data["CreatorId"].ToString();
+                if (data.ContainsKey("CreatorData"))
+                    item.CreatorData = data["CreatorData"].ToString();
+                else
+                    item.CreatorData = String.Empty;
                 item.Description = data["Description"].ToString();
                 item.NextPermissions = uint.Parse(data["NextPermissions"].ToString());
                 item.CurrentPermissions = uint.Parse(data["CurrentPermissions"].ToString());

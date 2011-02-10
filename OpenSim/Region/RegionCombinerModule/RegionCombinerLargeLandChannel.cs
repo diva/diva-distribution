@@ -62,6 +62,11 @@ public class RegionCombinerLargeLandChannel : ILandChannel
         {
             return RootRegionLandChannel.AllParcels();
         }
+        
+        public void Clear(bool setupDefaultParcel)
+        {
+            RootRegionLandChannel.Clear(setupDefaultParcel);
+        }
 
         public ILandObject GetLandObject(int x, int y)
         {
@@ -118,7 +123,7 @@ public class RegionCombinerLargeLandChannel : ILandChannel
                         return regionData.RegionScene.LandChannel.GetLandObject(x - offsetX, y - offsetY);
                     }
                 }
-                
+
                 ILandObject obj = new LandObject(UUID.Zero, false, RegData.RegionScene);
                 obj.LandData.Name = "NO LAND";
                 return obj;
@@ -142,14 +147,14 @@ public class RegionCombinerLargeLandChannel : ILandChannel
 
         public void Join(int start_x, int start_y, int end_x, int end_y, UUID attempting_user_id)
         {
-	    RootRegionLandChannel.Join(start_x, start_y, end_x, end_y, attempting_user_id);
+            RootRegionLandChannel.Join(start_x, start_y, end_x, end_y, attempting_user_id);
         }
 
         public void Subdivide(int start_x, int start_y, int end_x, int end_y, UUID attempting_user_id)
         {
             RootRegionLandChannel.Subdivide(start_x, start_y, end_x, end_y, attempting_user_id);
         }
-        
+
         public void ReturnObjectsInParcel(int localID, uint returnType, UUID[] agentIDs, UUID[] taskIDs, IClientAPI remoteClient)
         {
             RootRegionLandChannel.ReturnObjectsInParcel(localID, returnType, agentIDs, taskIDs, remoteClient);

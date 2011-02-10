@@ -36,7 +36,6 @@ using Nini.Config;
 using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Communications;
-
 using OpenSim.Framework.Console;
 using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
@@ -46,6 +45,7 @@ using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.Physics.Manager;
+using OpenSim.Server.Base;
 
 namespace OpenSim
 {
@@ -187,6 +187,24 @@ namespace OpenSim
                 userStatsURI = startupConfig.GetString("Stats_URI", String.Empty);
             }
 
+            // Load the simulation data service
+            IConfig simDataConfig = m_config.Source.Configs["SimulationDataStore"];
+            if (simDataConfig == null)
+                throw new Exception("Configuration file is missing the [SimulationDataStore] section");
+            string module = simDataConfig.GetString("LocalServiceModule", String.Empty);
+            if (String.IsNullOrEmpty(module))
+                throw new Exception("Configuration file is missing the LocalServiceModule parameter in the [SimulationDataStore] section");
+            m_simulationDataService = ServerUtils.LoadPlugin<ISimulationDataService>(module, new object[] { m_config.Source });
+
+            // Load the estate data service
+            IConfig estateDataConfig = m_config.Source.Configs["EstateDataStore"];
+            if (estateDataConfig == null)
+                throw new Exception("Configuration file is missing the [EstateDataStore] section");
+            module = estateDataConfig.GetString("LocalServiceModule", String.Empty);
+            if (String.IsNullOrEmpty(module))
+                throw new Exception("Configuration file is missing the LocalServiceModule parameter in the [EstateDataStore] section");
+            m_estateDataService = ServerUtils.LoadPlugin<IEstateDataService>(module, new object[] { m_config.Source });
+
             base.StartupSpecific();
 
             m_stats = StatsManager.StartCollectingSimExtraStats();
@@ -309,8 +327,8 @@ namespace OpenSim
             //regionInfo.originRegionID = regionInfo.RegionID;
 
             // set initial ServerURI
-            regionInfo.ServerURI = "http://" + regionInfo.ExternalHostName + ":" + regionInfo.InternalEndPoint.Port;
             regionInfo.HttpPort = m_httpServerPort;
+            regionInfo.ServerURI = "http://" + regionInfo.ExternalHostName + ":" + regionInfo.HttpPort.ToString() + "/";
             
             regionInfo.osSecret = m_osSecret;
             
@@ -334,22 +352,18 @@ namespace OpenSim
             m_moduleLoader.InitialiseSharedModules(scene);
 
             // Use this in the future, the line above will be deprecated soon
-            m_log.Info("[MODULES]: Loading Region's modules (new style)");
+            m_log.Info("[REGIONMODULES]: Loading Region's modules (new style)");
             IRegionModulesController controller;
             if (ApplicationRegistry.TryGet(out controller))
             {
                 controller.AddRegionToModules(scene);
             }
-            else m_log.Error("[MODULES]: The new RegionModulesController is missing...");
+            else m_log.Error("[REGIONMODULES]: The new RegionModulesController is missing...");
 
             scene.SetModuleInterfaces();
 
             // Prims have to be loaded after module configuration since some modules may be invoked during the load
             scene.LoadPrimsFromStorage(regionInfo.originRegionID);
-            
-            // moved these here as the terrain texture has to be created after the modules are initialized
-            // and has to happen before the region is registered with the grid.
-            scene.CreateTerrainTexture();
             
             // TODO : Try setting resource for region xstats here on scene
             MainServer.Instance.AddStreamHandler(new Region.Framework.Scenes.RegionStatsHandler(regionInfo)); 
@@ -360,7 +374,9 @@ namespace OpenSim
             }
             catch (Exception e)
             {
-                m_log.ErrorFormat("[STARTUP]: Registration of region with grid failed, aborting startup - {0}", e.StackTrace);
+                m_log.ErrorFormat(
+                    "[STARTUP]: Registration of region with grid failed, aborting startup due to {0} {1}", 
+                    e.Message, e.StackTrace);
 
                 // Carrying on now causes a lot of confusion down the
                 // line - we need to get the user's attention
@@ -539,7 +555,7 @@ namespace OpenSim
 
             regionInfo.InternalEndPoint.Port = (int) port;
 
-            Scene scene = CreateScene(regionInfo, m_storageManager, circuitManager);
+            Scene scene = CreateScene(regionInfo, m_simulationDataService, m_estateDataService, circuitManager);
 
             if (m_autoCreateClientStack)
             {
@@ -555,30 +571,19 @@ namespace OpenSim
             return scene;
         }
 
-        protected override StorageManager CreateStorageManager()
-        {
-            return
-                CreateStorageManager(m_configSettings.StorageConnectionString, m_configSettings.EstateConnectionString);
-        }
-
-        protected StorageManager CreateStorageManager(string connectionstring, string estateconnectionstring)
-        {
-            return new StorageManager(m_configSettings.StorageDll, connectionstring, estateconnectionstring);
-        }
-
         protected override ClientStackManager CreateClientStackManager()
         {
             return new ClientStackManager(m_configSettings.ClientstackDll);
         }
 
-        protected override Scene CreateScene(RegionInfo regionInfo, StorageManager storageManager,
-                                             AgentCircuitManager circuitManager)
+        protected override Scene CreateScene(RegionInfo regionInfo, ISimulationDataService simDataService,
+            IEstateDataService estateDataService, AgentCircuitManager circuitManager)
         {
             SceneCommunicationService sceneGridService = new SceneCommunicationService();
 
             return new Scene(
                 regionInfo, circuitManager, sceneGridService,
-                storageManager, m_moduleLoader, false, m_configSettings.PhysicalPrim,
+                simDataService, estateDataService, m_moduleLoader, false, m_configSettings.PhysicalPrim,
                 m_configSettings.See_into_region_from_neighbor, m_config.Source, m_version);
         }
         
@@ -785,6 +790,62 @@ namespace OpenSim
         public void GetRegionNumber(out int regionnum)
         {
             regionnum = m_sceneManager.Scenes.Count;
+        }
+        
+        /// <summary>
+        /// Load the estate information for the provided RegionInfo object.
+        /// </summary>
+        /// <param name="regInfo">
+        /// A <see cref="RegionInfo"/>
+        /// </param>
+        public void PopulateRegionEstateInfo(RegionInfo regInfo)
+        {
+            IEstateDataService estateDataService = EstateDataService;
+
+            if (estateDataService != null)
+            {
+                regInfo.EstateSettings = estateDataService.LoadEstateSettings(regInfo.RegionID, false);
+            }
+
+            if (regInfo.EstateSettings.EstateID == 0) // No record at all
+            {
+                MainConsole.Instance.Output("Your region is not part of an estate.");
+                while (true)
+                {
+                    string response = MainConsole.Instance.CmdPrompt("Do you wish to join an existing estate?", "no", new List<string>() { "yes", "no" });
+                    if (response == "no")
+                    {
+                        // Create a new estate
+                        regInfo.EstateSettings = estateDataService.LoadEstateSettings(regInfo.RegionID, true);
+
+                        regInfo.EstateSettings.EstateName = MainConsole.Instance.CmdPrompt("New estate name", regInfo.EstateSettings.EstateName);
+                        //regInfo.EstateSettings.Save();
+                        break;
+                    }
+                    else
+                    {
+                        response = MainConsole.Instance.CmdPrompt("Estate name to join", "None");
+                        if (response == "None")
+                            continue;
+
+                        List<int> estateIDs = estateDataService.GetEstates(response);
+                        if (estateIDs.Count < 1)
+                        {
+                            MainConsole.Instance.Output("The name you have entered matches no known estate. Please try again");
+                            continue;
+                        }
+
+                        int estateID = estateIDs[0];
+
+                        regInfo.EstateSettings = estateDataService.LoadEstateSettings(estateID);
+
+                        if (estateDataService.LinkRegion(regInfo.RegionID, estateID))
+                            break;
+
+                        MainConsole.Instance.Output("Joining the estate failed. Please try again.");
+                    }
+                }
+            }
         }
     }
 

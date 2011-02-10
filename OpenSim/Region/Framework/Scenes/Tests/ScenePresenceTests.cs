@@ -65,6 +65,8 @@ namespace OpenSim.Region.Framework.Scenes.Tests
         [TestFixtureSetUp]
         public void Init()
         {
+            TestHelper.InMethod();
+            
             scene = SceneSetupHelpers.SetupScene("Neighbour x", UUID.Random(), 1000, 1000);
             scene2 = SceneSetupHelpers.SetupScene("Neighbour x+1", UUID.Random(), 1001, 1000);
             scene3 = SceneSetupHelpers.SetupScene("Neighbour x-1", UUID.Random(), 999, 1000);
@@ -173,6 +175,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
 
             Assert.That(neighbours.Count, Is.EqualTo(2));
         }
+        
         public void fixNullPresence()
         {
             string firstName = "testfirstname";
@@ -389,8 +392,6 @@ namespace OpenSim.Region.Framework.Scenes.Tests
 
         public static string GetRandomCapsObjectPath()
         {
-            TestHelper.InMethod();
-
             UUID caps = UUID.Random();
             string capsPath = caps.ToString();
             capsPath = capsPath.Remove(capsPath.Length - 4, 4);

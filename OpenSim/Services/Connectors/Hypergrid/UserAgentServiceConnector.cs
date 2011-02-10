@@ -55,30 +55,50 @@ namespace OpenSim.Services.Connectors.Hypergrid
         public UserAgentServiceConnector(string url)
         {
             m_ServerURL = url;
+            // Doing this here, because XML-RPC or mono have some strong ideas about
+            // caching DNS translations.
             try
             {
-                m_Uri = new Uri(m_ServerURL);
+                Uri m_Uri = new Uri(m_ServerURL);
                 IPAddress ip = Util.GetHostFromDNS(m_Uri.Host);
-                m_ServerURL = "http://" + ip.ToString() + ":" + m_Uri.Port;
+                m_ServerURL = m_ServerURL.Replace(m_Uri.Host, ip.ToString());
+                if (!m_ServerURL.EndsWith("/"))
+                    m_ServerURL += "/";
             }
             catch (Exception e)
             {
                 m_log.DebugFormat("[USER AGENT CONNECTOR]: Malformed Uri {0}: {1}", m_ServerURL, e.Message);
             }
+            m_log.DebugFormat("[USER AGENT CONNECTOR]: new connector to {0} ({1})", url, m_ServerURL);
         }
 
         public UserAgentServiceConnector(IConfigSource config)
         {
+            IConfig serviceConfig = config.Configs["UserAgentService"];
+            if (serviceConfig == null)
+            {
+                m_log.Error("[USER AGENT CONNECTOR]: UserAgentService missing from ini");
+                throw new Exception("UserAgent connector init error");
+            }
+
+            string serviceURI = serviceConfig.GetString("UserAgentServerURI",
+                    String.Empty);
+
+            if (serviceURI == String.Empty)
+            {
+                m_log.Error("[USER AGENT CONNECTOR]: No Server URI named in section UserAgentService");
+                throw new Exception("UserAgent connector init error");
+            }
+            m_ServerURL = serviceURI;
+            if (!m_ServerURL.EndsWith("/"))
+                m_ServerURL += "/";
+
+            m_log.DebugFormat("[USER AGENT CONNECTOR]: UserAgentServiceConnector started for {0}", m_ServerURL);
         }
 
-        public bool LoginAgentToGrid(AgentCircuitData agent, GridRegion gatekeeper, GridRegion finalDestination, IPEndPoint ipaddress, out string reason)
-        {
-            // not available over remote calls
-            reason = "Method not available over remote calls";
-            return false;
-        }
 
-        public bool LoginAgentToGrid(AgentCircuitData aCircuit, GridRegion gatekeeper, GridRegion destination, out string reason)
+        // The Login service calls this interface with a non-null [client] ipaddress 
+        public bool LoginAgentToGrid(AgentCircuitData aCircuit, GridRegion gatekeeper, GridRegion destination, IPEndPoint ipaddress, out string reason)
         {
             reason = String.Empty;
 
@@ -89,7 +109,7 @@ namespace OpenSim.Services.Connectors.Hypergrid
                 return false;
             }
 
-            string uri =  m_ServerURL + "/homeagent/" + aCircuit.AgentID + "/";
+            string uri = m_ServerURL + "homeagent/" + aCircuit.AgentID + "/";
 
             Console.WriteLine("   >>> LoginAgentToGrid <<< " + uri);
 
@@ -101,7 +121,7 @@ namespace OpenSim.Services.Connectors.Hypergrid
             //AgentCreateRequest.Headers.Add("Authorization", authKey);
 
             // Fill it in
-            OSDMap args = PackCreateAgentArguments(aCircuit, gatekeeper, destination);
+            OSDMap args = PackCreateAgentArguments(aCircuit, gatekeeper, destination, ipaddress);
 
             string strBuffer = "";
             byte[] buffer = new byte[1];
@@ -198,7 +218,14 @@ namespace OpenSim.Services.Connectors.Hypergrid
 
         }
 
-        protected OSDMap PackCreateAgentArguments(AgentCircuitData aCircuit, GridRegion gatekeeper, GridRegion destination)
+
+        // The simulators call this interface
+        public bool LoginAgentToGrid(AgentCircuitData aCircuit, GridRegion gatekeeper, GridRegion destination, out string reason)
+        {
+            return LoginAgentToGrid(aCircuit, gatekeeper, destination, null, out reason);
+        }
+
+        protected OSDMap PackCreateAgentArguments(AgentCircuitData aCircuit, GridRegion gatekeeper, GridRegion destination, IPEndPoint ipaddress)
         {
             OSDMap args = null;
             try
@@ -210,12 +237,20 @@ namespace OpenSim.Services.Connectors.Hypergrid
                 m_log.Debug("[USER AGENT CONNECTOR]: PackAgentCircuitData failed with exception: " + e.Message);
             }
             // Add the input arguments
+            args["gatekeeper_serveruri"] = OSD.FromString(gatekeeper.ServerURI);
             args["gatekeeper_host"] = OSD.FromString(gatekeeper.ExternalHostName);
             args["gatekeeper_port"] = OSD.FromString(gatekeeper.HttpPort.ToString());
             args["destination_x"] = OSD.FromString(destination.RegionLocX.ToString());
             args["destination_y"] = OSD.FromString(destination.RegionLocY.ToString());
             args["destination_name"] = OSD.FromString(destination.RegionName);
             args["destination_uuid"] = OSD.FromString(destination.RegionID.ToString());
+            args["destination_serveruri"] = OSD.FromString(destination.ServerURI);
+
+            // 10/3/2010
+            // I added the client_ip up to the regular AgentCircuitData, so this doesn't need to be here.
+            // This need cleaning elsewhere...
+            //if (ipaddress != null)
+            //    args["client_ip"] = OSD.FromString(ipaddress.Address.ToString());
 
             return args;
         }

@@ -188,7 +188,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
 
         public event DeRezObject OnDeRezObject;
         public event Action<IClientAPI> OnRegionHandShakeReply;
-        public event GenericCall2 OnRequestWearables;
+        public event GenericCall1 OnRequestWearables;
         public event GenericCall1 OnCompleteMovementToRegion;
         public event UpdateAgent OnPreAgentUpdate;
         public event UpdateAgent OnAgentUpdate;
@@ -611,7 +611,11 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         {
         }
 
-        public virtual void SendTeleportLocationStart()
+        public virtual void SendTeleportStart(uint flags)
+        {
+        }
+
+        public virtual void SendTeleportProgress(uint flags, string message)
         {
         }
 
@@ -624,10 +628,6 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         }
 
         public virtual void SendCoarseLocationUpdate(List<UUID> users, List<Vector3> CoarseLocations)
-        {
-        }
-
-        public virtual void AttachObject(uint localID, Quaternion rotation, byte attachPoint, UUID ownerID)
         {
         }
 
@@ -686,6 +686,10 @@ namespace OpenSim.Region.OptionalModules.World.NPC
 
         public virtual void SendXferPacket(ulong xferID, uint packet, byte[] data)
         {
+        }
+        public virtual void SendAbortXferPacket(ulong xferID)
+        {
+
         }
 
         public virtual void SendEconomyData(float EnergyEfficiency, int ObjectCapacity, int ObjectCount, int PriceEnergyUnit,
@@ -1164,6 +1168,10 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         }
         
         public void StopFlying(ISceneEntity presence)
+        {
+        }
+
+        public void SendPlacesReply(UUID queryID, UUID transactionID, PlacesReplyData[] data)
         {
         }
     }

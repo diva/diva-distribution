@@ -39,6 +39,7 @@ using OpenMetaverse.Packets;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes.Scripting;
+using OpenSim.Region.Framework.Scenes.Serialization;
 using OpenSim.Region.Physics.Manager;
 
 namespace OpenSim.Region.Framework.Scenes
@@ -56,9 +57,11 @@ namespace OpenSim.Region.Framework.Scenes
         LINK = 32,
         ALLOWED_DROP = 64,
         OWNER = 128,
-        REGION_RESTART = 256,
-        REGION = 512,
-        TELEPORT = 1024
+        REGION = 256,
+        TELEPORT = 512,
+        REGION_RESTART = 1024,
+        MEDIA = 2048,
+        ANIMATION = 16384
     }
 
     // I don't really know where to put this except here.
@@ -116,79 +119,87 @@ namespace OpenSim.Region.Framework.Scenes
         /// <value>
         /// Is this sop a root part?
         /// </value>
-        [XmlIgnore]
+        
         public bool IsRoot 
         {
            get { return ParentGroup.RootPart == this; } 
         }
 
-        // use only one serializer to give the runtime a chance to optimize it (it won't do that if you
-        // use a new instance every time)
-        private static XmlSerializer serializer = new XmlSerializer(typeof (SceneObjectPart));
-
         #region Fields
 
         public bool AllowedDrop;
 
-        [XmlIgnore]
+        
         public bool DIE_AT_EDGE;
 
-        [XmlIgnore]
+        
         public bool RETURN_AT_EDGE;
 
-        [XmlIgnore]
+        
         public bool BlockGrab;
 
-        [XmlIgnore]
+        
         public bool StatusSandbox;
 
-        [XmlIgnore]
+        
         public Vector3 StatusSandboxPos;
 
         // TODO: This needs to be persisted in next XML version update!
-        [XmlIgnore]
+        
         public readonly int[] PayPrice = {-2,-2,-2,-2,-2};
-        [XmlIgnore]
-        public PhysicsActor PhysActor;
+        
+        
+        public PhysicsActor PhysActor
+        {
+            get { return m_physActor; }
+            set
+            {
+//                m_log.DebugFormat("[SOP]: PhysActor set to {0} for {1} {2}", value, Name, UUID);
+                m_physActor = value;
+            }
+        }
 
         //Xantor 20080528 Sound stuff:
         //  Note: This isn't persisted in the database right now, as the fields for that aren't just there yet.
         //        Not a big problem as long as the script that sets it remains in the prim on startup.
         //        for SL compatibility it should be persisted though (set sound / displaytext / particlesystem, kill script)
-        [XmlIgnore]
+        
         public UUID Sound;
         
-        [XmlIgnore]
+        
         public byte SoundFlags;
         
-        [XmlIgnore]
+        
         public double SoundGain;
         
-        [XmlIgnore]
+        
         public double SoundRadius;
         
-        [XmlIgnore]
+        
         public uint TimeStampFull;
         
-        [XmlIgnore]
+        
         public uint TimeStampLastActivity; // Will be used for AutoReturn
         
-        [XmlIgnore]
+        
         public uint TimeStampTerse;
 
-        [XmlIgnore]
+        
         public UUID FromItemID;
 
-        [XmlIgnore]
+        
+        public UUID FromFolderID;
+
+        
         public int STATUS_ROTATE_X;
 
-        [XmlIgnore]
+        
         public int STATUS_ROTATE_Y;
 
-        [XmlIgnore]
+        
         public int STATUS_ROTATE_Z;
         
-        [XmlIgnore]
+        
         private Dictionary<int, string> m_CollisionFilter = new Dictionary<int, string>();
                
         /// <value>
@@ -197,68 +208,68 @@ namespace OpenSim.Region.Framework.Scenes
         /// </value>
         private UUID m_fromUserInventoryItemID;
         
-        [XmlIgnore]
+        
         public UUID FromUserInventoryItemID
         {
             get { return m_fromUserInventoryItemID; }
         }
 
-        [XmlIgnore]
+        
         public bool IsAttachment;
 
-        [XmlIgnore]
+        
         public scriptEvents AggregateScriptEvents;
 
-        [XmlIgnore]
+        
         public UUID AttachedAvatar;
 
-        [XmlIgnore]
+        
         public Vector3 AttachedPos;
 
-        [XmlIgnore]
+        
         public uint AttachmentPoint;
 
-        [XmlIgnore]
+        
         public Vector3 RotationAxis = Vector3.One;
 
-        [XmlIgnore]
+        
         public bool VolumeDetectActive; // XmlIgnore set to avoid problems with persistance until I come to care for this
                                         // Certainly this must be a persistant setting finally
 
-        [XmlIgnore]
+        
         public bool IsWaitingForFirstSpinUpdatePacket;
 
-        [XmlIgnore]
+        
         public Quaternion SpinOldOrientation = Quaternion.Identity;
 
-        [XmlIgnore]
+        
         public Quaternion m_APIDTarget = Quaternion.Identity;
 
-        [XmlIgnore]
+        
         public float m_APIDDamp = 0;
 
-        [XmlIgnore]
+        
         public float m_APIDStrength = 0;
 
         /// <summary>
         /// This part's inventory
         /// </summary>
-        [XmlIgnore]
+        
         public IEntityInventory Inventory
         {
             get { return m_inventory; }
         }
         protected SceneObjectPartInventory m_inventory;
 
-        [XmlIgnore]
+        
         public bool Undoing;
 
-        [XmlIgnore]
+        
         public bool IgnoreUndoUpdate = false;
 
-        [XmlIgnore]
+        
         private PrimFlags LocalFlags;
-        [XmlIgnore]
+        
         private float m_damage = -1.0f;
         private byte[] m_TextureAnimation;
         private byte m_clickAction;
@@ -266,9 +277,9 @@ namespace OpenSim.Region.Framework.Scenes
         private string m_description = String.Empty;
         private readonly List<uint> m_lastColliders = new List<uint>();
         private int m_linkNum;
-        [XmlIgnore]
+        
         private int m_scriptAccessPin;
-        [XmlIgnore]
+        
         private readonly Dictionary<UUID, scriptEvents> m_scriptEvents = new Dictionary<UUID, scriptEvents>();
         private string m_sitName = String.Empty;
         private Quaternion m_sitTargetOrientation = Quaternion.Identity;
@@ -292,6 +303,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         private byte m_updateFlag;
 
+        private PhysicsActor m_physActor;
         protected Vector3 m_acceleration;
         protected Vector3 m_angularVelocity;
 
@@ -317,6 +329,11 @@ namespace OpenSim.Region.Framework.Scenes
         protected Vector3 m_lastAcceleration;
         protected Vector3 m_lastAngularVelocity;
         protected int m_lastTerseSent;
+        
+        /// <summary>
+        /// Stores media texture data
+        /// </summary>
+        protected string m_mediaUrl;
 
         // TODO: Those have to be changed into persistent properties at some later point,
         // or sit-camera on vehicles will break on sim-crossing.
@@ -386,7 +403,7 @@ namespace OpenSim.Region.Framework.Scenes
             // this appears to have the same UUID (!) as the prim.  If this isn't the case, one can't drag items from
             // the prim into an agent inventory (Linden client reports that the "Object not found for drop" in its log
 
-            _flags = 0;
+            Flags = 0;
             CreateSelected = true;
 
             TrimPermissions();
@@ -414,10 +431,11 @@ namespace OpenSim.Region.Framework.Scenes
         private uint _groupMask = (uint)PermissionMask.None;
         private uint _everyoneMask = (uint)PermissionMask.None;
         private uint _nextOwnerMask = (uint)PermissionMask.All;
-        private PrimFlags _flags = 0;
+        private PrimFlags _flags = PrimFlags.None;
         private DateTime m_expires;
         private DateTime m_rezzed;
         private bool m_createSelected = false;
+        private string m_creatorData = string.Empty;
 
         public UUID CreatorID 
         {
@@ -428,6 +446,64 @@ namespace OpenSim.Region.Framework.Scenes
             set
             {
                 _creatorID = value;
+            }
+        }
+
+        /// <summary>
+        /// Data about the creator in the form profile_url;name
+        /// </summary>
+        public string CreatorData 
+        {
+            get { return m_creatorData; }
+            set { m_creatorData = value; }
+        }
+
+        /// <summary>
+        /// Used by the DB layer to retrieve / store the entire user identification.
+        /// The identification can either be a simple UUID or a string of the form
+        /// uuid[;profile_url[;name]]
+        /// </summary>
+        public string CreatorIdentification
+        {
+            get
+            {
+                if (m_creatorData != null && m_creatorData != string.Empty)
+                    return _creatorID.ToString() + ';' + m_creatorData;
+                else
+                    return _creatorID.ToString();
+            }
+            set
+            {
+                if ((value == null) || (value != null && value == string.Empty))
+                {
+                    m_creatorData = string.Empty;
+                    return;
+                }
+
+                if (!value.Contains(";")) // plain UUID
+                {
+                    UUID uuid = UUID.Zero;
+                    UUID.TryParse(value, out uuid);
+                    _creatorID = uuid;
+                }
+                else // <uuid>[;<endpoint>[;name]]
+                {
+                    string name = "Unknown User";
+                    string[] parts = value.Split(';');
+                    if (parts.Length >= 1)
+                    {
+                        UUID uuid = UUID.Zero;
+                        UUID.TryParse(parts[0], out uuid);
+                        _creatorID = uuid;
+                    }
+                    if (parts.Length >= 2)
+                        m_creatorData = parts[1];
+                    if (parts.Length >= 3)
+                        name = parts[2];
+
+                    m_creatorData += ';' + name;
+                    
+                }
             }
         }
 
@@ -461,16 +537,27 @@ namespace OpenSim.Region.Framework.Scenes
             set { m_inventory.Items = value; }
         }
 
+        /// <summary>
+        /// This is idential to the Flags property, except that the returned value is uint rather than PrimFlags
+        /// </summary>
+        [Obsolete("Use Flags property instead")]
         public uint ObjectFlags
         {
-            get { return (uint)_flags; }
-            set { _flags = (PrimFlags)value; }
+            get { return (uint)Flags; }
+            set { Flags = (PrimFlags)value; }
         }
 
         public UUID UUID
         {
             get { return m_uuid; }
-            set { m_uuid = value; }
+            set 
+            { 
+                m_uuid = value; 
+                
+                // This is necessary so that TaskInventoryItem parent ids correctly reference the new uuid of this part
+                if (Inventory != null)
+                    Inventory.ResetObjectID();
+            }
         }
 
         public uint LocalId
@@ -517,7 +604,7 @@ namespace OpenSim.Region.Framework.Scenes
         }
 
         
-        [XmlIgnore]
+        
         public Dictionary<int, string> CollisionFilter
         {
             get { return m_CollisionFilter; }
@@ -527,21 +614,21 @@ namespace OpenSim.Region.Framework.Scenes
             }
         }
 
-        [XmlIgnore]
+        
         public Quaternion APIDTarget
         {
             get { return m_APIDTarget; }
             set { m_APIDTarget = value; }
         }
 
-        [XmlIgnore]
+        
         public float APIDDamp
         {
             get { return m_APIDDamp; }
             set { m_APIDDamp = value; }
         }
 
-        [XmlIgnore]
+        
         public float APIDStrength
         {
             get { return m_APIDStrength; }
@@ -587,35 +674,35 @@ namespace OpenSim.Region.Framework.Scenes
             set { m_LoopSoundSlavePrims = value; }
         }
 
-        [XmlIgnore]
+        
         public Byte[] TextureAnimation
         {
             get { return m_TextureAnimation; }
             set { m_TextureAnimation = value; }
         }
 
-        [XmlIgnore]
+        
         public Byte[] ParticleSystem
         {
             get { return m_particleSystem; }
             set { m_particleSystem = value; }
         }
 
-        [XmlIgnore]
+        
         public DateTime Expires
         {
             get { return m_expires; }
             set { m_expires = value; }
         }
 
-        [XmlIgnore]
+        
         public DateTime Rezzed
         {
             get { return m_rezzed; }
             set { m_rezzed = value; }
         }
 
-        [XmlIgnore]
+        
         public float Damage
         {
             get { return m_damage; }
@@ -918,21 +1005,7 @@ namespace OpenSim.Region.Framework.Scenes
         public PrimitiveBaseShape Shape
         {
             get { return m_shape; }
-            set
-            {
-                bool shape_changed = false;
-                // TODO: this should really be restricted to the right
-                // set of attributes on shape change.  For instance,
-                // changing the lighting on a shape shouldn't cause
-                // this.
-                if (m_shape != null)
-                    shape_changed = true;
-
-                m_shape = value;
-
-                if (shape_changed)
-                    TriggerScriptChangedEvent(Changed.SHAPE);
-            }
+            set { m_shape = value; }
         }
         
         public Vector3 Scale
@@ -961,17 +1034,42 @@ namespace OpenSim.Region.Framework.Scenes
                 TriggerScriptChangedEvent(Changed.SCALE);
             }
         }
+        
         public byte UpdateFlag
         {
             get { return m_updateFlag; }
             set { m_updateFlag = value; }
         }
+        
+        /// <summary>
+        /// Used for media on a prim.
+        /// </summary>
+        /// Do not change this value directly - always do it through an IMoapModule.
+        public string MediaUrl 
+        { 
+            get
+            {
+                return m_mediaUrl; 
+            }
+            
+            set
+            {
+                m_mediaUrl = value;
+                
+                if (ParentGroup != null)
+                    ParentGroup.HasGroupChanged = true;
+            }
+        }
 
-        [XmlIgnore]
+        
         public bool CreateSelected
         {
             get { return m_createSelected; }
-            set { m_createSelected = value; }
+            set 
+            { 
+//                m_log.DebugFormat("[SOP]: Setting CreateSelected to {0} for {1} {2}", value, Name, UUID);
+                m_createSelected = value; 
+            }
         }
 
         #endregion
@@ -1131,20 +1229,28 @@ namespace OpenSim.Region.Framework.Scenes
             set { _nextOwnerMask = value; }
         }
 
+        /// <summary>
+        /// Property flags.  See OpenMetaverse.PrimFlags 
+        /// </summary>
+        /// Example properties are PrimFlags.Phantom and PrimFlags.DieAtEdge
         public PrimFlags Flags
         {
             get { return _flags; }
-            set { _flags = value; }
+            set 
+            { 
+//                m_log.DebugFormat("[SOP]: Setting flags for {0} {1} to {2}", UUID, Name, value);
+                _flags = value; 
+            }
         }
 
-        [XmlIgnore]
+        
         public UUID SitTargetAvatar
         {
             get { return m_sitTargetAvatar; }
             set { m_sitTargetAvatar = value; }
         }
 
-        [XmlIgnore]
+        
         public virtual UUID RegionID
         {
             get
@@ -1158,7 +1264,7 @@ namespace OpenSim.Region.Framework.Scenes
         }
 
         private UUID _parentUUID = UUID.Zero;
-        [XmlIgnore]
+        
         public UUID ParentUUID
         {
             get
@@ -1172,7 +1278,7 @@ namespace OpenSim.Region.Framework.Scenes
             set { _parentUUID = value; }
         }
 
-        [XmlIgnore]
+        
         public string SitAnimation
         {
             get { return m_sitAnimation; }
@@ -1267,10 +1373,10 @@ namespace OpenSim.Region.Framework.Scenes
         public void AddFlag(PrimFlags flag)
         {
             // PrimFlags prevflag = Flags;
-            if ((ObjectFlags & (uint) flag) == 0)
+            if ((Flags & flag) == 0)
             {
                 //m_log.Debug("Adding flag: " + ((PrimFlags) flag).ToString());
-                _flags |= flag;
+                Flags |= flag;
 
                 if (flag == PrimFlags.TemporaryOnRez)
                     ResetExpire();
@@ -1291,7 +1397,7 @@ namespace OpenSim.Region.Framework.Scenes
 
         /// <summary>
         /// Tell the scene presence that it should send updates for this part to its client
-        /// </summary>        
+        /// </summary>
         public void AddFullUpdateToAvatar(ScenePresence presence)
         {
             presence.SceneViewer.QueuePartForUpdate(this);
@@ -1350,7 +1456,7 @@ namespace OpenSim.Region.Framework.Scenes
 
             m_parentGroup.Scene.ForEachScenePresence(delegate(ScenePresence sp)
             {
-                if(!sp.IsChildAgent)
+                if (!sp.IsChildAgent)
                     sp.ControllingClient.SendAttachedSoundGainChange(UUID, (float)volume);
             });
         }
@@ -1470,7 +1576,7 @@ namespace OpenSim.Region.Framework.Scenes
                 if (!isPhantom && !IsAttachment && !(Shape.PathCurve == (byte) Extrusion.Flexible))
                 {
                     PhysActor = m_parentGroup.Scene.PhysicsScene.AddPrimShape(
-                        Name,
+                        string.Format("{0}/{1}", Name, UUID),
                         Shape,
                         AbsolutePosition,
                         Scale,
@@ -1488,7 +1594,7 @@ namespace OpenSim.Region.Framework.Scenes
                     }
                     else
                     {
-                        m_log.DebugFormat("[SPEW]: physics actor is null for {0} with parent {1}", UUID, this.ParentGroup.UUID);
+                        m_log.DebugFormat("[SOP]: physics actor is null for {0} with parent {1}", UUID, this.ParentGroup.UUID);
                     }
                 }
             }
@@ -1523,6 +1629,11 @@ namespace OpenSim.Region.Framework.Scenes
         /// <summary>
         /// Duplicates this part.
         /// </summary>
+        /// <param name="localID"></param>
+        /// <param name="AgentID"></param>
+        /// <param name="GroupID"></param>
+        /// <param name="linkNum"></param>
+        /// <param name="userExposed">True if the duplicate will immediately be in the scene, false otherwise</param>
         /// <returns></returns>
         public SceneObjectPart Copy(uint localID, UUID AgentID, UUID GroupID, int linkNum, bool userExposed)
         {
@@ -1545,7 +1656,7 @@ namespace OpenSim.Region.Framework.Scenes
             dupe.Velocity = new Vector3(0, 0, 0);
             dupe.Acceleration = new Vector3(0, 0, 0);
             dupe.AngularVelocity = new Vector3(0, 0, 0);
-            dupe.ObjectFlags = ObjectFlags;
+            dupe.Flags = Flags;
 
             dupe._ownershipCost = _ownershipCost;
             dupe._objectSaleType = _objectSaleType;
@@ -1582,10 +1693,14 @@ namespace OpenSim.Region.Framework.Scenes
                     m_parentGroup.Scene.AssetService.Get(dupe.m_shape.SculptTexture.ToString(), dupe, AssetReceived); 
                 }
                 
-                bool UsePhysics = ((dupe.ObjectFlags & (uint)PrimFlags.Physics) != 0);
+                bool UsePhysics = ((dupe.Flags & PrimFlags.Physics) != 0);
                 dupe.DoPhysicsPropertyUpdate(UsePhysics, true);
             }
             
+            ParentGroup.Scene.EventManager.TriggerOnSceneObjectPartCopy(dupe, this, userExposed);
+
+//            m_log.DebugFormat("[SCENE OBJECT PART]: Clone of {0} {1} finished", Name, UUID);
+                          
             return dupe;
         }
 
@@ -1749,7 +1864,7 @@ namespace OpenSim.Region.Framework.Scenes
                         /// that's not wholesome.  Had to make Scene public
                         //PhysActor = null;
 
-                        if ((ObjectFlags & (uint)PrimFlags.Phantom) == 0)
+                        if ((Flags & PrimFlags.Phantom) == 0)
                         {
                             if (UsePhysics)
                             {
@@ -1777,7 +1892,7 @@ namespace OpenSim.Region.Framework.Scenes
         /// </summary>
         /// <param name="xmlReader"></param>
         /// <returns></returns>
-        public static SceneObjectPart FromXml(XmlReader xmlReader)
+        public static SceneObjectPart FromXml(XmlTextReader xmlReader)
         {
             return FromXml(UUID.Zero, xmlReader);
         }
@@ -1788,9 +1903,9 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="fromUserInventoryItemId">The inventory id from which this part came, if applicable</param>
         /// <param name="xmlReader"></param>
         /// <returns></returns>
-        public static SceneObjectPart FromXml(UUID fromUserInventoryItemId, XmlReader xmlReader)
+        public static SceneObjectPart FromXml(UUID fromUserInventoryItemId, XmlTextReader xmlReader)
         {
-            SceneObjectPart part = (SceneObjectPart)serializer.Deserialize(xmlReader);
+            SceneObjectPart part = SceneObjectSerializer.Xml2ToSOP(xmlReader);
             part.m_fromUserInventoryItemID = fromUserInventoryItemId;
 
             // for tempOnRez objects, we have to fix the Expire date.
@@ -1897,11 +2012,13 @@ namespace OpenSim.Region.Framework.Scenes
 
         public uint GetEffectiveObjectFlags()
         {
-            PrimFlags f = _flags;
-            if (m_parentGroup == null || m_parentGroup.RootPart == this)
-                f &= ~(PrimFlags.Touch | PrimFlags.Money);
+            // Commenting this section of code out since it doesn't actually do anything, as enums are handled by 
+            // value rather than reference
+//            PrimFlags f = _flags;
+//            if (m_parentGroup == null || m_parentGroup.RootPart == this)
+//                f &= ~(PrimFlags.Touch | PrimFlags.Money);
 
-            return (uint)_flags | (uint)LocalFlags;
+            return (uint)Flags | (uint)LocalFlags;
         }
 
         public Vector3 GetGeometricCenter()
@@ -1938,8 +2055,9 @@ namespace OpenSim.Region.Framework.Scenes
 
         public void GetProperties(IClientAPI client)
         {
+            //Viewer wants date in microseconds so multiply it by 1,000,000.
             client.SendObjectPropertiesReply(
-                m_fromUserInventoryItemID, (ulong)_creationDate, _creatorID, UUID.Zero, UUID.Zero,
+                m_fromUserInventoryItemID, (ulong)_creationDate*(ulong)1e6, _creatorID, UUID.Zero, UUID.Zero,
                 _groupID, (short)InventorySerial, _lastOwnerID, UUID, _ownerID,
                 ParentGroup.RootPart.TouchName, new byte[0], ParentGroup.RootPart.SitName, Name, Description,
                 ParentGroup.RootPart._ownerMask, ParentGroup.RootPart._nextOwnerMask, ParentGroup.RootPart._groupMask, ParentGroup.RootPart._everyoneMask,
@@ -2619,7 +2737,7 @@ namespace OpenSim.Region.Framework.Scenes
         public void PreloadSound(string sound)
         {
             // UUID ownerID = OwnerID;
-            UUID objectID = UUID;
+            UUID objectID = ParentGroup.RootPart.UUID;
             UUID soundID = UUID.Zero;
 
             if (!UUID.TryParse(sound, out soundID))
@@ -2652,10 +2770,10 @@ namespace OpenSim.Region.Framework.Scenes
         public void RemFlag(PrimFlags flag)
         {
             // PrimFlags prevflag = Flags;
-            if ((ObjectFlags & (uint) flag) != 0)
+            if ((Flags & flag) != 0)
             {
                 //m_log.Debug("Removing flag: " + ((PrimFlags)flag).ToString());
-                _flags &= ~flag;
+                Flags &= ~flag;
             }
             //m_log.Debug("prev: " + prevflag.ToString() + " curr: " + Flags.ToString());
             //ScheduleFullUpdate();
@@ -2946,10 +3064,10 @@ namespace OpenSim.Region.Framework.Scenes
 
             if (remoteClient.AgentId == _ownerID)
             {
-                if ((uint) (_flags & PrimFlags.CreateSelected) != 0)
+                if ((Flags & PrimFlags.CreateSelected) != 0)
                 {
                     clientFlags |= (uint) PrimFlags.CreateSelected;
-                    _flags &= ~PrimFlags.CreateSelected;
+                    Flags &= ~PrimFlags.CreateSelected;
                 }
             }
             //bool isattachment = IsAttachment;
@@ -3026,8 +3144,9 @@ namespace OpenSim.Region.Framework.Scenes
                 volume = 0;
 
             UUID ownerID = _ownerID;
-            UUID objectID = UUID;
+            UUID objectID = ParentGroup.RootPart.UUID;
             UUID parentID = GetRootPartUUID();
+
             UUID soundID = UUID.Zero;
             Vector3 position = AbsolutePosition; // region local
             ulong regionHandle = m_parentGroup.Scene.RegionInfo.RegionHandle;
@@ -3063,11 +3182,11 @@ namespace OpenSim.Region.Framework.Scenes
                         else
                             soundModule.PlayAttachedSound(soundID, ownerID, objectID, volume, position, flags, radius);
                         ParentGroup.PlaySoundMasterPrim = this;
-                        ownerID = this._ownerID;
-                        objectID = this.UUID;
-                        parentID = this.GetRootPartUUID();
-                        position = this.AbsolutePosition; // region local
-                        regionHandle = this.ParentGroup.Scene.RegionInfo.RegionHandle;
+                        ownerID = _ownerID;
+                        objectID = ParentGroup.RootPart.UUID;
+                        parentID = GetRootPartUUID();
+                        position = AbsolutePosition; // region local
+                        regionHandle = ParentGroup.Scene.RegionInfo.RegionHandle;
                         if (triggered)
                             soundModule.TriggerSound(soundID, ownerID, objectID, parentID, volume, position, regionHandle, radius);
                         else
@@ -3075,7 +3194,7 @@ namespace OpenSim.Region.Framework.Scenes
                         foreach (SceneObjectPart prim in ParentGroup.PlaySoundSlavePrims)
                         {
                             ownerID = prim._ownerID;
-                            objectID = prim.UUID;
+                            objectID = prim.ParentGroup.RootPart.UUID;
                             parentID = prim.GetRootPartUUID();
                             position = prim.AbsolutePosition; // region local
                             regionHandle = prim.ParentGroup.Scene.RegionInfo.RegionHandle;
@@ -3131,13 +3250,6 @@ namespace OpenSim.Region.Framework.Scenes
             //{
                 m_shape.State = (byte)AttachmentPoint;
             //}
-        }
-
-        public void SetAvatarOnSitTarget(UUID avatarID)
-        {
-            m_sitTargetAvatar = avatarID;
-            if (ParentGroup != null)
-                ParentGroup.TriggerScriptChangedEvent(Changed.LINK);
         }
 
         public void SetAxisRotation(int axis, int rotate)
@@ -3245,6 +3357,7 @@ namespace OpenSim.Region.Framework.Scenes
                 texcolor.B = Util.Clip((float)color.Z, 0.0f, 1.0f);
                 tex.FaceTextures[face].RGBA = texcolor;
                 UpdateTexture(tex);
+                TriggerScriptChangedEvent(Changed.COLOR);
                 return;
             }
             else if (face == ALL_SIDES)
@@ -3266,6 +3379,7 @@ namespace OpenSim.Region.Framework.Scenes
                     tex.DefaultTexture.RGBA = texcolor;
                 }
                 UpdateTexture(tex);
+                TriggerScriptChangedEvent(Changed.COLOR);
                 return;
             }
         }
@@ -3981,9 +4095,9 @@ namespace OpenSim.Region.Framework.Scenes
         /// Serialize this part to xml.
         /// </summary>
         /// <param name="xmlWriter"></param>
-        public void ToXml(XmlWriter xmlWriter)
+        public void ToXml(XmlTextWriter xmlWriter)
         {
-            serializer.Serialize(xmlWriter, this);
+            SceneObjectSerializer.SOPToXml2(xmlWriter, this, new Dictionary<string, object>());
         }
 
         public void TriggerScriptChangedEvent(Changed val)
@@ -4201,9 +4315,9 @@ namespace OpenSim.Region.Framework.Scenes
 
         public void UpdatePrimFlags(bool UsePhysics, bool IsTemporary, bool IsPhantom, bool IsVD)
         {
-            bool wasUsingPhysics = ((ObjectFlags & (uint) PrimFlags.Physics) != 0);
-            bool wasTemporary = ((ObjectFlags & (uint)PrimFlags.TemporaryOnRez) != 0);
-            bool wasPhantom = ((ObjectFlags & (uint)PrimFlags.Phantom) != 0);
+            bool wasUsingPhysics = ((Flags & PrimFlags.Physics) != 0);
+            bool wasTemporary = ((Flags & PrimFlags.TemporaryOnRez) != 0);
+            bool wasPhantom = ((Flags & PrimFlags.Phantom) != 0);
             bool wasVD = VolumeDetectActive;
 
             if ((UsePhysics == wasUsingPhysics) && (wasTemporary == IsTemporary) && (wasPhantom == IsPhantom) && (IsVD==wasVD))
@@ -4291,7 +4405,7 @@ namespace OpenSim.Region.Framework.Scenes
                 {
                     // It's not phantom anymore. So make sure the physics engine get's knowledge of it
                     PhysActor = m_parentGroup.Scene.PhysicsScene.AddPrimShape(
-                        Name,
+                        string.Format("{0}/{1}", Name, UUID),
                         Shape,
                         AbsolutePosition,
                         Scale,
@@ -4439,6 +4553,7 @@ namespace OpenSim.Region.Framework.Scenes
                 ParentGroup.RootPart.Rezzed = DateTime.UtcNow;
 
             ParentGroup.HasGroupChanged = true;
+            TriggerScriptChangedEvent(Changed.SHAPE);
             ScheduleFullUpdate();
         }
 
@@ -4657,20 +4772,8 @@ namespace OpenSim.Region.Framework.Scenes
             if (ParentGroup == null || ParentGroup.IsDeleted)
                 return;
 
-            Vector3 lPos = OffsetPosition;
-
-            if (IsAttachment)
-            {
-                if (ParentGroup.RootPart != this)
-                    return;
-
-                lPos = ParentGroup.RootPart.AttachedPos;
-            }
-            else
-            {
-                if (ParentGroup.RootPart == this)
-                    lPos = AbsolutePosition;
-            }
+            if (IsAttachment && ParentGroup.RootPart != this)
+                return;
             
             // Causes this thread to dig into the Client Thread Data.
             // Remember your locking here!

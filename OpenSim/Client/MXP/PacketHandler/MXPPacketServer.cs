@@ -63,7 +63,7 @@ namespace OpenSim.Client.MXP.PacketHandler
         private readonly IList<MXPClientView> m_sessionsToRemove = new List<MXPClientView>();
 
         private readonly int m_port;
-        private readonly bool m_accountsAuthenticate;
+//        private readonly bool m_accountsAuthenticate;
 
         private readonly String m_programName;
         private readonly byte m_programMajorVersion;
@@ -76,7 +76,7 @@ namespace OpenSim.Client.MXP.PacketHandler
         public MXPPacketServer(int port, Dictionary<UUID, Scene> scenes, bool accountsAuthenticate)
         {
             m_port = port;
-            m_accountsAuthenticate = accountsAuthenticate;
+//            m_accountsAuthenticate = accountsAuthenticate;
 
             m_scenes = scenes;
 
@@ -491,7 +491,6 @@ namespace OpenSim.Client.MXP.PacketHandler
 
         public bool AuthoriseUser(string participantName, string password, UUID sceneId, out UserAccount account)
         {
-            UUID userId = UUID.Zero;
             string firstName = "";
             string lastName = "";
             account = null;
@@ -534,9 +533,7 @@ namespace OpenSim.Client.MXP.PacketHandler
             agent.InventoryFolder = UUID.Zero;
             agent.startpos = new Vector3(0, 0, 0); // TODO Fill in region start position
             agent.CapsPath = "http://localhost/";
-            AvatarData avatar = scene.AvatarService.GetAvatar(account.PrincipalID);
-            if (avatar != null)
-                agent.Appearance = avatar.ToAvatarAppearance(account.PrincipalID);  //userService.GetUserAppearance(userProfile.ID);
+            agent.Appearance = scene.AvatarService.GetAppearance(account.PrincipalID);
 
             if (agent.Appearance == null)
             {

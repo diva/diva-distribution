@@ -72,8 +72,6 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
         private IConfigSource m_gConfig;
 
-
-
         /// <summary>
         /// Region UUIDS indexed by AgentID
         /// </summary>
@@ -85,7 +83,6 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
         // private int m_stipend = 1000;
 
-        private int ObjectCapacity = 45000;
         private int ObjectCount = 0;
         private int PriceEnergyUnit = 0;
         private int PriceGroupCreate = 0;
@@ -108,6 +105,16 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
         public event ObjectPaid OnObjectPaid;
 
+        public int UploadCharge
+        {
+            get { return 0; }
+        }
+
+        public int GroupCreationCharge
+        {
+            get { return 0; }
+        }
+
         /// <summary>
         /// Startup
         /// </summary>
@@ -127,9 +134,6 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
         public void AddRegion(Scene scene)
         {
-            // Send ObjectCapacity to Scene..  Which sends it to the SimStatsReporter.
-            scene.SetObjectCapacity(ObjectCapacity);
-
             if (m_enabled)
             {
                 scene.RegisterModuleInterface<IMoneyModule>(this);
@@ -188,15 +192,10 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
         // Please do not refactor these to be just one method
         // Existing implementations need the distinction
         //
-        public void ApplyUploadCharge(UUID agentID)
-        {
-        }
-
-        public void ApplyGroupCreationCharge(UUID agentID)
-        {
-        }
-
         public void ApplyCharge(UUID agentID, int amount, string text)
+        {
+        }
+        public void ApplyUploadCharge(UUID agentID, int amount, string text)
         {
         }
 
@@ -247,7 +246,6 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
             if (config == "Economy" && startupConfig != null)
             {
-                ObjectCapacity = startupConfig.GetInt("ObjectCapacity", 45000);
                 PriceEnergyUnit = startupConfig.GetInt("PriceEnergyUnit", 100);
                 PriceObjectClaim = startupConfig.GetInt("PriceObjectClaim", 10);
                 PricePublicObjectDecay = startupConfig.GetInt("PricePublicObjectDecay", 4);
@@ -265,34 +263,11 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
                 PriceGroupCreate = startupConfig.GetInt("PriceGroupCreate", -1);
                 m_sellEnabled = startupConfig.GetBoolean("SellEnabled", false);
             }
-
-        }
-
-        public EconomyData GetEconomyData()
-        {
-            EconomyData edata = new EconomyData();
-            edata.ObjectCapacity = ObjectCapacity;
-            edata.ObjectCount = ObjectCount;
-            edata.PriceEnergyUnit = PriceEnergyUnit;
-            edata.PriceGroupCreate = PriceGroupCreate;
-            edata.PriceObjectClaim = PriceObjectClaim;
-            edata.PriceObjectRent = PriceObjectRent;
-            edata.PriceObjectScaleFactor = PriceObjectScaleFactor;
-            edata.PriceParcelClaim = PriceParcelClaim;
-            edata.PriceParcelClaimFactor = PriceParcelClaimFactor;
-            edata.PriceParcelRent = PriceParcelRent;
-            edata.PricePublicObjectDecay = PricePublicObjectDecay;
-            edata.PricePublicObjectDelete = PricePublicObjectDelete;
-            edata.PriceRentLight = PriceRentLight;
-            edata.PriceUpload = PriceUpload;
-            edata.TeleportMinPrice = TeleportMinPrice;
-            return edata;
         }
 
         private void GetClientFunds(IClientAPI client)
         {
             CheckExistAndRefreshFunds(client.AgentId);
-
         }
 
         /// <summary>
@@ -717,7 +692,9 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
 
             if (user != null)
             {
-                user.SendEconomyData(EnergyEfficiency, ObjectCapacity, ObjectCount, PriceEnergyUnit, PriceGroupCreate,
+                Scene s = LocateSceneClientIn(user.AgentId);
+
+                user.SendEconomyData(EnergyEfficiency, s.RegionInfo.ObjectCapacity, ObjectCount, PriceEnergyUnit, PriceGroupCreate,
                                      PriceObjectClaim, PriceObjectRent, PriceObjectScaleFactor, PriceParcelClaim, PriceParcelClaimFactor,
                                      PriceParcelRent, PricePublicObjectDecay, PricePublicObjectDelete, PriceRentLight, PriceUpload,
                                      TeleportMinPrice, TeleportPriceExponent);
@@ -790,7 +767,7 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
             //m_log.Info("[FRIEND]: " + avatar.Name + " status:" + (!avatar.IsChildAgent).ToString());
         }
 
-        public int GetBalance(IClientAPI client)
+        public int GetBalance(UUID agentID)
         {
             return 0;
         }
@@ -798,16 +775,10 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
         // Please do not refactor these to be just one method
         // Existing implementations need the distinction
         //
-        public bool UploadCovered(IClientAPI client)
+        public bool UploadCovered(IClientAPI client, int amount)
         {
-            return AmountCovered(client, PriceUpload);
+            return true;
         }
-
-        public bool GroupCreationCovered(IClientAPI client)
-        {
-            return AmountCovered(client, PriceGroupCreate);
-        }
-
         public bool AmountCovered(IClientAPI client, int amount)
         {
             return true;
@@ -832,13 +803,40 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
             }
 
             Scene s = LocateSceneClientIn(remoteClient.AgentId);
+
+            // Implmenting base sale data checking here so the default OpenSimulator implementation isn't useless 
+            // combined with other implementations.  We're actually validating that the client is sending the data
+            // that it should.   In theory, the client should already know what to send here because it'll see it when it
+            // gets the object data.   If the data sent by the client doesn't match the object, the viewer probably has an 
+            // old idea of what the object properties are.   Viewer developer Hazim informed us that the base module 
+            // didn't check the client sent data against the object do any.   Since the base modules are the 
+            // 'crowning glory' examples of good practice..
+
+            // Validate that the object exists in the scene the user is in
             SceneObjectPart part = s.GetSceneObjectPart(localID);
             if (part == null)
             {
                 remoteClient.SendAgentAlertMessage("Unable to buy now. The object was not found.", false);
                 return;
             }
-            s.PerformObjectBuy(remoteClient, categoryID, localID, saleType);
+            
+            // Validate that the client sent the price that the object is being sold for 
+            if (part.SalePrice != salePrice)
+            {
+                remoteClient.SendAgentAlertMessage("Cannot buy at this price. Buy Failed. If you continue to get this relog.", false);
+                return;
+            }
+
+            // Validate that the client sent the proper sale type the object has set 
+            if (part.ObjectSaleType != saleType)
+            {
+                remoteClient.SendAgentAlertMessage("Cannot buy this way. Buy Failed. If you continue to get this relog.", false);
+                return;
+            }
+
+            IBuySellModule module = s.RequestModuleInterface<IBuySellModule>();
+            if (module != null)
+                module.BuyObject(remoteClient, categoryID, localID, saleType, salePrice);
         }
     }
 
@@ -849,6 +847,4 @@ namespace OpenSim.Region.OptionalModules.World.MoneyModule
         Gift = 2,
         Purchase = 3
     }
-
-  
 }
