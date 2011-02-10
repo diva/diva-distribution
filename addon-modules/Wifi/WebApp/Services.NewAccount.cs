@@ -212,7 +212,7 @@ namespace Diva.Wifi
             if (homeRegion != UUID.Zero)
             {
                 m_GridUserService.SetHome(newUser.ToString(), homeRegion, position, lookAt);
-                m_GridUserService.SetLastPosition(newUser.ToString(), homeRegion, position, lookAt);
+                m_GridUserService.SetLastPosition(newUser.ToString(), UUID.Zero, homeRegion, position, lookAt);
             }
         }
 

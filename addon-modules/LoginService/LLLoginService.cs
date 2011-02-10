@@ -76,7 +76,8 @@ namespace Diva.LoginService
         /// <param name="clientIP">The very important TCP/IP EndPoint of the client</param>
         /// <returns></returns>
         /// <remarks>You need to change bits and pieces of this method</remarks>
-        public new LoginResponse Login(string firstName, string lastName, string passwd, string startLocation, UUID scopeID, string clientVersion, IPEndPoint clientIP)
+        public new LoginResponse Login(string firstName, string lastName, string passwd, string startLocation, UUID scopeID,
+            string clientVersion, string channel, string mac, string id0, IPEndPoint clientIP)
         {
             bool success = false;
             UUID session = UUID.Random();
@@ -207,7 +208,8 @@ namespace Diva.LoginService
                 Vector3 position = Vector3.Zero;
                 Vector3 lookAt = Vector3.Zero;
                 GridRegion gatekeeper = null;
-                GridRegion destination = FindDestination(account, scopeID, guinfo, session, startLocation, home, out gatekeeper, out where, out position, out lookAt);
+                TeleportFlags flags = TeleportFlags.Default;
+                GridRegion destination = FindDestination(account, scopeID, guinfo, session, startLocation, home, out gatekeeper, out where, out position, out lookAt, out flags);
                 if (destination == null)
                 {
                     m_PresenceService.LogoutAgent(session);
@@ -218,23 +220,25 @@ namespace Diva.LoginService
                 //
                 // Get the avatar
                 //
-                AvatarData avatar = null;
+                AvatarAppearance avatar = null;
                 if (m_AvatarService != null)
                 {
-                    avatar = m_AvatarService.GetAvatar(account.PrincipalID);
+                    avatar = m_AvatarService.GetAppearance(account.PrincipalID);
                 }
 
                 //
                 // Instantiate/get the simulation interface and launch an agent at the destination
                 //
                 string reason = string.Empty;
-                AgentCircuitData aCircuit = LaunchAgentAtGrid(gatekeeper, destination, account, avatar, session, secureSession, position, where, clientVersion, clientIP, out where, out reason);
+                GridRegion dest = null;
+                AgentCircuitData aCircuit = LaunchAgentAtGrid(gatekeeper, destination, account, avatar, session, secureSession, position, where,
+                    clientVersion, channel, mac, id0, clientIP, flags, out where, out reason, out dest);
 
                 if (aCircuit == null)
                 {
                     m_PresenceService.LogoutAgent(session);
                     m_log.InfoFormat("[DIVA LLOGIN SERVICE]: Login failed, reason: {0}", reason);
-                    return LLFailedLoginResponse.AuthorizationProblem;
+                    return new LLFailedLoginResponse("key", reason, "false");
 
                 }
                 // Get Friends list 
