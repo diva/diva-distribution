@@ -212,15 +212,6 @@ namespace OpenSim.Region.CoreModules.Framework.EntityTransfer
                             return;
                         }
 
-                        // Check that these are not the same coordinates
-                        if (finalDestination.RegionLocX == sp.Scene.RegionInfo.RegionLocX &&
-                            finalDestination.RegionLocY == sp.Scene.RegionInfo.RegionLocY)
-                        {
-                            // Can't do. Viewer crashes
-                            sp.ControllingClient.SendTeleportFailed("Space warp! You would crash. Move to a different region and try again.");
-                            return;
-                        }
-
                         //
                         // This is it
                         //

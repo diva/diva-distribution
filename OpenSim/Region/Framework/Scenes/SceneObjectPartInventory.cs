@@ -1136,9 +1136,8 @@ namespace OpenSim.Region.Framework.Scenes
                         item.OwnerChanged = false;
                         engine.ResumeScript(item.ItemID);
                     }
-                }  
+                }
             }
         }
-
     }
 }

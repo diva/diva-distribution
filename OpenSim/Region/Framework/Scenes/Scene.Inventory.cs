@@ -549,7 +549,6 @@ namespace OpenSim.Region.Framework.Scenes
                     // the recipient will not have the group this is
                     // set to
                     itemCopy.GroupPermissions = 0;
-
                 }
                 else
                 {

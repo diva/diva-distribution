@@ -51,7 +51,6 @@ namespace OpenSim.Services.Connectors.Hypergrid
             MethodBase.GetCurrentMethod().DeclaringType);
 
         string m_ServerURL;
-        Uri m_Uri;
         public UserAgentServiceConnector(string url)
         {
             m_ServerURL = url;
