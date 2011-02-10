@@ -27,18 +27,20 @@
 
 using System;
 using System.Collections.Generic;
-
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
 {
-    public class MySQLEstateStore : OpenSim.Data.MySQL.MySQLEstateStore
+    /// <summary>
+    /// A MySQL Interface for the Region Server
+    /// </summary>
+    public class MySQLSimulationData : OpenSim.Data.MySQL.MySQLSimulationData
     {
-        public MySQLEstateStore() : base()
+        public MySQLSimulationData() : base()
         {
         }
 
-        public MySQLEstateStore(string connectionString) : base(connectionString)
+        public MySQLSimulationData(string connectionString) : base(connectionString)
         {
         }
 

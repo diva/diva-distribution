@@ -32,15 +32,15 @@ using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
 {
-    public class MySQLEstateStore : OpenSim.Data.MySQL.MySQLEstateStore
+    /// <summary>
+    /// A MySQL Interface for the Grid Server
+    /// </summary>
+    public class MySQLPresenceData : OpenSim.Data.MySQL.MySQLPresenceData
     {
-        public MySQLEstateStore() : base()
+
+        public MySQLPresenceData(string connectionString, string realm) :
+                base(connectionString, realm)
         {
         }
-
-        public MySQLEstateStore(string connectionString) : base(connectionString)
-        {
-        }
-
     }
 }
