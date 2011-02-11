@@ -49,7 +49,7 @@ namespace Diva.Wifi
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
-            m_log.DebugFormat("[Wifi]: UserAccountPostRequest");
+            m_log.DebugFormat("[Wifi]: InstallPostRequest");
             Request request = env.Request;
 
             if (password == password2)
