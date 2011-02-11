@@ -69,9 +69,6 @@ namespace Diva.Wifi
                 if (account == null)
                 {
                     Dictionary<string, object> urls = new Dictionary<string, object>();
-                    urls["HomeURI"] = m_WebApp.LoginURL.ToString();
-                    urls["InventoryServerURI"] = m_WebApp.LoginURL.ToString();
-                    urls["AssetServerURI"] = m_WebApp.LoginURL.ToString();
 
                     if (m_WebApp.AccountConfirmationRequired)
                     {
