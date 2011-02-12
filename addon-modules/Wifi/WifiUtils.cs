@@ -218,17 +218,31 @@ namespace Diva.Wifi
 
         public static bool IsValidRegionAddress(string address)
         {
-            string[] parts = address.Split(new char[] { ':' });
-            if (parts.Length < 2 || parts.Length > 3)
-                return false;
+            string regionName = string.Empty;
+            // Check format: <ServerURI> [<RemoteRegionName>]
+            string[] parts = address.Split(new char[] { ' ' }, 2);
+            if (parts.Length > 1)
+                regionName = parts[1];
+            // Check server URI
             Uri test;
-            if (!Uri.TryCreate(parts[0] + ":" + parts[1], UriKind.Absolute, out test))
-                return false;
-            if (parts.Length == 3)
+            if (!Uri.TryCreate(parts[0], UriKind.Absolute, out test))
             {
-                // Check region name
-                Regex re = new Regex(@"[\?@]|\{\d+\}");
-                return !re.IsMatch(parts[2]);
+                // Check format: <HostName>:<Port>[:<RemoteRegionName>]
+                parts = parts[0].Split(':');
+                if (parts.Length < 2 || parts.Length > 3)
+                    return false;
+                if (!Uri.TryCreate(parts[0] + ":" + parts[1], UriKind.Absolute, out test))
+                    return false;
+                if (parts.Length == 3)
+                    regionName = parts[2];
+            }
+            // Check region name
+            if (regionName != string.Empty)
+            {
+                // Quick & paranoid sanity check, feel free to suggest
+                // a better one that prevents XSS and code/SQL injection
+                Regex re = new Regex(@"[a-zA-Z0-9_=/\-\+\&\*\(\) ]+");
+                return re.IsMatch(regionName);
             }
             return true;
         }

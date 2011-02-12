@@ -431,13 +431,7 @@ namespace Diva.Wifi
         }
         public string RegionAddress
         {
-            get {
-                string address = Region.ExternalHostName + ":" + Region.HttpPort;
-                if (Region.RegionName == Region.ExternalHostName)
-                    return address;
-                else
-                    return address + ":" + Region.RegionName;
-            }
+            get { return Region.RegionName; }
         }
         public uint RegionLocX
         {
