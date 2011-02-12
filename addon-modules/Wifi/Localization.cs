@@ -25,6 +25,7 @@
  * 
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -33,6 +34,7 @@ using System.Reflection;
 using System.Resources;
 using log4net;
 using OpenMetaverse;
+using OpenSim.Framework;
 
 using Diva.Wifi.WifiScript;
 
@@ -82,13 +84,9 @@ namespace Diva.Wifi
 
             // Generate CultureInfo from language codes
             List<CultureInfo> languageInfo = new List<CultureInfo>();
-            string[] languages = acceptLanguage.Split(new char[] { ',', ' ' },
-                StringSplitOptions.RemoveEmptyEntries);
-            // TODO: Use this instead after the next merge with OpenSim core,
-            //       when WebUtil.QBasedComparer() becomes available
-            //ArrayList languages = new ArrayList(acceptLanguage.Split(new char[] { ',', ' ' },
-            //    StringSplitOptions.RemoveEmptyEntries));
-            //languages.Sort(new WebUtil.QBasedComparer());
+            ArrayList languages = new ArrayList(acceptLanguage.Split(new char[] { ',', ' ' },
+                StringSplitOptions.RemoveEmptyEntries));
+            languages.Sort(new WebUtil.QBasedComparer());
             char[] separator = { ';' };
             foreach (string language in languages)
             {
