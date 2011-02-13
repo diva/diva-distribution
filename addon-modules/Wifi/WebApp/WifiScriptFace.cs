@@ -252,6 +252,8 @@ namespace Diva.Wifi
             {
                 if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) // Admin
                     return m_WebApp.ReadFile(env, "main-menu-admin.html");
+                else if (sinfo.Account.UserLevel >= m_WebApp.HyperlinksUserLevel) // Privileged user
+                    return m_WebApp.ReadFile(env, "main-menu-privileged.html");
 
                 return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);
             }
