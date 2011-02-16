@@ -79,6 +79,20 @@ namespace Diva.OpenSimServices
             return 0;
         }
 
+        public long GetActiveUserCount(int period)
+        {
+            try
+            {
+                return ((Diva.Data.IGridUserData)m_Database).GetActiveUserCount(period);
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
+
+            return 0;
+        }
+    
         protected GridUserInfo ToGridUserInfo(GridUserData d)
         {
             GridUserInfo info = new GridUserInfo();

@@ -218,6 +218,9 @@ namespace Diva.Wifi
             // Total users
             m_WebApp.Statistics["UsersTotal"] = m_UserAccountService.GetActiveAccountsCount(UUID.Zero, m_PendingIdentifier);
 
+            // Active users
+            m_WebApp.Statistics["UsersActive"] = m_GridUserService.GetActiveUserCount(m_WebApp.StatisticsActiveUsersPeriod);
+
             // Total local regions
             m_WebApp.Statistics["RegionsTotal"] = m_GridService.GetLocalRegionsCount(UUID.Zero);
         }

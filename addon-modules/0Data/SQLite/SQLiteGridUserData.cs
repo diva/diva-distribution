@@ -51,5 +51,10 @@ namespace Diva.Data.SQLite
         {
             return m_DatabaseHandler.GetCount("Online", true.ToString());
         }
+
+        public long GetActiveUserCount(int period)
+        {
+            return m_DatabaseHandler.GetCount("CAST(julianday('now')-julianday(datetime(Logout, 'unixepoch')) AS INTEGER) <= " + period.ToString());
+        }
     }
 }

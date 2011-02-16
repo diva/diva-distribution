@@ -194,6 +194,12 @@ namespace Diva.Wifi
             get { return m_StatisticsUpdateInterval; }
         }
 
+        private int m_StatisticsActiveUsersPeriod;
+        public int StatisticsActiveUsersPeriod
+        {
+            get { return m_StatisticsActiveUsersPeriod; }
+        }
+
         private TimeSpan m_LocalizationCachingPeriod;
         public TimeSpan LocalizationCachingPeriod
         {
@@ -300,6 +306,7 @@ namespace Diva.Wifi
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
 
             m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 0));
+            m_StatisticsActiveUsersPeriod = appConfig.GetInt("StatisticsActiveUsersPeriod", 30);
 
             m_LocalizationCachingPeriod = TimeSpan.FromHours(Math.Abs(appConfig.GetDouble("LocalizationCachingPeriod", 0.0)));
             m_LogMissingTranslations = (short)appConfig.GetInt("LogMissingTranslations", 1);

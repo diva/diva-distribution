@@ -32,5 +32,6 @@ namespace Diva.Data
     {
         GridUserData[] GetOnlineUsers();
         long GetOnlineUserCount();
+        long GetActiveUserCount(int period);
     }
 }

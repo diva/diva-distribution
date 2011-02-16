@@ -25,6 +25,8 @@
     ;; UsersInworld, UsersTotal, and RegionsTotal.
     ;; Default value 0 disables data updates.
     ; StatisticsUpdateInterval = 60
+    ;; Period in days for computing the number of active users
+    ; StatisticsActiveUsersPeriod = 30
 
     ;; Default avatars for new account registration
     ;; Syntax: AvatarAccount_<AvatarType> = "<FirstName> <LastName>"

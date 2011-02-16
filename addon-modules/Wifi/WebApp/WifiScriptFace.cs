@@ -121,6 +121,19 @@ namespace Diva.Wifi
                 return (uint)value;
             }
         }
+        public uint UsersActive
+        {
+            get
+            {
+                float value;
+                m_WebApp.Statistics.TryGetValue("UsersActive", out value);
+                return (uint)value;
+            }
+        }
+        public uint UsersActivePeriod
+        {
+            get { return (uint)m_WebApp.StatisticsActiveUsersPeriod; }
+        }
         public uint RegionsTotal
         {
             get
