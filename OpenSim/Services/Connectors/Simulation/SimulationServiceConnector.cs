@@ -256,8 +256,10 @@ namespace OpenSim.Services.Connectors.Simulation
 
         /// <summary>
         /// </summary>
-        public bool QueryAccess(GridRegion destination, UUID id, Vector3 position)
+        public bool QueryAccess(GridRegion destination, UUID id, Vector3 position, out string reason)
         {
+            reason = "Failed to contact destination";
+
             // m_log.DebugFormat("[REMOTE SIMULATION CONNECTOR]: QueryAccess start, position={0}", position);
 
             IPEndPoint ext = destination.ExternalEndPoint;
@@ -272,7 +274,11 @@ namespace OpenSim.Services.Connectors.Simulation
             try
             {
                 OSDMap result = WebUtil.ServiceOSDRequest(uri, request, "QUERYACCESS", 10000);
-                bool success = result["Success"].AsBoolean();
+                bool success = result["success"].AsBoolean();
+                reason = result["reason"].AsString();
+
+                //m_log.DebugFormat("[REMOTE SIMULATION CONNECTOR]: QueryAccess to {0} returned {1}", uri, success);
+
                 if (!success)
                 {
                     if (result.ContainsKey("Message"))
@@ -283,8 +289,17 @@ namespace OpenSim.Services.Connectors.Simulation
                             m_log.Info("[REMOTE SIMULATION CONNECTOR]: The above web util error was caused by a TP to a sim that doesn't support QUERYACCESS and can be ignored");
                             return true;
                         }
+
+                        reason = result["Message"];
                     }
+                    else
+                    {
+                        reason = "Communications failure";
+                    }
+
+                    return false;
                 }
+
                 return success;
             }
             catch (Exception e)

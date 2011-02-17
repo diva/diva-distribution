@@ -3770,15 +3770,15 @@ namespace OpenSim.Region.Framework.Scenes
         public void RequestTeleportLocation(IClientAPI remoteClient, string regionName, Vector3 position,
                                             Vector3 lookat, uint teleportFlags)
         {
-            GridRegion regionInfo = GridService.GetRegionByName(UUID.Zero, regionName);
-            if (regionInfo == null)
+            List<GridRegion> regions = GridService.GetRegionsByName(RegionInfo.ScopeID, regionName, 1);
+            if (regions == null || regions.Count == 0)
             {
                 // can't find the region: Tell viewer and abort
                 remoteClient.SendTeleportFailed("The region '" + regionName + "' could not be found.");
                 return;
             }
 
-            RequestTeleportLocation(remoteClient, regionInfo.RegionHandle, position, lookat, teleportFlags);
+            RequestTeleportLocation(remoteClient, regions[0].RegionHandle, position, lookat, teleportFlags);
         }
 
         /// <summary>
@@ -4923,8 +4923,9 @@ namespace OpenSim.Region.Framework.Scenes
         // from logging into the region, teleporting into the region
         // or corssing the broder walking, but will NOT prevent
         // child agent creation, thereby emulating the SL behavior.
-        public bool QueryAccess(UUID agentID, Vector3 position)
+        public bool QueryAccess(UUID agentID, Vector3 position, out string reason)
         {
+            reason = String.Empty;
             return true;
         }
     }
