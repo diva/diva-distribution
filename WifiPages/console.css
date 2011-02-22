@@ -86,6 +86,7 @@
 
 #console #prompt {
   display:none;
+  margin-top:0.5em;
 }
 #console .cmdinput {
   margin-top:0.5em;

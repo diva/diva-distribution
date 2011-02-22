@@ -9,6 +9,7 @@ var ID = {
   MESSAGES:'messages',
   TABULATORS:'tabulators',
   DEFAULT_CONSOLE:'rootconsole',
+  PROMPT:'prompt',
   COMMAND:'command'
 }
 var NAME = {
@@ -51,6 +52,8 @@ function DoOnload() {
   element.CREDENTIALS = document.forms[NAME.CREDENTIALS];
   element.DEFAULT_CONSOLE = document.getElementById(ID.DEFAULT_CONSOLE);
   element.MESSAGES = document.getElementById(ID.MESSAGES);
+  element.COMMANDLINE = document.forms[ID.COMMAND][ID.COMMAND];
+  element.PROMPT = document.getElementById(ID.PROMPT);
   // Define the default console that connects to the Wifi server
   activeConsole = new Console(ID.DEFAULT_CONSOLE);
   activeConsole.rule = AddCSSRule(CSSINDEX, '#console #messages .' + ID.DEFAULT_CONSOLE);
@@ -106,6 +109,7 @@ function Console(identifier) {
   this.serviceURL = null;
   this.user = null;
   this.password = null;
+  this.title = null;
   this.prompt = null;
   this.consoleRequest = null;
   this.sessionId = null;
@@ -188,6 +192,7 @@ function ToggleTab(console, active) {
   if (active) {
     styleClass = styleClass.replace(/\s*inactive/, '');
     tab.onclick = null;
+    ShowPrompt(console);
     if (console.name != ID.DEFAULT_CONSOLE) {
       element.OPTIONS.getElementsByTagName('li')[1].style.display = 'block';
       /*
@@ -206,6 +211,7 @@ function ToggleTab(console, active) {
     tab.getElementsByTagName('span')[0].onclick = null;
     */
     tab.onclick = new Function('SwitchConsole("' + console.name + '")');
+    HidePrompt(console);
     if (console.name != ID.DEFAULT_CONSOLE) {
       element.OPTIONS.getElementsByTagName('li')[1].style.display = 'none';
     }
@@ -293,9 +299,9 @@ function StartSession(console) {
           var elements = xml.getElementsByTagName('SessionID');
           if (elements && elements[0].nodeType == 1)
             console.sessionId = elements[0].firstChild.nodeValue;
-          SetPrompt(console, xml.getElementsByTagName('Prompt')[0].firstChild.nodeValue);
+          SetTitle(console, xml.getElementsByTagName('Prompt')[0].firstChild.nodeValue);
           console.helpNode = xml.getElementsByTagName('HelpTree')[0];
-          Output(TRACE, "[StartSession:".concat(console.name, "] SessionId=" + console.sessionId + " Prompt='" + console.prompt + "' Help entries:" + console.helpNode.childNodes.length));
+          Output(TRACE, "[StartSession:".concat(console.name, "] SessionId=" + console.sessionId + " Prompt='" + console.title + "' Help entries:" + console.helpNode.childNodes.length));
           // Get console output
           void AjaxSend(console.serviceURL.concat('/ReadResponses/', console.sessionId, '/'), '',
             function(xml, status) { ReadResponses(console, xml, status); },
@@ -348,14 +354,23 @@ function ReadResponses(console, xml, status) {
         parts.shift(); // discard line number
         var level = parts.shift();
         var line = parts.join(':');
-        if (line.substr(1, 2) == '++') {
-          SetPrompt(console, line.substr(3));
+        if (line.substr(1, 2) == '++') { // Prompt
+          if (line.substr(0, 1) == '+') {
+            // Normal prompt is used as title
+            SetTitle(console, line.substr(3));
+          }
+          else {
+            // Interactive prompt for requesting input
+            ShowPrompt(console, line.substr(3));
+          }
           UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] '", line, "'"), true);
           continue;
         }
         else if (line.length >= 1024) {
           UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] Long line with ", line.length, " bytes"), true);
         }
+        if (console.prompt)
+          HidePrompt(console, true);
         // Format line
         var matches = line.match(LinePattern);
         //line = new Array();
@@ -405,7 +420,10 @@ function Command(console, command) {
   command = command.replace(/\s*$/, '');
   if (console.sessionId) {
     Output(TRACE, "[Command:".concat(console.name, "] Sending command '" + command + "'"));
-    Output(MSG + " " + console.name, console.prompt + " " + command);
+    var loggedPrompt = console.title;
+    if (console.prompt)
+      loggedPrompt = console.prompt;
+    Output(MSG + " " + console.name, loggedPrompt + " " + command);
     try {
       void AjaxSend(console.serviceURL.concat('/SessionCommand/'), 'ID=' + console.sessionId + '&COMMAND=' + command,
         function(xml, status) {
@@ -414,6 +432,8 @@ function Command(console, command) {
             // Process SessionCommand response
             var elements = xml.getElementsByTagName('Result');
             Output(TRACE, "[Command:".concat(console.name, "] Result=" + elements[0].firstChild.nodeValue));
+            // Clear command line
+            element.COMMANDLINE.value = "";
           }
         }
       );
@@ -445,9 +465,24 @@ function ShowStatus(console, status) {
     node.setAttribute('class', errorLevel);
   }
 }  
-function SetPrompt(console, newPrompt) {
-  console.prompt = newPrompt.replace(/\s*#?\s*$/, " #");
-  document.getElementById(console.name).getElementsByTagName('span')[1].firstChild.data = console.prompt.slice(0, -2).replace(/ /g, '\xA0');
+function SetTitle(console, newPrompt) {
+  console.title = newPrompt.replace(/\s*#?\s*$/, " #");
+  document.getElementById(console.name).getElementsByTagName('span')[1].firstChild.data = console.title.slice(0, -2).replace(/ /g, '\xA0');
+}
+
+function ShowPrompt(console, newPrompt) {
+  if (newPrompt)
+    console.prompt = newPrompt.replace(/\s*$/, "");;
+  if (console.prompt) {
+    element.PROMPT.firstChild.data = console.prompt;
+    element.PROMPT.style.display = 'block';
+  }
+}
+
+function HidePrompt(console, clear) {
+  if (clear)
+    console.prompt = null;
+  element.PROMPT.style.display = 'none';
 }
 
 // Other Form actions
