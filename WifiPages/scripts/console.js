@@ -3,6 +3,8 @@ var TRACE = "trace"; // Trace messages CSS class
 var MSG = "console"; // Console messages CSS class
 var CSSINDEX = -1; // the last, i.e. the embedded style sheet
 var ID = {
+  CFGINFO:'configinfo',
+  CFGERROR:'configerror',
   OPTIONS:'options',
   LOGIN:'login',
   SIMULATORS:'simulators',
@@ -297,15 +299,26 @@ function StartSession(console) {
           // Process StartSession response
           Output(TRACE, "[StartSession:".concat(console.name, "] Processing response"));
           var elements = xml.getElementsByTagName('SessionID');
-          if (elements && elements[0].nodeType == 1)
+          if (elements && elements.length > 0 && elements[0].nodeType == 1) {
+            // Remove no longer needed info elements
+            var e = document.getElementById(ID.CFGINFO);
+            e.parentNode.removeChild(e);
+            e = document.getElementById(ID.CFGERROR);
+            e.parentNode.removeChild(e);
+            // Parse response
             console.sessionId = elements[0].firstChild.nodeValue;
-          SetTitle(console, xml.getElementsByTagName('Prompt')[0].firstChild.nodeValue);
-          console.helpNode = xml.getElementsByTagName('HelpTree')[0];
-          Output(TRACE, "[StartSession:".concat(console.name, "] SessionId=" + console.sessionId + " Prompt='" + console.title + "' Help entries:" + console.helpNode.childNodes.length));
-          // Get console output
-          void AjaxSend(console.serviceURL.concat('/ReadResponses/', console.sessionId, '/'), '',
-            function(xml, status) { ReadResponses(console, xml, status); },
-            console.consoleRequest);
+            SetTitle(console, xml.getElementsByTagName('Prompt')[0].firstChild.nodeValue);
+            console.helpNode = xml.getElementsByTagName('HelpTree')[0];
+            Output(TRACE, "[StartSession:".concat(console.name, "] SessionId=" + console.sessionId + " Prompt='" + console.title + "' Help entries:" + console.helpNode.childNodes.length));
+            // Get console output
+            void AjaxSend(console.serviceURL.concat('/ReadResponses/', console.sessionId, '/'), '',
+              function(xml, status) { ReadResponses(console, xml, status); },
+              console.consoleRequest);
+          }
+          else {
+            // Show error message
+            document.getElementById(ID.CFGERROR).style.display = 'block';
+          }
         }
       }
     );

@@ -6,7 +6,7 @@
       <div id="tabulators">
         <div class="cssmenu tab">
           <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
-            <input type="hidden" name="debug" value="">
+            <input type="hidden" name="debug" value=""> <!-- non-empty value enables trace menu options -->
             <input type="hidden" name="text" value="Kein Verbindung">
             <input type="hidden" name="text" value="Keine weiteren aktiven Simulatoren gefunden.">
             <ul id="options">
@@ -42,7 +42,10 @@
         </form>
       </div>
 
-      <div id="messages"></div>
+      <div id="messages">
+        <div id="configinfo">Die WifiKonsole verwendet OpenSimulators REST-Konsole und daher müssen sowohl der Robust-Server als auch alle Simulatoren mit dem Parameter "-console=rest" gestartet werden. Weitherhin müssen die Konfigurationsparameter "ConsoleUser" und "ConsolePass" im Abschnitt [Network] gesetzt sein und über alle Instanzen hinweg gleich sein. Für den Grid-Modus ist schließlich für alle Simulatoren (d.h. mit Ausnahme des Robust-Servers) der Parameter "ConsoleAllowedOrigin" in Abschnitt [Network] zu setzen und zwar auf den gleichen Wert wie Parameter "WebAddress" im Abschnitt [WifiService] der Konfiguration des Robust-Servers.</div>
+        <div id="configerror" class="textlogo">Ungültige Antwort von der Fernsteuerkonsole erhalten! Bitte sicherstellen, dass Robust-Server und/oder OpenSimulator-Instanzen korrekt konfiguriert sind.</div>
+      </div>
         
       <div id="command">
         <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">

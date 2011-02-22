@@ -6,7 +6,7 @@
       <div id="tabulators">
         <div class="cssmenu tab">
           <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
-            <input type="hidden" name="debug" value="">
+            <input type="hidden" name="debug" value=""> <!-- non-empty value enables trace menu options -->
             <input type="hidden" name="text" value="No connection">
             <input type="hidden" name="text" value="There are not any other active simulators.">
             <ul id="options">
@@ -42,7 +42,10 @@
         </form>
       </div>
 
-      <div id="messages"></div>
+      <div id="messages">
+       <div id="configinfo">The WifiConsole uses OpenSimulator's REST console and thus the Robust server and any simulators must be started with parameter "-console=rest". Furthermore, the configuration options "ConsoleUser" and "ConsolePass" must be set in section [Network] and the values of these options must match across all instances. Finally, with grid mode, for all region simulators (i.e. except for the Robust server), option "ConsoleAllowedOrigin" in section [Network] must be set to the same value as option "WebAddress" from section [WifiService] of the Robust configuration.</div>
+        <div id="configerror" class="textlogo">Received an invalid response from remote console! Please ensure that Robust server and/or OpenSimulator instances are configured correctly.</div>
+      </div>
         
       <div id="command">
         <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">
