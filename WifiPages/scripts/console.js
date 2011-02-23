@@ -302,9 +302,9 @@ function StartSession(console) {
           if (elements && elements.length > 0 && elements[0].nodeType == 1) {
             // Remove no longer needed info elements
             var e = document.getElementById(ID.CFGINFO);
-            e.parentNode.removeChild(e);
+            if (e) e.parentNode.removeChild(e);
             e = document.getElementById(ID.CFGERROR);
-            e.parentNode.removeChild(e);
+            if (e) e.parentNode.removeChild(e);
             // Parse response
             console.sessionId = elements[0].firstChild.nodeValue;
             SetTitle(console, xml.getElementsByTagName('Prompt')[0].firstChild.nodeValue);
