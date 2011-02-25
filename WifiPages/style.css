@@ -100,14 +100,17 @@ table.accounts {
 #inventory p {
   text-align:left;
 }
-#inventory #loading {
+#inventory #loading, #inventory #settings {
   display:none;
-  padding:0 1em;
+  padding:0 0 0 1em;
 }
 #inventory #loading img {
   height:1.4em;
   position:relative;
   top:0.4em;
+}
+#inventory #settings span {
+  padding:0 0 0 1em;
 }
 #inventory div.bodytext {
   text-align:left;
@@ -118,7 +121,7 @@ table.accounts {
 }
 #inventory .itemtype {
   float:right;
-  width:5em;
+  width:6em; /* may have to be increased for translations with longer words */
 }
 
 .bodytext {
