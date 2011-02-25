@@ -2,7 +2,7 @@
 var OPEN = '+';
 var CLOSE = '\u2212'; // Minus sign
 var INDENTSIZE = 4; // No. of whitespace characters per indentation level
-var itemNamePattern;
+var folderIndicators;
 // Initialization
 function DoOnload() {
   document.getElementById('loading').style.display = 'inline';
@@ -14,12 +14,8 @@ function DoOnload() {
         rootFolder.childNodes[i].style.display = 'none';
       // Retrieve folder indicator from root folder name, and set up regex for item names
       if (rootFolder.childNodes[i].nodeName == 'SPAN') {
-        var rootFolderName = rootFolder.childNodes[i].getElementsByTagName('span')[0].firstChild.nodeValue;
-        itemNamePattern = new RegExp(
-          "^([" + State.INDENT + State.VISITED + "]?\\xA0*)" +   // Indentation whitespace (w/ state info)
-          "[" + rootFolderName.charAt(0) + OPEN + CLOSE + "]?" + // Folder indicators
-          "(\\s+.*)"                                             // Item name
-        );
+        var rootFolderName = rootFolder.childNodes[i].getElementsByTagName('span')[1].firstChild.nodeValue;
+        folderIndicators = new RegExp('[' + rootFolderName.charAt(0) + OPEN + CLOSE + ']');
       }
     }
   }
@@ -43,7 +39,8 @@ function Expand(parent) {
   ApplyToItems(parent, CLOSE, 'Collapse(this.parentNode)',
     function(childItem) {
       childItem.style.display = 'block';
-      if (State.GetFor(childItem) != State.VISITED) {
+      if (State.GetFor(childItem) == null) {
+        AdjustIndent(childItem);
         Collapse(childItem);
         State.SetFor(childItem, State.VISITED);
       }
@@ -59,39 +56,27 @@ function ApplyToItems(parent, indicator, onclickAction, childModifyFn) {
     item.onclick = new Function(onclickAction);
     item.style.cursor = 'pointer';
     // Set open/close indicator
-    var name = item.getElementsByTagName('span')[0].firstChild;
-    var matches = name.nodeValue.match(itemNamePattern);
-    name.nodeValue = matches[1] + indicator + matches[2];
+    var indentation = item.getElementsByTagName('span')[1].firstChild;
+    indentation.nodeValue = indentation.nodeValue.replace(folderIndicators, indicator);
     // Modify child items
-    for (var i in children) {
-      if (State.GetFor(children[i]) == State.START)
-        AdjustIndent(children[i]);
+    for (var i in children)
       childModifyFn(children[i]);
-    }
   }
 }
 function AdjustIndent(parent) {
-  var name = parent.getElementsByTagName('span')[1].firstChild;
-  name.nodeValue = name.nodeValue.substr(INDENTSIZE - 1);
+  var indentation = parent.getElementsByTagName('span')[2].firstChild;
+  indentation.nodeValue = indentation.nodeValue.substr(INDENTSIZE - 1);
   State.SetFor(parent, State.INDENT);
 }
 // Item state helper object
-// State information is stored in the indentation whitespace that is part of an item's name
 var State = {
-  START:'\u00A0',   // (Non-breaking space)
-  INDENT:'\u200E',  // (Left-to-right mark)
-  VISITED:'\u200B', // (Zero width space)
-  /* For debugging:
-  INDENT:'\u2027',  // (Hyphenation point)
-  VISITED:'\u205A', // (Two dot punctuation)
-  */
+  INDENT:'indent',
+  VISITED:'visited',
   SetFor: function(parent, state) {
-    var name = parent.getElementsByTagName('span')[1].firstChild;
-    name.nodeValue = state + name.nodeValue.substr(1);
+    parent.setAttribute('state', state);
   },
   GetFor: function(parent) {
-    var name = parent.getElementsByTagName('span')[1].firstChild;
-    return name.nodeValue.charAt(0);
+    return parent.getAttribute('state');
   }
 }
 // Auxiliary functions
