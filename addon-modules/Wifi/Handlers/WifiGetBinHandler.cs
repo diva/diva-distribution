@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Crista Lopes (aka Diva). All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck) and Crista Lopes (aka Diva). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -25,34 +25,18 @@
  * 
  */
 
-using Nini.Config;
 using log4net;
-using System;
 using System.Reflection;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Web;
 
-using System.Collections.Generic;
-using OpenSim.Server.Base;
-using OpenSim.Services.Interfaces;
-using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
-using OpenMetaverse;
-
-using Diva.Wifi.WifiScript;
-using Processor = Diva.Wifi.WifiScript.Processor;
 
 namespace Diva.Wifi
 {
     public class WifiGetBinHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private static string m_BinPath = "data";
+        private const string m_BinPath = "data";
         //private WebApp m_WebApp;
 
         public WifiGetBinHandler(WebApp webapp) :
