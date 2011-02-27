@@ -42,6 +42,7 @@ namespace Diva.Wifi
             base("GET", resourcePath)
         {
             m_LocalPath = localPath;
+            m_log.DebugFormat("[Wifi]: Serving local path {0} via resource path {1}", localPath, resourcePath);
         }
         
         public override byte[] Handle(string path, Stream requestData,

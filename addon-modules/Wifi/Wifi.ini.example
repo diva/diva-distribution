@@ -56,6 +56,14 @@
     SmtpUsername = "your_account_in_this_mail_server"
     SmtpPassword = "your_password_in_this_mail_server"
 
+    ;; Additionally served resources
+    ;; Syntax: ServePath_<Name> = "<Local Path>, <Resource Path>"
+    ;;         (<Name> is an arbitrary identifier.)
+    ;; With the following example, the contents of subfolder "data" in OpenSim's
+    ;; base folder "bin" can be accessed via path <WebAddress>/bin/data/, e.g.
+    ;; http://localhost:8002/bin/data/prototype.js.
+    ServePath_BinData = "data, /bin/data"
+
     ;; ### Localization
 
     ;; Enable localization by setting this to a value other than 0.
