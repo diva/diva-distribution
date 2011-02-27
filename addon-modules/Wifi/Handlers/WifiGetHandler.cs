@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Crista Lopes (aka Diva). All rights reserved.
+ * Copyright (c) Marcus Kirsch (aka Marck) and Crista Lopes (aka Diva). All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, 
  * are permitted provided that the following conditions are met:
@@ -25,110 +25,49 @@
  * 
  */
 
-using Nini.Config;
 using log4net;
-using System;
 using System.Reflection;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Xml;
-using System.Xml.Serialization;
-using System.Web;
 
-using System.Collections.Generic;
-using OpenSim.Server.Base;
-using OpenSim.Services.Interfaces;
-using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
-using OpenMetaverse;
-
-using Diva.Wifi.WifiScript;
-using Processor = Diva.Wifi.WifiScript.Processor;
 
 namespace Diva.Wifi
 {
     public class WifiGetHandler : BaseStreamHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private string m_LocalPath;
 
-        private WebApp m_WebApp;
-
-        public WifiGetHandler(WebApp webapp) :
-                base("GET", "/wifi")
+        public WifiGetHandler(string localPath, string resourcePath) :
+            base("GET", resourcePath)
         {
-            m_WebApp = webapp;
+            m_LocalPath = localPath;
         }
-
+        
         public override byte[] Handle(string path, Stream requestData,
                 OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            // path = /wifi/...
-            //m_log.DebugFormat("[Wifi]: path = {0}", path);
-            //m_log.DebugFormat("[Wifi]: ip address = {0}", httpRequest.RemoteIPEndPoint);
-            //foreach (object o in httpRequest.Query.Keys)
-            //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
-
             string resource = GetParam(path);
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
-            resource = resource.Trim(new char[] { '/' });
+            resource = resource.Trim('/');
 
-            Request request = WifiUtils.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            string resourcePath = System.IO.Path.Combine(m_LocalPath, resource);
+            string type = WifiUtils.GetContentType(resource);
+            httpResponse.ContentType = type;
+            //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
+            if (type.StartsWith("image"))
+                return WifiUtils.ReadBinaryResource(resourcePath);
 
-            if (resource == string.Empty || resource.StartsWith("index."))
+            if (type.StartsWith("application") || type.StartsWith("text"))
             {
-                if (m_WebApp.StatisticsUpdateInterval != TimeSpan.Zero)
-                    m_WebApp.Services.ComputeStatistics();
-
-                httpResponse.ContentType = "text/html";
-
-                return WifiUtils.StringToBytes(m_WebApp.Services.DefaultRequest(env));
-            }
-            else
-            {
-                string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, resource);
-                string type = WifiUtils.GetContentType(resource);
-                httpResponse.ContentType = type;
-                //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
-                if (type.StartsWith("image"))
-                    return WifiUtils.ReadBinaryResource(resourcePath);
-
-                if (type.StartsWith("application"))
-                {
-                    string res = WifiUtils.ReadTextResource(resourcePath, true);
-                    return WifiUtils.StringToBytes(res);
-                }
-                if (type.StartsWith("text"))
-                {
-                    if (m_WebApp.StatisticsUpdateInterval != TimeSpan.Zero)
-                        m_WebApp.Services.ComputeStatistics();
-
-                    resourcePath = Localization.LocalizePath(env, resource);
-                    Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-                    string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
-                    if (res == string.Empty)
-                        res = m_WebApp.Services.DefaultRequest(env);
-                    return WifiUtils.StringToBytes(res);
-                }
+                string res = WifiUtils.ReadTextResource(resourcePath, true);
+                return WifiUtils.StringToBytes(res);
             }
 
+            m_log.WarnFormat("[Wifi]: Could not find resource {0} in local path {1}", resource, m_LocalPath);
             httpResponse.ContentType = "text/plain";
             string result = "Boo!";
             return WifiUtils.StringToBytes(result);
         }
-
-        /*
-        private string GetResource(string path)
-        {
-            string[] paramArray = SplitParams(path);
-            m_log.DebugFormat("[Wifi]: paramArray length = {0}", paramArray.Length);
-            if (paramArray != null && paramArray.Length > 0)
-                return paramArray[0];
-
-            return string.Empty;
-        }
-        */
     }
 }
