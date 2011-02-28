@@ -73,17 +73,27 @@ p.textlogo {
 .box-top {background:url(images/box-top.gif) no-repeat top left; width:685px; height:24px;}
 .box-bottom {background:url(images/box-bottom.gif) no-repeat top left; width:685px; height:24px;}
 
-table.accounts {
+table.entries {
   margin-right:auto;
   border-collapse:collapse;
   border:3px ridge #444;
 }
-.accounts th, .accounts td {
+.entries th, .entries td {
   border:1px solid #444;
   padding:2px 3px;
 }
-.accounts th {
+.entries th {
   border-bottom:3px ridge #444;
+}
+
+.headerSortable {
+  background-image:url(images/sortable.gif);
+}
+.headerSortAscending {
+  background-image:url(images/sortasc.gif);
+}
+.headerSortDescending {
+  background-image:url(images/sortdesc.gif);
 }
 
 #hyperlinks th.xloc, th.yloc {
@@ -132,6 +142,9 @@ table.accounts {
 }
 td.username, td.email, td.usertitle {
   text-align:left;
+}
+td.userlevel {
+  text-align:center;
 }
 /*
 .date {
