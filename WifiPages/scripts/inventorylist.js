@@ -51,34 +51,11 @@ function Collapse(parent) {
   );
 }
 function Expand(parent) {
-  var sortingFn = null;
-  if (sortAlpha && State.GetFor(parent) != State.SORTED)
-    sortingFn = CompareEntryNames;
-  if (!sortAlpha && State.GetFor(parent) == State.SORTED)
-    sortingFn = CompareItemNumbers;
   ApplyToEntry(parent, CLOSE, 'Collapse(this.parentNode)',
     function(children) {
+      SortFolderItems(children, (sortAlpha ? CompareEntryNames : CompareItemNumbers), null);
       for (var i in children)
-        if (State.GetFor(children[i]) == null) {
-          AdjustEntry(children[i], i);
-          Collapse(children[i]);
-          State.SetFor(children[i], State.VISITED);
-        }
-        
-      if (sortingFn) // Sort child entries
-        children.sort(sortingFn);
-      for (var i in children) {
-        var childItem = (sortingFn ? parent.appendChild(children[i]) : children[i]);
-        // Show entry
-        childItem.style.display = 'block';
-        /*
-        if (State.GetFor(childItem) == null) {
-          AdjustEntry(childItem, i);
-          Collapse(childItem);
-          State.SetFor(childItem, State.VISITED);
-        }
-        */
-      }
+        children[i].style.display = 'block';
     }
   );
   State.SetFor(parent, (sortAlpha ? State.SORTED : State.VISITED)); 
@@ -101,18 +78,29 @@ function ChangedOption(name) {
 }
 // Instrumentation of inventory items
 function SortVisibleFolder(element, sortingFn, resultingState) {
-  if (element.getAttribute(NAME.ITEM) && (element.style.display == 'none' || State.GetFor(element) == resultingState))
+  if (element.getAttribute(NAME.ITEM) && (State.GetFor(element) == resultingState || IsClosedFolder(element)))
     return;
-  var children = GetChildItems(element);
+  SortFolderItems(GetChildItems(element), sortingFn, resultingState);
+  if (resultingState)
+    State.SetFor(element, resultingState);
+}
+function SortFolderItems(children, sortingFn, resultingState) {
   if (children.length > 0) {
+    // Setup of yet unvisited items
+    for (var i in children)
+      if (State.GetFor(children[i]) == null) {
+        AdjustEntry(children[i], i);
+        Collapse(children[i]);
+      }
+    // The actual sorting
+    var parent = children[0].parentNode;
     children.sort(sortingFn);
     for (var i in children) {
-      var childItem = element.appendChild(children[i]);
+      var childItem = parent.appendChild(children[i]);
+      // Recurse into subfolders
       SortVisibleFolder(childItem, sortingFn, resultingState);
     }
   }
-  if (resultingState)
-    State.SetFor(element, resultingState);
 }
 function ApplyToEntry(parent, indicator, onclickAction, childModifyFn) {
   var children = GetChildItems(parent);
@@ -134,11 +122,10 @@ function AdjustEntry(parent, number) {
   // Adjust indentation
   var indentation = parent.getElementsByTagName('span')[2].firstChild;
   indentation.nodeValue = indentation.nodeValue.substr(INDENTSIZE - 1);
-  State.SetFor(parent, State.ADJUSTED);
+  State.SetFor(parent, State.VISITED);
 }
 // Item state helper object
 var State = {
-  ADJUSTED:'adjusted',
   VISITED:'visited',
   SORTED:'sorted',
   SetFor: function(parent, state) {
@@ -156,6 +143,10 @@ function GetChildItems(parent) {
       elements.push(parent.childNodes[i]);
   }
   return elements;
+}
+function IsClosedFolder(element) {
+  var indentation = element.getElementsByTagName('span')[2].firstChild.nodeValue;
+  return (indentation.substr(indentation.length - 2, 1) == OPEN);
 }
 function CompareEntryTypes(a, b) {
   if (sortTopFolders) {
