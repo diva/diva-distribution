@@ -26,6 +26,7 @@
  */
 
 using log4net;
+using System;
 using System.Reflection;
 using System.IO;
 
@@ -50,9 +51,10 @@ namespace Diva.Wifi
         {
             string resource = GetParam(path);
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
-            resource = resource.Trim('/');
-
+            resource = resource.Trim(WifiUtils.DirectorySeparatorChars);
             string resourcePath = System.IO.Path.Combine(m_LocalPath, resource);
+            resourcePath = Uri.UnescapeDataString(resourcePath);
+
             string type = WifiUtils.GetContentType(resource);
             httpResponse.ContentType = type;
             //m_log.DebugFormat("[Wifi]: ContentType {0}", type);

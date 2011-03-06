@@ -44,7 +44,8 @@ namespace Diva.Wifi
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static string DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        public static readonly char[] DirectorySeparatorChars = { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar };
 
         public static string GetContentType(string resource)
         {

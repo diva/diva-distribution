@@ -72,7 +72,7 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
-            resource = resource.Trim(new char[] { '/' });
+            resource = Uri.UnescapeDataString(resource).Trim(WifiUtils.DirectorySeparatorChars);
 
             Request request = WifiUtils.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
