@@ -66,12 +66,6 @@ namespace Diva.Wifi
 
         #region Properties with default settings
 
-        private readonly string m_DocsPath = System.IO.Path.Combine("..", "WifiPages");
-        public string DocsPath
-        {
-            get { return m_DocsPath; }
-        }
-
         private readonly double m_SessionTimeout = 30*60; // 30 minutes
         public double SessionTimeout
         {
