@@ -76,17 +76,29 @@ img {display:inline-block;}
 .box-bottom-left {background:url(images/box-bottom.gif) no-repeat 0% 100%; margin-left:-24px; height:24px; width:24px; float:left;}
 .box-bottom-right {background:url(images/box-bottom.gif) no-repeat 100% 100%; margin-right:-24px; height:24px; width:24px; float:right;}
 
-table.accounts {
+table.entries {
   margin-right:auto;
   border-collapse:collapse;
   border:3px ridge #444;
 }
-.accounts th, .accounts td {
+.entries th, .entries td {
   border:1px solid #444;
   padding:2px 3px;
 }
-.accounts th {
+.entries th {
   border-bottom:3px ridge #444;
+  background-repeat:no-repeat;
+  background-position:right center;
+}
+
+.headerSortable {
+  background-image:url(images/sortable.gif);
+}
+.headerSortAscending {
+  background-image:url(images/sortasc.gif);
+}
+.headerSortDescending {
+  background-image:url(images/sortdesc.gif);
 }
 
 #hyperlinks th.xloc, th.yloc {
@@ -103,14 +115,17 @@ table.accounts {
 #inventory p {
   text-align:left;
 }
-#inventory #loading {
+#inventory #loading, #inventory #settings {
   display:none;
-  padding:0 1em;
+  padding:0 0 0 1em;
 }
 #inventory #loading img {
   height:1.4em;
   position:relative;
   top:0.4em;
+}
+#inventory #settings span {
+  padding:0 0 0 1em;
 }
 #inventory div.bodytext {
   text-align:left;
@@ -121,7 +136,7 @@ table.accounts {
 }
 #inventory .itemtype {
   float:right;
-  width:5em;
+  width:6em; /* may have to be increased for translations with longer words */
   padding-left:0.8em;
 }
 
@@ -132,6 +147,9 @@ table.accounts {
 
 td.username, td.email, td.usertitle {
   text-align:left;
+}
+td.userlevel {
+  text-align:center;
 }
 /*
 .date {

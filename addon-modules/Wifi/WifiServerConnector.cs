@@ -25,6 +25,10 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using log4net;
 using Nini.Config;
 using OpenSim.Server.Base;
 using OpenSim.Framework.Servers.HttpServer;
@@ -36,7 +40,9 @@ namespace Diva.Wifi
 {
     public class WifiServerConnector : ServiceConnector
     {
-        private string m_ConfigName = "WifiService";
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private const string m_ConfigName = "WifiService";
+        private const string m_ServePathPrefix = "ServePath_";
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName) :
             base(config, server, configName)
@@ -59,7 +65,7 @@ namespace Diva.Wifi
             WebApp app = new WebApp(config, m_ConfigName, server);
 
             // Register all the handlers
-            server.AddStreamHandler(new WifiGetHandler(app));
+            server.AddStreamHandler(new WifiDefaultHandler(app));
             server.AddStreamHandler(new WifiNotifyHandler(app));
             server.AddStreamHandler(new WifiInstallGetHandler(app));
             server.AddStreamHandler(new WifiInstallPostHandler(app));
@@ -84,6 +90,21 @@ namespace Diva.Wifi
 
             //server.AddStreamHandler(new WifiRegionManagementPostHandler(app));
             //server.AddStreamHandler(new WifiRegionManagementGetHandler(app));
+
+            // Add handlers for serving configured paths
+            IEnumerable<string> servePaths = serverConfig.GetKeys().Where(option => option.StartsWith(m_ServePathPrefix));
+            if (servePaths.Count() > 0)
+            {
+                foreach (string servePath in servePaths)
+                {
+                    string paths = serverConfig.GetString(servePath, string.Empty);
+                    string[] parts = paths.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Count() == 2)
+                        server.AddStreamHandler(new WifiGetHandler(parts[0], parts[1]));
+                    else
+                        m_log.WarnFormat("[Wifi]: Invalid format with configuration option {0}: {1}", servePath, paths);
+                }
+            }
         }
     }
 }

@@ -84,8 +84,12 @@
 #console .inactive .good { color:green; }
 #console .inactive .error { color:maroon; }
 
+#console #configerror {
+  display:none;
+}
 #console #prompt {
   display:none;
+  margin-top:0.5em;
 }
 #console .cmdinput {
   margin-top:0.5em;

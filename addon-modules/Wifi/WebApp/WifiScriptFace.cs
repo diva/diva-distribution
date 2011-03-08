@@ -57,7 +57,7 @@ namespace Diva.Wifi
 
         public string DocsPath
         {
-            get { return m_WebApp.DocsPath; }
+            get { return WifiUtils.DocsPath; }
         }
 
         #region Properties exposed to WifiScript scripts

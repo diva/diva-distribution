@@ -44,21 +44,27 @@ namespace Diva.Wifi
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static string DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
+        public static readonly char[] DirectorySeparatorChars = { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar };
 
         public static string GetContentType(string resource)
         {
-            if (resource.ToLower().EndsWith(".jpg"))
+            resource = resource.ToLower();
+            if (resource.EndsWith(".jpg"))
                 return "image/jpeg";
-            if (resource.ToLower().EndsWith(".gif"))
+            if (resource.EndsWith(".gif"))
                 return "image/gif";
-            if (resource.ToLower().EndsWith(".png"))
+            if (resource.EndsWith(".png"))
                 return "image/png";
-            if (resource.ToLower().EndsWith(".ico"))
+            if (resource.EndsWith(".ico"))
                 return "image/x-icon";
-            if (resource.ToLower().EndsWith(".css"))
+            if (resource.EndsWith(".css"))
                 return "text/css";
-            if (resource.ToLower().EndsWith(".js"))
+            if (resource.EndsWith(".txt"))
+                return "text/plain";
+            if (resource.EndsWith(".xml"))
+                return "text/xml";
+            if (resource.EndsWith(".js"))
                 return "application/javascript";
             return "text/html";
         }

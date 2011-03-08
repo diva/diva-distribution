@@ -11,6 +11,10 @@
   <p>
     <input type="submit" name="action-move" value="&darr; move to &uarr;" class="button" />
     <span id="loading" class="white">Preparing inventory <img src="/wifi/images/loader.gif" /></span>
+    <span id="settings">
+      <span class="nowrap"><input type="checkbox" class="checkbox" name="sort" onclick="ChangedOption(this.name)" checked="checked"> Sort alphabetically</span>
+      <span class="nowrap"><input type="checkbox" class="checkbox" name="topfolders" onclick="ChangedOption(this.name)" checked="checked"> Sort folders to top</span>
+    </span>
   </p>
 
   <!-- #include file=inventorylistitem.html -->

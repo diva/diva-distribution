@@ -28,17 +28,18 @@ function InitUserTableRowSort() {
 var hyperlinks; // variable name must match the table id
 function InitHyperlinkTableRowSort() {
   hyperlinks = new Array();
-  hyperlinks[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Adress
+  hyperlinks[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Address
   hyperlinks[1] = { column:1, reverse:false, comparer:function(a, b) {return CompareNumCells(a, b, 1);} };  // X
   hyperlinks[2] = { column:2, reverse:false, comparer:function(a, b) {return CompareNumCells(a, b, 2);} };  // Y
   hyperlinks[3] = { column:3, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 3);} }; // Owner
   SetupTableHeadings('hyperlinks', hyperlinks);
 }
-var sortIndicatorNeutral = '\u2005\u25c6'; // black diamond (with leading space)
-var sortIndicatorNormal = '\u25bc'; // black down-pointing triangle
-var sortIndicatorReverse = '\u25b2'; // black up-pointing triangle
+var sortIndicatorNeutral = 'headerSortable';
+var sortIndicatorNormal = 'headerSortAscending';
+var sortIndicatorReverse = 'headerSortDescending';
 // Add event handlers for row sorting
 function SetupTableHeadings(tableId, columnConfig) {
+  var translationSortRows = document.getElementsByName('text')[0].getAttribute('value');
   var table = document.getElementById(tableId);
   if (table.rows == null || table.rows.length <= 2)
     return;
@@ -46,8 +47,9 @@ function SetupTableHeadings(tableId, columnConfig) {
     var heading = table.rows[0].cells[columnConfig[i].column];
     heading.onclick = new Function("SortColumn('" + tableId + "', " + i +")");
     heading.style.cursor = "pointer";
-    heading.title = "Sort rows";
-    heading.firstChild.nodeValue += sortIndicatorNeutral;
+    heading.title = translationSortRows;
+    heading.firstChild.nodeValue += "\xA0\xA0\xA0\xA0"; // make room for sort indicator
+    heading.className += ' ' + sortIndicatorNeutral;
   }
 }
 // Sort user table rows by values in a column
@@ -78,19 +80,15 @@ function UpdateTableHeadings(table, columnConfig, index) {
   
   var cells = table.rows[0].cells;
   for (var i = 0; i < columnConfig.length; ++i) {
-    var text = cells[columnConfig[i].column].firstChild.nodeValue;
-    // Remove any indicator
-    text = text.replace(indicators, '');
-    // Add indicator for selected column
+    var indicatorClass = sortIndicatorNeutral;
     if (i == index) {
       if (columnConfig[i].reverse)
-        text += sortIndicatorReverse;
+        indicatorClass = sortIndicatorReverse;
       else
-        text += sortIndicatorNormal;
+        indicatorClass = sortIndicatorNormal;
     }
-    else
-      text += sortIndicatorNeutral;
-    cells[columnConfig[i].column].firstChild.nodeValue = text;
+    var heading = cells[columnConfig[i].column];
+    heading.className = heading.className.replace(indicators, indicatorClass);
   }
 }
 // Comparison functions for array sort

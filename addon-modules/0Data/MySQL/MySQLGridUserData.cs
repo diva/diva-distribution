@@ -57,7 +57,7 @@ namespace Diva.Data.MySQL
 
         public long GetActiveUserCount(int period)
         {
-            return m_DatabaseHandler.GetCount("DATEDIFF(CURRENT_DATE(), FROM_UNIXTIME(Logout)) <= " + period.ToString());
+            return m_DatabaseHandler.GetCount(string.Format("Online = '{0}' OR DATEDIFF(CURRENT_DATE(), FROM_UNIXTIME(Logout)) <= {1}", true, period));
         }
     }
 }
