@@ -29,7 +29,9 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 using log4net;
+using MySql.Data.MySqlClient;
 
+using OpenSim.Data;
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
@@ -39,5 +41,10 @@ namespace Diva.Data.MySQL
     /// </summary>
     public class MySQLAssetData : OpenSim.Data.MySQL.MySQLAssetData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
     }
 }

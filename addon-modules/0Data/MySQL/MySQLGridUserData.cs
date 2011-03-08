@@ -28,6 +28,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 using OpenSim.Data;
 using OpenSim.Data.MySQL;
@@ -38,6 +39,11 @@ namespace Diva.Data.MySQL
     public class MySQLGridUserData : OpenSim.Data.MySQL.MySQLGridUserData, IGridUserData
     {
         private MySQLGenericTableHandler<GridUserData> m_DatabaseHandler;
+
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
 
         public MySQLGridUserData(string connectionString, string realm)
                 : base(connectionString, realm)

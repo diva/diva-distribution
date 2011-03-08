@@ -26,8 +26,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
+using MySql.Data.MySqlClient;
 using OpenMetaverse;
+
 using OpenSim.Data;
 using OpenSim.Data.MySQL;
 
@@ -38,6 +41,11 @@ namespace Diva.Data.MySQL
     /// </summary>
     public class MySQLRegionData : OpenSim.Data.MySQL.MySqlRegionData, IRegionData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
         private MySQLGenericTableHandler<RegionData> m_DatabaseHandler;
 
         public MySQLRegionData(string connectionString, string realm)

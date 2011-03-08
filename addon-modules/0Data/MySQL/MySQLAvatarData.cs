@@ -28,7 +28,9 @@
 using System;
 using System.Collections.Generic;
 using log4net;
+using MySql.Data.MySqlClient;
 
+using OpenSim.Data;
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL

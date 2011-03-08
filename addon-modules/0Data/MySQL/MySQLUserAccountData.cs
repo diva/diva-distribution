@@ -29,6 +29,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Reflection;
 
 using OpenMetaverse;
 using OpenSim.Data;
@@ -40,6 +41,11 @@ namespace Diva.Data.MySQL
     public class MySQLUserAccountData : OpenSim.Data.MySQL.MySqlUserAccountData, IUserAccountData
     {
         private MySQLGenericTableHandler<UserAccountData> m_DatabaseHandler;
+
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
 
         public MySQLUserAccountData(string connectionString, string realm)
                 : base(connectionString, realm)

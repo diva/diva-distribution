@@ -27,6 +27,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
@@ -36,6 +38,11 @@ namespace Diva.Data.MySQL
     /// </summary>
     public class MySQLSimulationData : OpenSim.Data.MySQL.MySQLSimulationData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
         public MySQLSimulationData() : base()
         {
         }

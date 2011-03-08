@@ -28,15 +28,23 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using OpenMetaverse;
-using OpenSim.Framework;
+using MySql.Data.MySqlClient;
 
+using OpenSim.Framework;
+using OpenSim.Data;
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
 {
     public class MySQLAuthenticationData : OpenSim.Data.MySQL.MySqlAuthenticationData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
         public MySQLAuthenticationData(string connectionString, string realm)
                 : base(connectionString, realm)
         {

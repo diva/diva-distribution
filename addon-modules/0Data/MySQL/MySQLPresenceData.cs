@@ -27,7 +27,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using MySql.Data.MySqlClient;
 
+using OpenSim.Data;
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
@@ -37,6 +40,10 @@ namespace Diva.Data.MySQL
     /// </summary>
     public class MySQLPresenceData : OpenSim.Data.MySQL.MySQLPresenceData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
 
         public MySQLPresenceData(string connectionString, string realm) :
                 base(connectionString, realm)
