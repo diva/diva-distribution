@@ -100,4 +100,15 @@
 
 ;; To use Wifi with SQLite, put WifiSQLite.ini in directory bin/config-include/storage
 ;; (Robust.exe will not read any includes.)
+;;
+;; WARNING: On a fresh install or when migrating existing tables,
+;; Diva.Data.SQLite.dll will not create all tables in the SQLite database.
+;; (As a result, you will see "SQLite error no such table" in the log or
+;; other errors complaining about missing table columns.)
+;; As a work-around, run OpenSim once with the default OpenSim.Data.SQLite.dll.
+;; That is, comment out any references to "Diva.Data.MySQL.dll" in the
+;; preceeding sections in this INI file, comment out the following
+;; Include-WifiSQLite line, start OpenSim to let it create/migrate the
+;; required tables and shut it down again. Then re-activate the
+;; Include-WifiSQLite line and start OpenSim once again.
 Include-WifiSQLite = config-include/storage/WifiSQLite.ini
