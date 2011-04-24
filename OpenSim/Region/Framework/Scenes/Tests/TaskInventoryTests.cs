@@ -34,7 +34,6 @@ using System.Timers;
 using Timer=System.Timers.Timer;
 using Nini.Config;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using OpenMetaverse;
 using OpenMetaverse.Assets;
 using OpenSim.Framework;
@@ -102,7 +101,7 @@ namespace OpenSim.Region.Framework.Tests
             TestHelper.InMethod();
 //            log4net.Config.XmlConfigurator.Configure();
             
-            Scene scene = SceneSetupHelpers.SetupScene("inventory");
+            Scene scene = SceneSetupHelpers.SetupScene();
             UserAccount user1 = CreateUser(scene);
             SceneObjectGroup sog1 = CreateSO1(scene, user1.PrincipalID);
             SceneObjectPart sop1 = sog1.RootPart;
@@ -128,7 +127,7 @@ namespace OpenSim.Region.Framework.Tests
             TestHelper.InMethod();
 //            log4net.Config.XmlConfigurator.Configure();
             
-            Scene scene = SceneSetupHelpers.SetupScene("inventory");
+            Scene scene = SceneSetupHelpers.SetupScene();
             UserAccount user1 = CreateUser(scene);
             SceneObjectGroup sog1 = CreateSO1(scene, user1.PrincipalID);
             SceneObjectPart sop1 = sog1.RootPart;

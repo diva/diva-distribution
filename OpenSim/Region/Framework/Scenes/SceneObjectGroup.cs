@@ -296,11 +296,14 @@ namespace OpenSim.Region.Framework.Scenes
             {
                 Vector3 val = value;
 
-                if ((m_scene.TestBorderCross(val - Vector3.UnitX, Cardinals.E) || m_scene.TestBorderCross(val + Vector3.UnitX, Cardinals.W)
-                    || m_scene.TestBorderCross(val - Vector3.UnitY, Cardinals.N) || m_scene.TestBorderCross(val + Vector3.UnitY, Cardinals.S)) 
-                    && !IsAttachmentCheckFull() && (!m_scene.LoadingPrims))
+                if (Scene != null)
                 {
-                    m_scene.CrossPrimGroupIntoNewRegion(val, this, true);
+                    if ((Scene.TestBorderCross(val - Vector3.UnitX, Cardinals.E) || Scene.TestBorderCross(val + Vector3.UnitX, Cardinals.W)
+                        || Scene.TestBorderCross(val - Vector3.UnitY, Cardinals.N) || Scene.TestBorderCross(val + Vector3.UnitY, Cardinals.S)) 
+                        && !IsAttachmentCheckFull() && (!Scene.LoadingPrims))
+                    {
+                        m_scene.CrossPrimGroupIntoNewRegion(val, this, true);
+                    }
                 }
                 
                 if (RootPart.GetStatusSandbox())
@@ -308,8 +311,11 @@ namespace OpenSim.Region.Framework.Scenes
                     if (Util.GetDistanceTo(RootPart.StatusSandboxPos, value) > 10)
                     {
                         RootPart.ScriptSetPhysicsStatus(false);
-                        Scene.SimChat(Utils.StringToBytes("Hit Sandbox Limit"),
-                              ChatTypeEnum.DebugChannel, 0x7FFFFFFF, RootPart.AbsolutePosition, Name, UUID, false);
+                        
+                        if (Scene != null)
+                            Scene.SimChat(Utils.StringToBytes("Hit Sandbox Limit"),
+                                  ChatTypeEnum.DebugChannel, 0x7FFFFFFF, RootPart.AbsolutePosition, Name, UUID, false);
+                        
                         return;
                     }
                 }
@@ -325,6 +331,9 @@ namespace OpenSim.Region.Framework.Scenes
                 //m_rootPart.GroupPosition.Z);
                 //m_scene.PhysicsScene.AddPhysicsActorTaint(m_rootPart.PhysActor);
                 //}
+                
+                if (Scene != null)
+                    Scene.EventManager.TriggerParcelPrimCountTainted();
             }
         }
 
@@ -1313,8 +1322,10 @@ namespace OpenSim.Region.Framework.Scenes
                                     parcel.LandData.OtherCleanTime)
                             {
                                 DetachFromBackup();
-                                m_log.InfoFormat("[SCENE]: Returning object {0} due to parcel auto return", RootPart.UUID.ToString());
-                                m_scene.AddReturn(OwnerID, Name, AbsolutePosition, "parcel auto return");
+                                m_log.DebugFormat(
+                                    "[SCENE OBJECT GROUP]: Returning object {0} due to parcel autoreturn", 
+                                     RootPart.UUID);
+                                m_scene.AddReturn(OwnerID, Name, AbsolutePosition, "parcel autoreturn");
                                 m_scene.DeRezObjects(null, new List<uint>() { RootPart.LocalId }, UUID.Zero,
                                         DeRezAction.Return, UUID.Zero);
 
@@ -1761,10 +1772,12 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="part"></param>
         public void ServiceObjectPropertiesFamilyRequest(IClientAPI remoteClient, UUID AgentID, uint RequestFlags)
         {
-            remoteClient.SendObjectPropertiesFamilyData(RequestFlags, RootPart.UUID, RootPart.OwnerID, RootPart.GroupID, RootPart.BaseMask,
-                                                        RootPart.OwnerMask, RootPart.GroupMask, RootPart.EveryoneMask, RootPart.NextOwnerMask,
-                                                        RootPart.OwnershipCost, RootPart.ObjectSaleType, RootPart.SalePrice, RootPart.Category,
-                                                        RootPart.CreatorID, RootPart.Name, RootPart.Description);
+            remoteClient.SendObjectPropertiesFamilyData(RootPart, RequestFlags);
+            
+//             remoteClient.SendObjectPropertiesFamilyData(RequestFlags, RootPart.UUID, RootPart.OwnerID, RootPart.GroupID, RootPart.BaseMask,
+//                                                         RootPart.OwnerMask, RootPart.GroupMask, RootPart.EveryoneMask, RootPart.NextOwnerMask,
+//                                                         RootPart.OwnershipCost, RootPart.ObjectSaleType, RootPart.SalePrice, RootPart.Category,
+//                                                         RootPart.CreatorID, RootPart.Name, RootPart.Description);
         }
 
         public void SetPartOwner(SceneObjectPart part, UUID cAgentID, UUID cGroupID)

@@ -29,7 +29,6 @@ using System;
 using System.Reflection;
 using Nini.Config;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Framework.Communications;
@@ -118,11 +117,11 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             ISharedRegionModule interregionComms = new LocalSimulationConnectorModule();
 
 
-            Scene sceneB = SceneSetupHelpers.SetupScene("sceneB", sceneBId, 1010, 1010,  "grid");
+            Scene sceneB = SceneSetupHelpers.SetupScene("sceneB", sceneBId, 1010, 1010);
             SceneSetupHelpers.SetupSceneModules(sceneB, new IniConfigSource(), interregionComms);
             sceneB.RegisterRegionWithGrid();
 
-            Scene sceneA = SceneSetupHelpers.SetupScene("sceneA", sceneAId, 1000, 1000, "grid");
+            Scene sceneA = SceneSetupHelpers.SetupScene("sceneA", sceneAId, 1000, 1000);
             SceneSetupHelpers.SetupSceneModules(sceneA, new IniConfigSource(), interregionComms);
             sceneA.RegisterRegionWithGrid();
 

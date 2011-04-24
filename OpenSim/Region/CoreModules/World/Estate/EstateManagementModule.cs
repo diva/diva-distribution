@@ -200,12 +200,13 @@ namespace OpenSim.Region.CoreModules.World.Estate
             }
             Scene.RegionInfo.RegionSettings.Save();
             TriggerRegionInfoChange();
+            sendRegionHandshakeToAll();
             sendRegionInfoPacketToAll();
         }
 
         private void handleCommitEstateTerrainTextureRequest(IClientAPI remoteClient)
         {
-            sendRegionHandshakeToAll();
+            // sendRegionHandshakeToAll();
         }
 
         public void setRegionTerrainSettings(float WaterHeight,
@@ -258,6 +259,10 @@ namespace OpenSim.Region.CoreModules.World.Estate
 
         private void handleChangeEstateCovenantRequest(IClientAPI remoteClient, UUID estateCovenantID)
         {
+//            m_log.DebugFormat(
+//                "[ESTATE MANAGEMENT MODULE]: Handling request from {0} to change estate covenant to {1}", 
+//                remoteClient.Name, estateCovenantID);
+            
             Scene.RegionInfo.RegionSettings.Covenant = estateCovenantID;
             Scene.RegionInfo.RegionSettings.Save();
             TriggerRegionInfoChange();
@@ -274,8 +279,25 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.AddEstateUser(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.AddEstateUser(user);
                     Scene.RegionInfo.EstateSettings.Save();
+
                     TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.AccessOptions, Scene.RegionInfo.EstateSettings.EstateAccess, Scene.RegionInfo.EstateSettings.EstateID);
                 }
@@ -289,10 +311,26 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.RemoveEstateUser(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.RemoveEstateUser(user);
                     Scene.RegionInfo.EstateSettings.Save();
-                    TriggerEstateInfoChange();
 
+                    TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.AccessOptions, Scene.RegionInfo.EstateSettings.EstateAccess, Scene.RegionInfo.EstateSettings.EstateID);
                 }
                 else
@@ -304,8 +342,25 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.AddEstateGroup(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.AddEstateGroup(user);
                     Scene.RegionInfo.EstateSettings.Save();
+
                     TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.AllowedGroups, Scene.RegionInfo.EstateSettings.EstateGroups, Scene.RegionInfo.EstateSettings.EstateID);
                 }
@@ -318,10 +373,26 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.RemoveEstateGroup(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.RemoveEstateGroup(user);
                     Scene.RegionInfo.EstateSettings.Save();
-                    TriggerEstateInfoChange();
 
+                    TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.AllowedGroups, Scene.RegionInfo.EstateSettings.EstateGroups, Scene.RegionInfo.EstateSettings.EstateID);
                 }
                 else
@@ -349,6 +420,29 @@ namespace OpenSim.Region.CoreModules.World.Estate
                     if (!alreadyInList)
                     {
 
+                        if ((estateAccessType & 1) != 0) // All estates
+                        {
+                            List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                            EstateSettings estateSettings;
+
+                            foreach (int estateID in estateIDs)
+                            {
+                                if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                                {
+                                    EstateBan bitem = new EstateBan();
+
+                                    bitem.BannedUserID = user;
+                                    bitem.EstateID = (uint)estateID;
+                                    bitem.BannedHostAddress = "0.0.0.0";
+                                    bitem.BannedHostIPMask = "0.0.0.0";
+
+                                    estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                    estateSettings.AddBan(bitem);
+                                    estateSettings.Save();
+                                }
+                            }
+                        }
+
                         EstateBan item = new EstateBan();
 
                         item.BannedUserID = user;
@@ -358,6 +452,7 @@ namespace OpenSim.Region.CoreModules.World.Estate
 
                         Scene.RegionInfo.EstateSettings.AddBan(item);
                         Scene.RegionInfo.EstateSettings.Save();
+
                         TriggerEstateInfoChange();
 
                         ScenePresence s = Scene.GetScenePresence(user);
@@ -403,8 +498,25 @@ namespace OpenSim.Region.CoreModules.World.Estate
                     
                     if (alreadyInList && listitem != null)
                     {
+                        if ((estateAccessType & 1) != 0) // All estates
+                        {
+                            List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                            EstateSettings estateSettings;
+
+                            foreach (int estateID in estateIDs)
+                            {
+                                if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                                {
+                                    estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                    estateSettings.RemoveBan(user);
+                                    estateSettings.Save();
+                                }
+                            }
+                        }
+
                         Scene.RegionInfo.EstateSettings.RemoveBan(listitem.BannedUserID);
                         Scene.RegionInfo.EstateSettings.Save();
+
                         TriggerEstateInfoChange();
                     }
                     else
@@ -424,8 +536,25 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.AddEstateManager(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.AddEstateManager(user);
                     Scene.RegionInfo.EstateSettings.Save();
+
                     TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.EstateManagers, Scene.RegionInfo.EstateSettings.EstateManagers, Scene.RegionInfo.EstateSettings.EstateID);
                 }
@@ -438,10 +567,26 @@ namespace OpenSim.Region.CoreModules.World.Estate
             {
                 if (Scene.Permissions.CanIssueEstateCommand(remote_client.AgentId, true) || Scene.Permissions.BypassPermissions())
                 {
+                    if ((estateAccessType & 1) != 0) // All estates
+                    {
+                        List<int> estateIDs = Scene.EstateDataService.GetEstatesByOwner(Scene.RegionInfo.EstateSettings.EstateOwner);
+                        EstateSettings estateSettings;
+
+                        foreach (int estateID in estateIDs)
+                        {
+                            if (estateID != Scene.RegionInfo.EstateSettings.EstateID)
+                            {
+                                estateSettings = Scene.EstateDataService.LoadEstateSettings(estateID);
+                                estateSettings.RemoveEstateManager(user);
+                                estateSettings.Save();
+                            }
+                        }
+                    }
+
                     Scene.RegionInfo.EstateSettings.RemoveEstateManager(user);
                     Scene.RegionInfo.EstateSettings.Save();
-                    TriggerEstateInfoChange();
 
+                    TriggerEstateInfoChange();
                     remote_client.SendEstateList(invoice, (int)Constants.EstateAccessCodex.EstateManagers, Scene.RegionInfo.EstateSettings.EstateManagers, Scene.RegionInfo.EstateSettings.EstateID);
                 }
                 else

@@ -137,13 +137,14 @@ namespace OpenSim.Region.Framework.Scenes
                         x = m_inventoryDeletes.Dequeue();
 
                         m_log.DebugFormat(
-                            "[ASYNC DELETER]: Sending object to user's inventory, {0} item(s) remaining.", left);
+                            "[ASYNC DELETER]: Sending object to user's inventory, action {1}, count {2}, {0} item(s) remaining.", left, x.action, x.objectGroups.Count);
                         
                         try
                         {
                             IInventoryAccessModule invAccess = m_scene.RequestModuleInterface<IInventoryAccessModule>();
                             if (invAccess != null)
-                                invAccess.DeleteToInventory(x.action, x.folderID, x.objectGroups, x.remoteClient);
+                                invAccess.CopyToInventory(x.action, x.folderID, x.objectGroups, x.remoteClient);
+                            
                             if (x.permissionToDelete)
                             {
                                 foreach (SceneObjectGroup g in x.objectGroups)

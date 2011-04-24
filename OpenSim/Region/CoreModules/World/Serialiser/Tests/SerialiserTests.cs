@@ -30,7 +30,6 @@ using System.IO;
 using System.Xml;
 using log4net.Config;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Region.Framework.Scenes;
@@ -238,7 +237,7 @@ namespace OpenSim.Region.CoreModules.World.Serialiser.Tests
         public void Init()
         {
             m_serialiserModule = new SerialiserModule();
-            m_scene = SceneSetupHelpers.SetupScene("");
+            m_scene = SceneSetupHelpers.SetupScene();
             SceneSetupHelpers.SetupSceneModules(m_scene, m_serialiserModule);
         }
 

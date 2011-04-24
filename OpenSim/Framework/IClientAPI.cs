@@ -570,16 +570,35 @@ namespace OpenSim.Framework
         public float dwell;
     }
 
-    public class EntityUpdate
+    public class IEntityUpdate
     {
         public ISceneEntity Entity;
-        public PrimUpdateFlags Flags;
-        public float TimeDilation;
+        public uint Flags;
 
-        public EntityUpdate(ISceneEntity entity, PrimUpdateFlags flags, float timedilation)
+        public virtual void Update(IEntityUpdate update)
+        {
+            this.Flags |= update.Flags;
+        }
+
+        public IEntityUpdate(ISceneEntity entity, uint flags)
         {
             Entity = entity;
             Flags = flags;
+        }
+    }
+    
+
+    public class EntityUpdate : IEntityUpdate
+    {
+        // public ISceneEntity Entity;
+        // public PrimUpdateFlags Flags;
+        public float TimeDilation;
+
+        public EntityUpdate(ISceneEntity entity, PrimUpdateFlags flags, float timedilation)
+            : base(entity,(uint)flags)
+        {
+            //Entity = entity;
+            // Flags = flags;
             TimeDilation = timedilation;
         }
     }
@@ -1143,7 +1162,17 @@ namespace OpenSim.Framework
         void SendDetailedEstateData(UUID invoice, string estateName, uint estateID, uint parentEstate, uint estateFlags,
                                     uint sunPosition, UUID covenant, string abuseEmail, UUID estateOwner);
 
-        void SendLandProperties(int sequence_id, bool snap_selection, int request_result, LandData landData,
+        /// <summary>
+        /// Send land properties to the client.
+        /// </summary>
+        /// <param name="sequence_id"></param>
+        /// <param name="snap_selection"></param>
+        /// <param name="request_result"></param>
+        /// <param name="lo"></param></param>
+        /// <param name="parcelObjectCapacity">/param>
+        /// <param name="simObjectCapacity"></param>
+        /// <param name="regionFlags"></param>
+        void SendLandProperties(int sequence_id, bool snap_selection, int request_result, ILandObject lo,
                                 float simObjectBonusFactor, int parcelObjectCapacity, int simObjectCapacity,
                                 uint regionFlags);
 
@@ -1201,20 +1230,9 @@ namespace OpenSim.Framework
         /// <param name="stats"></param>
         void SendSimStats(SimStats stats);
 
-        void SendObjectPropertiesFamilyData(uint RequestFlags, UUID ObjectUUID, UUID OwnerID, UUID GroupID,
-                                            uint BaseMask, uint OwnerMask, uint GroupMask, uint EveryoneMask,
-                                            uint NextOwnerMask, int OwnershipCost, byte SaleType, int SalePrice,
-                                            uint Category,
-                                            UUID LastOwnerID, string ObjectName, string Description);
+        void SendObjectPropertiesFamilyData(ISceneEntity Entity, uint RequestFlags);
 
-        void SendObjectPropertiesReply(UUID ItemID, ulong CreationDate, UUID CreatorUUID, UUID FolderUUID,
-                                       UUID FromTaskUUID,
-                                       UUID GroupUUID, short InventorySerial, UUID LastOwnerUUID, UUID ObjectUUID,
-                                       UUID OwnerUUID, string TouchTitle, byte[] TextureID, string SitTitle,
-                                       string ItemName,
-                                       string ItemDescription, uint OwnerMask, uint NextOwnerMask, uint GroupMask,
-                                       uint EveryoneMask,
-                                       uint BaseMask, byte saleType, int salePrice);
+        void SendObjectPropertiesReply(ISceneEntity Entity);
 
         void SendAgentOffline(UUID[] agentIDs);
 
