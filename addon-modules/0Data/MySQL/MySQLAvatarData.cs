@@ -27,6 +27,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using log4net;
 using MySql.Data.MySqlClient;
 
@@ -40,6 +41,11 @@ namespace Diva.Data.MySQL
     /// </summary>
     public class MySQLAvatarData : OpenSim.Data.MySQL.MySQLAvatarData
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
         public MySQLAvatarData(string connectionString, string realm) :
                 base(connectionString, realm)
         {
