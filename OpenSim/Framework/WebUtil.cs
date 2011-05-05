@@ -140,19 +140,19 @@ namespace OpenSim.Framework
         /// PUT JSON-encoded data to a web service that returns LLSD or
         /// JSON data
         /// </summary>
-        public static OSDMap PutToService(string url, OSDMap data)
+        public static OSDMap PutToService(string url, OSDMap data, int timeout)
         {
-            return ServiceOSDRequest(url,data,"PUT",10000);
+            return ServiceOSDRequest(url,data, "PUT", timeout);
         }
-        
-        public static OSDMap PostToService(string url, OSDMap data)
+
+        public static OSDMap PostToService(string url, OSDMap data, int timeout)
         {
-            return ServiceOSDRequest(url,data,"POST",10000);
+            return ServiceOSDRequest(url, data, "POST", timeout);
         }
-        
-        public static OSDMap GetFromService(string url)
+
+        public static OSDMap GetFromService(string url, int timeout)
         {
-            return ServiceOSDRequest(url,null,"GET",10000);
+            return ServiceOSDRequest(url, null, "GET", timeout);
         }
         
         public static OSDMap ServiceOSDRequest(string url, OSDMap data, string method, int timeout)
