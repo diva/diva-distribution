@@ -43,7 +43,9 @@ namespace Diva.OpenSimServices
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private static readonly string m_CastWarning = "[DivaData]: Invalid cast for Grid store. Diva.Data required for method {0}.";
         
-        public GridService(IConfigSource config) : base(config) { }
+        public GridService(IConfigSource config) : base(config) 
+        {
+        }
 
         public GridRegion TryLinkRegionToCoords(UUID scopeID, string address, uint xloc, uint yloc, UUID ownerID, out string reason)
         {

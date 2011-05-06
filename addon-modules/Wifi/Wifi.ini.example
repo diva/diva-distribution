@@ -5,6 +5,9 @@
     port = 8002
 
 [DatabaseService]
+    ; If you want Wifi to use some advanced options, like displaying
+	; the number of users online on the splash page, change this to
+	; Diva.Data.MySQL.dll. It is 100% compatible with OpenSim's
     StorageProvider = "OpenSim.Data.MySQL.dll"
     ConnectionString = "Data Source=localhost;Database=opensim;User ID=opensim;Password=opensim123;"
 
