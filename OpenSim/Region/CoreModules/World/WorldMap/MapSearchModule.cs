@@ -84,7 +84,7 @@ namespace OpenSim.Region.CoreModules.World.WorldMap
             client.OnMapNameRequest += OnMapNameRequest;
         }
 
-        private void OnMapNameRequest(IClientAPI remoteClient, string mapName)
+        private void OnMapNameRequest(IClientAPI remoteClient, string mapName, uint flags)
         {
             if (mapName.Length < 3)
             {
@@ -106,7 +106,7 @@ namespace OpenSim.Region.CoreModules.World.WorldMap
             else if (regionInfos.Count == 0 && mapName.StartsWith("http://"))
                 remoteClient.SendAlertMessage("Hyperlink could not be established.");
 
-            m_log.DebugFormat("[MAPSEARCHMODULE]: search {0} returned {1} regions", mapName, regionInfos.Count);
+            m_log.DebugFormat("[MAPSEARCHMODULE]: search {0} returned {1} regions. Flags={2}", mapName, regionInfos.Count, flags);
             List<MapBlockData> blocks = new List<MapBlockData>();
 
             MapBlockData data;
@@ -117,7 +117,10 @@ namespace OpenSim.Region.CoreModules.World.WorldMap
                     data = new MapBlockData();
                     data.Agents = 0;
                     data.Access = info.Access;
-                    data.MapImageId = UUID.Zero; // could use info.TerrainImage but it seems to break viewer2
+                    if (flags == 2) // V2 sends this
+                        data.MapImageId = UUID.Zero; 
+                    else
+                        data.MapImageId = info.TerrainImage;
                     data.Name = info.RegionName;
                     data.RegionFlags = 0; // TODO not used?
                     data.WaterHeight = 0; // not used
@@ -139,9 +142,9 @@ namespace OpenSim.Region.CoreModules.World.WorldMap
             data.Y = 0;
             blocks.Add(data);
 
-            // not sure what the flags do here, but seems to be necessary
-            // to set to "2" for viewer 2
-            remoteClient.SendMapBlock(blocks, 2);
+            // flags are agent flags sent from the viewer.
+            // they have different values depending on different viewers, apparently
+            remoteClient.SendMapBlock(blocks, flags);
         }
 
 //        private Scene GetClientScene(IClientAPI client)
