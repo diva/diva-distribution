@@ -1,0 +1,29 @@
+<form action="/wifi/admin/users/edit/<!-- #get field=PrincipalID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="1">
+    Имя:<br/>
+    <input name="first" type="text" value="<!-- #get field=FirstName-->" class="inputstyle" /><br/><br/>
+    Фамилия:<br/>
+    <input name="last" type="text" value="<!-- #get field=LastName-->" class="inputstyle" /><br/><br/>
+    Email:<br/>
+    <input name="email" type="text" value="<!-- #get field=Email-->" class="inputstyle" /><br/><br/>
+    Уровень:<br/>
+    <input name="level" type="text" value="<!-- #get field=UserLevel-->" class="inputstyle" /><br/><br/>
+    Флаги:<br/>
+    <input name="flags" type="text" value="<!-- #get field=UserFlags-->" class="inputstyle" /><br/><br/>
+    Звание:<br/>
+    <input name="title" type="text" value="<!-- #get field=UserTitle-->" class="inputstyle" />
+    <input type="submit" value="обновить" class="button" />
+  </p>
+</form>
+
+<p>&nbsp;</p>
+
+<form action="/wifi/admin/users/edit/<!-- #get field=PrincipalID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="2">
+    Пароль:<br/>
+    <input name="password" type="text" value="<on file>" class="inputstyle" />&nbsp;
+    <input type="submit" value="сброс" class="button" />
+  </p>
+</form>

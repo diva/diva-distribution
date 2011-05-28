@@ -1,0 +1,61 @@
+    <script src="/wifi/scripts/console.js" type="text/javascript"></script>
+
+    <div id="noscript">Для этой функции необходим JavaScript. Пожалуйста активируйте JavaScript в вашем браузере.</div>
+    <div id="console" style="display:none">
+      
+      <div id="tabulators">
+        <div class="cssmenu tab">
+          <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
+            <input type="hidden" name="debug" value=""> <!-- non-empty value enables trace menu options -->
+            <input type="hidden" name="text" value="No connection">
+            <input type="hidden" name="text" value="There are not any other active simulators.">
+            <ul id="options">
+              <li onclick="CreateConsole()"> Новая консоль </li>
+              <li onclick="Disconnect()"> Закрыть активную консоль </li>
+              <li><input type="checkbox" name="mono" value="enable" onclick="ChangedOption(this.name)" /> Use mono-space font </li>
+              <li><input type="checkbox" name="trace" value="enable" onclick="ChangedOption(this.name)" checked="checked" /> Enable traces </li>
+              <li><input type="checkbox" name="trace" value="hide" onclick="ChangedOption(this.name)" /> Hide traces </li>
+              <li><input type="text" name="bufsize" value="1000" size="4" onchange="ChangedOption(this.name)" /> Lines of scroll back buffer </li>
+              <li onclick="UpdateScrollback(99999)"> Очистить все сообщения </li>
+            </ul>
+          </form>
+          <span class="symbol">&#x25A4;</span>
+        </div>
+        
+        <div id="rootconsole" class="tab" title="No status">
+          <span class="symbol"><!--&#x22A0;&nbsp;--></span>
+          <span>Консоль</span>&nbsp;
+          <span class="normal"><span class="symbol"><!--&#x25CF;-->&#x25C9;</span></span>
+        </div>
+      </div>
+        
+      <div id="login">
+        <form name="credentials" onsubmit="Connect(); return false" action="#">
+          <div id="simulators">
+            <span>Пожалуйста выберите симулятор:</span>
+            <p><input type="radio" name="simulator" value="address" />Симулятор на <span>%address%</span> с региона(ов) </p>
+          </div>
+          <p>Адрес & Порт: <input name="address" type="text" value="" /></p>
+          <p>Логин: <input name="user" type="text" value="<!-- #call method=GetConsoleUser -->" /></p>
+          <p>Пароль: <input name="password" type="password" value="<!-- #call method=GetConsolePass -->" /></p>
+          <input type="submit" value="Connect" class="button" />
+        </form>
+      </div>
+
+      <div id="messages">
+       <div id="configinfo">Консоль Wifi использует REST-консоль Opensimulator'а, таким образом, сервер Robust и всякий симулятор должны запускаться с параметром "-console=rest", а конфигурационные параметры "ConsoleUser" и "ConsolePass" должны быть установленны в разделе [Network] и значения этих параметров должны совпадать во всех случаях. Кроме того, в Grid режиме для всех симов региона (ислючая для сервера Robust), параметр "ConsoleAllowedOrigin" в разделе [Network] должен быть установлен с тем же значением что и параметр "WebAddress" из секции [WifiService] конфигурации Robust.</div>
+        <div id="configerror" class="textlogo">Получен недопустимый ответ от удалённой консоли! Пожалуйста, убедитесь, что сервер Robust и/или Opensimulator настроены правильно.</div>
+      </div>
+        
+      <div id="command">
+        <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">
+          <div id="prompt" class="textlogo">Prompt</div>
+          <div class="inputstyle cmdinput">
+            <input name="command" type="text" value="Команда" class="inputstyle" />
+          </div>
+          <input type="submit" value="Отправить" class="button" />
+          <input type="button" value="Разъединить" onclick="Disconnect()" class="button" />
+        </form>
+      </div>
+
+    </div>

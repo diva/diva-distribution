@@ -1,0 +1,25 @@
+<script src="/wifi/scripts/inventorylist.js" type="text/javascript"></script>
+
+<form id="inventory" action="/wifi/user/inventory" method="post" >
+  <p>
+    <select name="folder">
+      <!-- #call method=GetFolders-->
+    </select>
+    <input type="submit" name="action-new" value="&lsaquo;&ndash; новая папка" class="button" /> 
+    <input type="text" name="newFolderName" class="inputstyle" /> 
+  </p>
+  <p>
+    <input type="submit" name="action-move" value="&darr; перейти &uarr;" class="button" />
+    <span id="loading" class="white">Подготовка инвентаря <img src="/wifi/images/loader.gif" /></span>
+    <span id="settings">
+      <span class="nowrap"><input type="checkbox" class="checkbox" name="sort" onclick="ChangedOption(this.name)" checked="checked"> Сортировать по алфавиту</span>
+      <span class="nowrap"><input type="checkbox" class="checkbox" name="topfolders" onclick="ChangedOption(this.name)" checked="checked"> Сортировать папками сверху</span>
+    </span>
+  </p>
+
+  <!-- #include file=inventorylistitem.html -->
+
+  <p>
+    <input type="submit" name="action-delete" value="&uarr; удалить" class="button" />
+  </p>
+</form>

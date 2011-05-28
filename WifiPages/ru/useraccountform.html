@@ -1,0 +1,23 @@
+<p >Ваша Учётная Запись:</p>
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
+  <p class="bodytext"> 
+    Email:<br/>
+    <input name="email" type="text" value="<!-- #get field=Email -->" class="inputstyle" />
+    <input type="submit" value="обновить" class="button" />
+  </p>
+  </form>
+
+<p>&nbsp;</p>
+
+  <form action="/wifi/user/account/<!--  #get field=PrincipalID -->" method="POST">
+  <p class="bodytext"> 
+    Старый пароль:<br/>
+    <input name="oldpassword" type="password" class="inputstyle" /><br/><br/>
+    Новый пароль:<br/>
+    <input name="newpassword" type="password" class="inputstyle" /><br/><br/>
+    Подтвердить новый пароль:<br/>
+    <input name="newpassword2" type="password" class="inputstyle" />
+
+    <input type="submit" value="обновить" class="button" />
+  </p>
+  </form>

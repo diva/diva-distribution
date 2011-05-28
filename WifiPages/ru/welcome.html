@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ru-ru" lang="ru-ru">
+  <head>
+	<title><!-- #get var=GridName --></title>
+	<link rel="stylesheet" media="screen" type="text/css" href="/wifi/fluid.css" />
+  <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+  <meta http-equiv="content-language" content="ru-ru" /> 
+ </head>
+
+  <body>
+    <div id="header">
+      <p id="logo" class="textlogo">виртуальный <span class="white">мир</span></p>
+      <p id="slogan"><!-- #get var=GridName--> </p>
+    </div>
+
+    <div id="page">  <!-- wraps and defines overall page width, centers it -->
+      <div id="content"> <!-- content area of page -->
+        <p style="text-align:center"><img src="/wifi/images/orange-planets-background.jpg" style="width:400px"></p>
+        <p>
+          <span class="nowrap">Пользователей в Мире: <!-- #get var=UsersInworld --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Регионов: <!-- #get var=RegionsTotal --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Всего Пользователей: <!-- #get var=UsersTotal --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Активных Пользователей (За последние <!-- #get var=UsersActivePeriod --> Дней): <!-- #get var=UsersActive --></span> 
+        </p>
+        <p>&nbsp</p>
+        <p style="text-align:center">
+          <img src="/wifi/images/PoweredByOS.png">
+        </p>
+	  </div> <!-- end content area of page -->
+	</div>
+
+  </body>
+</html>

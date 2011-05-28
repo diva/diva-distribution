@@ -1,0 +1,14 @@
+  <p>Поиск пользователей</p>
+  <ul>
+    <li>Введите пробел для просмотра всех учётных записей.</li>
+    <li>Другие условия поиска должны быть не менее 3х символов в длинну.</li>
+    <li>Верхний и нижний регистры игнорируются при поиске начинающимся с пробела.</li>
+  </ul>
+  <form action="/wifi/admin/users" method="post">
+  <p class="bodytext"> 
+    <input name="terms" type="text" class="inputstyle" />&nbsp;
+    <input type="submit" value="Поиск" class="button" />
+  </p>
+  </form>
+
+  <!-- #call method=GetPendingUserList --> 
