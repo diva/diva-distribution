@@ -904,11 +904,29 @@ namespace OpenSim.Region.Framework.Scenes
             }
         }
 
+        /// <summary>
+        /// Link an inventory item to an existing item.
+        /// </summary>
+        /// <remarks>
+        /// The linkee item id is placed in the asset id slot.  This appears to be what the viewer expects when
+        /// it receives inventory information.
+        /// </remarks>
+        /// <param name="remoteClient"></param>
+        /// <param name="transActionID"></param>
+        /// <param name="folderID"></param>
+        /// <param name="callbackID"></param>
+        /// <param name="description"></param>
+        /// <param name="name"></param>
+        /// <param name="invType"></param>
+        /// <param name="type">/param>
+        /// <param name="olditemID"></param>
         private void HandleLinkInventoryItem(IClientAPI remoteClient, UUID transActionID, UUID folderID,
                                              uint callbackID, string description, string name,
                                              sbyte invType, sbyte type, UUID olditemID)
         {
-            m_log.DebugFormat("[AGENT INVENTORY]: Received request to create inventory item link {0} in folder {1} pointing to {2}", name, folderID, olditemID);
+//            m_log.DebugFormat(
+//                "[AGENT INVENTORY]: Received request from {0} to create inventory item link {1} in folder {2} pointing to {3}",
+//                remoteClient.Name, name, folderID, olditemID);
 
             if (!Permissions.CanCreateUserInventory(invType, remoteClient.AgentId))
                 return;
@@ -916,7 +934,25 @@ namespace OpenSim.Region.Framework.Scenes
             ScenePresence presence;
             if (TryGetScenePresence(remoteClient.AgentId, out presence))
             {
-//                byte[] data = null;
+                // Disabled the check for duplicate links.
+                //
+                // When outfits are being adjusted, the viewer rapidly sends delete link messages followed by
+                // create links.  However, since these are handled asynchronously, the deletes do not complete before
+                // the creates are handled.  Therefore, we cannot enforce a duplicate link check.
+//                InventoryItemBase existingLink = null;
+//                List<InventoryItemBase> existingItems = InventoryService.GetFolderItems(remoteClient.AgentId, folderID);
+//                foreach (InventoryItemBase item in existingItems)
+//                    if (item.AssetID == olditemID)
+//                        existingLink = item;
+//
+//                if (existingLink != null)
+//                {
+//                    m_log.WarnFormat(
+//                        "[AGENT INVENTORY]: Ignoring request from {0} to create item link {1} in folder {2} pointing to {3} since a link named {4} with id {5} already exists",
+//                        remoteClient.Name, name, folderID, olditemID, existingLink.Name, existingLink.ID);
+//
+//                    return;
+//                }
 
                 AssetBase asset = new AssetBase();
                 asset.FullID = olditemID;
@@ -944,7 +980,11 @@ namespace OpenSim.Region.Framework.Scenes
         /// <param name="itemID"></param>
         private void RemoveInventoryItem(IClientAPI remoteClient, List<UUID> itemIDs)
         {
-            //m_log.Debug("[SCENE INVENTORY]: user " + remoteClient.AgentId);
+//            m_log.DebugFormat(
+//                "[AGENT INVENTORY]: Removing inventory items {0} for {1}",
+//                string.Join(",", itemIDs.ConvertAll<string>(uuid => uuid.ToString()).ToArray()),
+//                remoteClient.Name);
+
             InventoryService.DeleteItems(remoteClient.AgentId, itemIDs);
         }
 
@@ -1351,11 +1391,31 @@ namespace OpenSim.Region.Framework.Scenes
             InventoryFolderBase containingFolder = new InventoryFolderBase(folder.ID, client.AgentId);
             containingFolder = InventoryService.GetFolder(containingFolder);
 
-            //m_log.DebugFormat("[AGENT INVENTORY]: Sending inventory folder contents ({0} nodes) for \"{1}\" to {2} {3}",
-            //    contents.Folders.Count + contents.Items.Count, containingFolder.Name, client.FirstName, client.LastName);
+//            m_log.DebugFormat("[AGENT INVENTORY]: Sending inventory folder contents ({0} nodes) for \"{1}\" to {2} {3}",
+//                contents.Folders.Count + contents.Items.Count, containingFolder.Name, client.FirstName, client.LastName);
 
             if (containingFolder != null && containingFolder != null)
+            {
+                // If the folder requested contains links, then we need to send those folders first, otherwise the links
+                // will be broken in the viewer.
+                HashSet<UUID> linkedItemFolderIdsToSend = new HashSet<UUID>();
+                foreach (InventoryItemBase item in contents.Items)
+                {
+                    if (item.AssetType == (int)AssetType.Link)
+                    {
+                        InventoryItemBase linkedItem = InventoryService.GetItem(new InventoryItemBase(item.AssetID));
+
+                        // Take care of genuinely broken links where the target doesn't exist
+                        if (linkedItem != null)
+                            linkedItemFolderIdsToSend.Add(linkedItem.Folder);
+                    }
+                }
+
+                foreach (UUID linkedItemFolderId in linkedItemFolderIdsToSend)
+                    SendInventoryUpdate(client, new InventoryFolderBase(linkedItemFolderId), false, true);
+
                 client.SendInventoryFolderDetails(client.AgentId, folder.ID, contents.Items, contents.Folders, containingFolder.Version, fetchFolders, fetchItems);
+            }
         }
 
         /// <summary>
