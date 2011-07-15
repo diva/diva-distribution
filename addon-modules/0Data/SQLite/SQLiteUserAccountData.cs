@@ -25,8 +25,7 @@
  */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Reflection;
 
 using Mono.Data.Sqlite;
 
@@ -38,6 +37,11 @@ namespace Diva.Data.SQLite
     public class SQLiteUserAccountData : OpenSim.Data.SQLite.SQLiteUserAccountData, IUserAccountData
     {
         private SQLiteGenericTableHandler<UserAccountData> m_DatabaseHandler;
+
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
 
         public SQLiteUserAccountData(string connectionString, string realm) 
             : base(connectionString, realm)

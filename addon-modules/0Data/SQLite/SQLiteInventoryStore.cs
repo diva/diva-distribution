@@ -1,5 +1,6 @@
 /*
- * Copyright (c) Marcus Kirsch (aka Marck). All rights reserved.
+ * Copyright (c) Contributors, http://opensimulator.org/
+ * See CONTRIBUTORS.TXT for a full list of copyright holders.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -26,38 +27,12 @@
 
 using System.Reflection;
 
-using OpenSim.Data;
-
 namespace Diva.Data.SQLite
 {
-    public class SQLiteGridUserData : OpenSim.Data.SQLite.SQLiteGridUserData, IGridUserData
+    /// <summary>
+    /// An Inventory Interface to the SQLite database
+    /// </summary>
+    public class SQLiteInventoryStore : OpenSim.Data.SQLite.SQLiteInventoryStore
     {
-        private SQLiteGenericTableHandler<GridUserData> m_DatabaseHandler;
-        
-        protected override Assembly Assembly
-        {
-            get { return GetType().BaseType.Assembly; }
-        }
-
-        public SQLiteGridUserData(string connectionString, string realm) 
-            : base(connectionString, realm)
-        {
-            m_DatabaseHandler = new SQLiteGenericTableHandler<GridUserData>(connectionString, realm, "GridUserStore");
-        }
-
-        public GridUserData[] GetOnlineUsers()
-        {
-            return m_DatabaseHandler.Get("Online", true.ToString());
-        }
-
-        public long GetOnlineUserCount()
-        {
-            return m_DatabaseHandler.GetCount("Online", true.ToString());
-        }
-
-        public long GetActiveUserCount(int period)
-        {
-            return m_DatabaseHandler.GetCount(string.Format("Online = '{0}' OR CAST(julianday('now')-julianday(datetime(Logout, 'unixepoch')) AS INTEGER) <= {1}", true, period));
-        }
     }
 }
