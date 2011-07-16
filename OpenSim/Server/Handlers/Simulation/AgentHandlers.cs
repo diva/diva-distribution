@@ -28,6 +28,7 @@
 using System;
 using System.Collections;
 using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Net;
 using System.Text;
@@ -50,9 +51,8 @@ namespace OpenSim.Server.Handlers.Simulation
     public class AgentHandler
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private ISimulationService m_SimulationService;
 
-        protected bool m_Proxy = false;
+        private ISimulationService m_SimulationService;
 
         public AgentHandler() { }
 
@@ -90,17 +90,7 @@ namespace OpenSim.Server.Handlers.Simulation
 
             // Next, let's parse the verb
             string method = (string)request["http-method"];
-            if (method.Equals("PUT"))
-            {
-                DoAgentPut(request, responsedata);
-                return responsedata;
-            }
-            else if (method.Equals("POST"))
-            {
-                DoAgentPost(request, responsedata, agentID);
-                return responsedata;
-            }
-            else if (method.Equals("GET"))
+            if (method.Equals("GET"))
             {
                 DoAgentGet(request, responsedata, agentID, regionID);
                 return responsedata;
@@ -124,6 +114,201 @@ namespace OpenSim.Server.Handlers.Simulation
                 return responsedata;
             }
 
+        }
+
+        protected virtual void DoQueryAccess(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
+        {
+            if (m_SimulationService == null)
+            {
+                m_log.Debug("[AGENT HANDLER]: Agent QUERY called. Harmless but useless.");
+                responsedata["content_type"] = "application/json";
+                responsedata["int_response_code"] = HttpStatusCode.NotImplemented;
+                responsedata["str_response_string"] = string.Empty;
+
+                return;
+            }
+
+            // m_log.DebugFormat("[AGENT HANDLER]: Received QUERYACCESS with {0}", (string)request["body"]);
+            OSDMap args = Utils.GetOSDMap((string)request["body"]);
+
+            Vector3 position = Vector3.Zero;
+            if (args.ContainsKey("position"))
+                position = Vector3.Parse(args["position"].AsString());
+
+            GridRegion destination = new GridRegion();
+            destination.RegionID = regionID;
+
+            string reason;
+            string version;
+            bool result = m_SimulationService.QueryAccess(destination, id, position, out version, out reason);
+
+            responsedata["int_response_code"] = HttpStatusCode.OK;
+
+            OSDMap resp = new OSDMap(2);
+
+            resp["success"] = OSD.FromBoolean(result);
+            resp["reason"] = OSD.FromString(reason);
+            resp["version"] = OSD.FromString(version);
+
+            responsedata["str_response_string"] = OSDParser.SerializeJsonString(resp);
+        }
+
+        protected virtual void DoAgentGet(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
+        {
+            if (m_SimulationService == null)
+            {
+                m_log.Debug("[AGENT HANDLER]: Agent GET called. Harmless but useless.");
+                responsedata["content_type"] = "application/json";
+                responsedata["int_response_code"] = HttpStatusCode.NotImplemented;
+                responsedata["str_response_string"] = string.Empty;
+
+                return;
+            }
+
+            GridRegion destination = new GridRegion();
+            destination.RegionID = regionID;
+
+            IAgentData agent = null;
+            bool result = m_SimulationService.RetrieveAgent(destination, id, out agent);
+            OSDMap map = null;
+            if (result)
+            {
+                if (agent != null) // just to make sure
+                {
+                    map = agent.Pack();
+                    string strBuffer = "";
+                    try
+                    {
+                        strBuffer = OSDParser.SerializeJsonString(map);
+                    }
+                    catch (Exception e)
+                    {
+                        m_log.WarnFormat("[AGENT HANDLER]: Exception thrown on serialization of DoAgentGet: {0}", e.Message);
+                        responsedata["int_response_code"] = HttpStatusCode.InternalServerError;
+                        // ignore. buffer will be empty, caller should check.
+                    }
+
+                    responsedata["content_type"] = "application/json";
+                    responsedata["int_response_code"] = HttpStatusCode.OK;
+                    responsedata["str_response_string"] = strBuffer;
+                }
+                else
+                {
+                    responsedata["int_response_code"] = HttpStatusCode.InternalServerError;
+                    responsedata["str_response_string"] = "Internal error";
+                }
+            }
+            else
+            {
+                responsedata["int_response_code"] = HttpStatusCode.NotFound;
+                responsedata["str_response_string"] = "Not Found";
+            }
+        }
+
+        protected void DoAgentDelete(Hashtable request, Hashtable responsedata, UUID id, string action, UUID regionID)
+        {
+            m_log.Debug(" >>> DoDelete action:" + action + "; RegionID:" + regionID);
+
+            GridRegion destination = new GridRegion();
+            destination.RegionID = regionID;
+
+            if (action.Equals("release"))
+                ReleaseAgent(regionID, id);
+            else
+                m_SimulationService.CloseAgent(destination, id);
+
+            responsedata["int_response_code"] = HttpStatusCode.OK;
+            responsedata["str_response_string"] = "OpenSim agent " + id.ToString();
+
+            m_log.Debug("[AGENT HANDLER]: Agent Released/Deleted.");
+        }
+
+        protected virtual void ReleaseAgent(UUID regionID, UUID id)
+        {
+            m_SimulationService.ReleaseAgent(regionID, id, "");
+        }
+
+    }
+
+    public class AgentPostHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private ISimulationService m_SimulationService;
+        protected bool m_Proxy = false;
+
+        public AgentPostHandler(ISimulationService service) :
+                base("POST", "/agent")
+        {
+            m_SimulationService = service;
+        }
+
+        public AgentPostHandler(string path) :
+                base("POST", path)
+        {
+            m_SimulationService = null;
+        }
+
+        public override byte[] Handle(string path, Stream request,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            m_log.DebugFormat("[SIMULATION]: Stream handler called");
+
+            Hashtable keysvals = new Hashtable();
+            Hashtable headervals = new Hashtable();
+
+            string[] querystringkeys = httpRequest.QueryString.AllKeys;
+            string[] rHeaders = httpRequest.Headers.AllKeys;
+
+            keysvals.Add("uri", httpRequest.RawUrl);
+            keysvals.Add("content-type", httpRequest.ContentType);
+            keysvals.Add("http-method", httpRequest.HttpMethod);
+
+            foreach (string queryname in querystringkeys)
+                keysvals.Add(queryname, httpRequest.QueryString[queryname]);
+
+            foreach (string headername in rHeaders)
+                headervals[headername] = httpRequest.Headers[headername];
+
+            keysvals.Add("headers", headervals);
+            keysvals.Add("querystringkeys", querystringkeys);
+
+            Stream inputStream;
+            if (httpRequest.ContentType == "application/x-gzip")
+                inputStream = new GZipStream(request, CompressionMode.Decompress);
+            else
+                inputStream = request;
+
+            Encoding encoding = Encoding.UTF8;
+            StreamReader reader = new StreamReader(inputStream, encoding);
+
+            string requestBody = reader.ReadToEnd();
+            reader.Close();
+            keysvals.Add("body", requestBody);
+
+            httpResponse.StatusCode = 200;
+            httpResponse.ContentType = "text/html";
+            httpResponse.KeepAlive = false;
+
+            Hashtable responsedata = new Hashtable();
+
+            UUID agentID;
+            UUID regionID;
+            string action;
+
+            if (!Utils.GetParams((string)keysvals["uri"], out agentID, out regionID, out action))
+            {
+                m_log.InfoFormat("[AGENT HANDLER]: Invalid parameters for agent message {0}", keysvals["uri"]);
+
+                httpResponse.StatusCode = 404;
+
+                return encoding.GetBytes("false");
+            }
+
+            DoAgentPost(keysvals, responsedata, agentID);
+
+            httpResponse.StatusCode = (int)responsedata["int_response_code"];
+            return encoding.GetBytes((string)responsedata["str_response_string"]);
         }
 
         protected void DoAgentPost(Hashtable request, Hashtable responsedata, UUID id)
@@ -230,6 +415,88 @@ namespace OpenSim.Server.Handlers.Simulation
         {
             return m_SimulationService.CreateAgent(destination, aCircuit, teleportFlags, out reason);
         }
+    }
+
+    public class AgentPutHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private ISimulationService m_SimulationService;
+        protected bool m_Proxy = false;
+
+        public AgentPutHandler(ISimulationService service) :
+                base("PUT", "/agent")
+        {
+            m_SimulationService = service;
+        }
+
+        public AgentPutHandler(string path) :
+                base("PUT", path)
+        {
+            m_SimulationService = null;
+        }
+
+        public override byte[] Handle(string path, Stream request,
+                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+        {
+            m_log.DebugFormat("[SIMULATION]: Stream handler called");
+
+            Hashtable keysvals = new Hashtable();
+            Hashtable headervals = new Hashtable();
+
+            string[] querystringkeys = httpRequest.QueryString.AllKeys;
+            string[] rHeaders = httpRequest.Headers.AllKeys;
+
+            keysvals.Add("uri", httpRequest.RawUrl);
+            keysvals.Add("content-type", httpRequest.ContentType);
+            keysvals.Add("http-method", httpRequest.HttpMethod);
+
+            foreach (string queryname in querystringkeys)
+                keysvals.Add(queryname, httpRequest.QueryString[queryname]);
+
+            foreach (string headername in rHeaders)
+                headervals[headername] = httpRequest.Headers[headername];
+
+            keysvals.Add("headers", headervals);
+            keysvals.Add("querystringkeys", querystringkeys);
+
+            Stream inputStream;
+            if (httpRequest.ContentType == "application/x-gzip")
+                inputStream = new GZipStream(request, CompressionMode.Decompress);
+            else
+                inputStream = request;
+
+            Encoding encoding = Encoding.UTF8;
+            StreamReader reader = new StreamReader(inputStream, encoding);
+
+            string requestBody = reader.ReadToEnd();
+            reader.Close();
+            keysvals.Add("body", requestBody);
+
+            httpResponse.StatusCode = 200;
+            httpResponse.ContentType = "text/html";
+            httpResponse.KeepAlive = false;
+
+            Hashtable responsedata = new Hashtable();
+
+            UUID agentID;
+            UUID regionID;
+            string action;
+
+            if (!Utils.GetParams((string)keysvals["uri"], out agentID, out regionID, out action))
+            {
+                m_log.InfoFormat("[AGENT HANDLER]: Invalid parameters for agent message {0}", keysvals["uri"]);
+
+                httpResponse.StatusCode = 404;
+
+                return encoding.GetBytes("false");
+            }
+
+            DoAgentPut(keysvals, responsedata);
+
+            httpResponse.StatusCode = (int)responsedata["int_response_code"];
+            return encoding.GetBytes((string)responsedata["str_response_string"]);
+        }
 
         protected void DoAgentPut(Hashtable request, Hashtable responsedata)
         {
@@ -275,7 +542,7 @@ namespace OpenSim.Server.Handlers.Simulation
                 AgentData agent = new AgentData();
                 try
                 {
-                    agent.Unpack(args);
+                    agent.Unpack(args, m_SimulationService.GetScene(destination.RegionHandle));
                 }
                 catch (Exception ex)
                 {
@@ -295,7 +562,7 @@ namespace OpenSim.Server.Handlers.Simulation
                 AgentPosition agent = new AgentPosition();
                 try
                 {
-                    agent.Unpack(args);
+                    agent.Unpack(args, m_SimulationService.GetScene(destination.RegionHandle));
                 }
                 catch (Exception ex)
                 {
@@ -318,117 +585,5 @@ namespace OpenSim.Server.Handlers.Simulation
         {
             return m_SimulationService.UpdateAgent(destination, agent);
         }
-
-        protected virtual void DoQueryAccess(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
-        {
-            if (m_SimulationService == null)
-            {
-                m_log.Debug("[AGENT HANDLER]: Agent QUERY called. Harmless but useless.");
-                responsedata["content_type"] = "application/json";
-                responsedata["int_response_code"] = HttpStatusCode.NotImplemented;
-                responsedata["str_response_string"] = string.Empty;
-
-                return;
-            }
-
-            // m_log.DebugFormat("[AGENT HANDLER]: Received QUERYACCESS with {0}", (string)request["body"]);
-            OSDMap args = Utils.GetOSDMap((string)request["body"]);
-
-            Vector3 position = Vector3.Zero;
-            if (args.ContainsKey("position"))
-                position = Vector3.Parse(args["position"].AsString());
-
-            GridRegion destination = new GridRegion();
-            destination.RegionID = regionID;
-
-            string reason;
-            bool result = m_SimulationService.QueryAccess(destination, id, position, out reason);
-
-            responsedata["int_response_code"] = HttpStatusCode.OK;
-
-            OSDMap resp = new OSDMap(2);
-
-            resp["success"] = OSD.FromBoolean(result);
-            resp["reason"] = OSD.FromString(reason);
-
-            responsedata["str_response_string"] = OSDParser.SerializeJsonString(resp);
-        }
-
-        protected virtual void DoAgentGet(Hashtable request, Hashtable responsedata, UUID id, UUID regionID)
-        {
-            if (m_SimulationService == null)
-            {
-                m_log.Debug("[AGENT HANDLER]: Agent GET called. Harmless but useless.");
-                responsedata["content_type"] = "application/json";
-                responsedata["int_response_code"] = HttpStatusCode.NotImplemented;
-                responsedata["str_response_string"] = string.Empty;
-
-                return;
-            }
-
-            GridRegion destination = new GridRegion();
-            destination.RegionID = regionID;
-
-            IAgentData agent = null;
-            bool result = m_SimulationService.RetrieveAgent(destination, id, out agent);
-            OSDMap map = null;
-            if (result)
-            {
-                if (agent != null) // just to make sure
-                {
-                    map = agent.Pack();
-                    string strBuffer = "";
-                    try
-                    {
-                        strBuffer = OSDParser.SerializeJsonString(map);
-                    }
-                    catch (Exception e)
-                    {
-                        m_log.WarnFormat("[AGENT HANDLER]: Exception thrown on serialization of DoAgentGet: {0}", e.Message);
-                        responsedata["int_response_code"] = HttpStatusCode.InternalServerError;
-                        // ignore. buffer will be empty, caller should check.
-                    }
-
-                    responsedata["content_type"] = "application/json";
-                    responsedata["int_response_code"] = HttpStatusCode.OK;
-                    responsedata["str_response_string"] = strBuffer;
-                }
-                else
-                {
-                    responsedata["int_response_code"] = HttpStatusCode.InternalServerError;
-                    responsedata["str_response_string"] = "Internal error";
-                }
-            }
-            else
-            {
-                responsedata["int_response_code"] = HttpStatusCode.NotFound;
-                responsedata["str_response_string"] = "Not Found";
-            }
-        }
-
-        protected void DoAgentDelete(Hashtable request, Hashtable responsedata, UUID id, string action, UUID regionID)
-        {
-            m_log.Debug(" >>> DoDelete action:" + action + "; RegionID:" + regionID);
-
-            GridRegion destination = new GridRegion();
-            destination.RegionID = regionID;
-
-            if (action.Equals("release"))
-                ReleaseAgent(regionID, id);
-            else
-                m_SimulationService.CloseAgent(destination, id);
-
-            responsedata["int_response_code"] = HttpStatusCode.OK;
-            responsedata["str_response_string"] = "OpenSim agent " + id.ToString();
-
-            m_log.Debug("[AGENT HANDLER]: Agent Released/Deleted.");
-        }
-
-        protected virtual void ReleaseAgent(UUID regionID, UUID id)
-        {
-            m_SimulationService.ReleaseAgent(regionID, id, "");
-        }
-
     }
-
 }

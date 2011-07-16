@@ -236,6 +236,38 @@ namespace OpenSim.Region.Framework.Scenes
             get { return m_rootPart.RotationOffset; }
         }
 
+        public Vector3 GroupScale
+        {
+            get
+            {
+                Vector3 minScale = new Vector3(Constants.RegionSize, Constants.RegionSize, Constants.RegionSize);
+                Vector3 maxScale = Vector3.Zero;
+                Vector3 finalScale = new Vector3(0.5f, 0.5f, 0.5f);
+    
+                SceneObjectPart[] parts = m_parts.GetArray();
+                for (int i = 0; i < parts.Length; i++)
+                {
+                    SceneObjectPart part = parts[i];
+                    Vector3 partscale = part.Scale;
+                    Vector3 partoffset = part.OffsetPosition;
+    
+                    minScale.X = (partscale.X + partoffset.X < minScale.X) ? partscale.X + partoffset.X : minScale.X;
+                    minScale.Y = (partscale.Y + partoffset.Y < minScale.Y) ? partscale.Y + partoffset.Y : minScale.Y;
+                    minScale.Z = (partscale.Z + partoffset.Z < minScale.Z) ? partscale.Z + partoffset.Z : minScale.Z;
+    
+                    maxScale.X = (partscale.X + partoffset.X > maxScale.X) ? partscale.X + partoffset.X : maxScale.X;
+                    maxScale.Y = (partscale.Y + partoffset.Y > maxScale.Y) ? partscale.Y + partoffset.Y : maxScale.Y;
+                    maxScale.Z = (partscale.Z + partoffset.Z > maxScale.Z) ? partscale.Z + partoffset.Z : maxScale.Z;
+                }
+    
+                finalScale.X = (minScale.X > maxScale.X) ? minScale.X : maxScale.X;
+                finalScale.Y = (minScale.Y > maxScale.Y) ? minScale.Y : maxScale.Y;
+                finalScale.Z = (minScale.Z > maxScale.Z) ? minScale.Z : maxScale.Z;
+    
+                return finalScale;
+            }
+        }
+
         public UUID GroupID
         {
             get { return m_rootPart.GroupID; }
@@ -469,6 +501,11 @@ namespace OpenSim.Region.Framework.Scenes
 
         #endregion
 
+//        ~SceneObjectGroup()
+//        {
+//            m_log.DebugFormat("[SCENE OBJECT GROUP]: Destructor called for {0}, local id {1}", Name, LocalId);
+//        }
+
         #region Constructors
 
         /// <summary>
@@ -579,7 +616,7 @@ namespace OpenSim.Region.Framework.Scenes
                 part.ParentID = m_rootPart.LocalId;
                 //m_log.DebugFormat("[SCENE]: Given local id {0} to part {1}, linknum {2}, parent {3} {4}", part.LocalId, part.UUID, part.LinkNum, part.ParentID, part.ParentUUID);
             }
-            
+
             ApplyPhysics(m_scene.m_physicalPrim);
 
             // Don't trigger the update here - otherwise some client issues occur when multiple updates are scheduled
@@ -587,34 +624,6 @@ namespace OpenSim.Region.Framework.Scenes
             //ScheduleGroupForFullUpdate();
         }
 
-        public Vector3 GroupScale()
-        {
-            Vector3 minScale = new Vector3(Constants.RegionSize, Constants.RegionSize, Constants.RegionSize);
-            Vector3 maxScale = Vector3.Zero;
-            Vector3 finalScale = new Vector3(0.5f, 0.5f, 0.5f);
-
-            SceneObjectPart[] parts = m_parts.GetArray();
-            for (int i = 0; i < parts.Length; i++)
-            {
-                SceneObjectPart part = parts[i];
-                Vector3 partscale = part.Scale;
-                Vector3 partoffset = part.OffsetPosition;
-
-                minScale.X = (partscale.X + partoffset.X < minScale.X) ? partscale.X + partoffset.X : minScale.X;
-                minScale.Y = (partscale.Y + partoffset.Y < minScale.Y) ? partscale.Y + partoffset.Y : minScale.Y;
-                minScale.Z = (partscale.Z + partoffset.Z < minScale.Z) ? partscale.Z + partoffset.Z : minScale.Z;
-
-                maxScale.X = (partscale.X + partoffset.X > maxScale.X) ? partscale.X + partoffset.X : maxScale.X;
-                maxScale.Y = (partscale.Y + partoffset.Y > maxScale.Y) ? partscale.Y + partoffset.Y : maxScale.Y;
-                maxScale.Z = (partscale.Z + partoffset.Z > maxScale.Z) ? partscale.Z + partoffset.Z : maxScale.Z;
-            }
-
-            finalScale.X = (minScale.X > maxScale.X) ? minScale.X : maxScale.X;
-            finalScale.Y = (minScale.Y > maxScale.Y) ? minScale.Y : maxScale.Y;
-            finalScale.Z = (minScale.Z > maxScale.Z) ? minScale.Z : maxScale.Z;
-            return finalScale;
-
-        }
         public EntityIntersection TestIntersection(Ray hRay, bool frontFacesOnly, bool faceCenters)
         {
             // We got a request from the inner_scene to raytrace along the Ray hRay
@@ -1335,7 +1344,7 @@ namespace OpenSim.Region.Framework.Scenes
                     }
                 }
 
-                if (HasGroupChanged)
+                if (m_scene.UseBackup && HasGroupChanged)
                 {
                     // don't backup while it's selected or you're asking for changes mid stream.
                     if (isTimeToPersist() || forcedBackup)
@@ -1444,28 +1453,33 @@ namespace OpenSim.Region.Framework.Scenes
 
             foreach (SceneObjectPart part in partList)
             {
+                SceneObjectPart newPart;
                 if (part.UUID != m_rootPart.UUID)
                 {
-                    SceneObjectPart newPart = dupe.CopyPart(part, OwnerID, GroupID, userExposed);
+                    newPart = dupe.CopyPart(part, OwnerID, GroupID, userExposed);
                     newPart.LinkNum = part.LinkNum;
+                }
+                else
+                {
+                    newPart = dupe.m_rootPart;
                 }
 
                 // Need to duplicate the physics actor as well
                 if (part.PhysActor != null && userExposed)
                 {
-                    PrimitiveBaseShape pbs = part.Shape;
+                    PrimitiveBaseShape pbs = newPart.Shape;
     
-                    part.PhysActor 
+                    newPart.PhysActor
                         = m_scene.PhysicsScene.AddPrimShape(
-                            string.Format("{0}/{1}", part.Name, part.UUID),
+                            string.Format("{0}/{1}", newPart.Name, newPart.UUID),
                             pbs,
-                            part.AbsolutePosition,
-                            part.Scale,
-                            part.RotationOffset,
-                            part.PhysActor.IsPhysical);
+                            newPart.AbsolutePosition,
+                            newPart.Scale,
+                            newPart.RotationOffset,
+                            part.PhysActor.IsPhysical,
+                            newPart.LocalId);
     
-                    part.PhysActor.LocalID = part.LocalId;
-                    part.DoPhysicsPropertyUpdate(part.PhysActor.IsPhysical, true);
+                    newPart.DoPhysicsPropertyUpdate(part.PhysActor.IsPhysical, true);
                 }
             }
             
@@ -2503,14 +2517,15 @@ namespace OpenSim.Region.Framework.Scenes
         /// Update prim flags for this group.
         /// </summary>
         /// <param name="localID"></param>
-        /// <param name="type"></param>
-        /// <param name="inUse"></param>
-        /// <param name="data"></param>
-        public void UpdatePrimFlags(uint localID, bool UsePhysics, bool IsTemporary, bool IsPhantom, bool IsVolumeDetect)
+        /// <param name="UsePhysics"></param>
+        /// <param name="SetTemporary"></param>
+        /// <param name="SetPhantom"></param>
+        /// <param name="SetVolumeDetect"></param>
+        public void UpdatePrimFlags(uint localID, bool UsePhysics, bool SetTemporary, bool SetPhantom, bool SetVolumeDetect)
         {
             SceneObjectPart selectionPart = GetChildPart(localID);
 
-            if (IsTemporary)
+            if (SetTemporary)
             {
                 DetachFromBackup();
                 // Remove from database and parcel prim count
@@ -2535,7 +2550,7 @@ namespace OpenSim.Region.Framework.Scenes
                 }
 
                 for (int i = 0; i < parts.Length; i++)
-                    parts[i].UpdatePrimFlags(UsePhysics, IsTemporary, IsPhantom, IsVolumeDetect);
+                    parts[i].UpdatePrimFlags(UsePhysics, SetTemporary, SetPhantom, SetVolumeDetect);
             }
         }
 
@@ -2596,196 +2611,143 @@ namespace OpenSim.Region.Framework.Scenes
 
         #region Resize
 
+
         /// <summary>
-        /// Resize the given part
+        /// Resize the entire group of prims.
         /// </summary>
         /// <param name="scale"></param>
-        /// <param name="localID"></param>
-        public void Resize(Vector3 scale, uint localID)
+        public void GroupResize(Vector3 scale)
         {
-            if (scale.X > m_scene.m_maxNonphys)
-                scale.X = m_scene.m_maxNonphys;
-            if (scale.Y > m_scene.m_maxNonphys)
-                scale.Y = m_scene.m_maxNonphys;
-            if (scale.Z > m_scene.m_maxNonphys)
-                scale.Z = m_scene.m_maxNonphys;
+//                m_log.DebugFormat(
+//                    "[SCENE OBJECT GROUP]: Group resizing {0} {1} from {2} to {3}", Name, localID, RootPart.Scale, scale);
 
-            SceneObjectPart part = GetChildPart(localID);
-            if (part != null)
+            RootPart.IgnoreUndoUpdate = true;
+
+            scale.X = Math.Min(scale.X, Scene.m_maxNonphys);
+            scale.Y = Math.Min(scale.Y, Scene.m_maxNonphys);
+            scale.Z = Math.Min(scale.Z, Scene.m_maxNonphys);
+
+            if (RootPart.PhysActor != null && RootPart.PhysActor.IsPhysical)
             {
-                part.Resize(scale);
-                if (part.PhysActor != null)
-                {
-                    if (part.PhysActor.IsPhysical)
-                    {
-                        if (scale.X > m_scene.m_maxPhys)
-                            scale.X = m_scene.m_maxPhys;
-                        if (scale.Y > m_scene.m_maxPhys)
-                            scale.Y = m_scene.m_maxPhys;
-                        if (scale.Z > m_scene.m_maxPhys)
-                            scale.Z = m_scene.m_maxPhys;
-                    }
-                    part.PhysActor.Size = scale;
-                    m_scene.PhysicsScene.AddPhysicsActorTaint(part.PhysActor);
-                }
-                //if (part.UUID != m_rootPart.UUID)
-
-                HasGroupChanged = true;
-                part.TriggerScriptChangedEvent(Changed.SCALE);
-                ScheduleGroupForFullUpdate();
-
-                //if (part.UUID == m_rootPart.UUID)
-                //{
-                //if (m_rootPart.PhysActor != null)
-                //{
-                //m_rootPart.PhysActor.Size =
-                //new PhysicsVector(m_rootPart.Scale.X, m_rootPart.Scale.Y, m_rootPart.Scale.Z);
-                //m_scene.PhysicsScene.AddPhysicsActorTaint(m_rootPart.PhysActor);
-                //}
-                //}
+                scale.X = Math.Min(scale.X, Scene.m_maxPhys);
+                scale.Y = Math.Min(scale.Y, Scene.m_maxPhys);
+                scale.Z = Math.Min(scale.Z, Scene.m_maxPhys);
             }
-        }
 
-        public void GroupResize(Vector3 scale, uint localID)
-        {
-            SceneObjectPart part = GetChildPart(localID);
-            if (part != null)
+            float x = (scale.X / RootPart.Scale.X);
+            float y = (scale.Y / RootPart.Scale.Y);
+            float z = (scale.Z / RootPart.Scale.Z);
+
+            SceneObjectPart[] parts;
+            if (x > 1.0f || y > 1.0f || z > 1.0f)
             {
-                part.IgnoreUndoUpdate = true;
-                if (scale.X > m_scene.m_maxNonphys)
-                    scale.X = m_scene.m_maxNonphys;
-                if (scale.Y > m_scene.m_maxNonphys)
-                    scale.Y = m_scene.m_maxNonphys;
-                if (scale.Z > m_scene.m_maxNonphys)
-                    scale.Z = m_scene.m_maxNonphys;
-                if (part.PhysActor != null && part.PhysActor.IsPhysical)
-                {
-                    if (scale.X > m_scene.m_maxPhys)
-                        scale.X = m_scene.m_maxPhys;
-                    if (scale.Y > m_scene.m_maxPhys)
-                        scale.Y = m_scene.m_maxPhys;
-                    if (scale.Z > m_scene.m_maxPhys)
-                        scale.Z = m_scene.m_maxPhys;
-                }
-                float x = (scale.X / part.Scale.X);
-                float y = (scale.Y / part.Scale.Y);
-                float z = (scale.Z / part.Scale.Z);
-
-                SceneObjectPart[] parts;
-                if (x > 1.0f || y > 1.0f || z > 1.0f)
-                {
-                    parts = m_parts.GetArray();
-                    for (int i = 0; i < parts.Length; i++)
-                    {
-                        SceneObjectPart obPart = parts[i];
-                        if (obPart.UUID != m_rootPart.UUID)
-                        {
-                            obPart.IgnoreUndoUpdate = true;
-                            Vector3 oldSize = new Vector3(obPart.Scale);
-
-                            float f = 1.0f;
-                            float a = 1.0f;
-
-                            if (part.PhysActor != null && part.PhysActor.IsPhysical)
-                            {
-                                if (oldSize.X * x > m_scene.m_maxPhys)
-                                {
-                                    f = m_scene.m_maxPhys / oldSize.X;
-                                    a = f / x;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                                if (oldSize.Y * y > m_scene.m_maxPhys)
-                                {
-                                    f = m_scene.m_maxPhys / oldSize.Y;
-                                    a = f / y;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                                if (oldSize.Z * z > m_scene.m_maxPhys)
-                                {
-                                    f = m_scene.m_maxPhys / oldSize.Z;
-                                    a = f / z;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                            }
-                            else
-                            {
-                                if (oldSize.X * x > m_scene.m_maxNonphys)
-                                {
-                                    f = m_scene.m_maxNonphys / oldSize.X;
-                                    a = f / x;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                                if (oldSize.Y * y > m_scene.m_maxNonphys)
-                                {
-                                    f = m_scene.m_maxNonphys / oldSize.Y;
-                                    a = f / y;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                                if (oldSize.Z * z > m_scene.m_maxNonphys)
-                                {
-                                    f = m_scene.m_maxNonphys / oldSize.Z;
-                                    a = f / z;
-                                    x *= a;
-                                    y *= a;
-                                    z *= a;
-                                }
-                            }
-                            obPart.IgnoreUndoUpdate = false;
-                            obPart.StoreUndoState();
-                        }
-                    }
-                }
-
-                Vector3 prevScale = part.Scale;
-                prevScale.X *= x;
-                prevScale.Y *= y;
-                prevScale.Z *= z;
-                part.Resize(prevScale);
-
                 parts = m_parts.GetArray();
                 for (int i = 0; i < parts.Length; i++)
                 {
                     SceneObjectPart obPart = parts[i];
-                    obPart.IgnoreUndoUpdate = true;
                     if (obPart.UUID != m_rootPart.UUID)
                     {
-                        Vector3 currentpos = new Vector3(obPart.OffsetPosition);
-                        currentpos.X *= x;
-                        currentpos.Y *= y;
-                        currentpos.Z *= z;
-                        Vector3 newSize = new Vector3(obPart.Scale);
-                        newSize.X *= x;
-                        newSize.Y *= y;
-                        newSize.Z *= z;
-                        obPart.Resize(newSize);
-                        obPart.UpdateOffSet(currentpos);
+                        obPart.IgnoreUndoUpdate = true;
+                        Vector3 oldSize = new Vector3(obPart.Scale);
+
+                        float f = 1.0f;
+                        float a = 1.0f;
+
+                        if (RootPart.PhysActor != null && RootPart.PhysActor.IsPhysical)
+                        {
+                            if (oldSize.X * x > m_scene.m_maxPhys)
+                            {
+                                f = m_scene.m_maxPhys / oldSize.X;
+                                a = f / x;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                            if (oldSize.Y * y > m_scene.m_maxPhys)
+                            {
+                                f = m_scene.m_maxPhys / oldSize.Y;
+                                a = f / y;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                            if (oldSize.Z * z > m_scene.m_maxPhys)
+                            {
+                                f = m_scene.m_maxPhys / oldSize.Z;
+                                a = f / z;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                        }
+                        else
+                        {
+                            if (oldSize.X * x > m_scene.m_maxNonphys)
+                            {
+                                f = m_scene.m_maxNonphys / oldSize.X;
+                                a = f / x;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                            if (oldSize.Y * y > m_scene.m_maxNonphys)
+                            {
+                                f = m_scene.m_maxNonphys / oldSize.Y;
+                                a = f / y;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                            if (oldSize.Z * z > m_scene.m_maxNonphys)
+                            {
+                                f = m_scene.m_maxNonphys / oldSize.Z;
+                                a = f / z;
+                                x *= a;
+                                y *= a;
+                                z *= a;
+                            }
+                        }
+
+                        obPart.IgnoreUndoUpdate = false;
                     }
-                    obPart.IgnoreUndoUpdate = false;
-                    obPart.StoreUndoState();
                 }
-
-                if (part.PhysActor != null)
-                {
-                    part.PhysActor.Size = prevScale;
-                    m_scene.PhysicsScene.AddPhysicsActorTaint(part.PhysActor);
-                }
-
-                part.IgnoreUndoUpdate = false;
-                part.StoreUndoState();
-                HasGroupChanged = true;
-                m_rootPart.TriggerScriptChangedEvent(Changed.SCALE);
-                ScheduleGroupForTerseUpdate();
             }
+
+            Vector3 prevScale = RootPart.Scale;
+            prevScale.X *= x;
+            prevScale.Y *= y;
+            prevScale.Z *= z;
+            RootPart.Resize(prevScale);
+
+            parts = m_parts.GetArray();
+            for (int i = 0; i < parts.Length; i++)
+            {
+                SceneObjectPart obPart = parts[i];
+                obPart.IgnoreUndoUpdate = true;
+
+                if (obPart.UUID != m_rootPart.UUID)
+                {
+                    Vector3 currentpos = new Vector3(obPart.OffsetPosition);
+                    currentpos.X *= x;
+                    currentpos.Y *= y;
+                    currentpos.Z *= z;
+
+                    Vector3 newSize = new Vector3(obPart.Scale);
+                    newSize.X *= x;
+                    newSize.Y *= y;
+                    newSize.Z *= z;
+                    
+                    obPart.Resize(newSize);
+                    obPart.UpdateOffSet(currentpos);
+                }
+
+                obPart.IgnoreUndoUpdate = false;
+                obPart.StoreUndoState();
+            }
+
+            RootPart.IgnoreUndoUpdate = false;
+
+            RootPart.StoreUndoState();
         }
 
         #endregion
@@ -3277,43 +3239,28 @@ namespace OpenSim.Region.Framework.Scenes
 
             return retmass;
         }
-        
+
+        /// <summary>
+        /// If the object is a sculpt/mesh, retrieve the mesh data for each part and reinsert it into each shape so that
+        /// the physics engine can use it.
+        /// </summary>
+        /// <remarks>
+        /// When the physics engine has finished with it, the sculpt data is discarded to save memory.
+        /// </remarks>
         public void CheckSculptAndLoad()
         {
             if (IsDeleted)
                 return;
+
             if ((RootPart.GetEffectiveObjectFlags() & (uint)PrimFlags.Phantom) != 0)
                 return;
 
+//            m_log.Debug("Processing CheckSculptAndLoad for {0} {1}", Name, LocalId);
+
             SceneObjectPart[] parts = m_parts.GetArray();
+
             for (int i = 0; i < parts.Length; i++)
-            {
-                SceneObjectPart part = parts[i];
-                if (part.Shape.SculptEntry && part.Shape.SculptTexture != UUID.Zero)
-                {
-                    // check if a previously decoded sculpt map has been cached
-                    if (File.Exists(System.IO.Path.Combine("j2kDecodeCache", "smap_" + part.Shape.SculptTexture.ToString())))
-                    {
-                        part.SculptTextureCallback(part.Shape.SculptTexture, null);
-                    }
-                    else
-                    {
-                        m_scene.AssetService.Get(
-                            part.Shape.SculptTexture.ToString(), part, AssetReceived);
-                    }
-                }
-            }
-        }
-
-        protected void AssetReceived(string id, Object sender, AssetBase asset)
-        {
-            SceneObjectPart sop = (SceneObjectPart)sender;
-
-            if (sop != null)
-            {
-                if (asset != null)
-                    sop.SculptTextureCallback(asset.FullID, asset);
-            }
+                parts[i].CheckSculptAndLoad();
         }
 
         /// <summary>

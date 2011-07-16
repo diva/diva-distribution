@@ -46,6 +46,11 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        /// <summary>
+        /// Determine whether this archive will save assets.  Default is true.
+        /// </summary>
+        public bool SaveAssets { get; set; }
+
         /// <value>
         /// Used to select all inventory nodes in a folder but not the folder itself
         /// </value>
@@ -112,6 +117,8 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
             m_invPath = invPath;
             m_saveStream = saveStream;
             m_assetGatherer = new UuidGatherer(m_scene.AssetService);
+
+            SaveAssets = true;
         }
 
         protected void ReceivedAllAssets(ICollection<UUID> assetsFoundUuids, ICollection<UUID> assetsNotFoundUuids)
@@ -140,7 +147,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         protected void SaveInvItem(InventoryItemBase inventoryItem, string path, Dictionary<string, object> options, IUserAccountService userAccountService)
         {
             if (options.ContainsKey("verbose"))
-                m_log.InfoFormat("[INVENTORY ARCHIVER]: Saving item {0} with asset {1}", inventoryItem.ID, inventoryItem.AssetID);
+                m_log.InfoFormat(
+                    "[INVENTORY ARCHIVER]: Saving item {0} {1} with asset {2}",
+                    inventoryItem.ID, inventoryItem.Name, inventoryItem.AssetID);
 
             string filename = path + CreateArchiveItemName(inventoryItem);
 
@@ -151,9 +160,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
             m_archiveWriter.WriteFile(filename, serialization);
 
             AssetType itemAssetType = (AssetType)inventoryItem.AssetType;
-            
+
             // Don't chase down link asset items as they actually point to their target item IDs rather than an asset
-            if (itemAssetType != AssetType.Link && itemAssetType != AssetType.LinkFolder)
+            if (SaveAssets && itemAssetType != AssetType.Link && itemAssetType != AssetType.LinkFolder)
                 m_assetGatherer.GatherAssetUuids(inventoryItem.AssetID, (AssetType)inventoryItem.AssetType, m_assetUuids);
         }
 
@@ -199,6 +208,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         /// </summary>
         public void Execute(Dictionary<string, object> options, IUserAccountService userAccountService)
         {
+            if (options.ContainsKey("noassets") && (bool)options["noassets"])
+                SaveAssets = false;
+
             try
             {
                 InventoryFolderBase inventoryFolder = null;
@@ -245,10 +257,7 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
     
                 // The path may point to an item instead
                 if (inventoryFolder == null)
-                {
                     inventoryItem = InventoryArchiveUtils.FindItemByPath(m_scene.InventoryService, rootFolder, m_invPath);
-                    //inventoryItem = m_userInfo.RootFolder.FindItemByPath(m_invPath);
-                }
     
                 if (null == inventoryFolder && null == inventoryItem)
                 {
@@ -289,12 +298,23 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
             
                 // Don't put all this profile information into the archive right now.
                 //SaveUsers();
-                            
-                new AssetsRequest(
-                    new AssetsArchiver(m_archiveWriter), 
-                    m_assetUuids, m_scene.AssetService, 
-                    m_scene.UserAccountService, m_scene.RegionInfo.ScopeID,
-                    options, ReceivedAllAssets).Execute();
+
+                if (SaveAssets)
+                {
+                    m_log.DebugFormat("[INVENTORY ARCHIVER]: Saving {0} assets for items", m_assetUuids.Count);
+
+                    new AssetsRequest(
+                        new AssetsArchiver(m_archiveWriter),
+                        m_assetUuids, m_scene.AssetService,
+                        m_scene.UserAccountService, m_scene.RegionInfo.ScopeID,
+                        options, ReceivedAllAssets).Execute();
+                }
+                else
+                {
+                    m_log.DebugFormat("[INVENTORY ARCHIVER]: Not saving assets since --noassets was specified");
+
+                    ReceivedAllAssets(new List<UUID>(), new List<UUID>());
+                }
             }
             catch (Exception)
             {
@@ -391,19 +411,19 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static string CreateControlFile(Dictionary<string, object> options)
+        public string CreateControlFile(Dictionary<string, object> options)
         {
             int majorVersion, minorVersion;
             
             if (options.ContainsKey("profile"))
             {
                 majorVersion = 1;
-                minorVersion = 1;
+                minorVersion = 2;
             }
             else
             {
                 majorVersion = 0;
-                minorVersion = 2;
+                minorVersion = 3;
             }            
             
             m_log.InfoFormat("[INVENTORY ARCHIVER]: Creating version {0}.{1} IAR", majorVersion, minorVersion);
@@ -415,6 +435,9 @@ namespace OpenSim.Region.CoreModules.Avatar.Inventory.Archiver
             xtw.WriteStartElement("archive");
             xtw.WriteAttributeString("major_version", majorVersion.ToString());
             xtw.WriteAttributeString("minor_version", minorVersion.ToString());
+
+            xtw.WriteElementString("assets_included", SaveAssets.ToString());
+
             xtw.WriteEndElement();
 
             xtw.Flush();

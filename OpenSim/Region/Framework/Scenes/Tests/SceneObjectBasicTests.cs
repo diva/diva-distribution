@@ -34,7 +34,6 @@ using OpenSim.Framework.Communications;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
-using OpenSim.Tests.Common.Setup;
 
 namespace OpenSim.Region.Framework.Scenes.Tests
 {
@@ -140,7 +139,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
 
             SceneObjectPart part = SceneSetupHelpers.AddSceneObject(scene);
 
-            IClientAPI client = SceneSetupHelpers.AddRootAgent(scene, agentId);
+            IClientAPI client = SceneSetupHelpers.AddClient(scene, agentId);
             scene.DeRezObjects(client, new System.Collections.Generic.List<uint>() { part.LocalId }, UUID.Zero, DeRezAction.Delete, UUID.Zero);
 
             SceneObjectPart retrievedPart = scene.GetSceneObjectPart(part.LocalId);

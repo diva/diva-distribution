@@ -34,11 +34,8 @@ using Nini.Config;
 using OpenMetaverse;
 using OpenMetaverse.StructuredData;
 using OpenSim.Framework;
-using OpenSim.Region.CoreModules.Framework.EventQueue;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
-
-using Caps = OpenSim.Framework.Capabilities.Caps;
 
 namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
 {
@@ -73,7 +70,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
                 // if groups aren't enabled, we're not needed.
                 // if we're not specified as the connector to use, then we're not wanted
                 if ((groupsConfig.GetBoolean("Enabled", false) == false)
-                     || (groupsConfig.GetString("MessagingModule", "Default") != Name))
+                     || (groupsConfig.GetString("MessagingModule", "GroupsMessagingModule") != Name))
                 {
                     m_groupMessagingEnabled = false;
                     return;
@@ -472,7 +469,7 @@ namespace OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups
 
             if (queue != null)
             {
-                queue.Enqueue(EventQueueHelper.buildEvent("ChatterBoxSessionStartReply", bodyMap), remoteClient.AgentId);
+                queue.Enqueue(queue.BuildEvent("ChatterBoxSessionStartReply", bodyMap), remoteClient.AgentId);
             }
         }
 

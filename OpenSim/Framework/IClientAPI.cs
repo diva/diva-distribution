@@ -83,7 +83,7 @@ namespace OpenSim.Framework
         IClientAPI remoteClient, ulong regionHandle, Vector3 position, Vector3 lookAt, uint flags);
 
     public delegate void TeleportLandmarkRequest(
-        IClientAPI remoteClient, UUID regionID, Vector3 position);
+        IClientAPI remoteClient, AssetLandmark lm);
 
     public delegate void DisconnectUser();
 
@@ -572,34 +572,69 @@ namespace OpenSim.Framework
 
     public class IEntityUpdate
     {
-        public ISceneEntity Entity;
-        public uint Flags;
+        private ISceneEntity m_entity;
+        private uint m_flags;
+        private int m_updateTime;
+
+        public ISceneEntity Entity
+        {
+            get { return m_entity; }
+        }
+
+        public uint Flags
+        {
+            get { return m_flags; }
+        }
+
+        public int UpdateTime
+        {
+            get { return m_updateTime; }
+        }
 
         public virtual void Update(IEntityUpdate update)
         {
-            this.Flags |= update.Flags;
+            m_flags |= update.Flags;
+
+            // Use the older of the updates as the updateTime
+            if (Util.EnvironmentTickCountCompare(UpdateTime, update.UpdateTime) > 0)
+                m_updateTime = update.UpdateTime;
         }
 
         public IEntityUpdate(ISceneEntity entity, uint flags)
         {
-            Entity = entity;
-            Flags = flags;
+            m_entity = entity;
+            m_flags = flags;
+            m_updateTime = Util.EnvironmentTickCount();
+        }
+
+        public IEntityUpdate(ISceneEntity entity, uint flags, Int32 updateTime)
+        {
+            m_entity = entity;
+            m_flags = flags;
+            m_updateTime = updateTime;
         }
     }
-    
 
     public class EntityUpdate : IEntityUpdate
     {
-        // public ISceneEntity Entity;
-        // public PrimUpdateFlags Flags;
-        public float TimeDilation;
+        private float m_timeDilation;
+
+        public float TimeDilation
+        {
+            get { return m_timeDilation; }
+        }
 
         public EntityUpdate(ISceneEntity entity, PrimUpdateFlags flags, float timedilation)
-            : base(entity,(uint)flags)
+            : base(entity, (uint)flags)
         {
-            //Entity = entity;
             // Flags = flags;
-            TimeDilation = timedilation;
+            m_timeDilation = timedilation;
+        }
+
+        public EntityUpdate(ISceneEntity entity, PrimUpdateFlags flags, float timedilation, Int32 updateTime)
+            : base(entity,(uint)flags,updateTime)
+        {
+            m_timeDilation = timedilation;
         }
     }
 
@@ -702,7 +737,7 @@ namespace OpenSim.Framework
         bool IsActive { get; set; }
 
         /// <value>
-        /// Determines whether the client is logging out or not.
+        /// Determines whether the client is or has been removed from a given scene
         /// </value>
         bool IsLoggingOut { get; set; }
         
@@ -1124,7 +1159,19 @@ namespace OpenSim.Framework
         void SendAgentAlertMessage(string message, bool modal);
         void SendLoadURL(string objectname, UUID objectID, UUID ownerID, bool groupOwned, string message, string url);
 
-        void SendDialog(string objectname, UUID objectID, string ownerFirstName, string ownerLastName, string msg, UUID textureID, int ch,
+        /// <summary>
+        /// Open a dialog box on the client.
+        /// </summary>
+        /// <param name="objectname"></param>
+        /// <param name="objectID"></param>
+        /// <param name="ownerID">/param>
+        /// <param name="ownerFirstName"></param>
+        /// <param name="ownerLastName"></param>
+        /// <param name="msg"></param>
+        /// <param name="textureID"></param>
+        /// <param name="ch"></param>
+        /// <param name="buttonlabels"></param>
+        void SendDialog(string objectname, UUID objectID, UUID ownerID, string ownerFirstName, string ownerLastName, string msg, UUID textureID, int ch,
                         string[] buttonlabels);
 
         bool AddMoney(int debit);

@@ -41,7 +41,6 @@ using log4net;
 using Nini.Config;
 using Amib.Threading;
 using OpenSim.Framework;
-using OpenSim.Region.CoreModules.Framework.EventQueue;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.ScriptEngine.Shared;
@@ -394,11 +393,8 @@ namespace OpenSim.Region.ScriptEngine.XEngine
             return 0;
         }
 
-        public object DoMaintenance(object p)
+        public void SaveAllState()
         {
-            object[] parms = (object[])p;
-            int sleepTime = (int)parms[0];
-
             foreach (IScriptInstance inst in m_Scripts.Values)
             {
                 if (inst.EventTime() > m_EventLimit)
@@ -408,6 +404,14 @@ namespace OpenSim.Region.ScriptEngine.XEngine
                         inst.Start();
                 }
             }
+        }
+
+        public object DoMaintenance(object p)
+        {
+            object[] parms = (object[])p;
+            int sleepTime = (int)parms[0];
+
+            SaveAllState();
 
             System.Threading.Thread.Sleep(sleepTime);
 
@@ -1283,7 +1287,7 @@ namespace OpenSim.Region.ScriptEngine.XEngine
             }
             else
             {
-                eq.Enqueue(EventQueueHelper.ScriptRunningReplyEvent(objectID, itemID, GetScriptState(itemID), true),
+                eq.Enqueue(eq.ScriptRunningEvent(objectID, itemID, GetScriptState(itemID), true),
                            controllingClient.AgentId);
             }
         }

@@ -328,7 +328,7 @@ namespace OpenSim
                 config.Set("meshing", "Meshmerizer");
                 config.Set("physical_prim", true);
                 config.Set("see_into_this_sim_from_neighbor", true);
-                config.Set("serverside_object_permissions", false);
+                config.Set("serverside_object_permissions", true);
                 config.Set("storage_plugin", "OpenSim.Data.SQLite.dll");
                 config.Set("storage_connection_string", "URI=file:OpenSim.db,version=3");
                 config.Set("storage_prim_inventories", true);
@@ -370,20 +370,6 @@ namespace OpenSim
 
                 m_configSettings.ClientstackDll 
                     = startupConfig.GetString("clientstack_plugin", "OpenSim.Region.ClientStack.LindenUDP.dll");
-            }
-
-            IConfig standaloneConfig = m_config.Source.Configs["StandAlone"];
-            if (standaloneConfig != null)
-            {
-                m_configSettings.StandaloneAuthenticate = standaloneConfig.GetBoolean("accounts_authenticate", true);
-                m_configSettings.StandaloneWelcomeMessage = standaloneConfig.GetString("welcome_message");
-
-                m_configSettings.StandaloneInventoryPlugin = standaloneConfig.GetString("inventory_plugin");
-                m_configSettings.StandaloneInventorySource = standaloneConfig.GetString("inventory_source");
-                m_configSettings.StandaloneUserPlugin = standaloneConfig.GetString("userDatabase_plugin");
-                m_configSettings.StandaloneUserSource = standaloneConfig.GetString("user_source");
-
-                m_configSettings.LibrariesXMLFile = standaloneConfig.GetString("LibrariesXMLFile");
             }
 
             m_networkServersInfo.loadFromConfiguration(m_config.Source);

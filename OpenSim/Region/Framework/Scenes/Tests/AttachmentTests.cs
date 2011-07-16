@@ -43,7 +43,6 @@ using OpenSim.Region.CoreModules.World.Serialiser;
 using OpenSim.Region.CoreModules.ServiceConnectorsOut.Simulation;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
-using OpenSim.Tests.Common.Setup;
 
 namespace OpenSim.Region.Framework.Scenes.Tests
 {
@@ -84,7 +83,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             region1 = scene.RegionInfo.RegionHandle;
             region2 = scene2.RegionInfo.RegionHandle;
             
-            SceneSetupHelpers.AddRootAgent(scene, agent1);
+            SceneSetupHelpers.AddClient(scene, agent1);
         }     
         
         [Test]

@@ -40,7 +40,6 @@ using OpenSim.Region.Framework.Scenes;
 using OpenSim.Region.OptionalModules.Avatar.XmlRpcGroups;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
-using OpenSim.Tests.Common.Setup;
 
 namespace OpenSim.Region.Framework.Scenes.Tests
 {
@@ -76,7 +75,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
                      new GroupsModule(), 
                      new MockGroupsServicesConnector() });
             
-            TestClient client = SceneSetupHelpers.AddRootAgent(scene, userId);            
+            TestClient client = SceneSetupHelpers.AddClient(scene, userId);            
             
             IGroupsModule groupsModule = scene.RequestModuleInterface<IGroupsModule>();     
             

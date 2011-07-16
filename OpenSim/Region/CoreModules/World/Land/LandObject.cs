@@ -67,7 +67,7 @@ namespace OpenSim.Region.CoreModules.World.Land
         public int GetPrimsFree()
         {
             m_scene.EventManager.TriggerParcelPrimCountUpdate();
-            int free = GetSimulatorMaxPrimCount(this) - m_landData.SimwidePrims;
+            int free = GetSimulatorMaxPrimCount() - m_landData.SimwidePrims;
             return free;
         }
 
@@ -181,11 +181,11 @@ namespace OpenSim.Region.CoreModules.World.Land
             overrideSimulatorMaxPrimCount = overrideDel;
         }
 
-        public int GetParcelMaxPrimCount(ILandObject thisObject)
+        public int GetParcelMaxPrimCount()
         {
             if (overrideParcelMaxPrimCount != null)
             {
-                return overrideParcelMaxPrimCount(thisObject);
+                return overrideParcelMaxPrimCount(this);
             }
             else
             {
@@ -197,11 +197,12 @@ namespace OpenSim.Region.CoreModules.World.Land
                 return parcelMax;
             }
         }
-        public int GetSimulatorMaxPrimCount(ILandObject thisObject)
+
+        public int GetSimulatorMaxPrimCount()
         {
             if (overrideSimulatorMaxPrimCount != null)
             {
-                return overrideSimulatorMaxPrimCount(thisObject);
+                return overrideSimulatorMaxPrimCount(this);
             }
             else
             {
@@ -244,8 +245,8 @@ namespace OpenSim.Region.CoreModules.World.Land
             remote_client.SendLandProperties(seq_id,
                     snap_selection, request_result, this,
                     (float)m_scene.RegionInfo.RegionSettings.ObjectBonus,
-                    GetParcelMaxPrimCount(this),
-                    GetSimulatorMaxPrimCount(this), regionFlags);
+                    GetParcelMaxPrimCount(),
+                    GetSimulatorMaxPrimCount(), regionFlags);
         }
 
         public void UpdateLandProperties(LandUpdateArgs args, IClientAPI remote_client)
@@ -417,7 +418,7 @@ namespace OpenSim.Region.CoreModules.World.Land
 
         public bool IsBannedFromLand(UUID avatar)
         {
-            if (m_scene.Permissions.IsAdministrator(avatar))
+            if (m_scene.Permissions.CanEditParcelProperties(avatar, this, 0))
                 return false;
 
             if ((LandData.Flags & (uint) ParcelFlags.UseBanList) > 0)
@@ -428,7 +429,7 @@ namespace OpenSim.Region.CoreModules.World.Land
                             if (e.AgentID == avatar && e.Flags == AccessList.Ban)
                                 return true;
                             return false;
-                        }) != -1 && LandData.OwnerID != avatar)
+                        }) != -1)
                 {
                     return true;
                 }
@@ -438,7 +439,7 @@ namespace OpenSim.Region.CoreModules.World.Land
 
         public bool IsRestrictedFromLand(UUID avatar)
         {
-            if (m_scene.Permissions.IsAdministrator(avatar))
+            if (m_scene.Permissions.CanEditParcelProperties(avatar, this, 0))
                 return false;
 
             if ((LandData.Flags & (uint) ParcelFlags.UseAccessList) > 0)
@@ -449,7 +450,7 @@ namespace OpenSim.Region.CoreModules.World.Land
                             if (e.AgentID == avatar && e.Flags == AccessList.Access)
                                 return true;
                             return false;
-                        }) == -1 && LandData.OwnerID != avatar)
+                        }) == -1)
                 {
                     return true;
                 }

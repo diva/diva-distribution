@@ -324,10 +324,25 @@ namespace OpenSim.Framework
         }
 
         /// <summary>
-        /// Debug utility function to convert unbroken strings of XML into something human readable for occasional debugging purposes.
-        ///
-        /// Please don't delete me even if I appear currently unused!
+        /// Debug utility function to convert OSD into formatted XML for debugging purposes.
         /// </summary>
+        /// <param name="osd">
+        /// A <see cref="OSD"/>
+        /// </param>
+        /// <returns>
+        /// A <see cref="System.String"/>
+        /// </returns>
+        public static string GetFormattedXml(OSD osd)
+        {
+            return GetFormattedXml(OSDParser.SerializeLLSDXmlString(osd));
+        }
+
+        /// <summary>
+        /// Debug utility function to convert unbroken strings of XML into something human readable for occasional debugging purposes.
+        /// </summary>
+        /// <remarks>
+        /// Please don't delete me even if I appear currently unused!
+        /// </remarks>
         /// <param name="rawXml"></param>
         /// <returns></returns>
         public static string GetFormattedXml(string rawXml)
@@ -425,20 +440,30 @@ namespace OpenSim.Framework
         }
 
         /// <summary>
-        /// Return an SHA1 hash of the given string
+        /// Return an SHA1 hash
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         public static string SHA1Hash(string data)
         {
+            return SHA1Hash(Encoding.Default.GetBytes(data));
+        }
+
+        /// <summary>
+        /// Return an SHA1 hash
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static string SHA1Hash(byte[] data)
+        {
             byte[] hash = ComputeSHA1Hash(data);
             return BitConverter.ToString(hash).Replace("-", String.Empty);
         }
 
-        private static byte[] ComputeSHA1Hash(string src)
+        private static byte[] ComputeSHA1Hash(byte[] src)
         {
             SHA1CryptoServiceProvider SHA1 = new SHA1CryptoServiceProvider();
-            return SHA1.ComputeHash(Encoding.Default.GetBytes(src));
+            return SHA1.ComputeHash(src);
         }
 
         public static int fast_distance2d(int x, int y)
@@ -1537,6 +1562,23 @@ namespace OpenSim.Framework
             return (diff >= 0) ? diff : (diff + EnvironmentTickCountMask + 1);
         }
 
+        // Returns value of Tick Count A - TickCount B accounting for wrapping of TickCount
+        // Assumes both tcA and tcB came from previous calls to Util.EnvironmentTickCount().
+        // A positive return value indicates A occured later than B
+        public static Int32 EnvironmentTickCountCompare(Int32 tcA, Int32 tcB)
+        {
+            // A, B and TC are all between 0 and 0x3fffffff
+            int tc = EnvironmentTickCount();
+
+            if (tc - tcA >= 0)
+                tcA += EnvironmentTickCountMask + 1;
+
+            if (tc - tcB >= 0)
+                tcB += EnvironmentTickCountMask + 1;
+
+            return tcA - tcB;
+        }
+
         /// <summary>
         /// Prints the call stack at any given point. Useful for debugging.
         /// </summary>
@@ -1676,6 +1718,69 @@ namespace OpenSim.Framework
 
             return (T)Enum.Parse(typeof(T), value); ;
         }
+        #endregion
+
+        #region Universal User Identifiers
+       /// <summary>
+        /// </summary>
+        /// <param name="value">uuid[;endpoint[;name]]</param>
+        /// <param name="uuid"></param>
+        /// <param name="url"></param>
+        /// <param name="firstname"></param>
+        /// <param name="lastname"></param>
+        public static bool ParseUniversalUserIdentifier(string value, out UUID uuid, out string url, out string firstname, out string lastname, out string secret)
+        {
+            uuid = UUID.Zero; url = string.Empty; firstname = "Unknown"; lastname = "User"; secret = string.Empty;
+
+            string[] parts = value.Split(';');
+            if (parts.Length >= 1)
+                if (!UUID.TryParse(parts[0], out uuid))
+                    return false;
+
+            if (parts.Length >= 2)
+                url = parts[1];
+
+            if (parts.Length >= 3)
+            {
+                string[] name = parts[2].Split();
+                if (name.Length == 2)
+                {
+                    firstname = name[0];
+                    lastname = name[1];
+                }
+            }
+            if (parts.Length >= 4)
+                secret = parts[3];
+
+            return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="acircuit"></param>
+        /// <returns>uuid[;endpoint[;name]]</returns>
+        public static string ProduceUserUniversalIdentifier(AgentCircuitData acircuit)
+        {
+            if (acircuit.ServiceURLs.ContainsKey("HomeURI"))
+            {
+                string agentsURI = acircuit.ServiceURLs["HomeURI"].ToString();
+                if (!agentsURI.EndsWith("/"))
+                    agentsURI += "/";
+
+                // This is ugly, but there's no other way, given that the name is changed
+                // in the agent circuit data for foreigners
+                if (acircuit.lastname.Contains("@"))
+                {
+                    string[] parts = acircuit.firstname.Split(new char[] { '.' });
+                    if (parts.Length == 2)
+                        return acircuit.AgentID.ToString() + ";" + agentsURI + ";" + parts[0] + " " + parts[1];
+                }
+                return acircuit.AgentID.ToString() + ";" + agentsURI + ";" + acircuit.firstname + " " + acircuit.lastname;
+            }
+            else
+                return acircuit.AgentID.ToString();
+        }        
         #endregion
     }
 }

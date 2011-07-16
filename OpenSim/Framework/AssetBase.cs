@@ -215,6 +215,12 @@ namespace OpenSim.Framework
             set { m_metadata.Temporary = value; }
         }
 
+        public string CreatorID
+        {
+            get { return m_metadata.CreatorID; }
+            set { m_metadata.CreatorID = value; }
+        }
+
         public AssetFlags Flags
         {
             get { return m_metadata.Flags; }
@@ -267,6 +273,7 @@ namespace OpenSim.Framework
 
                 return m_id;
             }
+            
             set
             {
                 UUID uuid = UUID.Zero;

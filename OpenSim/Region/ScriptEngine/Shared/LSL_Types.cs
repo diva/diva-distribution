@@ -1379,7 +1379,9 @@ namespace OpenSim.Region.ScriptEngine.Shared
         public struct LSLString
         {
             public string m_string;
+
             #region Constructors
+
             public LSLString(string s)
             {
                 m_string = s;
@@ -1387,22 +1389,24 @@ namespace OpenSim.Region.ScriptEngine.Shared
 
             public LSLString(double d)
             {
-                string s=String.Format(Culture.FormatProvider, "{0:0.000000}", d);
-                m_string=s;
+                string s = String.Format(Culture.FormatProvider, "{0:0.000000}", d);
+                m_string = s;
             }
 
             public LSLString(LSLFloat f)
             {
                 string s = String.Format(Culture.FormatProvider, "{0:0.000000}", f.value);
-                m_string=s;
+                m_string = s;
             }
-
-            public LSLString(LSLInteger i)
+            
+            public LSLString(int i)
             {
                 string s = String.Format("{0}", i);
                 m_string = s;
             }
 
+            public LSLString(LSLInteger i) : this(i.value) {}
+            
             #endregion
 
             #region Operators
@@ -1468,6 +1472,11 @@ namespace OpenSim.Region.ScriptEngine.Shared
             public static explicit operator LSLString(double d)
             {
                 return new LSLString(d);
+            }
+            
+            static public explicit operator LSLString(int i)
+            {
+                return new LSLString(i);
             }
 
             public static explicit operator LSLString(LSLFloat f)
@@ -1536,6 +1545,7 @@ namespace OpenSim.Region.ScriptEngine.Shared
         public struct LSLInteger
         {
             public int value;
+            private static readonly Regex castRegex = new Regex(@"(^[ ]*0[xX][0-9A-Fa-f][0-9A-Fa-f]*)|(^[ ]*(-?|\+?)[0-9][0-9]*)");
 
             #region Constructors
             public LSLInteger(int i)
@@ -1555,9 +1565,10 @@ namespace OpenSim.Region.ScriptEngine.Shared
 
             public LSLInteger(string s)
             {
-                Regex r = new Regex("(^[ ]*0[xX][0-9A-Fa-f][0-9A-Fa-f]*)|(^[ ]*-?[0-9][0-9]*)");
-                Match m = r.Match(s);
+                Match m = castRegex.Match(s);
                 string v = m.Groups[0].Value;
+                // Leading plus sign is allowed, but ignored
+                v = v.Replace("+", "");
 
                 if (v == String.Empty)
                 {
@@ -1740,7 +1751,17 @@ namespace OpenSim.Region.ScriptEngine.Shared
             public override bool Equals(Object o)
             {
                 if (!(o is LSLInteger))
-                    return false;
+                {
+                    if (o is int)
+                    {
+                        return value == (int)o;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                
                 return value == ((LSLInteger)o).value;
             }
 

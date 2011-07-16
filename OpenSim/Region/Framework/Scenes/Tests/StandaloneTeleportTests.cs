@@ -36,7 +36,6 @@ using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.CoreModules.ServiceConnectorsOut.Simulation;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
-using OpenSim.Tests.Common.Setup;
 using System.Threading;
 
 namespace OpenSim.Region.Framework.Scenes.Tests
@@ -126,7 +125,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             sceneA.RegisterRegionWithGrid();
 
             UUID agentId = UUID.Parse("00000000-0000-0000-0000-000000000041");
-            TestClient client = SceneSetupHelpers.AddRootAgent(sceneA, agentId);
+            TestClient client = SceneSetupHelpers.AddClient(sceneA, agentId);
 
             ICapabilitiesModule sceneACapsModule = sceneA.RequestModuleInterface<ICapabilitiesModule>();
 

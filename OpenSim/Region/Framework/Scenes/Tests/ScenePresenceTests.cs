@@ -44,7 +44,6 @@ using OpenSim.Region.CoreModules.World.Serialiser;
 using OpenSim.Region.CoreModules.ServiceConnectorsOut.Simulation;
 using OpenSim.Tests.Common;
 using OpenSim.Tests.Common.Mock;
-using OpenSim.Tests.Common.Setup;
 
 namespace OpenSim.Region.Framework.Scenes.Tests
 {
@@ -213,7 +212,7 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             
             SceneSetupHelpers.SetupSceneModules(myScene1, configSource, etm);            
             
-            SceneSetupHelpers.AddRootAgent(myScene1, agent1Id);
+            SceneSetupHelpers.AddClient(myScene1, agent1Id);
             ScenePresence childPresence = myScene2.GetScenePresence(agent1);
             
             // TODO: Need to do a fair amount of work to allow synchronous establishment of child agents
