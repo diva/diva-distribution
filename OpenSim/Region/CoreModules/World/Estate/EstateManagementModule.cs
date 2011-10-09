@@ -851,41 +851,35 @@ namespace OpenSim.Region.CoreModules.World.Estate
                     SceneObjectPart prt = Scene.GetSceneObjectPart(obj);
                     if (prt != null)
                     {
-                        if (prt.ParentGroup != null)
+                        SceneObjectGroup sog = prt.ParentGroup;
+                        LandStatReportItem lsri = new LandStatReportItem();
+                        lsri.LocationX = sog.AbsolutePosition.X;
+                        lsri.LocationY = sog.AbsolutePosition.Y;
+                        lsri.LocationZ = sog.AbsolutePosition.Z;
+                        lsri.Score = SceneData[obj];
+                        lsri.TaskID = sog.UUID;
+                        lsri.TaskLocalID = sog.LocalId;
+                        lsri.TaskName = sog.GetPartName(obj);
+                        lsri.OwnerName = "waiting";
+                        lock (uuidNameLookupList)
+                            uuidNameLookupList.Add(sog.OwnerID);
+
+                        if (filter.Length != 0)
                         {
-                            SceneObjectGroup sog = prt.ParentGroup;
-                            if (sog != null)
+                            if ((lsri.OwnerName.Contains(filter) || lsri.TaskName.Contains(filter)))
                             {
-                                LandStatReportItem lsri = new LandStatReportItem();
-                                lsri.LocationX = sog.AbsolutePosition.X;
-                                lsri.LocationY = sog.AbsolutePosition.Y;
-                                lsri.LocationZ = sog.AbsolutePosition.Z;
-                                lsri.Score = SceneData[obj];
-                                lsri.TaskID = sog.UUID;
-                                lsri.TaskLocalID = sog.LocalId;
-                                lsri.TaskName = sog.GetPartName(obj);
-                                lsri.OwnerName = "waiting";
-                                lock (uuidNameLookupList)
-                                    uuidNameLookupList.Add(sog.OwnerID);
-
-                                if (filter.Length != 0)
-                                {
-                                    if ((lsri.OwnerName.Contains(filter) || lsri.TaskName.Contains(filter)))
-                                    {
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-
-                                SceneReport.Add(lsri);
+                            }
+                            else
+                            {
+                                continue;
                             }
                         }
-                    }
 
+                        SceneReport.Add(lsri);
+                    }
                 }
             }
+
             remoteClient.SendLandStatReply(reportType, requestFlags, (uint)SceneReport.Count,SceneReport.ToArray());
 
             if (uuidNameLookupList.Count > 0)
@@ -973,6 +967,11 @@ namespace OpenSim.Region.CoreModules.World.Estate
             args.terrainDetail1 = Scene.RegionInfo.RegionSettings.TerrainTexture2;
             args.terrainDetail2 = Scene.RegionInfo.RegionSettings.TerrainTexture3;
             args.terrainDetail3 = Scene.RegionInfo.RegionSettings.TerrainTexture4;
+
+//            m_log.DebugFormat("[ESTATE MANAGEMENT MODULE]: Sending terrain texture 1 {0} for region {1}", args.terrainDetail0, Scene.RegionInfo.RegionName);
+//            m_log.DebugFormat("[ESTATE MANAGEMENT MODULE]: Sending terrain texture 2 {0} for region {1}", args.terrainDetail1, Scene.RegionInfo.RegionName);
+//            m_log.DebugFormat("[ESTATE MANAGEMENT MODULE]: Sending terrain texture 3 {0} for region {1}", args.terrainDetail2, Scene.RegionInfo.RegionName);
+//            m_log.DebugFormat("[ESTATE MANAGEMENT MODULE]: Sending terrain texture 4 {0} for region {1}", args.terrainDetail3, Scene.RegionInfo.RegionName);
 
             remoteClient.SendRegionHandshake(Scene.RegionInfo,args);
         }

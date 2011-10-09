@@ -49,25 +49,28 @@ namespace OpenSim.Region.Framework.Scenes.Tests
         [Test]
         public void TestAddSceneObject()
         {
-            TestHelper.InMethod();
+            TestHelpers.InMethod();
 
-            Scene scene = SceneSetupHelpers.SetupScene();
+            Scene scene = SceneHelpers.SetupScene();
+            int partsToTestCount = 3;
 
-            string objName = "obj1";
-            UUID objUuid = new UUID("00000000-0000-0000-0000-000000000001");
+            SceneObjectGroup so
+                = SceneHelpers.CreateSceneObject(partsToTestCount, TestHelpers.ParseTail(0x1), "obj1", 0x10);
+            SceneObjectPart[] parts = so.Parts;
 
-            SceneObjectPart part
-                = new SceneObjectPart(UUID.Zero, PrimitiveBaseShape.Default, Vector3.Zero, Quaternion.Identity, Vector3.Zero) 
-                    { Name = objName, UUID = objUuid };
-
-            Assert.That(scene.AddNewSceneObject(new SceneObjectGroup(part), false), Is.True);
-            
-            SceneObjectPart retrievedPart = scene.GetSceneObjectPart(objUuid);
+            Assert.That(scene.AddNewSceneObject(so, false), Is.True);
+            SceneObjectGroup retrievedSo = scene.GetSceneObjectGroup(so.UUID);
+            SceneObjectPart[] retrievedParts = retrievedSo.Parts;
             
             //m_log.Debug("retrievedPart : {0}", retrievedPart);
             // If the parts have the same UUID then we will consider them as one and the same
-            Assert.That(retrievedPart.Name, Is.EqualTo(objName));
-            Assert.That(retrievedPart.UUID, Is.EqualTo(objUuid));
+            Assert.That(retrievedSo.PrimCount, Is.EqualTo(partsToTestCount));
+
+            for (int i = 0; i < partsToTestCount; i++)
+            {
+                Assert.That(retrievedParts[i].Name, Is.EqualTo(parts[i].Name));
+                Assert.That(retrievedParts[i].UUID, Is.EqualTo(parts[i].UUID));
+            }
         }
 
         [Test]
@@ -76,9 +79,9 @@ namespace OpenSim.Region.Framework.Scenes.Tests
         /// </summary>
         public void TestAddExistingSceneObjectUuid()
         {
-            TestHelper.InMethod();
+            TestHelpers.InMethod();
 
-            Scene scene = SceneSetupHelpers.SetupScene();
+            Scene scene = SceneHelpers.SetupScene();
 
             string obj1Name = "Alfred";
             string obj2Name = "Betty";
@@ -103,6 +106,39 @@ namespace OpenSim.Region.Framework.Scenes.Tests
             Assert.That(retrievedPart.Name, Is.EqualTo(obj1Name));
             Assert.That(retrievedPart.UUID, Is.EqualTo(objUuid));
         }
+
+        /// <summary>
+        /// Test retrieving a scene object via the local id of one of its parts.
+        /// </summary>
+        [Test]
+        public void TestGetSceneObjectByPartLocalId()
+        {
+            TestHelpers.InMethod();
+
+            Scene scene = SceneHelpers.SetupScene();
+            int partsToTestCount = 3;
+
+            SceneObjectGroup so
+                = SceneHelpers.CreateSceneObject(partsToTestCount, TestHelpers.ParseTail(0x1), "obj1", 0x10);
+            SceneObjectPart[] parts = so.Parts;
+
+            scene.AddNewSceneObject(so, false);
+
+            // Test getting via the root part's local id
+            Assert.That(scene.GetGroupByPrim(so.LocalId), Is.Not.Null);
+
+            // Test getting via a non root part's local id
+            Assert.That(scene.GetGroupByPrim(parts[partsToTestCount - 1].LocalId), Is.Not.Null);
+
+            // Test that we don't get back an object for a local id that doesn't exist
+            Assert.That(scene.GetGroupByPrim(999), Is.Null);
+
+            // Now delete the scene object and check again
+            scene.DeleteSceneObject(so, false);
+
+            Assert.That(scene.GetGroupByPrim(so.LocalId), Is.Null);
+            Assert.That(scene.GetGroupByPrim(parts[partsToTestCount - 1].LocalId), Is.Null);
+        }
         
         /// <summary>
         /// Test deleting an object from a scene.
@@ -110,10 +146,10 @@ namespace OpenSim.Region.Framework.Scenes.Tests
         [Test]
         public void TestDeleteSceneObject()
         {
-            TestHelper.InMethod();
+            TestHelpers.InMethod();
             
-            TestScene scene = SceneSetupHelpers.SetupScene();
-            SceneObjectPart part = SceneSetupHelpers.AddSceneObject(scene);
+            TestScene scene = SceneHelpers.SetupScene();
+            SceneObjectPart part = SceneHelpers.AddSceneObject(scene);
             scene.DeleteSceneObject(part.ParentGroup, false);
             
             SceneObjectPart retrievedPart = scene.GetSceneObjectPart(part.LocalId);
@@ -126,20 +162,20 @@ namespace OpenSim.Region.Framework.Scenes.Tests
         [Test]
         public void TestDeleteSceneObjectAsync()
         {
-            TestHelper.InMethod();
+            TestHelpers.InMethod();
             //log4net.Config.XmlConfigurator.Configure();
 
             UUID agentId = UUID.Parse("00000000-0000-0000-0000-000000000001");
 
-            TestScene scene = SceneSetupHelpers.SetupScene();
+            TestScene scene = SceneHelpers.SetupScene();
 
             // Turn off the timer on the async sog deleter - we'll crank it by hand for this test.
             AsyncSceneObjectGroupDeleter sogd = scene.SceneObjectGroupDeleter;
             sogd.Enabled = false;
 
-            SceneObjectPart part = SceneSetupHelpers.AddSceneObject(scene);
+            SceneObjectPart part = SceneHelpers.AddSceneObject(scene);
 
-            IClientAPI client = SceneSetupHelpers.AddClient(scene, agentId);
+            IClientAPI client = SceneHelpers.AddScenePresence(scene, agentId).ControllingClient;
             scene.DeRezObjects(client, new System.Collections.Generic.List<uint>() { part.LocalId }, UUID.Zero, DeRezAction.Delete, UUID.Zero);
 
             SceneObjectPart retrievedPart = scene.GetSceneObjectPart(part.LocalId);

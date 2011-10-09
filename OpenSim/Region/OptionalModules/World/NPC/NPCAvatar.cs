@@ -99,6 +99,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         {
 
         }
+        
         public void SendSitResponse(UUID TargetID, Vector3 OffsetPos, Quaternion SitOrientation, bool autopilot,
                                         Vector3 CameraAtOffset, Vector3 CameraEyeOffset, bool ForceMouseLook)
         {
@@ -189,7 +190,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         public event DeRezObject OnDeRezObject;
         public event Action<IClientAPI> OnRegionHandShakeReply;
         public event GenericCall1 OnRequestWearables;
-        public event GenericCall1 OnCompleteMovementToRegion;
+        public event Action<IClientAPI, bool> OnCompleteMovementToRegion;
         public event UpdateAgent OnPreAgentUpdate;
         public event UpdateAgent OnAgentUpdate;
         public event AgentRequestSit OnAgentRequestSit;
@@ -327,7 +328,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         public event ScriptReset OnScriptReset;
         public event GetScriptRunning OnGetScriptRunning;
         public event SetScriptRunning OnSetScriptRunning;
-        public event UpdateVector OnAutoPilotGo;
+        public event Action<Vector3, bool, bool> OnAutoPilotGo;
 
         public event TerrainUnacked OnUnackedTerrain;
 
@@ -744,12 +745,8 @@ namespace OpenSim.Region.OptionalModules.World.NPC
             {
                 OnRegionHandShakeReply(this);
             }
-
-            if (OnCompleteMovementToRegion != null)
-            {
-                OnCompleteMovementToRegion(this);
-            }
         }
+        
         public void SendAssetUploadCompleteMessage(sbyte AssetType, bool Success, UUID AssetFullID)
         {
         }
@@ -840,6 +837,8 @@ namespace OpenSim.Region.OptionalModules.World.NPC
 
         public void Close()
         {
+            // Remove ourselves from the scene
+            m_scene.RemoveClient(AgentId, false);
         }
 
         public void Start()
@@ -1157,7 +1156,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
         {
         }
 
-        public void SendTextBoxRequest(string message, int chatChannel, string objectname, string ownerFirstName, string ownerLastName, UUID objectId)
+        public void SendTextBoxRequest(string message, int chatChannel, string objectname, UUID ownerID, string ownerFirstName, string ownerLastName, UUID objectId)
         {
         }
         

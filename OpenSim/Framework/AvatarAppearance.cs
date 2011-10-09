@@ -47,7 +47,6 @@ namespace OpenSim.Framework
         public readonly static int TEXTURE_COUNT = 21;
         public readonly static byte[] BAKE_INDICES = new byte[] { 8, 9, 10, 11, 19, 20 };
 
-        protected UUID m_owner;
         protected int m_serial = 0;
         protected byte[] m_visualparams;
         protected Primitive.TextureEntry m_texture;
@@ -55,12 +54,6 @@ namespace OpenSim.Framework
         protected Dictionary<int, List<AvatarAttachment>> m_attachments;
         protected float m_avatarHeight = 0;
         protected float m_hipOffset = 0;
-
-        public virtual UUID Owner
-        {
-            get { return m_owner; }
-            set { m_owner = value; }
-        }
 
         public virtual int Serial
         {
@@ -77,7 +70,11 @@ namespace OpenSim.Framework
         public virtual Primitive.TextureEntry Texture
         {
             get { return m_texture; }
-            set { m_texture = value; }
+            set
+            {
+//                m_log.DebugFormat("[AVATAR APPEARANCE]: Set TextureEntry to {0}", value);
+                m_texture = value;
+            }
         }
 
         public virtual AvatarWearable[] Wearables
@@ -97,38 +94,31 @@ namespace OpenSim.Framework
             get { return m_hipOffset; }
         }
 
-        public AvatarAppearance() : this(UUID.Zero) {}
-
-        public AvatarAppearance(UUID owner)
+        public AvatarAppearance()
         {
-//            m_log.WarnFormat("[AVATAR APPEARANCE]: create empty appearance for {0}",owner);
+//            m_log.WarnFormat("[AVATAR APPEARANCE]: create empty appearance");
 
             m_serial = 0;
-            m_owner = owner;
-
             SetDefaultWearables();
             SetDefaultTexture();
             SetDefaultParams();
             SetHeight();
-
             m_attachments = new Dictionary<int, List<AvatarAttachment>>();
         }
 
-        public AvatarAppearance(UUID avatarID, OSDMap map)
+        public AvatarAppearance(OSDMap map)
         {
-//            m_log.WarnFormat("[AVATAR APPEARANCE]: create appearance for {0} from OSDMap",avatarID);
+//            m_log.WarnFormat("[AVATAR APPEARANCE]: create appearance from OSDMap");
 
-            m_owner = avatarID;
             Unpack(map);
             SetHeight();
         }
 
-        public AvatarAppearance(UUID avatarID, AvatarWearable[] wearables, Primitive.TextureEntry textureEntry, byte[] visualParams)
+        public AvatarAppearance(AvatarWearable[] wearables, Primitive.TextureEntry textureEntry, byte[] visualParams)
         {
-//            m_log.WarnFormat("[AVATAR APPEARANCE] create initialized appearance for {0}",avatarID);
+//            m_log.WarnFormat("[AVATAR APPEARANCE] create initialized appearance");
 
             m_serial = 0;
-            m_owner = avatarID;
 
             if (wearables != null)
                 m_wearables = wearables;
@@ -161,24 +151,21 @@ namespace OpenSim.Framework
             if (appearance == null)
             {
                 m_serial = 0;
-                m_owner = UUID.Zero;
-
                 SetDefaultWearables();
                 SetDefaultTexture();
                 SetDefaultParams();
                 SetHeight();
-
                 m_attachments = new Dictionary<int, List<AvatarAttachment>>();
 
                 return;
             }
 
             m_serial = appearance.Serial;
-            m_owner = appearance.Owner;
 
             m_wearables = new AvatarWearable[AvatarWearable.MAX_WEARABLES];
             for (int i = 0; i < AvatarWearable.MAX_WEARABLES; i++)
                 m_wearables[i] = new AvatarWearable();
+
             if (copyWearables && (appearance.Wearables != null))
             {
                 for (int i = 0; i < AvatarWearable.MAX_WEARABLES; i++)
@@ -195,6 +182,9 @@ namespace OpenSim.Framework
             m_visualparams = null;
             if (appearance.VisualParams != null)
                 m_visualparams = (byte[])appearance.VisualParams.Clone();
+
+            m_avatarHeight = appearance.m_avatarHeight;
+            m_hipOffset = appearance.m_hipOffset;
 
             // Copy the attachment, force append mode since that ensures consistency
             m_attachments = new Dictionary<int, List<AvatarAttachment>>();
@@ -235,9 +225,10 @@ namespace OpenSim.Framework
         /// </summary>
         public virtual void ResetAppearance()
         {
+//            m_log.WarnFormat("[AVATAR APPEARANCE]: Reset appearance");
+            
             m_serial = 0;
 
-            SetDefaultParams();
             SetDefaultTexture();
             
             //for (int i = 0; i < BAKE_INDICES.Length; i++)
@@ -394,16 +385,22 @@ namespace OpenSim.Framework
 // DEBUG OFF
 
         /// <summary>
-        /// Get a list of the attachments, note that there may be
-        /// duplicate attachpoints
+        /// Get a list of the attachments.
         /// </summary>
+        /// <remarks>
+        /// There may be duplicate attachpoints
+        /// </remarks>
         public List<AvatarAttachment> GetAttachments()
         {
             List<AvatarAttachment> alist = new List<AvatarAttachment>();
-            foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+
+            lock (m_attachments)
             {
-                foreach (AvatarAttachment attach in kvp.Value)
-                    alist.Add(new AvatarAttachment(attach));
+                foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+                {
+                    foreach (AvatarAttachment attach in kvp.Value)
+                        alist.Add(new AvatarAttachment(attach));
+                }
             }
 
             return alist;
@@ -411,41 +408,80 @@ namespace OpenSim.Framework
 
         internal void AppendAttachment(AvatarAttachment attach)
         {
-            if (! m_attachments.ContainsKey(attach.AttachPoint))
-                m_attachments[attach.AttachPoint] = new List<AvatarAttachment>();
-            m_attachments[attach.AttachPoint].Add(attach);
+//            m_log.DebugFormat(
+//                "[AVATAR APPEARNCE]: Appending itemID={0}, assetID={1} at {2}",
+//                attach.ItemID, attach.AssetID, attach.AttachPoint);
+
+            lock (m_attachments)
+            {
+                if (!m_attachments.ContainsKey(attach.AttachPoint))
+                    m_attachments[attach.AttachPoint] = new List<AvatarAttachment>();
+    
+                m_attachments[attach.AttachPoint].Add(attach);
+            }
         }
 
         internal void ReplaceAttachment(AvatarAttachment attach)
         {
-            m_attachments[attach.AttachPoint] = new List<AvatarAttachment>();
-            m_attachments[attach.AttachPoint].Add(attach);
+//            m_log.DebugFormat(
+//                "[AVATAR APPEARANCE]: Replacing itemID={0}, assetID={1} at {2}",
+//                attach.ItemID, attach.AssetID, attach.AttachPoint);
+
+            lock (m_attachments)
+            {
+                m_attachments[attach.AttachPoint] = new List<AvatarAttachment>();
+                m_attachments[attach.AttachPoint].Add(attach);
+            }
         }
 
         /// <summary>
-        /// Add an attachment, if the attachpoint has the
+        /// Set an attachment
+        /// </summary>
+        /// <remarks>
+        /// If the attachpoint has the
         /// 0x80 bit set then we assume this is an append
         /// operation otherwise we replace whatever is
         /// currently attached at the attachpoint
+        /// </remarks>
+        /// <param name="attachpoint"></param>
+        /// <param name="item">If UUID.Zero, then an any attachment at the attachpoint is removed.</param>
+        /// <param name="asset"></param>
+        /// <returns>
         /// return true if something actually changed
-        /// </summary>
+        /// </returns>
         public bool SetAttachment(int attachpoint, UUID item, UUID asset)
         {
+//            m_log.DebugFormat(
+//                "[AVATAR APPEARANCE]: Setting attachment at {0} with item ID {1}, asset ID {2}",
+//                 attachpoint, item, asset);
+
             if (attachpoint == 0)
                 return false;
 
             if (item == UUID.Zero)
             {
-                if (m_attachments.ContainsKey(attachpoint))
+                lock (m_attachments)
                 {
-                    m_attachments.Remove(attachpoint);
-                    return true;
+                    if (m_attachments.ContainsKey(attachpoint))
+                    {
+                        m_attachments.Remove(attachpoint);
+                        return true;
+                    }
                 }
+                
                 return false;
             }
 
-            // check if the item is already attached at this point
-            if (GetAttachpoint(item) == (attachpoint & 0x7F))
+            // When a user logs in, the attachment item ids are pulled from persistence in the Avatars table.  However,
+            // the asset ids are not saved.  When the avatar enters a simulator the attachments are set again.  If
+            // we simply perform an item check here then the asset ids (which are now present) are never set, and NPC attachments
+            // later fail unless the attachment is detached and reattached.
+            //
+            // Therefore, we will carry on with the set if the existing attachment has no asset id.
+            AvatarAttachment existingAttachment = GetAttachmentForItem(item);
+            if (existingAttachment != null
+                && existingAttachment.AssetID != UUID.Zero
+                && existingAttachment.AttachPoint == (attachpoint & 0x7F))
             {
                 // m_log.DebugFormat("[AVATAR APPEARANCE] attempt to attach an already attached item {0}",item);
                 return false;
@@ -460,18 +496,42 @@ namespace OpenSim.Framework
             }
             else
             {
-                ReplaceAttachment(new AvatarAttachment(attachpoint,item,asset));
+                ReplaceAttachment(new AvatarAttachment(attachpoint,item, asset));
             }
+
             return true;
+        }
+
+        /// <summary>
+        /// If the item is already attached, return it.
+        /// </summary>
+        /// <param name="itemID"></param>
+        /// <returns>Returns null if this item is not attached.</returns>
+        public AvatarAttachment GetAttachmentForItem(UUID itemID)
+        {
+            lock (m_attachments)
+            {
+                foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+                {
+                    int index = kvp.Value.FindIndex(delegate(AvatarAttachment a) { return a.ItemID == itemID; });
+                    if (index >= 0)
+                        return kvp.Value[index];
+                }
+            }
+
+            return null;
         }
 
         public int GetAttachpoint(UUID itemID)
         {
-            foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+            lock (m_attachments)
             {
-                int index = kvp.Value.FindIndex(delegate(AvatarAttachment a) { return a.ItemID == itemID; });
-                if (index >= 0)
-                    return kvp.Key;
+                foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+                {
+                    int index = kvp.Value.FindIndex(delegate(AvatarAttachment a) { return a.ItemID == itemID; });
+                    if (index >= 0)
+                        return kvp.Key;
+                }
             }
 
             return 0;
@@ -479,26 +539,32 @@ namespace OpenSim.Framework
 
         public bool DetachAttachment(UUID itemID)
         {
-            foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
+            lock (m_attachments)
             {
-                int index = kvp.Value.FindIndex(delegate(AvatarAttachment a) { return a.ItemID == itemID; });
-                if (index >= 0)
+                foreach (KeyValuePair<int, List<AvatarAttachment>> kvp in m_attachments)
                 {
-                    // Remove it from the list of attachments at that attach point
-                    m_attachments[kvp.Key].RemoveAt(index);
-
-                    // And remove the list if there are no more attachments here
-                    if (m_attachments[kvp.Key].Count == 0)
-                        m_attachments.Remove(kvp.Key);
-                    return true;
+                    int index = kvp.Value.FindIndex(delegate(AvatarAttachment a) { return a.ItemID == itemID; });
+                    if (index >= 0)
+                    {
+                        // Remove it from the list of attachments at that attach point
+                        m_attachments[kvp.Key].RemoveAt(index);
+    
+                        // And remove the list if there are no more attachments here
+                        if (m_attachments[kvp.Key].Count == 0)
+                            m_attachments.Remove(kvp.Key);
+    
+                        return true;
+                    }
                 }
             }
+
             return false;
         }
 
         public void ClearAttachments()
         {
-            m_attachments.Clear();
+            lock (m_attachments)
+                m_attachments.Clear();
         }
 
         #region Packing Functions
@@ -536,7 +602,8 @@ namespace OpenSim.Framework
             data["visualparams"] = visualparams;
 
             // Attachments
-            OSDArray attachs = new OSDArray(m_attachments.Count);
+            List<AvatarAttachment> attachments = GetAttachments();
+            OSDArray attachs = new OSDArray(attachments.Count);
             foreach (AvatarAttachment attach in GetAttachments())
                 attachs.Add(attach.Pack());
             data["attachments"] = attachs;
@@ -550,7 +617,7 @@ namespace OpenSim.Framework
         /// </summary>
         public void Unpack(OSDMap data)
         {
-            if ((data != null) &&  (data["serial"] != null))
+            if ((data != null) && (data["serial"] != null))
                 m_serial = data["serial"].AsInteger();
             if ((data != null) && (data["height"] != null))
                 m_avatarHeight = (float)data["height"].AsReal();
@@ -608,7 +675,14 @@ namespace OpenSim.Framework
                 {
                     OSDArray attachs = (OSDArray)(data["attachments"]);
                     for (int i = 0; i < attachs.Count; i++)
-                        AppendAttachment(new AvatarAttachment((OSDMap)attachs[i]));
+                    {
+                        AvatarAttachment att = new AvatarAttachment((OSDMap)attachs[i]);
+                        AppendAttachment(att);
+                        
+//                        m_log.DebugFormat(
+//                            "[AVATAR APPEARANCE]: Unpacked attachment itemID {0}, assetID {1}, point {2}",
+//                            att.ItemID, att.AssetID, att.AttachPoint);
+                    }
                 }
             }
             catch (Exception e)

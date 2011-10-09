@@ -85,7 +85,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.BuySell
             IClientAPI client, UUID agentID, UUID sessionID, uint localID, byte saleType, int salePrice)
         {
             SceneObjectPart part = m_scene.GetSceneObjectPart(localID);
-            if (part == null || part.ParentGroup == null)
+            if (part == null)
                 return;
 
             if (part.ParentGroup.IsDeleted)
@@ -101,7 +101,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.BuySell
 
             part.ParentGroup.HasGroupChanged = true;
 
-            part.GetProperties(client);
+            part.SendPropertiesToClient(client);
         }
 
         public bool BuyObject(IClientAPI remoteClient, UUID categoryID, uint localID, byte saleType, int salePrice)
@@ -109,9 +109,6 @@ namespace OpenSim.Region.CoreModules.World.Objects.BuySell
             SceneObjectPart part = m_scene.GetSceneObjectPart(localID);
 
             if (part == null)
-                return false;
-
-            if (part.ParentGroup == null)
                 return false;
 
             SceneObjectGroup group = part.ParentGroup;
@@ -145,7 +142,7 @@ namespace OpenSim.Region.CoreModules.World.Objects.BuySell
                 part.SalePrice = 10;
 
                 group.HasGroupChanged = true;
-                part.GetProperties(remoteClient);
+                part.SendPropertiesToClient(remoteClient);
                 part.TriggerScriptChangedEvent(Changed.OWNER);
                 group.ResumeScripts();
                 part.ScheduleFullUpdate();

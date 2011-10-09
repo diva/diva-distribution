@@ -441,7 +441,6 @@ namespace OpenSim.Framework
                 args["controllers"] = controls;
             }
 
-
             if ((CallbackURI != null) && (!CallbackURI.Equals("")))
                 args["callback_uri"] = OSD.FromString(CallbackURI);
 
@@ -593,7 +592,7 @@ namespace OpenSim.Framework
             //        AgentTextures[i++] = o.AsUUID();
             //}
 
-            Appearance = new AvatarAppearance(AgentID);
+            Appearance = new AvatarAppearance();
 
             // The code to unpack textures, visuals, wearables and attachments
             // should be removed; packed appearance contains the full appearance
@@ -628,6 +627,7 @@ namespace OpenSim.Framework
                         // We know all of these must end up as attachments so we
                         // append rather than replace to ensure multiple attachments
                         // per point continues to work
+//                        m_log.DebugFormat("[CHILDAGENTDATAUPDATE]: Appending attachments for {0}", AgentID);
                         Appearance.AppendAttachment(new AvatarAttachment((OSDMap)o));
                     }
                 }
@@ -635,7 +635,7 @@ namespace OpenSim.Framework
             // end of code to remove
 
             if (args.ContainsKey("packed_appearance") && (args["packed_appearance"]).Type == OSDType.Map)
-                Appearance = new AvatarAppearance(AgentID,(OSDMap)args["packed_appearance"]);
+                Appearance = new AvatarAppearance((OSDMap)args["packed_appearance"]);
             else
                 m_log.WarnFormat("[CHILDAGENTDATAUPDATE] No packed appearance");
 

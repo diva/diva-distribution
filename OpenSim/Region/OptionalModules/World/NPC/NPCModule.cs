@@ -44,32 +44,54 @@ namespace OpenSim.Region.OptionalModules.World.NPC
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        // private const bool m_enabled = false;
-
-        private Dictionary<UUID,NPCAvatar> m_avatars = new Dictionary<UUID, NPCAvatar>();
-        private Dictionary<UUID,AvatarAppearance> m_appearanceCache = new Dictionary<UUID, AvatarAppearance>();
+        private Dictionary<UUID, NPCAvatar> m_avatars = new Dictionary<UUID, NPCAvatar>();
 
         public void Initialise(Scene scene, IConfigSource source)
         {
-            scene.RegisterModuleInterface<INPCModule>(this);
-        }
+            IConfig config = source.Configs["NPC"];
 
-        private AvatarAppearance GetAppearance(UUID target, Scene scene)
-        {
-            if (m_appearanceCache.ContainsKey(target))
-                return m_appearanceCache[target];
-
-            AvatarAppearance appearance = scene.AvatarService.GetAppearance(target);
-            if (appearance != null)
+            if (config != null && config.GetBoolean("Enabled", false))
             {
-                m_appearanceCache.Add(target, appearance);
-                return appearance;
+                scene.RegisterModuleInterface<INPCModule>(this);
             }
-
-            return new AvatarAppearance();
         }
 
-        public UUID CreateNPC(string firstname, string lastname, Vector3 position, Scene scene, UUID cloneAppearanceFrom)
+        public bool IsNPC(UUID agentId, Scene scene)
+        {
+            // FIXME: This implementation could not just use the ScenePresence.PresenceType (and callers could inspect
+            // that directly).
+            ScenePresence sp = scene.GetScenePresence(agentId);
+            if (sp == null || sp.IsChildAgent)
+                return false;
+
+            lock (m_avatars)
+                return m_avatars.ContainsKey(agentId);
+        }
+
+        public bool SetNPCAppearance(UUID agentId, AvatarAppearance appearance, Scene scene)
+        {
+            ScenePresence sp = scene.GetScenePresence(agentId);
+            if (sp == null || sp.IsChildAgent)
+                return false;
+
+            lock (m_avatars)
+                if (!m_avatars.ContainsKey(agentId))
+                    return false;
+
+            scene.AttachmentsModule.DeleteAttachmentsFromScene(sp, false);
+
+            AvatarAppearance npcAppearance = new AvatarAppearance(appearance, true);
+            sp.Appearance = npcAppearance;
+            scene.AttachmentsModule.RezAttachments(sp);
+
+            IAvatarFactory module = scene.RequestModuleInterface<IAvatarFactory>();
+            module.SendAppearance(sp.UUID);
+
+            return true;
+        }
+
+        public UUID CreateNPC(
+            string firstname, string lastname, Vector3 position, Scene scene, AvatarAppearance appearance)
         {
             NPCAvatar npcAvatar = new NPCAvatar(firstname, lastname, position, scene);
             npcAvatar.CircuitCode = (uint)Util.RandomClass.Next(0, int.MaxValue);
@@ -84,12 +106,18 @@ namespace OpenSim.Region.OptionalModules.World.NPC
             acd.lastname = lastname;
             acd.ServiceURLs = new Dictionary<string, object>();
 
-            AvatarAppearance originalAppearance = GetAppearance(cloneAppearanceFrom, scene);
-            AvatarAppearance npcAppearance = new AvatarAppearance(originalAppearance, true);
+            AvatarAppearance npcAppearance = new AvatarAppearance(appearance, true);
             acd.Appearance = npcAppearance;
 
+//            for (int i = 0; i < acd.Appearance.Texture.FaceTextures.Length; i++)
+//            {
+//                m_log.DebugFormat(
+//                    "[NPC MODULE]: NPC avatar {0} has texture id {1} : {2}",
+//                    acd.AgentID, i, acd.Appearance.Texture.FaceTextures[i]);
+//            }
+
             scene.AuthenticateHandler.AddNewCircuit(npcAvatar.CircuitCode, acd);
-            scene.AddNewClient(npcAvatar);
+            scene.AddNewClient(npcAvatar, PresenceType.Npc);
 
             ScenePresence sp;
             if (scene.TryGetScenePresence(npcAvatar.AgentId, out sp))
@@ -97,13 +125,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
                 m_log.DebugFormat(
                     "[NPC MODULE]: Successfully retrieved scene presence for NPC {0} {1}", sp.Name, sp.UUID);
 
-                // Shouldn't call this - temporary.
-                sp.CompleteMovement(npcAvatar);
-
-//                        sp.SendAppearanceToAllOtherAgents();
-//
-//                        // Send animations back to the avatar as well
-//                        sp.Animator.SendAnimPack();
+                sp.CompleteMovement(npcAvatar, false);
             }
             else
             {
@@ -118,7 +140,7 @@ namespace OpenSim.Region.OptionalModules.World.NPC
             return npcAvatar.AgentId;
         }
 
-        public void Autopilot(UUID agentID, Scene scene, Vector3 pos)
+        public bool MoveToTarget(UUID agentID, Scene scene, Vector3 pos, bool noFly, bool landAtTarget)
         {
             lock (m_avatars)
             {
@@ -126,32 +148,71 @@ namespace OpenSim.Region.OptionalModules.World.NPC
                 {
                     ScenePresence sp;
                     scene.TryGetScenePresence(agentID, out sp);
-                    sp.DoAutoPilot(0, pos, m_avatars[agentID]);
+
+                    m_log.DebugFormat(
+                        "[NPC MODULE]: Moving {0} to {1} in {2}, noFly {3}, landAtTarget {4}",
+                        sp.Name, pos, scene.RegionInfo.RegionName, noFly, landAtTarget);
+
+                    sp.MoveToTarget(pos, noFly, landAtTarget);
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public void Say(UUID agentID, Scene scene, string text)
+        public bool StopMoveToTarget(UUID agentID, Scene scene)
         {
             lock (m_avatars)
             {
                 if (m_avatars.ContainsKey(agentID))
                 {
+                    ScenePresence sp;
+                    scene.TryGetScenePresence(agentID, out sp);
+
+                    sp.Velocity = Vector3.Zero;
+                    sp.ResetMoveToTarget();
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool Say(UUID agentID, Scene scene, string text)
+        {
+            lock (m_avatars)
+            {
+                if (m_avatars.ContainsKey(agentID))
+                {
+                    ScenePresence sp;
+                    scene.TryGetScenePresence(agentID, out sp);
+
                     m_avatars[agentID].Say(text);
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
-        public void DeleteNPC(UUID agentID, Scene scene)
+        public bool DeleteNPC(UUID agentID, Scene scene)
         {
             lock (m_avatars)
             {
                 if (m_avatars.ContainsKey(agentID))
                 {
-                    scene.RemoveClient(agentID);
+                    scene.RemoveClient(agentID, false);
                     m_avatars.Remove(agentID);
+
+                    return true;
                 }
             }
+
+            return false;
         }
 
         public void PostInitialise()

@@ -90,7 +90,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         public event ObjectAttach OnObjectAttach;
         public event ObjectDeselect OnObjectDetach;
         public event ObjectDrop OnObjectDrop;
-        public event GenericCall1 OnCompleteMovementToRegion;
+        public event Action<IClientAPI, bool> OnCompleteMovementToRegion;
         public event UpdateAgent OnPreAgentUpdate;
         public event UpdateAgent OnAgentUpdate;
         public event AgentRequestSit OnAgentRequestSit;
@@ -231,7 +231,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         public event ScriptReset OnScriptReset;
         public event GetScriptRunning OnGetScriptRunning;
         public event SetScriptRunning OnSetScriptRunning;
-        public event UpdateVector OnAutoPilotGo;
+        public event Action<Vector3, bool, bool> OnAutoPilotGo;
         public event TerrainUnacked OnUnackedTerrain;
         public event ActivateGesture OnActivateGesture;
         public event DeactivateGesture OnDeactivateGesture;
@@ -512,7 +512,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                 m_udpServer.Flush(m_udpClient);
 
             // Remove ourselves from the scene
-            m_scene.RemoveClient(AgentId);
+            m_scene.RemoveClient(AgentId, true);
 
             // We can't reach into other scenes and close the connection
             // We need to do this over grid communications
@@ -692,7 +692,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
 
         public virtual void Start()
         {
-            m_scene.AddNewClient(this);
+            m_scene.AddNewClient(this, PresenceType.User);
 
             RefreshGroupMembership();
         }
@@ -4119,8 +4119,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             while (updatesThisCall < m_maxUpdates)
             {
                 lock (m_entityProps.SyncRoot)
-                        if (!m_entityProps.TryDequeue(out iupdate, out timeinqueue))
-                            break;
+                    if (!m_entityProps.TryDequeue(out iupdate, out timeinqueue))
+                        break;
 
                 ObjectPropertyUpdate update = (ObjectPropertyUpdate)iupdate;
                 if (update.SendFamilyProps)
@@ -4756,7 +4756,12 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             {
                 SceneObjectPart part = (SceneObjectPart)entity;
 
-                attachPoint = part.AttachmentPoint;
+                attachPoint = part.ParentGroup.AttachmentPoint;
+
+//                m_log.DebugFormat(
+//                    "[LLCLIENTVIEW]: Sending attachPoint {0} for {1} {2} to {3}",
+//                    attachPoint, part.Name, part.LocalId, Name);
+
                 collisionPlane = Vector4.Zero;
                 position = part.RelativePosition;
                 velocity = part.Velocity;
@@ -4913,16 +4918,23 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             //update.JointType = 0;
             update.Material = data.Material;
             update.MediaURL = Utils.EmptyBytes; // FIXME: Support this in OpenSim
-            if (data.IsAttachment)
+            if (data.ParentGroup.IsAttachment)
             {
                 update.NameValue = Util.StringToBytes256("AttachItemID STRING RW SV " + data.FromItemID);
-                update.State = (byte)((data.AttachmentPoint % 16) * 16 + (data.AttachmentPoint / 16));
+                update.State = (byte)((data.ParentGroup.AttachmentPoint % 16) * 16 + (data.ParentGroup.AttachmentPoint / 16));
             }
             else
             {
                 update.NameValue = Utils.EmptyBytes;
-                update.State = data.Shape.State;
+
+                // The root part state is the canonical state for all parts of the object.  The other part states in the
+                // case for attachments may contain conflicting values that can end up crashing the viewer.
+                update.State = data.ParentGroup.RootPart.Shape.State;
             }
+
+//                m_log.DebugFormat(
+//                    "[LLCLIENTVIEW]: Sending state {0} for {1} {2} to {3}",
+//                    update.State, data.Name, data.LocalId, Name);
 
             update.ObjectData = objectData;
             update.ParentID = data.ParentID;
@@ -5266,6 +5278,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             AddLocalPacketHandler(PacketType.GroupVoteHistoryRequest, HandleGroupVoteHistoryRequest);
             AddLocalPacketHandler(PacketType.SimWideDeletes, HandleSimWideDeletes);
             AddLocalPacketHandler(PacketType.SendPostcard, HandleSendPostcard);
+
+            AddGenericPacketHandler("autopilot", HandleAutopilot);
         }
 
         #region Packet Handlers
@@ -5308,7 +5322,9 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                        );
                 }
                 else
+                {
                     update = true;
+                }
 
                 // These should be ordered from most-likely to
                 // least likely to change. I've made an initial
@@ -5316,6 +5332,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
 
                 if (update)
                 {
+//                    m_log.DebugFormat("[LLCLIENTVIEW]: Triggered AgentUpdate for {0}", sener.Name);
+
                     AgentUpdateArgs arg = new AgentUpdateArgs();
                     arg.AgentID = x.AgentID;
                     arg.BodyRotation = x.BodyRotation;
@@ -6189,10 +6207,10 @@ namespace OpenSim.Region.ClientStack.LindenUDP
 
         private bool HandleCompleteAgentMovement(IClientAPI sender, Packet Pack)
         {
-            GenericCall1 handlerCompleteMovementToRegion = OnCompleteMovementToRegion;
+            Action<IClientAPI, bool> handlerCompleteMovementToRegion = OnCompleteMovementToRegion;
             if (handlerCompleteMovementToRegion != null)
             {
-                handlerCompleteMovementToRegion(sender);
+                handlerCompleteMovementToRegion(sender, true);
             }
             handlerCompleteMovementToRegion = null;
 
@@ -11220,8 +11238,13 @@ namespace OpenSim.Region.ClientStack.LindenUDP
         protected bool HandleMultipleObjUpdate(IClientAPI simClient, Packet packet)
         {
             MultipleObjectUpdatePacket multipleupdate = (MultipleObjectUpdatePacket)packet;
-            if (multipleupdate.AgentData.SessionID != SessionId) return false;
-            // m_log.Debug("new multi update packet " + multipleupdate.ToString());
+
+            if (multipleupdate.AgentData.SessionID != SessionId)
+                return false;
+
+//            m_log.DebugFormat(
+//                "[CLIENT]: Incoming MultipleObjectUpdatePacket contained {0} blocks", multipleupdate.ObjectData.Length);
+
             Scene tScene = (Scene)m_scene;
 
             for (int i = 0; i < multipleupdate.ObjectData.Length; i++)
@@ -11242,7 +11265,18 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                     }
                     else
                     {
-                        // UUID partId = part.UUID;
+//                        m_log.DebugFormat(
+//                            "[CLIENT]: Processing block {0} type {1} for {2} {3}",
+//                            i, block.Type, part.Name, part.LocalId);
+
+//                        // Do this once since fetch parts creates a new array.
+//                        SceneObjectPart[] parts = part.ParentGroup.Parts;
+//                        for (int j = 0; j < parts.Length; j++)
+//                        {
+//                            part.StoreUndoState();
+//                            parts[j].IgnoreUndoUpdate = true;
+//                        }
+
                         UpdatePrimGroupRotation handlerUpdatePrimGroupRotation;
 
                         switch (block.Type)
@@ -11257,6 +11291,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimSinglePosition(localId, pos1, this);
                                 }
                                 break;
+
                             case 2:
                                 Quaternion rot1 = new Quaternion(block.Data, 0, true);
 
@@ -11267,6 +11302,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimSingleRotation(localId, rot1, this);
                                 }
                                 break;
+
                             case 3:
                                 Vector3 rotPos = new Vector3(block.Data, 0);
                                 Quaternion rot2 = new Quaternion(block.Data, 12, true);
@@ -11279,6 +11315,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimSingleRotationPosition(localId, rot2, rotPos, this);
                                 }
                                 break;
+
                             case 4:
                             case 20:
                                 Vector3 scale4 = new Vector3(block.Data, 0);
@@ -11290,8 +11327,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimScale(localId, scale4, this);
                                 }
                                 break;
-                            case 5:
 
+                            case 5:
                                 Vector3 scale1 = new Vector3(block.Data, 12);
                                 Vector3 pos11 = new Vector3(block.Data, 0);
 
@@ -11308,6 +11345,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     }
                                 }
                                 break;
+
                             case 9:
                                 Vector3 pos2 = new Vector3(block.Data, 0);
 
@@ -11315,10 +11353,10 @@ namespace OpenSim.Region.ClientStack.LindenUDP
 
                                 if (handlerUpdateVector != null)
                                 {
-
                                     handlerUpdateVector(localId, pos2, this);
                                 }
                                 break;
+
                             case 10:
                                 Quaternion rot3 = new Quaternion(block.Data, 0, true);
 
@@ -11329,6 +11367,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimRotation(localId, rot3, this);
                                 }
                                 break;
+
                             case 11:
                                 Vector3 pos3 = new Vector3(block.Data, 0);
                                 Quaternion rot4 = new Quaternion(block.Data, 12, true);
@@ -11352,6 +11391,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     handlerUpdatePrimGroupScale(localId, scale7, this);
                                 }
                                 break;
+
                             case 13:
                                 Vector3 scale2 = new Vector3(block.Data, 12);
                                 Vector3 pos4 = new Vector3(block.Data, 0);
@@ -11371,6 +11411,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     }
                                 }
                                 break;
+
                             case 29:
                                 Vector3 scale5 = new Vector3(block.Data, 12);
                                 Vector3 pos5 = new Vector3(block.Data, 0);
@@ -11379,6 +11420,8 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                 if (handlerUpdatePrimGroupScale != null)
                                 {
                                     // m_log.Debug("new scale is " + scale.X + " , " + scale.Y + " , " + scale.Z);
+                                    part.StoreUndoState(true);
+                                    part.IgnoreUndoUpdate = true;
                                     handlerUpdatePrimGroupScale(localId, scale5, this);
                                     handlerUpdateVector = OnUpdatePrimGroupPosition;
 
@@ -11386,8 +11429,12 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     {
                                         handlerUpdateVector(localId, pos5, this);
                                     }
+
+                                    part.IgnoreUndoUpdate = false;
                                 }
+
                                 break;
+
                             case 21:
                                 Vector3 scale6 = new Vector3(block.Data, 12);
                                 Vector3 pos6 = new Vector3(block.Data, 0);
@@ -11395,6 +11442,9 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                 handlerUpdatePrimScale = OnUpdatePrimScale;
                                 if (handlerUpdatePrimScale != null)
                                 {
+                                    part.StoreUndoState(false);
+                                    part.IgnoreUndoUpdate = true;
+
                                     // m_log.Debug("new scale is " + scale.X + " , " + scale.Y + " , " + scale.Z);
                                     handlerUpdatePrimScale(localId, scale6, this);
                                     handlerUpdatePrimSinglePosition = OnUpdatePrimSinglePosition;
@@ -11402,15 +11452,22 @@ namespace OpenSim.Region.ClientStack.LindenUDP
                                     {
                                         handlerUpdatePrimSinglePosition(localId, pos6, this);
                                     }
+
+                                    part.IgnoreUndoUpdate = false;
                                 }
                                 break;
+
                             default:
-                                m_log.Debug("[CLIENT] MultipleObjUpdate recieved an unknown packet type: " + (block.Type));
+                                m_log.Debug("[CLIENT]: MultipleObjUpdate recieved an unknown packet type: " + (block.Type));
                                 break;
                         }
+
+//                        for (int j = 0; j < parts.Length; j++)
+//                            parts[j].IgnoreUndoUpdate = false;
                     }
                 }
             }
+
             return true;
         }
 
@@ -11570,55 +11627,22 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             return false;
         }
 
-        /// <summary>
-        /// Breaks down the genericMessagePacket into specific events
-        /// </summary>
-        /// <param name="gmMethod"></param>
-        /// <param name="gmInvoice"></param>
-        /// <param name="gmParams"></param>
-        public void DecipherGenericMessage(string gmMethod, UUID gmInvoice, GenericMessagePacket.ParamListBlock[] gmParams)
+        protected void HandleAutopilot(Object sender, string method, List<String> args)
         {
-            switch (gmMethod)
-            {
-                case "autopilot":
-                    float locx;
-                    float locy;
-                    float locz;
+            float locx = 0;
+            float locy = 0;
+            float locz = 0;
+            uint regionX = 0;
+            uint regionY = 0;
 
-                    try
-                    {
-                        uint regionX;
-                        uint regionY;
-                        Utils.LongToUInts(Scene.RegionInfo.RegionHandle, out regionX, out regionY);
-                        locx = Convert.ToSingle(Utils.BytesToString(gmParams[0].Parameter)) - regionX;
-                        locy = Convert.ToSingle(Utils.BytesToString(gmParams[1].Parameter)) - regionY;
-                        locz = Convert.ToSingle(Utils.BytesToString(gmParams[2].Parameter));
-                    }
-                    catch (InvalidCastException)
-                    {
-                        m_log.Error("[CLIENT]: Invalid autopilot request");
-                        return;
-                    }
+            Utils.LongToUInts(m_scene.RegionInfo.RegionHandle, out regionX, out regionY);
+            locx = Convert.ToSingle(args[0]) - (float)regionX;
+            locy = Convert.ToSingle(args[1]) - (float)regionY;
+            locz = Convert.ToSingle(args[2]);
 
-                    UpdateVector handlerAutoPilotGo = OnAutoPilotGo;
-                    if (handlerAutoPilotGo != null)
-                    {
-                        handlerAutoPilotGo(0, new Vector3(locx, locy, locz), this);
-                    }
-                    m_log.InfoFormat("[CLIENT]: Client Requests autopilot to position <{0},{1},{2}>", locx, locy, locz);
-
-
-                    break;
-                default:
-                    m_log.Debug("[CLIENT]: Unknown Generic Message, Method: " + gmMethod + ". Invoice: " + gmInvoice + ".  Dumping Params:");
-                    for (int hi = 0; hi < gmParams.Length; hi++)
-                    {
-                        Console.WriteLine(gmParams[hi].ToString());
-                    }
-                    //gmpack.MethodData.
-                    break;
-
-            }
+            Action<Vector3, bool, bool> handlerAutoPilotGo = OnAutoPilotGo;
+            if (handlerAutoPilotGo != null)
+                handlerAutoPilotGo(new Vector3(locx, locy, locz), false, false);
         }
 
         /// <summary>
@@ -12044,7 +12068,7 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             OutPacket(packet, ThrottleOutPacketType.Task);
         }
 
-        public void SendTextBoxRequest(string message, int chatChannel, string objectname, string ownerFirstName, string ownerLastName, UUID objectId)
+        public void SendTextBoxRequest(string message, int chatChannel, string objectname, UUID ownerID, string ownerFirstName, string ownerLastName, UUID objectId)
         {
             ScriptDialogPacket dialog = (ScriptDialogPacket)PacketPool.Instance.GetPacket(PacketType.ScriptDialog);
             dialog.Data.ObjectID = objectId;
@@ -12060,6 +12084,11 @@ namespace OpenSim.Region.ClientStack.LindenUDP
             buttons[0] = new ScriptDialogPacket.ButtonsBlock();
             buttons[0].ButtonLabel = Util.StringToBytes256("!!llTextBox!!");
             dialog.Buttons = buttons;
+
+            dialog.OwnerData = new ScriptDialogPacket.OwnerDataBlock[1];
+            dialog.OwnerData[0] = new ScriptDialogPacket.OwnerDataBlock();
+            dialog.OwnerData[0].OwnerID = ownerID;
+
             OutPacket(dialog, ThrottleOutPacketType.Task);
         }
 

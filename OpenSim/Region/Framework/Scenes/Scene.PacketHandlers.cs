@@ -144,7 +144,7 @@ namespace OpenSim.Region.Framework.Scenes
                 {
                     if (((SceneObjectGroup) ent).LocalId == primLocalID)
                     {
-                        ((SceneObjectGroup) ent).GetProperties(remoteClient);
+                        ((SceneObjectGroup) ent).SendPropertiesToClient(remoteClient);
                         ((SceneObjectGroup) ent).IsSelected = true;
                         // A prim is only tainted if it's allowed to be edited by the person clicking it.
                         if (Permissions.CanEditObject(((SceneObjectGroup)ent).UUID, remoteClient.AgentId) 
@@ -167,7 +167,7 @@ namespace OpenSim.Region.Framework.Scenes
                         {
                             if (part.LocalId == primLocalID) 
                             {
-                                part.GetProperties(remoteClient);
+                                part.SendPropertiesToClient(remoteClient);
                                 foundPrim = true;
                                 break;
                             }
@@ -189,10 +189,6 @@ namespace OpenSim.Region.Framework.Scenes
         {
             SceneObjectPart part = GetSceneObjectPart(primLocalID);
             if (part == null)
-                return;
-            
-            // The prim is in the process of being deleted.
-            if (null == part.ParentGroup.RootPart)
                 return;
             
             // A deselect packet contains all the local prims being deselected.  However, since selection is still

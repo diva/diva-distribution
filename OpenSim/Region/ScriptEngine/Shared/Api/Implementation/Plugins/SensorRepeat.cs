@@ -303,12 +303,12 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Plugins
             float dz;
 
             Quaternion q = SensePoint.RotationOffset;
-            if (SensePoint.ParentGroup.RootPart.IsAttachment)
+            if (SensePoint.ParentGroup.IsAttachment)
             {
                 // In attachments, the sensor cone always orients with the
                 // avatar rotation. This may include a nonzero elevation if
                 // in mouselook.
-                ScenePresence avatar = m_CmdManager.m_ScriptEngine.World.GetScenePresence(SensePoint.ParentGroup.RootPart.AttachedAvatar);
+                ScenePresence avatar = m_CmdManager.m_ScriptEngine.World.GetScenePresence(SensePoint.ParentGroup.AttachedAvatar);
                 q = avatar.Rotation;
             }
             LSL_Types.Quaternion r = new LSL_Types.Quaternion(q.X, q.Y, q.Z, q.W);
@@ -352,7 +352,7 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Plugins
                     objtype = 0;
 
                     part = ((SceneObjectGroup)ent).RootPart;
-                    if (part.AttachmentPoint != 0) // Attached so ignore
+                    if (part.ParentGroup.AttachmentPoint != 0) // Attached so ignore
                         continue;
 
                     if (part.Inventory.ContainsScripts())
@@ -423,19 +423,19 @@ namespace OpenSim.Region.ScriptEngine.Shared.Api.Plugins
             Vector3 fromRegionPos = SensePoint.AbsolutePosition;
             
             Quaternion q = SensePoint.RotationOffset;
-            if (SensePoint.ParentGroup.RootPart.IsAttachment)
+            if (SensePoint.ParentGroup.IsAttachment)
             {
                 // In attachments, the sensor cone always orients with the
                 // avatar rotation. This may include a nonzero elevation if
                 // in mouselook.
-                ScenePresence avatar = m_CmdManager.m_ScriptEngine.World.GetScenePresence(SensePoint.ParentGroup.RootPart.AttachedAvatar);
+                ScenePresence avatar = m_CmdManager.m_ScriptEngine.World.GetScenePresence(SensePoint.ParentGroup.AttachedAvatar);
                 q = avatar.Rotation;
             }
 
             LSL_Types.Quaternion r = new LSL_Types.Quaternion(q.X, q.Y, q.Z, q.W);
             LSL_Types.Vector3 forward_dir = (new LSL_Types.Vector3(1, 0, 0) * r);
             double mag_fwd = LSL_Types.Vector3.Mag(forward_dir);
-            bool attached = (SensePoint.AttachmentPoint != 0);
+            bool attached = (SensePoint.ParentGroup.AttachmentPoint != 0);
             Vector3 toRegionPos;
             double dis;
 

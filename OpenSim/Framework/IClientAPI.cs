@@ -51,7 +51,7 @@ namespace OpenSim.Framework
                                    UUID RayTargetID, byte BypassRayCast, bool RayEndIsIntersection,
                                    bool RezSelected, bool RemoveItem, UUID fromTaskID);
 
-    public delegate UUID RezSingleAttachmentFromInv(IClientAPI remoteClient, UUID itemID, uint AttachmentPt);
+    public delegate ISceneEntity RezSingleAttachmentFromInv(IClientAPI remoteClient, UUID itemID, uint AttachmentPt);
 
     public delegate void RezMultipleAttachmentsFromInv(IClientAPI remoteClient, RezMultipleAttachmentsFromInvPacket.HeaderDataBlock header,
                                                        RezMultipleAttachmentsFromInvPacket.ObjectDataBlock[] objects);
@@ -786,7 +786,7 @@ namespace OpenSim.Framework
         event DeRezObject OnDeRezObject;
         event Action<IClientAPI> OnRegionHandShakeReply;
         event GenericCall1 OnRequestWearables;
-        event GenericCall1 OnCompleteMovementToRegion;
+        event Action<IClientAPI, bool> OnCompleteMovementToRegion;
         event UpdateAgent OnPreAgentUpdate;
         event UpdateAgent OnAgentUpdate;
         event AgentRequestSit OnAgentRequestSit;
@@ -935,7 +935,7 @@ namespace OpenSim.Framework
         event ScriptReset OnScriptReset;
         event GetScriptRunning OnGetScriptRunning;
         event SetScriptRunning OnSetScriptRunning;
-        event UpdateVector OnAutoPilotGo;
+        event Action<Vector3, bool, bool> OnAutoPilotGo;
 
         event TerrainUnacked OnUnackedTerrain;
         event ActivateGesture OnActivateGesture;
@@ -1395,7 +1395,7 @@ namespace OpenSim.Framework
         void SendGroupTransactionsSummaryDetails(IClientAPI sender,UUID groupID, UUID transactionID, UUID sessionID,int amt);
         
         void SendChangeUserRights(UUID agentID, UUID friendID, int rights);
-        void SendTextBoxRequest(string message, int chatChannel, string objectname, string ownerFirstName, string ownerLastName, UUID objectId);
+        void SendTextBoxRequest(string message, int chatChannel, string objectname, UUID ownerID, string ownerFirstName, string ownerLastName, UUID objectId);
 
         void StopFlying(ISceneEntity presence);
 

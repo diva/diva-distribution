@@ -26,8 +26,10 @@
  */
 
 using System;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
+using log4net;
 using OpenSim.Framework;
 using OpenMetaverse;
 
@@ -35,6 +37,8 @@ namespace OpenSim.Region.Framework.Scenes
 {
     public abstract class EntityBase : ISceneEntity
     {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
         /// <summary>
         /// The scene to which this entity belongs
         /// </summary>
@@ -66,22 +70,20 @@ namespace OpenSim.Region.Framework.Scenes
         /// <summary>
         /// Signals whether this entity was in a scene but has since been removed from it.
         /// </summary>
-        public bool IsDeleted
-        {
-            get { return m_isDeleted; }
-            set { m_isDeleted = value; }
-        }
-        protected bool m_isDeleted;
+        public bool IsDeleted { get; protected internal set; }
 
         protected Vector3 m_pos;
 
         /// <summary>
-        ///
+        /// Absolute position of this entity in a scene.
         /// </summary>
         public virtual Vector3 AbsolutePosition
         {
             get { return m_pos; }
-            set { m_pos = value; }
+            set
+            {
+                m_pos = value;
+            }
         }
 
         protected Vector3 m_velocity;

@@ -136,7 +136,6 @@ namespace OpenSim.Region.ClientStack.Linden
             TaskScriptUpdatedCall = m_Scene.CapsUpdateTaskInventoryScriptAsset;
             CAPSFetchInventoryDescendents = m_Scene.HandleFetchInventoryDescendentsCAPS;
             GetClient = m_Scene.SceneContents.GetControllingClient;
-
         }
 
         /// <summary>
@@ -232,7 +231,7 @@ namespace OpenSim.Region.ClientStack.Linden
         public string SeedCapRequest(string request, string path, string param,
                                   OSHttpRequest httpRequest, OSHttpResponse httpResponse)
         {
-            m_log.Debug("[CAPS]: Seed Caps Request in region: " + m_regionName);
+//            m_log.Debug("[CAPS]: Seed Caps Request in region: " + m_regionName);
 
             if (!m_Scene.CheckClient(m_HostCapsObj.AgentID, httpRequest.RemoteIPEndPoint))
             {

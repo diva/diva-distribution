@@ -130,7 +130,9 @@ namespace OpenSim
             //m_log.InfoFormat("[OPENSIM MAIN]: GC Latency Mode: {0}", GCSettings.LatencyMode.ToString());
 
             if (m_gui) // Driven by external GUI
+            {
                 m_console = new CommandConsole("Region");
+            }
             else
             {
                 switch (m_consoleType)
@@ -208,10 +210,6 @@ namespace OpenSim
         /// </summary>
         private void RegisterConsoleCommands()
         {
-            m_console.Commands.AddCommand("region", false, "clear assets",
-                                          "clear assets",
-                                          "Clear the asset cache", HandleClearAssets);
-
             m_console.Commands.AddCommand("region", false, "force update",
                                           "force update",
                                           "Force the update of all objects on clients",
@@ -267,13 +265,15 @@ namespace OpenSim
 
             m_console.Commands.AddCommand("region", false, "save oar",
                                           //"save oar [-v|--version=<N>] [-p|--profile=<url>] [<OAR path>]",
-                                          "save oar [-p|--profile=<url>] [--noassets] [<OAR path>]",
+                                          "save oar [-p|--profile=<url>] [--noassets] [--perm=<permissions>] [<OAR path>]",
                                           "Save a region's data to an OAR archive.",
 //                                          "-v|--version=<N> generates scene objects as per older versions of the serialization (e.g. -v=0)" + Environment.NewLine
                                           "-p|--profile=<url> adds the url of the profile service to the saved user information." + Environment.NewLine
-                                          + "  The OAR path must be a filesystem path."
-                                          + "  If this is not given then the oar is saved to region.oar in the current directory." + Environment.NewLine
-                                          + "--noassets stops assets being saved to the OAR.",
+                                          + "--noassets stops assets being saved to the OAR." + Environment.NewLine
+                                          + "--perm stops objects with insufficient permissions from being saved to the OAR." + Environment.NewLine
+                                          + "   <permissions> can contain one or more of these characters: \"C\" = Copy, \"T\" = Transfer" + Environment.NewLine
+                                          + "The OAR path must be a filesystem path."
+                                          + " If this is not given then the oar is saved to region.oar in the current directory.",
                                           SaveOar);
 
             m_console.Commands.AddCommand("region", false, "edit scale",
@@ -505,11 +505,6 @@ namespace OpenSim
             }
         }
 
-        private void HandleClearAssets(string module, string[] args)
-        {
-            MainConsole.Instance.Output("Not implemented.");
-        }
-
         /// <summary>
         /// Force resending of all updates to all clients in active region(s)
         /// </summary>
@@ -547,6 +542,7 @@ namespace OpenSim
         {
             string regionName = string.Empty;
             string regionFile = string.Empty;
+
             if (cmd.Length == 3)
             {
                 regionFile = cmd[2];
@@ -556,14 +552,17 @@ namespace OpenSim
                 regionName = cmd[2];
                 regionFile = cmd[3];
             }
+
             string extension = Path.GetExtension(regionFile).ToLower();
             bool isXml = extension.Equals(".xml");
             bool isIni = extension.Equals(".ini");
+
             if (!isXml && !isIni)
             {
                 MainConsole.Instance.Output("Usage: create region [\"region name\"] <region_file.ini>");
                 return;
             }
+
             if (!Path.IsPathRooted(regionFile))
             {
                 string regionsDir = ConfigSource.Source.Configs["Startup"].GetString("regionload_regionsdir", "Regions").Trim();
@@ -580,8 +579,18 @@ namespace OpenSim
                 regInfo = new RegionInfo(regionName, regionFile, false, ConfigSource.Source, regionName);
             }
 
-            IScene scene;
+            Scene existingScene;
+            if (SceneManager.TryGetScene(regInfo.RegionID, out existingScene))
+            {
+                MainConsole.Instance.OutputFormat(
+                    "ERROR: Cannot create region {0} with ID {1}, this ID is already assigned to region {2}",
+                    regInfo.RegionName, regInfo.RegionID, existingScene.RegionInfo.RegionName);
+
+                return;
+            }
+
             PopulateRegionEstateInfo(regInfo);
+            IScene scene;
             CreateRegion(regInfo, true, out scene);
             regInfo.EstateSettings.Save();
         }
