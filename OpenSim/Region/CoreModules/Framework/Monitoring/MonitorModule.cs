@@ -25,6 +25,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -41,16 +42,50 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
 {
     public class MonitorModule : IRegionModule 
     {
+        /// <summary>
+        /// Is this module enabled?
+        /// </summary>
+        public bool Enabled { get; private set; }
+
         private Scene m_scene;
         private readonly List<IMonitor> m_monitors = new List<IMonitor>();
         private readonly List<IAlert> m_alerts = new List<IAlert>();
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        #region Implementation of IRegionModule
+
+        public MonitorModule()
+        {
+            Enabled = true;
+        }
+
+        public void Initialise(Scene scene, IConfigSource source)
+        {
+            IConfig cnfg = source.Configs["Monitoring"];
+
+            if (cnfg != null)
+                Enabled = cnfg.GetBoolean("Enabled", true);
+            
+            if (!Enabled)
+                return;
+
+            m_scene = scene;
+
+            m_scene.AddCommand(this, "monitor report",
+                               "monitor report",
+                               "Returns a variety of statistics about the current region and/or simulator",
+                               DebugMonitors);
+
+            MainServer.Instance.AddHTTPHandler("/monitorstats/" + m_scene.RegionInfo.RegionID, StatsPage);
+            MainServer.Instance.AddHTTPHandler(
+                "/monitorstats/" + Uri.EscapeDataString(m_scene.RegionInfo.RegionName), StatsPage);
+        }
+
         public void DebugMonitors(string module, string[] args)
         {
             foreach (IMonitor monitor in m_monitors)
             {
-                m_log.Info("[MonitorModule] " + m_scene.RegionInfo.RegionName + " reports " + monitor.GetName() + " = " + monitor.GetFriendlyValue());
+                m_log.Info("[MonitorModule]: " + m_scene.RegionInfo.RegionName + " reports " + monitor.GetFriendlyName() + " = " + monitor.GetFriendlyValue());
             }
         }
 
@@ -60,20 +95,6 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
             {
                 alert.Test();
             }
-        }
-
-        #region Implementation of IRegionModule
-
-        public void Initialise(Scene scene, IConfigSource source)
-        {
-            m_scene = scene;
-
-            m_scene.AddCommand(this, "monitor report",
-                               "monitor report",
-                               "Returns a variety of statistics about the current region and/or simulator",
-                               DebugMonitors);
-
-            MainServer.Instance.AddHTTPHandler("/monitorstats/" + m_scene.RegionInfo.RegionID + "/", StatsPage);
         }
 
         public Hashtable StatsPage(Hashtable request)
@@ -114,11 +135,9 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
             string xml = "<data>";
             foreach (IMonitor monitor in m_monitors)
             {
-                string elemName = monitor.ToString();
-                if (elemName.StartsWith(monitor.GetType().Namespace))
-                    elemName = elemName.Substring(monitor.GetType().Namespace.Length + 1);
-
-                xml += "<" + elemName + ">" + monitor.GetValue() + "</" + elemName + ">";
+                string elemName = monitor.GetName();
+                xml += "<" + elemName + ">" + monitor.GetValue().ToString() + "</" + elemName + ">";
+//                m_log.DebugFormat("[MONITOR MODULE]: {0} = {1}", elemName, monitor.GetValue());
             }
             xml += "</data>";
 
@@ -133,6 +152,9 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
 
         public void PostInitialise()
         {
+            if (!Enabled)
+                return;
+
             m_monitors.Add(new AgentCountMonitor(m_scene));
             m_monitors.Add(new ChildAgentCountMonitor(m_scene));
             m_monitors.Add(new GCMemoryMonitor());
@@ -145,6 +167,150 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
             m_monitors.Add(new EventFrameMonitor(m_scene));
             m_monitors.Add(new LandFrameMonitor(m_scene));
             m_monitors.Add(new LastFrameTimeMonitor(m_scene));
+            
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "TimeDilationMonitor",
+                    "Time Dilation",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[0],
+                    m => m.GetValue().ToString()));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "SimFPSMonitor",
+                    "Sim FPS",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[1],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "PhysicsFPSMonitor",
+                    "Physics FPS",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[2],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "AgentUpdatesPerSecondMonitor",
+                    "Agent Updates",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[3],
+                    m => string.Format("{0} per second", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "ActiveObjectCountMonitor",
+                    "Active Objects",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[7],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "ActiveScriptsMonitor",
+                    "Active Scripts",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[19],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "ScriptEventsPerSecondMonitor",
+                    "Script Events",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[20],
+                    m => string.Format("{0} per second", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "InPacketsPerSecondMonitor",
+                    "In Packets",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[13],
+                    m => string.Format("{0} per second", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "OutPacketsPerSecondMonitor",
+                    "Out Packets",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[14],
+                    m => string.Format("{0} per second", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "UnackedBytesMonitor",
+                    "Unacked Bytes",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[15],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "PendingDownloadsMonitor",
+                    "Pending Downloads",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[17],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "PendingUploadsMonitor",
+                    "Pending Uploads",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[18],
+                    m => string.Format("{0}", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "TotalFrameTimeMonitor",
+                    "Total Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[8],
+                    m => string.Format("{0} ms", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "NetFrameTimeMonitor",
+                    "Net Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[9],
+                    m => string.Format("{0} ms", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "PhysicsFrameTimeMonitor",
+                    "Physics Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[10],
+                    m => string.Format("{0} ms", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "SimulationFrameTimeMonitor",
+                    "Simulation Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[12],
+                    m => string.Format("{0} ms", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "AgentFrameTimeMonitor",
+                    "Agent Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[16],
+                    m => string.Format("{0} ms", m.GetValue())));
+
+            m_monitors.Add(
+                new GenericMonitor(
+                    m_scene,
+                    "ImagesFrameTimeMonitor",
+                    "Images Frame Time",
+                    m => m.Scene.StatsReporter.LastReportedSimStats[11],
+                    m => string.Format("{0} ms", m.GetValue())));
 
             m_alerts.Add(new DeadlockAlert(m_monitors.Find(x => x is LastFrameTimeMonitor) as LastFrameTimeMonitor));
 
@@ -161,7 +327,6 @@ namespace OpenSim.Region.CoreModules.Framework.Monitoring
 
         public void Close()
         {
-            
         }
 
         public string Name

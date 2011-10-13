@@ -37,6 +37,9 @@ namespace OpenSim.Region.Framework.Scenes
 {
     public class SimStatsReporter
     {
+//        private static readonly log4net.ILog m_log
+//            = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+
         public delegate void SendStatResult(SimStats stats);
 
         public delegate void YourStatsAreWrong();
@@ -49,7 +52,7 @@ namespace OpenSim.Region.Framework.Scenes
 
         private YourStatsAreWrong handlerStatsIncorrect = null;
 
-        private enum Stats : uint
+        public enum Stats : uint
         {
             TimeDilation = 0,
             SimFPS = 1,
@@ -73,6 +76,19 @@ namespace OpenSim.Region.Framework.Scenes
             PendingDownloads = 19,
             PendingUploads = 20,
             UnAckedBytes = 24,
+        }
+
+        /// <summary>
+        /// This is for llGetRegionFPS
+        /// </summary>
+        public float LastReportedSimFPS
+        {
+            get { return lastReportedSimFPS; }
+        }
+
+        public float[] LastReportedSimStats
+        {
+            get { return lastReportedSimStats; }
         }
 
         // Sending a stats update every 3 seconds-
@@ -165,18 +181,13 @@ namespace OpenSim.Region.Framework.Scenes
 
 #region various statistic googly moogly
 
-                // Our FPS is actually 10fps, so multiplying by 5 to get the amount that people expect there
-                // 0-50 is pretty close to 0-45
-                float simfps = (int) ((m_fps * 5));
+                // We're going to lie about the FPS because we've been lying since 2008.  The actual FPS is currently
+                // locked at a maximum of 11.  Maybe at some point this can change so that we're not lying.
+                int reportedFPS = m_fps * 5;
+
                 // save the reported value so there is something available for llGetRegionFPS 
-                lastReportedSimFPS = (float)simfps / statsUpdateFactor;
+                lastReportedSimFPS = reportedFPS / statsUpdateFactor;
 
-                //if (simfps > 45)
-                //simfps = simfps - (simfps - 45);
-                //if (simfps < 0)
-                //simfps = 0;
-
-                //
                 float physfps = ((m_pfps / 1000));
 
                 //if (physfps > 600)
@@ -197,7 +208,7 @@ namespace OpenSim.Region.Framework.Scenes
                 // 'statsUpdateFactor' is how often stats packets are sent in seconds. Used below to change
                 // values to X-per-second values.
 
-                for (int i = 0; i<21;i++)
+                for (int i = 0; i < 21; i++)
                 {
                     sb[i] = new SimStatsPacket.StatBlock();
                 }
@@ -206,7 +217,7 @@ namespace OpenSim.Region.Framework.Scenes
                 sb[0].StatValue = (Single.IsNaN(m_timeDilation)) ? 0.1f : m_timeDilation ; //((((m_timeDilation + (0.10f * statsUpdateFactor)) /10)  / statsUpdateFactor));
 
                 sb[1].StatID = (uint) Stats.SimFPS;
-                sb[1].StatValue = simfps/statsUpdateFactor;
+                sb[1].StatValue = reportedFPS / statsUpdateFactor;
 
                 sb[2].StatID = (uint) Stats.PhysicsFPS;
                 sb[2].StatValue = physfps / statsUpdateFactor;
@@ -272,7 +283,8 @@ namespace OpenSim.Region.Framework.Scenes
               
                 SimStats simStats 
                     = new SimStats(
-                        ReportingRegion.RegionLocX, ReportingRegion.RegionLocY, regionFlags, (uint)m_objectCapacity, rb, sb, m_scene.RegionInfo.originRegionID);
+                        ReportingRegion.RegionLocX, ReportingRegion.RegionLocY, regionFlags, (uint)m_objectCapacity,
+                        rb, sb, m_scene.RegionInfo.originRegionID);
 
                 handlerSendStatResult = OnSendStatsResult;
                 if (handlerSendStatResult != null)
@@ -395,29 +407,31 @@ namespace OpenSim.Region.Framework.Scenes
         {
             m_frameMS += ms;
         }
+
         public void addNetMS(int ms)
         {
             m_netMS += ms;
         }
+
         public void addAgentMS(int ms)
         {
             m_agentMS += ms;
         }
+
         public void addPhysicsMS(int ms)
         {
             m_physicsMS += ms;
         }
+
         public void addImageMS(int ms)
         {
             m_imageMS += ms;
         }
+
         public void addOtherMS(int ms)
         {
             m_otherMS += ms;
         }
-
-//        private static readonly log4net.ILog m_log
-//            = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         public void AddPendingDownloads(int count)
         {
@@ -436,30 +450,11 @@ namespace OpenSim.Region.Framework.Scenes
             m_activeScripts = count;
         }
 
-        /// <summary>
-        /// This is for llGetRegionFPS
-        /// </summary>
-        public float getLastReportedSimFPS()
-        {
-            return lastReportedSimFPS;
-        }
-        
-        public float[] getLastReportedSimStats()
-        {
-            return lastReportedSimStats;
-        }
-
         public void AddPacketsStats(int inPackets, int outPackets, int unAckedBytes)
         {
             AddInPackets(inPackets);
             AddOutPackets(outPackets);
             AddunAckedBytes(unAckedBytes);
-        }
-        
-        public void AddAgentTime(int ms)
-        {
-            addFrameMS(ms);
-            addAgentMS(ms);
         }
 
         #endregion

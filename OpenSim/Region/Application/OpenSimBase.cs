@@ -462,9 +462,18 @@ namespace OpenSim
                     string password = MainConsole.Instance.PasswdPrompt("Password");
                     string email = MainConsole.Instance.CmdPrompt("Email", "");
 
+                    string rawPrincipalId = MainConsole.Instance.CmdPrompt("User ID", UUID.Random().ToString());
+        
+                    UUID principalId = UUID.Zero;
+                    if (!UUID.TryParse(rawPrincipalId, out principalId))
+                    {
+                        m_log.ErrorFormat("[OPENSIM]: ID {0} is not a valid UUID", rawPrincipalId);
+                        return;
+                    }
+
                     account
                         = ((UserAccountService)scene.UserAccountService).CreateUser(
-                            regionInfo.ScopeID, first, last, password, email);
+                            regionInfo.ScopeID, principalId, first, last, password, email);
                 }
 //                    }
             }
@@ -719,7 +728,7 @@ namespace OpenSim
 
             public string Path
             {
-                get { return "/simstatus/"; }
+                get { return "/simstatus"; }
             }
         }
 
@@ -757,7 +766,7 @@ namespace OpenSim
             public string Path
             {
                 // This is for the OpenSimulator instance and is the osSecret hashed
-                get { return "/" + osXStatsURI + "/"; }
+                get { return "/" + osXStatsURI; }
             }
         }
 
@@ -798,7 +807,7 @@ namespace OpenSim
             public string Path
             {
                 // This is for the OpenSimulator instance and is the user provided URI 
-                get { return "/" + osUXStatsURI + "/"; }
+                get { return "/" + osUXStatsURI; }
             }
         }
 
