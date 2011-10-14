@@ -16,16 +16,16 @@ EOT
 ConvertPO()
 {
     lang=$1
-    resgen Diva.Wifi.$lang.po Diva.Wifi.$lang.resx
+    /cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/ResGen.exe Diva.Wifi.$lang.po Diva.Wifi.$lang.resx
 }
 
 CreateSatelliteAssembly()
 {
     lang=$1
     dest=$2
-    if resgen Diva.Wifi.$lang.resx Diva.Wifi.$lang.resources; then
+    if /cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/ResGen.exe Diva.Wifi.$lang.resx Diva.Wifi.$lang.resources; then
         mkdir $dest/$lang 2> /dev/null
-        al /target:library /culture:$lang \
+        /cygdrive/c/Program\ Files\ \(x86\)/Microsoft\ SDKs/Windows/v7.0A/Bin/al.exe /target:library /culture:$lang \
             /embed:Diva.Wifi.$lang.resources \
             /out:$dest/$lang/Diva.Wifi.resources.dll
         rm -f Diva.Wifi.$lang.resources
