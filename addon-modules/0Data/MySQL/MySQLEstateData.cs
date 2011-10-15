@@ -30,9 +30,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using MySql.Data.MySqlClient;
 
-using OpenSim.Data;
-using OpenSim.Data.MySQL;
-
 namespace Diva.Data.MySQL
 {
     public class MySQLEstateStore : OpenSim.Data.MySQL.MySQLEstateStore

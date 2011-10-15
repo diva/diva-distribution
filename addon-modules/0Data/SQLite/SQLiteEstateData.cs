@@ -27,7 +27,6 @@
 
 using System.Reflection;
 
-
 namespace Diva.Data.SQLite
 {
     public class SQLiteEstateStore : OpenSim.Data.SQLite.SQLiteEstateStore
