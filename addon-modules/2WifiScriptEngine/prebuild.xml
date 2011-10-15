@@ -16,8 +16,8 @@
   <Reference name="System.Web"/>
   <Reference name="System.Xml"/>
 
-  <Reference name="Nini.dll"/>
-  <Reference name="log4net.dll"/>
+  <Reference name="Nini" path="../../bin/"/>
+  <Reference name="log4net" path="../../bin/"/>
 
   <Reference name="Diva.OpenSimServices"/>
 

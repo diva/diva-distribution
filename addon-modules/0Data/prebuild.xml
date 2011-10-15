@@ -15,7 +15,7 @@
   <Reference name="System"/>
   <Reference name="System.Core"/>
   
-  <Reference name="OpenMetaverseTypes.dll"/>
+  <Reference name="OpenMetaverseTypes" path="../../bin/"/>
 
   <Reference name="OpenSim.Data"/>
 

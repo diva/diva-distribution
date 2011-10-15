@@ -26,6 +26,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 using Mono.Data.Sqlite;
 
@@ -33,6 +34,11 @@ namespace Diva.Data.SQLite
 {
     public class SQLiteGenericTableHandler<T> : OpenSim.Data.SQLite.SQLiteGenericTableHandler<T> where T : class, new()
     {
+        protected override Assembly Assembly
+        {
+            get { return GetType().BaseType.Assembly; }
+        }
+
         public SQLiteGenericTableHandler(string connectionString, string realm, string storeName)
             : base(connectionString, realm, storeName) { }
 

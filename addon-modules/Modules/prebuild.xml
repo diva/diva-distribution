@@ -14,8 +14,8 @@
   <ReferencePath>../../bin/</ReferencePath>
   <Reference name="System"/>
   <Reference name="System.Drawing"/>
-  <Reference name="OpenMetaverse.dll"/>
-  <Reference name="OpenMetaverseTypes.dll"/>
+  <Reference name="OpenMetaverse" path="../../bin/"/>
+  <Reference name="OpenMetaverseTypes" path="../../bin/"/>
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Framework.Communications"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
@@ -24,12 +24,12 @@
   <Reference name="OpenSim.Region.Framework"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
-  <Reference name="Nini.dll" />
-  <Reference name="log4net.dll"/>
-  <Reference name="Mono.Addins.dll"/>
+  <Reference name="Nini" path="../../bin/" />
+  <Reference name="log4net" path="../../bin/"/>
+  <Reference name="Mono.Addins" path="../../bin/"/>
 
   <!-- To allow regions to have mono addins -->
-  <Reference name="Mono.Addins.dll" />
+  <Reference name="Mono.Addins" path="../../bin/" />
 
   <Files>
     <Match pattern="*.cs" recurse="true"/>
