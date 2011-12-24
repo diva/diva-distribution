@@ -46,7 +46,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             // This is the content type of the response. Don't forget to set it to this in all your handlers.
             httpResponse.ContentType = "text/html";

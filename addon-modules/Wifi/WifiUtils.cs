@@ -139,7 +139,7 @@ namespace Diva.Wifi
             return Encoding.UTF8.GetBytes(str);
         }
 
-        public static Request CreateRequest(string resource, OSHttpRequest httpRequest)
+        public static Request CreateRequest(string resource, IOSHttpRequest httpRequest)
         {
             Request request = new Request();
             request.Resource = resource;

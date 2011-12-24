@@ -18,12 +18,14 @@
   <Reference name="OpenMetaverseTypes" path="../../bin/"/>
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Framework.Communications"/>
+  <Reference name="OpenSim.Framework.Servers"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
   <Reference name="OpenSim.Services.Interfaces"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Region.Framework"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
+  
   <Reference name="Nini" path="../../bin/" />
   <Reference name="log4net" path="../../bin/"/>
   <Reference name="Mono.Addins" path="../../bin/"/>

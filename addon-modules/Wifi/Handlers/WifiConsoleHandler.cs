@@ -62,7 +62,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             string result = string.Empty;
             try

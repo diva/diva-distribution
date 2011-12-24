@@ -61,7 +61,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             // path = /wifi/...
             //m_log.DebugFormat("[Wifi]: path = {0}", path);
@@ -107,7 +107,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             StreamReader sr = new StreamReader(requestData);
             string body = sr.ReadToEnd();
@@ -135,7 +135,7 @@ namespace Diva.Wifi
             return CreateAccount(resource, httpRequest, request);
         }
 
-        private byte[] CreateAccount(string resource, OSHttpRequest httpRequest, Dictionary<string, object> request)
+        private byte[] CreateAccount(string resource, IOSHttpRequest httpRequest, Dictionary<string, object> request)
         {
             string first = String.Empty;
             string last = String.Empty;
@@ -167,7 +167,7 @@ namespace Diva.Wifi
             return WifiUtils.StringToBytes(result);
         }
 
-        private byte[] UpdateAccount(string resource, OSHttpRequest httpRequest, UUID userID, Dictionary<string, object> request)
+        private byte[] UpdateAccount(string resource, IOSHttpRequest httpRequest, UUID userID, Dictionary<string, object> request)
         {
             try
             {

@@ -34,6 +34,7 @@ using System.Reflection;
 using System.Threading;
 using OpenSim.Framework;
 using OpenSim.Framework.Communications;
+using OpenSim.Framework.Servers;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;

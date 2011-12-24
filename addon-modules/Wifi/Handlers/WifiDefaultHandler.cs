@@ -62,7 +62,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             // path = /wifi/...
             //m_log.DebugFormat("[Wifi]: path = {0}", path);

@@ -28,6 +28,7 @@ using System;
 using System.Collections;
 using System.Reflection;
 using OpenSim.Framework;
+using OpenSim.Framework.Servers;
 using OpenSim.Region.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;

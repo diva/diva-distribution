@@ -67,7 +67,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             // path = /wifi/...
             //m_log.DebugFormat("[Wifi]: path = {0}", path);
@@ -107,7 +107,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             // It's a POST, so we need to read the data on the stream, the lines after the blank line
             StreamReader sr = new StreamReader(requestData);

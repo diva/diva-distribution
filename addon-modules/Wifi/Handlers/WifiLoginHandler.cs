@@ -58,7 +58,7 @@ namespace Diva.Wifi
         }
 
         public override byte[] Handle(string path, Stream requestData,
-                OSHttpRequest httpRequest, OSHttpResponse httpResponse)
+                IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             StreamReader sr = new StreamReader(requestData);
             string body = sr.ReadToEnd();
@@ -96,7 +96,7 @@ namespace Diva.Wifi
 
         }
 
-        byte[] LoginAgent(string resource, OSHttpRequest httpRequest, Dictionary<string, object> request)
+        byte[] LoginAgent(string resource, IOSHttpRequest httpRequest, Dictionary<string, object> request)
         {
             string first = String.Empty;
             string last = String.Empty;
