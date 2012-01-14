@@ -107,6 +107,7 @@ namespace Diva.Wifi
             else
                 m_Client.EnableSsl = true;
             m_Client.Credentials = new NetworkCredential(m_WebApp.SmtpUsername, m_WebApp.SmtpPassword);
+            m_Client.SendCompleted += new SendCompletedEventHandler(SendCompletedCallback);
         }
 
         private void CreateGod()
@@ -346,14 +347,14 @@ namespace Diva.Wifi
             {
                 MailMessage msg = new MailMessage();
                 msg.From = new MailAddress(m_WebApp.SmtpUsername);
-                msg.To.Add(to);
+                msg.To.Add(new MailAddress(to));
                 msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
                 msg.Body = message;
                 m_Client.SendAsync(msg, to);
             }
             catch (Exception e)
             {
-                m_log.WarnFormat("[Wifi]: Exception on sending mail to {0}: {1}", to, e.Message);
+                m_log.WarnFormat("[Wifi]: Exception on sending mail to {0}: {1}", to, e);
                 success = false;
             }
             return success;

@@ -17,7 +17,7 @@
     WebAddress = "http://localhost:8002"
 
     ;; The Wifi Administrator account
-    AdminFirst = "Admin"
+    AdminFirst = "Wifi"
     AdminLast = "Admin"
     AdminEmail = "your@email.com"
 
