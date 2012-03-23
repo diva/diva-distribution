@@ -32,6 +32,7 @@ using log4net;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Base;
 
+using Diva.Utils;
 
 namespace Diva.Wifi
 {
@@ -50,7 +51,7 @@ namespace Diva.Wifi
         public override byte[] Handle(string path, Stream requestData,
                 IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string resource = GetParam(path);
@@ -87,7 +88,7 @@ namespace Diva.Wifi
             string resource = GetParam(path);
             //m_log.DebugFormat("[INVENTORY HANDLER HANDLER GET]: resource {0}", resource);
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = m_WebApp.Services.InventoryGetRequest(env);
@@ -129,7 +130,7 @@ namespace Diva.Wifi
             Dictionary<string, object> postdata =
                     ServerUtils.ParseQueryString(body);
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));

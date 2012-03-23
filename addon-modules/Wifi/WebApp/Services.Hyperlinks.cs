@@ -33,6 +33,8 @@ using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
+using Diva.Utils;
+
 namespace Diva.Wifi
 {
     public partial class Services

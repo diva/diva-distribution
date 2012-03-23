@@ -46,8 +46,10 @@ using OpenSim.Services.AuthenticationService;
 using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
+using Diva.Utils;
 using Environment = Diva.Wifi.Environment;
 using OpenSim.Server.Base;
+
 namespace Diva.Wifi
 {
 
@@ -77,7 +79,7 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[XXX]: resource {0}", resource);
-            Request request = WifiUtils.CreateRequest(resource, httpRequest);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = string.Empty;
@@ -130,7 +132,7 @@ namespace Diva.Wifi
                     if (postdata.ContainsKey("message"))
                         broadcast_message = postdata["message"].ToString();
 
-                Request req = WifiUtils.CreateRequest(resource, httpRequest);
+                Request req = RequestFactory.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = string.Empty;

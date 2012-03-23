@@ -28,6 +28,7 @@
 using System;
 using System.IO;
 using Diva.Wifi.WifiScript;
+using Diva.Utils;
 
 namespace Diva.Wifi
 {

@@ -44,6 +44,8 @@ using OpenSim.Services.Interfaces;
 using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
+using Diva.Utils;
+
 using Environment = Diva.Wifi.Environment;
 using InventoryTreeNode = Diva.OpenSimServices.InventoryTreeNode;
 

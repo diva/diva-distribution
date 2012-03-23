@@ -32,6 +32,8 @@ using System.IO;
 
 using OpenSim.Framework.Servers.HttpServer;
 
+using Diva.Utils;
+
 namespace Diva.Wifi
 {
     public class WifiGetHandler : BaseStreamHandler

@@ -44,6 +44,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
+using Diva.Utils;
+
 using Environment = Diva.Wifi.Environment;
 
 namespace Diva.Wifi
@@ -72,7 +74,7 @@ namespace Diva.Wifi
             string resource = GetParam(path);
             //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = string.Empty;
@@ -159,7 +161,7 @@ namespace Diva.Wifi
                 avatar = request["avatar"].ToString();
             }
 
-            Request req = WifiUtils.CreateRequest(resource, httpRequest);
+            Request req = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
             string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2, avatar);
@@ -185,7 +187,7 @@ namespace Diva.Wifi
                 if (request.ContainsKey("newpassword2"))
                     newpassword2 = request["newpassword2"].ToString();
 
-                Request req = WifiUtils.CreateRequest(resource, httpRequest);
+                Request req = RequestFactory.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.UserAccountPostRequest(env, userID, email, oldpassword, newpassword, newpassword2);

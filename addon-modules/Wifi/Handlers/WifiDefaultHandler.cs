@@ -45,6 +45,8 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
 using Diva.Wifi.WifiScript;
+using Diva.Utils;
+
 using Processor = Diva.Wifi.WifiScript.Processor;
 
 namespace Diva.Wifi
@@ -74,7 +76,7 @@ namespace Diva.Wifi
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
             resource = Uri.UnescapeDataString(resource).Trim(WifiUtils.DirectorySeparatorChars);
 
-            Request request = WifiUtils.CreateRequest(resource, httpRequest);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             if (resource == string.Empty || resource.StartsWith("index."))

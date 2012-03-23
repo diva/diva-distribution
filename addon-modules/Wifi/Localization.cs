@@ -36,6 +36,7 @@ using log4net;
 using OpenMetaverse;
 using OpenSim.Framework;
 
+using Diva.Utils;
 using Diva.Wifi.WifiScript;
 
 // Set English as the neutral resources language for assembly.

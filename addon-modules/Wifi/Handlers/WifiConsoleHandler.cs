@@ -44,6 +44,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
+using Diva.Utils;
+
 using Environment = Diva.Wifi.Environment;
 
 
@@ -67,7 +69,7 @@ namespace Diva.Wifi
             string result = string.Empty;
             try
             {
-                Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
                 string resource = GetParam(path);

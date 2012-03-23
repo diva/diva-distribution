@@ -44,6 +44,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
+using Diva.Utils;
+
 using Environment = Diva.Wifi.Environment;
 
 
@@ -66,7 +68,7 @@ namespace Diva.Wifi
         {
             httpResponse.ContentType = "text/html";
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = m_WebApp.Services.ForgotPasswordGetRequest(env);
@@ -107,7 +109,7 @@ namespace Diva.Wifi
                 if (request.ContainsKey("email"))
                     email = request["email"].ToString();
 
-                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request req = RequestFactory.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.ForgotPasswordPostRequest(env, email);
@@ -154,7 +156,7 @@ namespace Diva.Wifi
                     if (httpRequest.Query.ContainsKey("email") && httpRequest.Query["email"] != null)
                     {
                         string email = HttpUtility.UrlDecode(httpRequest.Query["email"].ToString());
-                        Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                        Request req = RequestFactory.CreateRequest(string.Empty, httpRequest);
                         Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                         string result = m_WebApp.Services.RecoverPasswordGetRequest(env, email, token);
@@ -214,7 +216,7 @@ namespace Diva.Wifi
                 if (request.ContainsKey("newpassword"))
                     newPassword = request["newpassword"].ToString();
 
-                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request req = RequestFactory.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.RecoverPasswordPostRequest(env, email, token, newPassword);

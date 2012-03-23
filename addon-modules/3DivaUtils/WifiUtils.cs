@@ -32,13 +32,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using OpenSim.Framework.Servers.HttpServer;
-
 using log4net;
 
-using Diva.Wifi;
-
-namespace Diva.Wifi
+namespace Diva.Utils
 {
     public class WifiUtils
     {
@@ -137,18 +133,6 @@ namespace Diva.Wifi
         public static byte[] StringToBytes(string str)
         {
             return Encoding.UTF8.GetBytes(str);
-        }
-
-        public static Request CreateRequest(string resource, IOSHttpRequest httpRequest)
-        {
-            Request request = new Request();
-            request.Resource = resource;
-            request.Cookies = httpRequest.Cookies;
-            request.IPEndPoint = httpRequest.RemoteIPEndPoint;
-            request.Query = httpRequest.Query;
-            request.LanguageInfo = Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language"));
-
-            return request;
         }
 
         public static byte[] SuccessResult()

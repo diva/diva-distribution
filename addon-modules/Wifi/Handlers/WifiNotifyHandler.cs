@@ -31,6 +31,8 @@ using System.Reflection;
 using log4net;
 using OpenSim.Framework.Servers.HttpServer;
 
+using Diva.Utils;
+
 namespace Diva.Wifi
 {
     public class WifiNotifyHandler : BaseStreamHandler
@@ -53,7 +55,7 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[NOTIFY HANDLER]: resource {1}", resource);
-            Request request = WifiUtils.CreateRequest(resource, httpRequest);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
             
             string result = string.Empty;

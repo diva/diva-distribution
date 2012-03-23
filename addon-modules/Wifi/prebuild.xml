@@ -38,6 +38,7 @@
   <Reference name="OpenSim.Services.GridService"/>
   <Reference name="OpenSim.Services.AvatarService"/>
 
+  <Reference name="Diva.Utils"/>
   <Reference name="Diva.Wifi.ScriptEngine"/>
   <Reference name="Diva.OpenSimServices"/>
 

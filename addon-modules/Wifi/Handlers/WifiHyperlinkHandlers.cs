@@ -36,6 +36,8 @@ using OpenMetaverse;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Base;
 
+using Diva.Utils;
+
 namespace Diva.Wifi
 {
     /// <summary>
@@ -64,7 +66,7 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[HYPERLINK GET HANDLER]: resource {0}", resource);
-            Request request = WifiUtils.CreateRequest(resource, httpRequest);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = string.Empty;
@@ -124,7 +126,7 @@ namespace Diva.Wifi
             {
                 // Here the data on the stream is transformed into a nice dictionary of keys & values
                 Dictionary<string, object> postdata = ServerUtils.ParseQueryString(body);
-                Request request = WifiUtils.CreateRequest(resource, httpRequest);
+                Request request = RequestFactory.CreateRequest(resource, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
                 string result = string.Empty;

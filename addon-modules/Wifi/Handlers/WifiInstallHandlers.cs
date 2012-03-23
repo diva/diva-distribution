@@ -44,6 +44,8 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
+using Diva.Utils;
+
 using Environment = Diva.Wifi.Environment;
 
 
@@ -72,7 +74,7 @@ namespace Diva.Wifi
 
             httpResponse.ContentType = "text/html";
 
-            Request request = WifiUtils.CreateRequest(string.Empty, httpRequest);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
 
             string result = m_WebApp.Services.InstallGetRequest(env);
@@ -120,7 +122,7 @@ namespace Diva.Wifi
                 if (request.ContainsKey("password2"))
                     password2 = request["password2"].ToString();
 
-                Request req = WifiUtils.CreateRequest(string.Empty, httpRequest);
+                Request req = RequestFactory.CreateRequest(string.Empty, httpRequest);
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.InstallPostRequest(env, password, password2);

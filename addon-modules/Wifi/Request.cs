@@ -28,6 +28,7 @@ using System.Collections;
 using System.Globalization;
 using System.Net;
 using System.Web;
+using OpenSim.Framework.Servers.HttpServer;
 
 namespace Diva.Wifi
 {
@@ -38,5 +39,21 @@ namespace Diva.Wifi
         public IPEndPoint IPEndPoint;
         public Hashtable Query;
         public CultureInfo[] LanguageInfo;
+    }
+
+    public class RequestFactory
+    {
+        public static Request CreateRequest(string resource, IOSHttpRequest httpRequest)
+        {
+            Request request = new Request();
+            request.Resource = resource;
+            request.Cookies = httpRequest.Cookies;
+            request.IPEndPoint = httpRequest.RemoteIPEndPoint;
+            request.Query = httpRequest.Query;
+            request.LanguageInfo = Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language"));
+
+            return request;
+        }
+
     }
 }
