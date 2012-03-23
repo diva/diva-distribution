@@ -30,6 +30,8 @@
   <Reference name="log4net" path="../../bin/"/>
   <Reference name="Mono.Addins" path="../../bin/"/>
 
+  <Reference name="Diva.Utils"/>
+
   <!-- To allow regions to have mono addins -->
   <Reference name="Mono.Addins" path="../../bin/" />
 

@@ -32,6 +32,7 @@ using Nini.Config;
 using OpenMetaverse;
 using log4net;
 
+using Diva.Utils;
 using OpenSim.Data;
 
 using OpenSim.Services.Interfaces;

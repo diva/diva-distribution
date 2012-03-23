@@ -31,8 +31,9 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using Diva.Utils;
+
 using log4net;
-using Diva.OpenSimServices;
 
 namespace Diva.Wifi.WifiScript
 {

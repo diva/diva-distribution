@@ -34,6 +34,7 @@
   <Reference name="OpenSim.Services.GridService"/>
 
   <Reference name="Diva.Data"/>
+  <Reference name="Diva.Utils"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

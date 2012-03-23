@@ -19,7 +19,7 @@
   <Reference name="Nini" path="../../bin/"/>
   <Reference name="log4net" path="../../bin/"/>
 
-  <Reference name="Diva.OpenSimServices"/>
+  <Reference name="Diva.Utils"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">
