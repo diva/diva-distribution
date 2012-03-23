@@ -90,7 +90,7 @@ namespace Diva.Wifi
                     result = m_WebApp.Services.UserAccountGetRequest(env, userID);
             }
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
 
         }
 
@@ -130,7 +130,7 @@ namespace Diva.Wifi
                 if (UUID.TryParse(resource.Trim(new char[] { '/' }), out userID))
                     return UpdateAccount(resource, httpRequest, userID, request);
 
-                return WifiUtils.FailureResult();
+                return WebAppUtils.FailureResult();
             }
 
             // else create a new account (true POST)
@@ -146,11 +146,11 @@ namespace Diva.Wifi
             string password2 = String.Empty;
             string avatar = string.Empty;
 
-            if (request.ContainsKey("first") && WifiUtils.IsValidName(request["first"].ToString()))
+            if (request.ContainsKey("first") && WebAppUtils.IsValidName(request["first"].ToString()))
                 first = request["first"].ToString();
-            if (request.ContainsKey("last") && WifiUtils.IsValidName(request["last"].ToString()))
+            if (request.ContainsKey("last") && WebAppUtils.IsValidName(request["last"].ToString()))
                 last = request["last"].ToString();
-            if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
+            if (request.ContainsKey("email") && WebAppUtils.IsValidEmail(request["email"].ToString()))
                 email = request["email"].ToString();
             if (request.ContainsKey("password"))
                 password = request["password"].ToString();
@@ -166,7 +166,7 @@ namespace Diva.Wifi
 
             string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2, avatar);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
 
         private byte[] UpdateAccount(string resource, IOSHttpRequest httpRequest, UUID userID, Dictionary<string, object> request)
@@ -178,7 +178,7 @@ namespace Diva.Wifi
                 string newpassword = String.Empty;
                 string newpassword2 = String.Empty;
 
-                if (request.ContainsKey("email") && WifiUtils.IsValidEmail(request["email"].ToString()))
+                if (request.ContainsKey("email") && WebAppUtils.IsValidEmail(request["email"].ToString()))
                     email = request["email"].ToString();
                 if (request.ContainsKey("oldpassword"))
                     oldpassword = request["oldpassword"].ToString();
@@ -192,7 +192,7 @@ namespace Diva.Wifi
 
                 string result = m_WebApp.Services.UserAccountPostRequest(env, userID, email, oldpassword, newpassword, newpassword2);
 
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
 
             }
             catch (Exception e)
@@ -201,7 +201,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}", e.StackTrace);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
         }
 
     }

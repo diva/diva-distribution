@@ -89,7 +89,7 @@ namespace Diva.Wifi
             if (string.IsNullOrEmpty(result))
                 result = m_WebApp.Services.HyperlinkGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
     }
 
@@ -155,14 +155,14 @@ namespace Diva.Wifi
                         result = m_WebApp.Services.HyperlinkDeletePostRequest(env, regionID);
                     }
                 }
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
             }
             catch (Exception e)
             {
                 m_log.DebugFormat("[HYPERLINK POST HANDLER]: Exception {0}",  e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
         }
 
     }

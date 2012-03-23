@@ -81,7 +81,7 @@ namespace Diva.Wifi
                     if (address != string.Empty)
                     {
                         string reason;
-                        if (WifiUtils.IsValidRegionAddress(address))
+                        if (WebAppUtils.IsValidRegionAddress(address))
                         {
                             UUID owner = sinfo.Account.PrincipalID;
                             if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel)

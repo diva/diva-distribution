@@ -49,7 +49,7 @@ namespace Diva.Wifi
 
             string resourcePath = Localization.LocalizePath(env, "splash.html");
             Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-            return p.Process(WifiUtils.ReadTextResource(resourcePath));
+            return p.Process(WebAppUtils.ReadTextResource(resourcePath));
         }
     }
 }

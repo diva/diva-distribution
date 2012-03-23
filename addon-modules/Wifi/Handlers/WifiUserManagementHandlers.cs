@@ -129,7 +129,7 @@ namespace Diva.Wifi
             if (string.IsNullOrEmpty(result))
                 result = m_WebApp.Services.UserManagementGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
 
         }
 
@@ -198,11 +198,11 @@ namespace Diva.Wifi
                         {
                             string first = string.Empty, last = string.Empty, email = string.Empty, title = string.Empty;
                             int level = 0, flags = 0;
-                            if (postdata.ContainsKey("first") && WifiUtils.IsValidName(postdata["first"].ToString()))
+                            if (postdata.ContainsKey("first") && WebAppUtils.IsValidName(postdata["first"].ToString()))
                                 first = postdata["first"].ToString();
-                            if (postdata.ContainsKey("last") && WifiUtils.IsValidName(postdata["last"].ToString()))
+                            if (postdata.ContainsKey("last") && WebAppUtils.IsValidName(postdata["last"].ToString()))
                                 last = postdata["last"].ToString();
-                            if (postdata.ContainsKey("email") && WifiUtils.IsValidEmail(postdata["email"].ToString()))
+                            if (postdata.ContainsKey("email") && WebAppUtils.IsValidEmail(postdata["email"].ToString()))
                                 email = postdata["email"].ToString();
                             if (postdata.ContainsKey("title"))
                                 title = postdata["title"].ToString();
@@ -241,7 +241,7 @@ namespace Diva.Wifi
                     }
                 }
 
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
 
             }
             catch (Exception e)
@@ -249,7 +249,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
 
         }
 

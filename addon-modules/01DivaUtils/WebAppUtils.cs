@@ -36,11 +36,10 @@ using log4net;
 
 namespace Diva.Utils
 {
-    public class WifiUtils
+    public class WebAppUtils
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
         public static readonly char[] DirectorySeparatorChars = { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar };
 
         public static string GetContentType(string resource)
@@ -236,5 +235,53 @@ namespace Diva.Utils
             }
             return true;
         }
+
+        // <a href="wifi/..." ...>
+        static Regex href = new Regex("(<a\\s+.*href\\s*=\\s*\\\"(\\S+\\\")).*>");
+        static Regex action = new Regex("(<form\\s+.*action\\s*=\\s*\\\"(\\S+\\\")).*>");
+        static Regex xmlhttprequest = new Regex("(@@wifi@@(\\S+\\\"))");
+
+        public static string PadURLs(string sid, string html)
+        {
+            HashSet<string> uris = new HashSet<string>();
+            CollectMatches(uris, href.Matches(html));
+            CollectMatches(uris, action.Matches(html));
+            CollectMatches(uris, xmlhttprequest.Matches(html));
+
+            foreach (string uri in uris)
+            {
+                string uri2 = uri.Substring(0, uri.Length - 1);
+                //m_log.DebugFormat("[Wifi]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
+                if (!uri.EndsWith("/"))
+                    html = html.Replace(uri, uri2 + "/?sid=" + sid + "\"");
+                else
+                    html = html.Replace(uri, uri2 + "?sid=" + sid + "\"");
+            }
+            // Remove any @@wifi@@
+            html = html.Replace("@@wifi@@", string.Empty);
+
+            return html;
+        }
+
+        private static void CollectMatches(HashSet<string> uris, MatchCollection matches)
+        {
+            foreach (Match match in matches)
+            {
+                // first group is always the total match
+                if (match.Groups.Count > 2)
+                {
+                    string str = match.Groups[1].Value;
+                    string uri = match.Groups[2].Value;
+                    if (!uri.StartsWith("http") &&
+                        !uri.StartsWith("mailto") &&
+                        !uri.EndsWith(".html") &&
+                        !uri.EndsWith(".css") &&
+                        !uri.EndsWith(".js")
+                       )
+                        uris.Add(str);
+                }
+            }
+        }
+
     }
 }

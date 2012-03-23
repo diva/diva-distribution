@@ -73,7 +73,7 @@ namespace Diva.Wifi
 
             string result = m_WebApp.Services.ForgotPasswordGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
     }
 
@@ -114,14 +114,14 @@ namespace Diva.Wifi
 
                 string result = m_WebApp.Services.ForgotPasswordPostRequest(env, email);
 
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
             }
             catch (Exception e)
             {
                 m_log.DebugFormat("[FORGOT PASSWORD POST HANDLER]: Exception {0}", e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
         }
     }
 
@@ -161,7 +161,7 @@ namespace Diva.Wifi
 
                         string result = m_WebApp.Services.RecoverPasswordGetRequest(env, email, token);
 
-                        return WifiUtils.StringToBytes(result);
+                        return WebAppUtils.StringToBytes(result);
                     }
                     else
                         m_Log.DebugFormat("[PASSWORD RECOVER GET HANDLER]: Query part does not contain email variable");
@@ -174,7 +174,7 @@ namespace Diva.Wifi
                 m_Log.DebugFormat("[PASSWORD RECOVER GET HANDLER]: Exception {0}", e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
         }
     }
 
@@ -220,14 +220,14 @@ namespace Diva.Wifi
                 Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
 
                 string result = m_WebApp.Services.RecoverPasswordPostRequest(env, email, token, newPassword);
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
             }
             catch (Exception e)
             {
                 m_Log.DebugFormat("[FORGOT PASSWORD POST HANDLER]: Exception {0}", e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
         }
     }
 

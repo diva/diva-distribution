@@ -87,7 +87,7 @@ namespace Diva.Wifi
                 // client invoked /wifi/admin/users/ with no further parameters
                 result = m_WebApp.Services.RegionManagementGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
 
         }
 
@@ -152,7 +152,7 @@ namespace Diva.Wifi
                 {
                     result = m_WebApp.Services.RegionManagementBroadcastPostRequest(env, broadcast_message);
                 }
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
 
             }
             catch (Exception e)
@@ -160,7 +160,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[REGION MANAGEMENT POST HANDLER]: Exception {0}", e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
 
         }
 

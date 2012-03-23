@@ -74,7 +74,7 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
-            resource = Uri.UnescapeDataString(resource).Trim(WifiUtils.DirectorySeparatorChars);
+            resource = Uri.UnescapeDataString(resource).Trim(WebAppUtils.DirectorySeparatorChars);
 
             Request request = RequestFactory.CreateRequest(resource, httpRequest);
             Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
@@ -86,21 +86,21 @@ namespace Diva.Wifi
 
                 httpResponse.ContentType = "text/html";
 
-                return WifiUtils.StringToBytes(m_WebApp.Services.DefaultRequest(env));
+                return WebAppUtils.StringToBytes(m_WebApp.Services.DefaultRequest(env));
             }
             else
             {
-                string resourcePath = System.IO.Path.Combine(WifiUtils.DocsPath, resource);
-                string type = WifiUtils.GetContentType(resource);
+                string resourcePath = System.IO.Path.Combine(WebApp.DocsPath, resource);
+                string type = WebAppUtils.GetContentType(resource);
                 httpResponse.ContentType = type;
                 //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
                 if (type.StartsWith("image"))
-                    return WifiUtils.ReadBinaryResource(resourcePath);
+                    return WebAppUtils.ReadBinaryResource(resourcePath);
 
                 if (type.StartsWith("application"))
                 {
-                    string res = WifiUtils.ReadTextResource(resourcePath, true);
-                    return WifiUtils.StringToBytes(res);
+                    string res = WebAppUtils.ReadTextResource(resourcePath, true);
+                    return WebAppUtils.StringToBytes(res);
                 }
                 if (type.StartsWith("text"))
                 {
@@ -109,16 +109,16 @@ namespace Diva.Wifi
 
                     resourcePath = Localization.LocalizePath(env, resource);
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-                    string res = p.Process(WifiUtils.ReadTextResource(resourcePath));
+                    string res = p.Process(WebAppUtils.ReadTextResource(resourcePath));
                     if (res == string.Empty)
                         res = m_WebApp.Services.DefaultRequest(env);
-                    return WifiUtils.StringToBytes(res);
+                    return WebAppUtils.StringToBytes(res);
                 }
             }
 
             httpResponse.ContentType = "text/plain";
             string result = "Boo!";
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
 
         /*

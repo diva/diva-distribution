@@ -58,6 +58,7 @@ namespace Diva.Wifi
     public class WebApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
 
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;

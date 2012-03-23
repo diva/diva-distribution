@@ -53,26 +53,26 @@ namespace Diva.Wifi
         {
             string resource = GetParam(path);
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
-            resource = resource.Trim(WifiUtils.DirectorySeparatorChars);
+            resource = resource.Trim(WebAppUtils.DirectorySeparatorChars);
             string resourcePath = System.IO.Path.Combine(m_LocalPath, resource);
             resourcePath = Uri.UnescapeDataString(resourcePath);
 
-            string type = WifiUtils.GetContentType(resource);
+            string type = WebAppUtils.GetContentType(resource);
             httpResponse.ContentType = type;
             //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
             if (type.StartsWith("image"))
-                return WifiUtils.ReadBinaryResource(resourcePath);
+                return WebAppUtils.ReadBinaryResource(resourcePath);
 
             if (type.StartsWith("application") || type.StartsWith("text"))
             {
-                string res = WifiUtils.ReadTextResource(resourcePath, true);
-                return WifiUtils.StringToBytes(res);
+                string res = WebAppUtils.ReadTextResource(resourcePath, true);
+                return WebAppUtils.StringToBytes(res);
             }
 
             m_log.WarnFormat("[Wifi]: Could not find resource {0} in local path {1}", resource, m_LocalPath);
             httpResponse.ContentType = "text/plain";
             string result = "Boo!";
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
     }
 }

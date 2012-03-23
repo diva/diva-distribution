@@ -78,7 +78,7 @@ namespace Diva.Wifi
                         ServerUtils.ParseQueryString(body);
 
                 if (!request.ContainsKey("METHOD"))
-                    return WifiUtils.FailureResult();
+                    return WebAppUtils.FailureResult();
 
                 method = request["METHOD"].ToString();
 
@@ -94,7 +94,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[PRESENCE HANDLER]: Exception in method {0}: {1}", method, e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
 
         }
 
@@ -105,7 +105,7 @@ namespace Diva.Wifi
             string password = String.Empty;
 
             if (!request.ContainsKey("firstname") || !request.ContainsKey("lastname") || !request.ContainsKey("password"))
-                return WifiUtils.FailureResult();
+                return WebAppUtils.FailureResult();
 
             first = request["firstname"].ToString();
             last = request["lastname"].ToString();
@@ -116,7 +116,7 @@ namespace Diva.Wifi
 
             string result = m_WebApp.Services.LoginRequest(env, first, last, password);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
 
 

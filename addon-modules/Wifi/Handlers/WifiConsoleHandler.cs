@@ -95,7 +95,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[CONSOLE HANDLER]: Exception {0}: {1}", e.Message, e.StackTrace);
             }
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Diva.Wifi
             string result = m_WebApp.Services.InventoryLoadGetRequest(env);
             httpResponse.ContentType = "text/html";
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
         }
     }
     
@@ -93,7 +93,7 @@ namespace Diva.Wifi
 
             string result = m_WebApp.Services.InventoryGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
 
         }
 
@@ -157,7 +157,7 @@ namespace Diva.Wifi
                 }
             }
 
-            return WifiUtils.StringToBytes(m_WebApp.Services.InventoryPostRequest(env, action, folder, newFolderName, nodes, types));
+            return WebAppUtils.StringToBytes(m_WebApp.Services.InventoryPostRequest(env, action, folder, newFolderName, nodes, types));
 
         }
 

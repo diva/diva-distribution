@@ -79,7 +79,7 @@ namespace Diva.Wifi
 
             string result = m_WebApp.Services.InstallGetRequest(env);
 
-            return WifiUtils.StringToBytes(result);
+            return WebAppUtils.StringToBytes(result);
 
         }
 
@@ -127,7 +127,7 @@ namespace Diva.Wifi
 
                 string result = m_WebApp.Services.InstallPostRequest(env, password, password2);
 
-                return WifiUtils.StringToBytes(result);
+                return WebAppUtils.StringToBytes(result);
 
             }
             catch (Exception e)
@@ -135,7 +135,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[USER ACCOUNT POST HANDLER]: Exception {0}",  e);
             }
 
-            return WifiUtils.FailureResult();
+            return WebAppUtils.FailureResult();
 
         }
 
