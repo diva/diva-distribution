@@ -25,6 +25,7 @@
  * 
  */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -256,6 +257,35 @@ namespace Diva.Utils
                     html = html.Replace(uri, uri2 + "/?sid=" + sid + "\"");
                 else
                     html = html.Replace(uri, uri2 + "?sid=" + sid + "\"");
+            }
+            // Remove any @@wifi@@
+            html = html.Replace("@@wifi@@", string.Empty);
+
+            return html;
+        }
+
+        public static string PadURLs(Hashtable queryPairs, string html)
+        {
+            HashSet<string> uris = new HashSet<string>();
+            CollectMatches(uris, href.Matches(html));
+            CollectMatches(uris, action.Matches(html));
+            CollectMatches(uris, xmlhttprequest.Matches(html));
+
+            string query = string.Empty;
+            foreach (DictionaryEntry kvp in queryPairs)
+            {
+                if (kvp.Key != null && kvp.Value != null)
+                    query += kvp.Key.ToString() + "=" + kvp.Value.ToString() + "&";
+            }
+
+            foreach (string uri in uris)
+            {
+                string uri2 = uri.Substring(0, uri.Length - 1);
+                //m_log.DebugFormat("[Wifi]: replacing {0} with {1}", uri, uri2 + "?sid=" + sid + "\"");
+                if (!uri.EndsWith("/"))
+                    html = html.Replace(uri, uri2 + "/?" + query + "\"");
+                else
+                    html = html.Replace(uri, uri2 + "?" + query + "\"");
             }
             // Remove any @@wifi@@
             html = html.Replace("@@wifi@@", string.Empty);
