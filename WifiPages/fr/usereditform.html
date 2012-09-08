@@ -1,0 +1,29 @@
+<form action="/wifi/admin/users/edit/<!-- #get field=PrincipalID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="1">
+    Prénom:<br />
+    <input name="first" type="text" value="<!-- #get field=FirstName-->" class="inputstyle" /><br /><br />
+    Nom de famille:<br />
+    <input name="last" type="text" value="<!-- #get field=LastName-->" class="inputstyle" /><br /><br />
+    Email:<br />
+    <input name="email" type="text" value="<!-- #get field=Email-->" class="inputstyle" /><br /><br />
+    Niveau:<br />
+    <input name="level" type="text" value="<!-- #get field=UserLevel-->" class="inputstyle" /><br /><br />
+    Drapeaux:<br />
+    <input name="flags" type="text" value="<!-- #get field=UserFlags-->" class="inputstyle" /><br /><br />
+    Titre:<br />
+    <input name="title" type="text" value="<!-- #get field=UserTitle-->" class="inputstyle" />
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+
+<p>&nbsp;</p>
+
+<form action="/wifi/admin/users/edit/<!-- #get field=PrincipalID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="2">
+    Mot de passe:<br />
+    <input name="password" type="text" value="<on file>" class="inputstyle" />&nbsp;
+    <input type="submit" value="reset" class="button" />
+  </p>
+</form>

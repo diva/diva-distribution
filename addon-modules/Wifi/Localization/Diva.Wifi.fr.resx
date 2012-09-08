@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+<resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>1.3</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Textures"><value>Textures</value></data>
+  <data name="Deleted region link {0}."><value>Supprimé lien région {0}.</value></data>
+  <data name="Your password has been reset."><value>Votre mot de passe a été réinitialisé.</value></data>
+  <data name="Account activated"><value>Compte activé</value></data>
+  <data name="My Inventory"><value>Mon inventaire</value></data>
+  <data name="Failed to link region: {0}"><value>Impossible de lier région: {0}</value></data>
+  <data name="Default Avatar"><value>Avatar par défaut</value></data>
+  <data name="ImageJPEG"><value>Image JPEG</value></data>
+  <data name="Invalid token."><value>Lexical invalide.</value></data>
+  <data name="No regions found"><value>Pas de régions trouvé</value></data>
+  <data name="Your account has been activated."><value>Votre compte a été activé.</value></data>
+  <data name="Landmarks"><value>Landmarks</value></data>
+  <data name="If your browser does not automatically load the next page, then use the button, please."><value>Si votre navigateur ne charge pas automatiquement la page suivante, puis utilisez le bouton, s'il vous plaît.</value></data>
+  <data name="TextureTGA"><value>Texture TGA</value></data>
+  <data name="The account has been updated."><value>Le compte a été mis à jour.</value></data>
+  <data name="OutfitFolder"><value>Dossier Tenues</value></data>
+  <data name="LSLText"><value>LSL Texte</value></data>
+  <data name="nobody"><value>personne</value></data>
+  <data name="Male"><value>Masculin</value></data>
+  <data name="RootFolder"><value>Dossier Racine</value></data>
+  <data name="Last name:"><value>Nom de famille:</value></data>
+  <data name="continue"><value>continuer</value></data>
+  <data name="Texture"><value>Texture</value></data>
+  <data name="My Suitcase"><value>Ma Valise</value></data>
+  <data name="Default"><value>Defaut</value></data>
+  <data name="Gestures"><value>Gestures</value></data>
+  <data name="MyOutfitsFolder"><value>Mon Dossier Tenues</value></data>
+  <data name="Account awaiting approval"><value>Compte en attente d'approbation</value></data>
+  <data name="Your Wifi has been installed. The administrator account is {0} {1}"><value>Votre Wifi a été installé. Le compte administrateur est {0} {1}</value></data>
+  <data name="EnsembleStart"><value>Ensemble de démarrage</value></data>
+  <data name="CallingCard"><value>Carte d'appel</value></data>
+  <data name="The account does not exist."><value>Le compte n'existe pas.</value></data>
+  <data name="ImageTGA"><value>Image TGA</value></data>
+  <data name="SnapshotFolder"><value>Dossier de capture instantanée</value></data>
+  <data name="Favorites"><value>Favoris</value></data>
+  <data name="Animation"><value>Animation</value></data>
+  <data name="Folder"><value>Dossier</value></data>
+  <data name="Trash"><value>Corbeille</value></data>
+  <data name="No users found"><value>Aucun utilisateur trouvé</value></data>
+  <data name="Objects"><value>Objets</value></data>
+  <data name="Lost And Found"><value>Perdu et Trouvé</value></data>
+  <data name="Mesh"><value>Mesh</value></data>
+  <data name="Loading your inventory, please wait"><value>Chargement de votre inventaire, s'il vous plaît attendre</value></data>
+  <data name="delete"><value>Effacer</value></data>
+  <data name="Gesture"><value>Gesture</value></data>
+  <data name="Link"><value>Lien</value></data>
+  <data name="Simstate"><value>Sim État</value></data>
+  <data name="Notecards"><value>Notecards</value></data>
+  <data name="Notecard"><value>Notecard</value></data>
+  <data name="LostAndFoundFolder"><value>Dossier Perdu et Trouvé</value></data>
+  <data name="Your account has been updated."><value>Votre compte a été mis à jour.</value></data>
+  <data name="First name:"><value>Prénom:</value></data>
+  <data name="EnsembleEnd"><value>Fin ensemble</value></data>
+  <data name="CurrentOutfitFolder"><value>Dossier tenue actuelle</value></data>
+  <data name="Password Reset"><value>Réinitialiser mot de passe</value></data>
+  <data name="Invalid region address."><value>Adresse de région invalide.</value></data>
+  <data name="LSLBytecode"><value>LSL Bytecode</value></data>
+  <data name="Unknown"><value>Inconnu</value></data>
+  <data name="Your account has been created."><value>Votre compte a été créé.</value></data>
+  <data name="Calling Cards"><value>Cartes d'appel</value></data>
+  <data name="Welcome to {0}!"><value>Bienvenue sur {0}!</value></data>
+  <data name="Check your email. You must reset your password within 60 minutes."><value>Vérifiez votre e-mail. Vous devez réinitialiser votre mot de passe dans les 60 minutes.</value></data>
+  <data name="No linked regions found"><value>Pas de régions liées trouvé</value></data>
+  <data name="My Outfits"><value>Mes tenues</value></data>
+  <data name="The account has been activated."><value>Le compte a été activé.</value></data>
+  <data name="Sounds"><value>Sons</value></data>
+  <data name="Female"><value>Féminin</value></data>
+  <data name="Photo Album"><value>Album Photo</value></data>
+  <data name="New account {0} {1} created in {2} is awaiting your approval."><value>Nouveau compte {0} {1} crée en {2} est en attente de votre approbation.</value></data>
+  <data name="The account has been deleted."><value>Le compte a été supprimé.</value></data>
+  <data name="TrashFolder"><value>Dossier Corbeille</value></data>
+  <data name="OK"><value>OK</value></data>
+  <data name="Click here to reset your password:"><value>Cliquez ici pour réinitialiser votre mot de passe:</value></data>
+  <data name="Landmark"><value>Landmark</value></data>
+  <data name="LinkFolder"><value>Dossier Lien</value></data>
+  <data name="FavoriteFolder"><value>Dossier Favoris</value></data>
+  <data name="SoundWAV"><value>Sons WAV</value></data>
+  <data name="Animations"><value>Animations</value></data>
+  <data name="Clothing"><value>Vêtements</value></data>
+  <data name="Email could not be sent."><value>E-mail n'a pas pu être envoyé.</value></data>
+  <data name="Deletion of region link {0} failed."><value>Suppression de lien région {0} a échoué.</value></data>
+  <data name="Your account awaits administrator approval."><value>Votre compte attend l'approbation de l'administrateur.</value></data>
+  <data name="No email on file"><value>Aucune adresse courriel au dossier</value></data>
+  <data name="Unable to delete account because it does not exist."><value>Impossible de supprimer le compte, car il n'existe pas.</value></data>
+  <data name="Login failed."><value>Echec de la connexion.</value></data>
+  <data name="Neutral"><value>Neutre</value></data>
+  <data name="Current Outfit"><value>Tenue actuelle</value></data>
+  <data name="Bodypart"><value>Partie du corps</value></data>
+  <data name="Body Parts"><value>Parties du corps</value></data>
+  <data name="Sound"><value>Sons</value></data>
+  <data name="Object"><value>Objet</value></data>
+  <data name="Your account is {0} {1}"><value>Votre compte est {0} {1}</value></data>
+  <data name="Who are you?"><value>Qui êtes-vous?</value></data>
+  <data name="LoginURI:"><value>LoginURI:</value></data>
+  <data name="Region link to {0} established. (If this link already existed, then it will remain at the original location.)"><value>Région lien vers {0} établie. (Si ce lien existe déjà, alors il restera à son emplacement d'origine.)</value></data>
+  <data name="Region link not found."><value>Lien Région non trouvé.</value></data>
+  <data name="Scripts"><value>Scripts</value></data>
+  </root>

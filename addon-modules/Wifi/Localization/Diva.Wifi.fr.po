@@ -1,0 +1,359 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Diva.Wifi\n"
+"Report-Msgid-Bugs-To: marck00@nexgo.de\n"
+"POT-Creation-Date: 2010-12-09 18:39+0100\n"
+"PO-Revision-Date: 2010-12-09 18:47+0100\n"
+"Last-Translator: Marck <marck00@nexgo.de>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Female"
+msgstr "Féminin"
+
+msgid "Male"
+msgstr "Masculin"
+
+msgid "Neutral"
+msgstr "Neutre"
+
+msgid "Default"
+msgstr "Defaut"
+
+msgid "nobody"
+msgstr "personne"
+
+msgid "My Inventory"
+msgstr "Mon Inventaire"
+
+msgid "My Outfits"
+msgstr "Mes Tenues"
+
+msgid "My Suitcase"
+msgstr "Ma Valise"
+
+msgid "Animations"
+msgstr "Animations"
+
+msgid "Body Parts"
+msgstr "Parties du Corps"
+
+msgid "Calling Cards"
+msgstr "Cartes d'Appels"
+
+msgid "Clothing"
+msgstr "Vêtements"
+
+msgid "Current Outfit"
+msgstr "Tenue Actuelle"
+
+msgid "Favorites"
+msgstr "Favoris"
+
+msgid "Gestures"
+msgstr "Gestes"
+
+msgid "Landmarks"
+msgstr "Landmarks"
+
+msgid "Lost And Found"
+msgstr "Perdu et Trouvé"
+
+msgid "Notecards"
+msgstr "Notecards"
+
+msgid "Objects"
+msgstr "Objects"
+
+msgid "Photo Album"
+msgstr "Album Photo"
+
+msgid "Scripts"
+msgstr "Scripts"
+
+msgid "Sounds"
+msgstr "Sons"
+
+msgid "Textures"
+msgstr "Textures"
+
+msgid "Trash"
+msgstr "Corbeille"
+
+msgid "Unknown"
+msgstr "Inconnu"
+
+msgid "Texture"
+msgstr "Texture"
+
+msgid "Sound"
+msgstr "Son"
+
+msgid "CallingCard"
+msgstr "Carte d'Appel"
+
+msgid "Landmark"
+msgstr "Landmark"
+
+msgid "Object"
+msgstr "Objet"
+
+msgid "Notecard"
+msgstr "Notecard"
+
+msgid "Folder"
+msgstr "Dossier"
+
+msgid "RootFolder"
+msgstr "Dossier Racine"
+
+msgid "LSLText"
+msgstr "LSL Text"
+
+msgid "LSLBytecode"
+msgstr "LSL Bytecode"
+
+msgid "TextureTGA"
+msgstr "Texture TGA"
+
+msgid "Bodypart"
+msgstr "Partie du Corps"
+
+msgid "TrashFolder"
+msgstr "Dossier Corbeille"
+
+msgid "SnapshotFolder"
+msgstr "Dossier de Capture Instantanée"
+
+msgid "LostAndFoundFolder"
+msgstr "Dossier Perdu et Trouvé"
+
+msgid "SoundWAV"
+msgstr "Son WAV"
+
+msgid "ImageTGA"
+msgstr "Image TGA"
+
+msgid "ImageJPEG"
+msgstr "Image JPEG"
+
+msgid "Animation"
+msgstr "Animation"
+
+msgid "Gesture"
+msgstr "Geste"
+
+msgid "Simstate"
+msgstr "Sim État"
+
+msgid "FavoriteFolder"
+msgstr "Dossier Favoris"
+
+msgid "Link"
+msgstr "Lien"
+
+msgid "LinkFolder"
+msgstr "Dossier Lien"
+
+msgid "EnsembleStart"
+msgstr "Ensemble de démarrage"
+
+msgid "EnsembleEnd"
+msgstr "Ensemble de Fin"
+
+msgid "CurrentOutfitFolder"
+msgstr "Dossier Tenue Actuelle"
+
+msgid "OutfitFolder"
+msgstr "Dossier Tenue"
+
+msgid "MyOutfitsFolder"
+msgstr "Mon Dossier Tenue"
+
+msgid "Mesh"
+msgstr "Mesh"
+
+#: ../ExtensionMethods.cs:155
+msgid "delete"
+msgstr "Effacer"
+
+#: ../WebApp/Services.ChangeUserAccount.cs:105
+msgid "Your account has been updated."
+msgstr "Votre compte a été mis à jour."
+
+#: ../WebApp/Services.Hyperlinks.cs:91
+#, csharp-format
+msgid "Failed to link region: {0}"
+msgstr "Impossible de lier la région: {0}"
+
+#: ../WebApp/Services.Hyperlinks.cs:93
+#, csharp-format
+msgid "Region link to {0} established. (If this link already existed, then it will remain at the original location.)"
+msgstr "Lien région vers {0} établi. (Si ce lien existe déjà, alors il restera à son emplacement d'origine.)"
+
+#: ../WebApp/Services.Hyperlinks.cs:96
+msgid "Invalid region address."
+msgstr "Adresse région Invalide."
+
+#: ../WebApp/Services.Hyperlinks.cs:144
+#: ../WebApp/Services.Hyperlinks.cs:190
+msgid "Region link not found."
+msgstr "Lien région non trouvé."
+
+#: ../WebApp/Services.Hyperlinks.cs:175
+#, csharp-format
+msgid "Deleted region link {0}."
+msgstr "Lien région supprimé {0}."
+
+#: ../WebApp/Services.Hyperlinks.cs:179
+#, csharp-format
+msgid "Deletion of region link {0} failed."
+msgstr "La suppression de lien région {0} a échoué."
+
+#: ../WebApp/Services.Install.cs:64
+#, csharp-format
+msgid "Your Wifi has been installed. The administrator account is {0} {1}"
+msgstr "Votre Wifi a été installé. Le compte administrateur est {0} {1}"
+
+#: ../WebApp/Services.Inventory.cs:52
+msgid "Loading your inventory, please wait"
+msgstr "Chargement de votre inventaire, s'il vous plaît attendre"
+
+#: ../WebApp/Services.Inventory.cs:53
+msgid "If your browser does not automatically load the next page, then use the button, please."
+msgstr "Si votre navigateur ne charge pas automatiquement la page suivante, alors utilisez le bouton s'il vous plaît."
+
+#: ../WebApp/Services.Inventory.cs:54
+msgid "continue"
+msgstr "Continuer"
+
+#: ../WebApp/Services.LoginLogout.cs:57
+msgid "Login failed."
+msgstr "Echec de la connexion."
+
+#: ../WebApp/Services.LoginLogout.cs:74
+#, csharp-format
+msgid "Welcome to {0}!"
+msgstr "Bienvenue sur {0}!"
+
+#: ../WebApp/Services.NewAccount.cs:95
+msgid "Your account has been created."
+msgstr "Votre compte a été créé."
+
+#: ../WebApp/Services.NewAccount.cs:110
+#, csharp-format
+msgid "New account {0} {1} created in {2} is awaiting your approval."
+msgstr "Le nouveau compte {0} {1} créé dans {2} est en attente de votre approbation."
+
+#: ../WebApp/Services.NewAccount.cs:116
+msgid "Account awaiting approval"
+msgstr "Compte en attente d'approbation"
+
+#: ../WebApp/Services.NewAccount.cs:118
+msgid "Your account awaits administrator approval."
+msgstr "Votre compte attend approbation par l'administrateur."
+
+#: ../WebApp/Services.NewAccount.cs:173
+msgid "Default Avatar"
+msgstr "Avatar par Defaut"
+
+#: ../WebApp/Services.Notify.cs:58
+msgid "OK"
+msgstr "OK"
+
+#: ../WebApp/Services.PasswordRecovery.cs:78
+#, csharp-format
+msgid "Your account is {0} {1}"
+msgstr "Votre compte est {0} {1}"
+
+#: ../WebApp/Services.PasswordRecovery.cs:79
+msgid "Click here to reset your password:"
+msgstr "Cliquez ici pour réinitialiser votre mot de passe:"
+
+#: ../WebApp/Services.PasswordRecovery.cs:81
+msgid "Password Reset"
+msgstr "Réinitialiser mot de passe"
+
+#: ../WebApp/Services.PasswordRecovery.cs:82
+msgid "Check your email. You must reset your password within 60 minutes."
+msgstr "Vérifiez votre e-mail. Vous devez réinitialiser votre mot de passe dans les 60 minutes."
+
+#: ../WebApp/Services.PasswordRecovery.cs:84
+msgid "Email could not be sent."
+msgstr "E-mail n'a pas pu être envoyé."
+
+#: ../WebApp/Services.PasswordRecovery.cs:107
+msgid "Invalid token."
+msgstr "Lexical invalide."
+
+#: ../WebApp/Services.PasswordRecovery.cs:120
+msgid "Your password has been reset."
+msgstr "Votre mot de passe a été réinitialisé."
+
+#: ../WebApp/Services.UserManagement.cs:135
+#: ../WebApp/Services.UserManagement.cs:168
+msgid "The account has been updated."
+msgstr "Le compte a été mis à jour."
+
+#: ../WebApp/Services.UserManagement.cs:140
+#: ../WebApp/Services.UserManagement.cs:173
+msgid "The account does not exist."
+msgstr "Le compte n'existe pas."
+
+#: ../WebApp/Services.UserManagement.cs:196
+msgid "The account has been activated."
+msgstr "Le compte a été activé."
+
+#: ../WebApp/Services.UserManagement.cs:238
+msgid "Your account has been activated."
+msgstr "Votre compte a été activé."
+
+#: ../WebApp/Services.UserManagement.cs:239
+msgid "First name:"
+msgstr "Prénom:"
+
+#: ../WebApp/Services.UserManagement.cs:240
+msgid "Last name:"
+msgstr "Nom de famille:"
+
+#: ../WebApp/Services.UserManagement.cs:241
+msgid "LoginURI:"
+msgstr "LoginURI:"
+
+#: ../WebApp/Services.UserManagement.cs:242
+msgid "Account activated"
+msgstr "Compte activé"
+
+#: ../WebApp/Services.UserManagement.cs:297
+msgid "The account has been deleted."
+msgstr "Le compte a été supprimé."
+
+#: ../WebApp/Services.UserManagement.cs:302
+msgid "Unable to delete account because it does not exist."
+msgstr "Impossible de supprimer le compte, car il n'existe pas."
+
+#: ../WebApp/WifiScriptFace.cs:283
+#: ../WebApp/WifiScriptFace.cs:297
+msgid "Who are you?"
+msgstr "Qui êtes-vous?"
+
+#: ../WebApp/WifiScriptFace.cs:292
+msgid "No email on file"
+msgstr "Aucune adresse courriel au dossier"
+
+#: ../WebApp/WifiScriptFace.cs:345
+msgid "No linked regions found"
+msgstr "Pas de régions liées trouvé"
+
+#: ../WebApp/WifiScriptFace.cs:369
+msgid "No users found"
+msgstr "Aucun utilisateur trouvé"
+
+#: ../WebApp/WifiScriptFace.cs:377
+msgid "No regions found"
+msgstr "Pas de régions trouvé"
+
+#~ msgid "Region link not found"
+#~ msgstr "Lien région non trouvé"

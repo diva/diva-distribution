@@ -1,0 +1,14 @@
+  <p>Récupérer les utilisateurs</p>
+  <ul>
+    <li>Entrez un seul caractère d'espace pour lister tous les comptes.</li>
+    <li>Les autres termes de recherche doivent avoir au moins 3 caractères.</li>
+    <li>Pour insensible à la casse de recherche, précéder un terme par un espace.</li>
+  </ul>
+  <form action="/wifi/admin/users" method="post">
+  <p class="bodytext"> 
+    <input name="terms" type="text" class="inputstyle" />&nbsp;
+    <input type="submit" value="Rechercher" class="button" />
+  </p>
+  </form>
+
+  <!-- #call method=GetPendingUserList --> 

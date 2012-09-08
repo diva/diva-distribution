@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title><!-- #get var=GridName --></title>
+    <link rel="shortcut icon" href="/wifi/images/favicon.ico" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/wifi/fluid.css" />
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+  </head>
+
+  <body>
+    <div id="header">
+      <!--#include file=header.html -->
+    </div>
+
+    <div id="page">  <!-- wraps and defines overall page width, centers it -->
+      <div id="right-nav">  <!-- right side navigation, etc on page -->
+        <!--#call method=GetMainMenu --> 
+        <br />
+
+        <div class="right-nav-divider"></div>
+        <!--#call method=GetLoginLogout --> 
+        <br />
+
+        <div class="right-nav-divider"></div>
+        <!--#include file=links.html --> 
+      </div> <!-- end right side navigation -->
+
+      <div id="content"> <!-- content area of page -->
+        <!--#include file=content-box.html --> 
+        <img src="/wifi/images/orange-planets-background.jpg" style="width:100%; max-width:400px;" />
+        <p class="white"><br />
+          <span class="nowrap">Les utilisateurs dans le monde: <!-- #get var=UsersInworld --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Régions: <!-- #get var=RegionsTotal --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Nombre total d'utilisateurs: <!-- #get var=UsersTotal --></span> &nbsp;&nbsp;&nbsp;&nbsp;
+          <span class="nowrap">Les utilisateurs actifs (<!-- #get var=UsersActivePeriod --> derniers jours): <!-- #get var=UsersActive --></span>
+        </p>
+      </div> <!-- end content area of page -->
+    </div>
+
+    <div id="footer">
+      <div id="right-footer">
+      <div class="right-nav-divider"></div>
+        <img class="logo" src="/wifi/images/diva.png">
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <a href="http://opensimulator.org"><img class="logo" src="/wifi/images/PoweredByOS.png"></a>
+      </div>
+      <!-- #include file=footer.html -->
+    </div>
+
+  </body>
+</html>
