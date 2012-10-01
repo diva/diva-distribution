@@ -36,5 +36,8 @@
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
     </Match>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.sql"/>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.migrations"/>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.addin.xml" recurse="true"/>
   </Files>
 </Project>

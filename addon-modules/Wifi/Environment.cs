@@ -91,7 +91,8 @@ namespace Diva.Wifi
     {
         IsLoggedIn = 1,
         IsAdmin = 2,
-        AllowHyperlinks = 4
+        AllowHyperlinks = 4,
+        IsValidSession = 8
     }
 
     public enum State : uint
@@ -116,6 +117,8 @@ namespace Diva.Wifi
         HyperlinkListForm = 28,
         HyperlinkDeleteForm = 29,
         HyperlinkList = 30,
-        Notification = 31
+        Notification = 31,
+        GetTOS = 32,
+        AcceptTOS = 33
     }
 }

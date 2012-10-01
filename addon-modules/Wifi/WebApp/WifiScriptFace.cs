@@ -177,6 +177,12 @@ namespace Diva.Wifi
             if (env.State == State.Notification)
                 return m_WebApp.ReadFile(env, "notification.html", env.Data);
 
+            if (env.State == State.GetTOS)
+                return m_WebApp.ReadFile(env, "tos.html", env.Data);
+
+            if (env.State == State.AcceptTOS)
+                return "Thank you and enjoy your visit!";
+
             if ((env.Flags & Flags.IsLoggedIn) != 0)
             {
                 if (env.State == State.UserAccountForm)

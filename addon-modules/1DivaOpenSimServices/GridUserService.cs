@@ -92,7 +92,50 @@ namespace Diva.OpenSimServices
 
             return 0;
         }
-    
+
+        public DGridUserInfo GetExtendedGridUserInfo(string userID)
+        {
+            GridUserData d = m_Database.Get(userID);
+
+            if (d == null)
+                return null;
+
+            DGridUserInfo info = new DGridUserInfo();
+            info.UserID = d.UserID;
+            info.HomeRegionID = new UUID(d.Data["HomeRegionID"]);
+            info.HomePosition = Vector3.Parse(d.Data["HomePosition"]);
+            info.HomeLookAt = Vector3.Parse(d.Data["HomeLookAt"]);
+
+            info.LastRegionID = new UUID(d.Data["LastRegionID"]);
+            info.LastPosition = Vector3.Parse(d.Data["LastPosition"]);
+            info.LastLookAt = Vector3.Parse(d.Data["LastLookAt"]);
+
+            info.Online = bool.Parse(d.Data["Online"]);
+            info.Login = Util.ToDateTime(Convert.ToInt32(d.Data["Login"]));
+            info.Logout = Util.ToDateTime(Convert.ToInt32(d.Data["Logout"]));
+
+            if (d.Data.ContainsKey("TOS") && d.Data["TOS"] != null)
+                info.TOS = d.Data["TOS"];
+            else 
+                info.TOS = string.Empty;
+
+            return info;
+        }
+
+        public bool StoreTOS(DGridUserInfo info)
+        {
+            GridUserData d = m_Database.Get(info.UserID);
+            if (d != null)
+            {
+                d.Data["TOS"] = info.TOS;
+
+                return m_Database.Store(d);
+            }
+
+            return false;
+        }
+
+
         protected GridUserInfo ToGridUserInfo(GridUserData d)
         {
             GridUserInfo info = new GridUserInfo();
@@ -110,6 +153,33 @@ namespace Diva.OpenSimServices
             info.Logout = Util.ToDateTime(Convert.ToInt32(d.Data["Logout"]));
 
             return info;
+        }
+
+    }
+
+    /// <summary>
+    /// Additional GridUser data for D2
+    /// </summary>
+    public class DGridUserInfo : GridUserInfo
+    {
+        public string TOS = String.Empty;
+
+        public DGridUserInfo() { }
+
+        public DGridUserInfo(Dictionary<string, object> kvp)
+            : base(kvp)
+        {
+            if (kvp.ContainsKey("TOS"))
+                TOS = kvp["TOS"].ToString();
+
+        }
+
+        public override Dictionary<string, object> ToKeyValuePairs()
+        {
+            Dictionary<string, object> result = base.ToKeyValuePairs();
+            result["TOS"] = TOS;
+
+            return result;
         }
     }
 }

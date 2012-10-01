@@ -40,10 +40,11 @@ namespace Diva.Data.MySQL
     {
         private MySQLGenericTableHandler<GridUserData> m_DatabaseHandler;
 
-        protected override Assembly Assembly
-        {
-            get { return GetType().BaseType.Assembly; }
-        }
+        //protected override Assembly Assembly
+        //{
+        //    // WARNING! Moving migrations to this assembly!!!
+        //    get { return GetType().Assembly; }
+        //}
 
         public MySQLGridUserData(string connectionString, string realm)
                 : base(connectionString, realm)

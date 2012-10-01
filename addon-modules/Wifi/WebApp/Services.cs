@@ -47,6 +47,7 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.AvatarService;
+using OpenSim.Services.PresenceService;
 
 using Diva.Utils;
 using Diva.Wifi.WifiScript;
@@ -72,6 +73,7 @@ namespace Diva.Wifi
         private GridService m_GridService;
         private GridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
+        private IPresenceService m_PresenceService;
 
         private string m_ServerAdminPassword;
         private DateTime m_LastStatisticsUpdate;
@@ -97,6 +99,7 @@ namespace Diva.Wifi
             m_GridService = new GridService(config);
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
+            m_PresenceService = new PresenceService(config);
 
             // Create the "God" account if it doesn't exist
             CreateGod();
@@ -201,7 +204,45 @@ namespace Diva.Wifi
                         success = true;
                     }
                 }
+                else
+                {
+                    UUID sessionid = UUID.Zero;
+                    if (UUID.TryParse(request.Query["sid"].ToString(), out sessionid))
+                    {
+                        PresenceInfo pinfo = m_PresenceService.GetAgent(sessionid);
+                        if (pinfo != null)
+                        {
+                            m_log.DebugFormat("[Wifi]: User is present in the grid");
+                            success = true;
+
+                            UserAccount account = null;
+                            if (request.Query.ContainsKey("uid"))
+                            {
+                                UUID userID = UUID.Zero;
+                                if (UUID.TryParse(request.Query["uid"].ToString(), out userID))
+                                    account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
+                                else
+                                    m_log.DebugFormat("[Wifi]: uid {0} not UUID", request.Query["uid"].ToString());
+                            }
+                            else
+                                m_log.DebugFormat("[Wifi]: No uid in Query");
+
+                            sinfo.IpAddress = request.IPEndPoint.Address.ToString();
+                            sinfo.Sid = request.Query["sid"].ToString();
+                            sinfo.Account = account;
+                            sinfo.Notify = new NotificationData();
+
+                            m_Sessions.Add(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
+                        }
+                        else
+                            m_log.DebugFormat("[Wifi]: User is not present in the grid");
+                    }
+                    else
+                        m_log.DebugFormat("[Wifi]: Unable o parse sid {0}", request.Query["sid"].ToString());
+                }
             }
+            else
+                m_log.DebugFormat("[Wifi]: no sid in Query");
 
             return success;
         }
@@ -244,7 +285,7 @@ namespace Diva.Wifi
 
         private string PadURLs(Environment env, string sid, string html)
         {
-            if ((env.Flags & Flags.IsLoggedIn) == 0)
+            if ((env.Flags & Flags.IsLoggedIn) == 0 && (env.Flags & Flags.IsValidSession) == 0)
                 return html;
 
             return WebAppUtils.PadURLs(sid, html);
