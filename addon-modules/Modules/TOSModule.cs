@@ -40,6 +40,7 @@ using OpenSim.Framework;
 using OpenSim.Region.Framework.Interfaces;
 using OpenSim.Region.Framework.Scenes;
 using OpenSim.Services.Interfaces;
+using OpenSim.Server.Base;
 
 using Diva.OpenSimServices;
 
@@ -72,7 +73,7 @@ namespace Diva.Modules
         private string m_Message = "Please read and agree to the Terms of Service";
         private int m_Timeout = 5; // 5 minutes
 
-        private GridUserService m_GridUserService;
+        private IGridUserService m_GridUserService;
 
         // Normally we wouldn't need a list/dictionary, but if we don't hold the rerefence
         // to these timers somehwre, they may be garbage collected
@@ -94,7 +95,14 @@ namespace Diva.Modules
                     m_Message = tosModule.GetString("Message", m_Message);
                     m_Timeout = tosModule.GetInt("Timeout", m_Timeout);
 
-                    m_GridUserService = new GridUserService(config);
+                    string gridUserService = tosModule.GetString("GridUserService", "Diva.OpenSimServices.dll:GridUserService");
+                    Object[] args = new Object[] { config };
+                    m_GridUserService = ServerUtils.LoadPlugin<IGridUserService>(gridUserService, args);
+                    if (m_GridUserService == null)
+                    {
+                        m_log.ErrorFormat("[TOS MODULE]: Unable to create GridUserService connector. TOS Module if off");
+                        return;
+                    }
 
                     m_log.Debug("[TOS MODULE]: Enabled");
                 }
@@ -167,7 +175,15 @@ namespace Diva.Modules
 
             // ok, show it if the user hasn't seen it yet
             string userId = sp.Scene.UserManagementModule.GetUserUUI(sp.UUID);
-            DGridUserInfo gridUser = m_GridUserService.GetExtendedGridUserInfo(userId);
+            GridUserInfo gUser = m_GridUserService.GetGridUserInfo(userId);
+
+            if (!(gUser is DGridUserInfo))
+            {
+                m_log.WarnFormat("[TOS MODULE]: This module isn't properly configured. TOS verification unavailable.");
+                return;
+            }
+
+            DGridUserInfo gridUser = (DGridUserInfo)gUser;
 
             // The user has already accepted the TOS before
             if (gridUser != null && gridUser.TOS != string.Empty)
@@ -216,7 +232,12 @@ namespace Diva.Modules
                     if (!theRoot.IsChildAgent)
                     {
                         string userId = theRoot.Scene.UserManagementModule.GetUserUUI(theRoot.UUID);
-                        DGridUserInfo info = m_GridUserService.GetExtendedGridUserInfo(userId);
+
+                        GridUserInfo gUser = m_GridUserService.GetGridUserInfo(userId);
+                        if (!(gUser is DGridUserInfo))
+                            return;
+
+                        DGridUserInfo info = (DGridUserInfo)gUser;
 
                         if (info == null || (info != null && info.TOS == string.Empty))
                         {

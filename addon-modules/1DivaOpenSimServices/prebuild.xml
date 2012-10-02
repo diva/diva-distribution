@@ -28,6 +28,7 @@
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Services.Interfaces"/>
+  <Reference name="OpenSim.Services.Connectors"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
   <Reference name="OpenSim.Services.AuthenticationService"/>
   <Reference name="OpenSim.Services.InventoryService"/>

@@ -142,14 +142,20 @@ namespace Diva.Wifi
 
         private void AcceptTOS(Environment env, string userID)
         {
-            DGridUserInfo info = m_GridUserService.GetExtendedGridUserInfo(userID);
-            if (info != null)
+            try
             {
-                DateTime dt = DateTime.Now;
-                info.TOS = env.Session.IpAddress + " " + dt.ToString("yyyy-MM-dd") + " " + dt.ToString("HH:mm:ss");
-                m_GridUserService.StoreTOS(info);
+                DGridUserInfo info = (DGridUserInfo)m_GridUserService.GetGridUserInfo(userID);
+                if (info != null)
+                {
+                    DateTime dt = DateTime.Now;
+                    info.TOS = env.Session.IpAddress + " " + dt.ToString("yyyy-MM-dd") + " " + dt.ToString("HH:mm:ss");
+                    m_GridUserService.StoreTOS(info);
+                }
             }
-
+            catch (InvalidCastException)
+            {
+                m_log.Warn("[Wifi]: This module isn't properly configured. Use Diva.OpenSimServices");
+            }
         }
 
     }

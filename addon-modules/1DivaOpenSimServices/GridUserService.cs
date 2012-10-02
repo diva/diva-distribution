@@ -93,7 +93,7 @@ namespace Diva.OpenSimServices
             return 0;
         }
 
-        public DGridUserInfo GetExtendedGridUserInfo(string userID)
+        public override GridUserInfo GetGridUserInfo(string userID)
         {
             GridUserData d = m_Database.Get(userID);
 
@@ -120,6 +120,7 @@ namespace Diva.OpenSimServices
                 info.TOS = string.Empty;
 
             return info;
+
         }
 
         public bool StoreTOS(DGridUserInfo info)
