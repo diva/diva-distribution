@@ -221,8 +221,6 @@ namespace Diva.Wifi
                                 UUID userID = UUID.Zero;
                                 if (UUID.TryParse(request.Query["uid"].ToString(), out userID))
                                     account = m_UserAccountService.GetUserAccount(UUID.Zero, userID);
-                                else
-                                    m_log.DebugFormat("[Wifi]: uid {0} not UUID", request.Query["uid"].ToString());
                             }
                             else
                                 m_log.DebugFormat("[Wifi]: No uid in Query");

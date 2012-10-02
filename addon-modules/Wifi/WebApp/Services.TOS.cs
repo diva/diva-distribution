@@ -145,7 +145,7 @@ namespace Diva.Wifi
             try
             {
                 DGridUserInfo info = (DGridUserInfo)m_GridUserService.GetGridUserInfo(userID);
-                if (info != null)
+                if (info != null && info.TOS != string.Empty)
                 {
                     DateTime dt = DateTime.Now;
                     info.TOS = env.Session.IpAddress + " " + dt.ToString("yyyy-MM-dd") + " " + dt.ToString("HH:mm:ss");
