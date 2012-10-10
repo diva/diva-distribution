@@ -34,7 +34,7 @@ using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
-using RegionFlags = OpenSim.Data.RegionFlags;
+using RegionFlags = OpenSim.Framework.RegionFlags;
 
 namespace Diva.OpenSimServices
 {
