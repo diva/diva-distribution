@@ -41,9 +41,9 @@ using Nini.Config;
 
 using Mono.Addins;
 
-namespace Diva.Wifi
+namespace Diva.Modules
 {
-    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule")]
+    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "WifiModule")]
 
     public class WifiModule : ISharedRegionModule
     {

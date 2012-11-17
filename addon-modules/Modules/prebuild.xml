@@ -13,7 +13,6 @@
 
   <ReferencePath>../../bin/</ReferencePath>
   <Reference name="System"/>
-  <Reference name="System.Drawing"/>
   <Reference name="System.Web"/>
   <Reference name="OpenMetaverse" path="../../bin/"/>
   <Reference name="OpenMetaverseTypes" path="../../bin/"/>
