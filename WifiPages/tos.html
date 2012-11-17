@@ -1,0 +1,20 @@
+<h3>Terms of Service</h3>
+
+<!-- Change the text at your own will. This is just a place holder
+     and does not represent any legal advice.
+-->
+
+<p>Welcome to <!-- #get var=GridName -->. This virtual environment is
+subject to the following terms of use: <p/>
+
+<p>Play nice and don't destroy the furniture! :-)</p>
+<p>&nbsp;</p>
+
+<!-- But don't change this form! -->
+<form action="/wifi/tos" method="POST">
+    <input type="submit" name="action-accept" value="Accept" class="button" />
+    <input type="submit" name="action-decline" value="Decline" class="button" />
+    <input type="hidden" name="uid" value="<!-- #get field=UserID -->"/>
+    <input type="hidden" name="sid" value="<!-- #get field=SessionID -->"/>
+</form>
+
