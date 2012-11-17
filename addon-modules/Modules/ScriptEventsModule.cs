@@ -56,8 +56,10 @@ namespace Diva.Modules
         LastAvatarLeft
     }
 
+    /// <summary>
+    /// Captures interesting scene events and sends them to scripts that subscribe to them.
+    /// </summary>
     [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "ScriptEventsModule")]
-
     public class ScriptEventsModule : INonSharedRegionModule
     {
         #region Class and Instance Members
@@ -74,7 +76,7 @@ namespace Diva.Modules
 
         public void Initialise(IConfigSource config)
         {
-            m_log.Info("[Diva.ScriptEvents] Initializing...");
+            m_log.Info("[Diva.ScriptEvents]: ScriptEventsModule is on.");
         }
 
         public bool IsSharedModule
@@ -101,12 +103,13 @@ namespace Diva.Modules
 
         public void RemoveRegion(Scene scene)
         {
+            m_Scene.EventManager.OnMakeRootAgent -= OnMakeRootAgent;
+            m_Scene.EventManager.OnClientClosed -= OnClientClosed;
         }
 
         public void RegionLoaded(Scene scene)
         {
             m_ScriptComms = scene.RequestModuleInterface<IScriptModuleComms>();
-
             m_ScriptComms.OnScriptCommand += new ScriptCommand(OnScriptCommand);
         }
 
@@ -172,8 +175,12 @@ namespace Diva.Modules
             }
         }
 
-        #region Script-facing events
+        #region The events sent to the scripts
 
+        /// <summary>
+        /// Emits events of the kind event|AvatarArrived|<LocalTP_TrueFalse>, avatar_id
+        /// </summary>
+        /// <param name="sp"></param>
         void OnMakeRootAgent(ScenePresence sp)
         {
             if (m_EventSubscribers.ContainsKey(VOEvents.AvatarArrived) && m_EventSubscribers[VOEvents.AvatarArrived].Count > 0)
@@ -188,6 +195,9 @@ namespace Diva.Modules
             }
         }
 
+        /// <summary>
+        /// Emits events of the kind event|LastAvatarLeft
+        /// </summary>
         void OnClientClosed(UUID clientID, Scene scene)
         {
             if (scene != m_Scene)
