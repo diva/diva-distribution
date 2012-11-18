@@ -42,6 +42,7 @@ using OpenSim.Server.Base;
 using OpenSim.Services.Interfaces;
 using OpenMetaverse;
 
+using Diva.Shim;
 
 using log4net;
 using Nini.Config;
@@ -59,7 +60,7 @@ namespace Diva.Modules
     /// <summary>
     /// Captures interesting scene events and sends them to scripts that subscribe to them.
     /// </summary>
-    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "ScriptEventsModule")]
+    //[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "ScriptEventsModule")]
     public class ScriptEventsModule : INonSharedRegionModule
     {
         #region Class and Instance Members
@@ -79,11 +80,6 @@ namespace Diva.Modules
             m_log.Info("[Diva.ScriptEvents]: ScriptEventsModule is on.");
         }
 
-        public bool IsSharedModule
-        {
-            get { return false; }
-        }
-
         public string Name
         {
             get { return "Script Events"; }
@@ -99,22 +95,29 @@ namespace Diva.Modules
             m_Scene = scene;
             m_Scene.EventManager.OnMakeRootAgent += OnMakeRootAgent;
             m_Scene.EventManager.OnClientClosed += OnClientClosed;
+            m_log.DebugFormat("[Diva.ScriptEvents]: Adding region {0} to this module", scene.RegionInfo.RegionName);
+
+        }
+
+        public void RegionLoaded(Scene scene)
+        {
+            m_ScriptComms = scene.RequestModuleInterface<IScriptModuleComms>();
+            if (m_ScriptComms != null)
+                m_ScriptComms.OnScriptCommand += OnScriptCommand;
+
+            ModuleShim shim = scene.RequestModuleInterface<ModuleShim>();
+            if (shim != null)
+                shim.Manage(typeof(ScriptEventsModule), this);
+            else
+                m_log.DebugFormat("[Diva.ScriptEvents]: Shim module not found in {0}", scene.RegionInfo.RegionName);
         }
 
         public void RemoveRegion(Scene scene)
         {
             m_Scene.EventManager.OnMakeRootAgent -= OnMakeRootAgent;
             m_Scene.EventManager.OnClientClosed -= OnClientClosed;
-        }
-
-        public void RegionLoaded(Scene scene)
-        {
-            m_ScriptComms = scene.RequestModuleInterface<IScriptModuleComms>();
-            m_ScriptComms.OnScriptCommand += new ScriptCommand(OnScriptCommand);
-        }
-
-        public void PostInitialise()
-        {
+            m_ScriptComms.OnScriptCommand -= OnScriptCommand;
+            m_log.DebugFormat("[Diva.ScriptEvents]: Removing region {0} from this module", scene.RegionInfo.RegionName);
         }
 
         public void Close()
@@ -127,7 +130,7 @@ namespace Diva.Modules
         {
             if (module != Name)
                 return;
-            m_log.DebugFormat("[Diva.ScriptEvents]: script: {0} reqid: {1} k: {2}", scriptId, reqid, k);
+            m_log.DebugFormat("[Diva.ScriptEvents]: script: {0} reqid: {1} input: {2} k: {3} in {4}", scriptId, reqid, input, k, m_Scene.RegionInfo.RegionName);
 
             // input expected: <cmd>|<parcelid>|<agentid>|<option>
             // <cmd>: Pub | Sub
@@ -183,6 +186,7 @@ namespace Diva.Modules
         /// <param name="sp"></param>
         void OnMakeRootAgent(ScenePresence sp)
         {
+            sp.ControllingClient.OnAddPrim += ControllingClient_OnAddPrim;
             if (m_EventSubscribers.ContainsKey(VOEvents.AvatarArrived) && m_EventSubscribers[VOEvents.AvatarArrived].Count > 0)
             {
                 Util.FireAndForget(delegate
@@ -193,6 +197,11 @@ namespace Diva.Modules
                         m_ScriptComms.DispatchReply(script, 0, "event|" + VOEvents.AvatarArrived + "|" + localTP, sp.UUID.ToString());
                 });
             }
+        }
+
+        void ControllingClient_OnAddPrim(UUID ownerID, UUID groupID, Vector3 RayEnd, Quaternion rot, PrimitiveBaseShape shape, byte bypassRaycast, Vector3 RayStart, UUID RayTargetID, byte RayEndIsIntersection)
+        {
+            m_log.DebugFormat("[Diva.ScriptEvents]: User {0} added a prim", ownerID);
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 <!-- Image Service Module -->
-<Project frameworkVersion="v3_5" name="Diva.Modules" path="addon-modules/Modules" type="Library">
+<Project frameworkVersion="v3_5" name="Diva.ModuleShim" path="addon-modules/3ModuleShim" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
@@ -13,27 +13,16 @@
 
   <ReferencePath>../../bin/</ReferencePath>
   <Reference name="System"/>
-  <Reference name="System.Web"/>
   <Reference name="OpenMetaverse" path="../../bin/"/>
   <Reference name="OpenMetaverseTypes" path="../../bin/"/>
   <Reference name="OpenSim.Framework"/>
-  <Reference name="OpenSim.Framework.Communications"/>
-  <Reference name="OpenSim.Framework.Servers"/>
-  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
-  <Reference name="OpenSim.Services.Interfaces"/>
-  <Reference name="OpenSim.Services.UserAccountService"/>
-  <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Region.Framework"/>
-  <Reference name="OpenSim.Server.Base"/>
-  <Reference name="OpenSim.Server.Handlers"/>
 
   <Reference name="Nini" path="../../bin/" />
   <Reference name="log4net" path="../../bin/"/>
   <Reference name="Mono.Addins" path="../../bin/"/>
 
   <Reference name="Diva.Utils"/>
-  <Reference name="Diva.ModuleShim"/>
-  <Reference name="Diva.OpenSimServices"/>
 
   <!-- To allow regions to have mono addins -->
   <Reference name="Mono.Addins" path="../../bin/" />
