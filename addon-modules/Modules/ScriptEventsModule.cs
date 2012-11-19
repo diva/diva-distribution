@@ -60,7 +60,7 @@ namespace Diva.Modules
     /// <summary>
     /// Captures interesting scene events and sends them to scripts that subscribe to them.
     /// </summary>
-    //[Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "ScriptEventsModule")]
+    [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "ScriptEventsModule")]
     public class ScriptEventsModule : INonSharedRegionModule
     {
         #region Class and Instance Members
@@ -104,12 +104,6 @@ namespace Diva.Modules
             m_ScriptComms = scene.RequestModuleInterface<IScriptModuleComms>();
             if (m_ScriptComms != null)
                 m_ScriptComms.OnScriptCommand += OnScriptCommand;
-
-            ModuleShim shim = scene.RequestModuleInterface<ModuleShim>();
-            if (shim != null)
-                shim.Manage(typeof(ScriptEventsModule), this);
-            else
-                m_log.DebugFormat("[Diva.ScriptEvents]: Shim module not found in {0}", scene.RegionInfo.RegionName);
         }
 
         public void RemoveRegion(Scene scene)
@@ -117,6 +111,10 @@ namespace Diva.Modules
             m_Scene.EventManager.OnMakeRootAgent -= OnMakeRootAgent;
             m_Scene.EventManager.OnClientClosed -= OnClientClosed;
             m_ScriptComms.OnScriptCommand -= OnScriptCommand;
+            //scene.ForEachRootScenePresence(delegate(ScenePresence sp)
+            //{
+            //    sp.ControllingClient.OnAddPrim -= ControllingClient_OnAddPrim;
+            //});
             m_log.DebugFormat("[Diva.ScriptEvents]: Removing region {0} from this module", scene.RegionInfo.RegionName);
         }
 
@@ -186,7 +184,7 @@ namespace Diva.Modules
         /// <param name="sp"></param>
         void OnMakeRootAgent(ScenePresence sp)
         {
-            sp.ControllingClient.OnAddPrim += ControllingClient_OnAddPrim;
+            //sp.ControllingClient.OnAddPrim += ControllingClient_OnAddPrim;
             if (m_EventSubscribers.ContainsKey(VOEvents.AvatarArrived) && m_EventSubscribers[VOEvents.AvatarArrived].Count > 0)
             {
                 Util.FireAndForget(delegate
@@ -199,10 +197,10 @@ namespace Diva.Modules
             }
         }
 
-        void ControllingClient_OnAddPrim(UUID ownerID, UUID groupID, Vector3 RayEnd, Quaternion rot, PrimitiveBaseShape shape, byte bypassRaycast, Vector3 RayStart, UUID RayTargetID, byte RayEndIsIntersection)
-        {
-            m_log.DebugFormat("[Diva.ScriptEvents]: User {0} added a prim", ownerID);
-        }
+        //void ControllingClient_OnAddPrim(UUID ownerID, UUID groupID, Vector3 RayEnd, Quaternion rot, PrimitiveBaseShape shape, byte bypassRaycast, Vector3 RayStart, UUID RayTargetID, byte RayEndIsIntersection)
+        //{
+        //    m_log.DebugFormat("[Diva.ScriptEvents]: User {0} added a prim", ownerID);
+        //}
 
         /// <summary>
         /// Emits events of the kind event|LastAvatarLeft
