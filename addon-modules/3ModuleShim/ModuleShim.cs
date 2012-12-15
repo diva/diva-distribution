@@ -69,7 +69,11 @@ namespace Diva.Shim
 
         public void Initialise(IConfigSource config)
         {
-            m_Enabled = config.Configs["ModuleShim"].GetBoolean("Enabled", m_Enabled);
+            IConfig cnf = config.Configs["ModuleShim"];
+            if (cnf == null)
+                return;
+
+            m_Enabled = cnf.GetBoolean("Enabled", m_Enabled);
             if (m_Enabled)
             {
                 m_log.Info("[Diva.ModuleShim]: ModuleShim is on.");
