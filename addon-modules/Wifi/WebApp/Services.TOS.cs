@@ -135,6 +135,7 @@ namespace Diva.Wifi
             }
             else
             {
+                m_log.DebugFormat("[Wifi]: no session found");
                 return m_WebApp.ReadFile(env, "index.html");
             }
 
@@ -145,12 +146,14 @@ namespace Diva.Wifi
             try
             {
                 DGridUserInfo info = (DGridUserInfo)m_GridUserService.GetGridUserInfo(userID);
-                if (info != null && info.TOS != string.Empty)
+                if (info != null && info.TOS == string.Empty)
                 {
                     DateTime dt = DateTime.Now;
                     info.TOS = env.Session.IpAddress + " " + dt.ToString("yyyy-MM-dd") + " " + dt.ToString("HH:mm:ss");
                     m_GridUserService.StoreTOS(info);
                 }
+                else if (info == null)
+                    m_log.WarnFormat("[Wifi]: info not found for user {0}", userID);
             }
             catch (InvalidCastException)
             {
