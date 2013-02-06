@@ -83,6 +83,11 @@ namespace Diva.OpenSimServices
             return 0;
         }
 
+        public new void CreateDefaultAppearanceEntries(UUID principalID)
+        {
+            base.CreateDefaultAppearanceEntries(principalID);
+        }
+
         protected UserAccount ToUserAccount(UserAccountData d)
         {
             UserAccount account = new UserAccount(d.Data.ToDictionary(p => p.Key, p => (object)p.Value));

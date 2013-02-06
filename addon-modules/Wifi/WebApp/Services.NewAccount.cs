@@ -150,6 +150,7 @@ namespace Diva.Wifi
             account = m_UserAccountService.GetUserAccount(UUID.Zero, parts[0], parts[1]);
             if (account == null)
             {
+                m_UserAccountService.CreateDefaultAppearanceEntries(newUser);
                 m_log.WarnFormat("[Wifi]: Tried to get avatar of account {0} {1} but that account does not exist", parts[0], parts[1]);
                 return;
             }
