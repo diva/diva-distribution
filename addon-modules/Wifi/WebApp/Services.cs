@@ -48,6 +48,7 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.AvatarService;
 using OpenSim.Services.PresenceService;
+using OpenSim.Server.Base;
 
 using Diva.Utils;
 using Diva.Wifi.WifiScript;
@@ -55,6 +56,7 @@ using Environment = Diva.Wifi.Environment;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
 using Diva.OpenSimServices;
+using Diva.Interfaces;
 
 namespace Diva.Wifi
 {
@@ -74,6 +76,7 @@ namespace Diva.Wifi
         private GridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
         private IPresenceService m_PresenceService;
+        private IGroupsService m_GroupsService;
 
         private string m_ServerAdminPassword;
         private DateTime m_LastStatisticsUpdate;
@@ -100,6 +103,20 @@ namespace Diva.Wifi
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
             m_PresenceService = new PresenceService(config);
+            // Read the Groups dll
+            IConfig appConfig = config.Configs[configName];
+            if (appConfig != null)
+            {
+                string groupsDll = appConfig.GetString("GroupsService", string.Empty);
+                if (groupsDll != string.Empty)
+                {
+                    Object[] args = new Object[] { config };
+                    m_GroupsService = ServerUtils.LoadPlugin<IGroupsService>(groupsDll, args);
+                }
+                else
+                    m_log.WarnFormat("[Wifi]: No Groups service");
+            }
+
 
             // Create the "God" account if it doesn't exist
             CreateGod();
@@ -121,19 +138,17 @@ namespace Diva.Wifi
             {
                 m_log.DebugFormat("[Wifi]: Administrator account {0} {1} does not exist. Creating it...", m_WebApp.AdminFirst, m_WebApp.AdminLast);
                 // Doesn't exist. Create one
-                god = new UserAccount(UUID.Zero, m_WebApp.AdminFirst, m_WebApp.AdminLast, m_WebApp.AdminEmail);
+                god = m_UserAccountService.CreateUser(UUID.Zero, UUID.Random(), m_WebApp.AdminFirst, m_WebApp.AdminLast, m_WebApp.AdminPassword, m_WebApp.AdminEmail);
+
                 god.UserLevel = m_WebApp.AdminUserLevel;
                 god.UserTitle = "Administrator";
                 god.UserFlags = 0;
-                SetServiceURLs(god);
                 m_UserAccountService.StoreUserAccount(god);
-                m_InventoryService.CreateUserInventory(god.PrincipalID);
                 if (m_WebApp.AdminPassword == string.Empty)
                     // Signal that the App needs installation
                     m_WebApp.IsInstalled = false;
                 else
                 {
-                    m_AuthenticationService.SetPassword(god.PrincipalID, m_WebApp.AdminPassword);
                     m_WebApp.IsInstalled = true;
                 }
             }
@@ -311,6 +326,19 @@ namespace Diva.Wifi
 
         }
 
+        private List<object> GetGroupsList(Environment env, string terms)
+        {
+            if (m_GroupsService != null)
+            {
+                List<DirGroupsReplyData> groups = m_GroupsService.FindGroups(string.Empty, string.Empty);
+                if (groups != null && groups.Count > 0)
+                {
+                    return Objectify<DirGroupsReplyData>(groups);
+                }
+            }
+            return new List<object>();
+        }
+        
         private List<object> GetDefaultAvatarSelectionList()
         {
             // Present only default avatars of a non-empty type.

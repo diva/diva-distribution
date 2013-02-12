@@ -119,6 +119,9 @@ namespace Diva.Wifi
         HyperlinkList = 30,
         Notification = 31,
         GetTOS = 32,
-        AcceptTOS = 33
+        AcceptTOS = 33,
+        GroupsList = 34,
+        GroupEditForm = 35,
+        GroupDeleteForm = 36
     }
 }

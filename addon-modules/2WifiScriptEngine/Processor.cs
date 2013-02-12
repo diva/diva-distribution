@@ -252,7 +252,7 @@ namespace Diva.Wifi.WifiScript
                         // Let's search in the list of objects
                         object o = m_ListOfObjects[GetIndex()];
                         Type type = o.GetType();
-                        FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+                        FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);
                         if (finfo != null)
                         {
                             value = finfo.GetValue(o);

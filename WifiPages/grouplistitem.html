@@ -1,0 +1,9 @@
+  <tr class="bodytext">
+    <td class="username"><!-- #get field=groupName --> </td>
+    <td class="usertitle"><!-- #get field=members --></td>
+    <td class="command"><a href="/wifi/admin/groups/edit/<!-- #get field=groupID -->">edit</a></td>
+    <td class="command"><a href="/wifi/admin/groups/delete/<!-- #get field=groupID -->">delete</a></td>
+  </tr>
+
+  <!-- Recursion ! -->
+  <!-- #include file=grouplistitem.html -->

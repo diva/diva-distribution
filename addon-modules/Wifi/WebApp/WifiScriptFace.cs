@@ -236,6 +236,15 @@ namespace Diva.Wifi
 
                 if (env.State == State.Console)
                     return m_WebApp.ReadFile(env, "console.html", env.Data);
+
+                if (env.State == State.GroupsList)
+                    return m_WebApp.ReadFile(env, "groupslist.html", env.Data);
+                if (env.State == State.GroupEditForm)
+                    return m_WebApp.ReadFile(env, "groupeditform.html", env.Data);
+                if (env.State == State.GroupDeleteForm)
+                    return m_WebApp.ReadFile(env, "groupdeleteform.html", env.Data);
+
+
             }
 
             return string.Empty;

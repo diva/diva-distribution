@@ -91,6 +91,9 @@ namespace Diva.Wifi
             server.AddStreamHandler(new WifiTOSGetHandler(app));
             server.AddStreamHandler(new WifiTOSPostHandler(app));
 
+            server.AddStreamHandler(new WifiGroupsManagementGetHandler(app));
+            server.AddStreamHandler(new WifiGroupsManagementPostHandler(app));
+
             //server.AddStreamHandler(new WifiRegionManagementPostHandler(app));
             //server.AddStreamHandler(new WifiRegionManagementGetHandler(app));
 
