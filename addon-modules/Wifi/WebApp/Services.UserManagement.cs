@@ -205,14 +205,16 @@ namespace Diva.Wifi
                     account.ServiceURLs.Remove("Password");
 
                     Object value;
-                    account.ServiceURLs.TryGetValue("Avatar", out value);
-                    account.ServiceURLs.Remove("Avatar");
+                    if (account.ServiceURLs.TryGetValue("Avatar", out value))
+                        account.ServiceURLs.Remove("Avatar");
                     string avatarType = (string)value;
 
                     CultureInfo[] languages = null;
                     if (account.ServiceURLs.TryGetValue("Language", out value))
+                    {
                         languages = Localization.GetLanguageInfo((string)value);
-                    account.ServiceURLs.Remove("Language");
+                        account.ServiceURLs.Remove("Language");
+                    }
 
                     // Save changes to user account
                     m_UserAccountService.StoreUserAccount(account);
@@ -229,7 +231,7 @@ namespace Diva.Wifi
                         SetAvatar(env, account.PrincipalID, avatarType);
                     }
 
-                    if (account.Email != string.Empty)
+                    if (!string.IsNullOrEmpty(account.Email))
                     {
                         string message = string.Format("{0}\n\n{1} {2}\n{3} {4}\n\n{5} {6}",
                             _("Your account has been activated.", languages),
