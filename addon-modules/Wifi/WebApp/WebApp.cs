@@ -301,7 +301,7 @@ namespace Diva.Wifi
 
             m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
 
-            m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 0));
+            m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 60));
             m_StatisticsActiveUsersPeriod = appConfig.GetInt("StatisticsActiveUsersPeriod", 30);
 
             m_LocalizationCachingPeriod = TimeSpan.FromHours(Math.Abs(appConfig.GetDouble("LocalizationCachingPeriod", 0.0)));
