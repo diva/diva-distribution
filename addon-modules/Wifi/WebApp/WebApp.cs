@@ -288,8 +288,8 @@ namespace Diva.Wifi
 
             m_SmtpHost = appConfig.GetString("SmtpHost", "smtp.gmail.com");
             m_SmtpPort = Int32.Parse(appConfig.GetString("SmtpPort", "587"));
-            m_SmtpUsername = appConfig.GetString("SmtpUsername", "ddistribution8@gmail.com");
-            m_SmtpPassword = appConfig.GetString("SmtpPassword", "skeeterpants7");
+            m_SmtpUsername = appConfig.GetString("SmtpUsername", "your_email@gmail.com");
+            m_SmtpPassword = appConfig.GetString("SmtpPassword", "your_password");
 
             m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);
@@ -299,7 +299,7 @@ namespace Diva.Wifi
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
-            m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", false);
+            m_AccountConfirmationRequired = appConfig.GetBoolean("AccountConfirmationRequired", true);
 
             m_StatisticsUpdateInterval = TimeSpan.FromSeconds(appConfig.GetInt("StatisticsUpdateInterval", 60));
             m_StatisticsActiveUsersPeriod = appConfig.GetInt("StatisticsActiveUsersPeriod", 30);
@@ -330,7 +330,7 @@ namespace Diva.Wifi
                 Avatar defaultAvatar = new Avatar();
                 defaultAvatar.Type = "Default";
                 m_DefaultAvatars = new Avatar[] { defaultAvatar };
-                m_log.Warn("[Wifi]: There are not any default avatars defined in config");
+                m_log.Warn("[Wifi]: There aren't any default avatars defined in config");
             }
 
             // Preselection for default avatar list
