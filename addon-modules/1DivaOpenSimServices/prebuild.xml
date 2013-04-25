@@ -33,9 +33,11 @@
   <Reference name="OpenSim.Services.AuthenticationService"/>
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.GridService"/>
+  <Reference name="OpenSim.Addons.Groups"/>
 
   <Reference name="Diva.Data"/>
   <Reference name="Diva.Utils"/>
+  <Reference name="Diva.Interfaces"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

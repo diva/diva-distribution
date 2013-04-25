@@ -103,20 +103,7 @@ namespace Diva.Wifi
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
             m_PresenceService = new PresenceService(config);
-            // Read the Groups dll
-            IConfig appConfig = config.Configs[configName];
-            if (appConfig != null)
-            {
-                string groupsDll = appConfig.GetString("GroupsService", string.Empty);
-                if (groupsDll != string.Empty)
-                {
-                    Object[] args = new Object[] { config };
-                    m_GroupsService = ServerUtils.LoadPlugin<IGroupsService>(groupsDll, args);
-                }
-                else
-                    m_log.WarnFormat("[Wifi]: No Groups service");
-            }
-
+            m_GroupsService = new GroupsService(config);
 
             // Create the "God" account if it doesn't exist
             CreateGod();
