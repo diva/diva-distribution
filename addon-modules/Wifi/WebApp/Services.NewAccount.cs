@@ -34,6 +34,9 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
+
 namespace Diva.Wifi
 {
     public partial class Services
@@ -41,7 +44,7 @@ namespace Diva.Wifi
         public string NewAccountGetRequest(Environment env)
         {
             m_log.DebugFormat("[Wifi]: NewAccountGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             env.State = State.NewAccountForm;
             env.Data = GetDefaultAvatarSelectionList();
@@ -59,7 +62,7 @@ namespace Diva.Wifi
 
 
             m_log.DebugFormat("[Wifi]: NewAccountPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             if ((password != string.Empty) && (password == password2) && (first != string.Empty) && (last != string.Empty))
             {

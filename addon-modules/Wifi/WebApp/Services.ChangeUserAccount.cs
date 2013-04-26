@@ -31,6 +31,8 @@ using log4net;
 using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -45,7 +47,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: UserAccountGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo))
@@ -72,7 +74,7 @@ namespace Diva.Wifi
                 return m_WebApp.ReadFile(env, "index.html");
             }
             m_log.DebugFormat("[Wifi]: UserAccountPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo))

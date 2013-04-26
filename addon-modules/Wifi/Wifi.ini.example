@@ -90,6 +90,8 @@
     ;;   more of the languages requested by a user.
     ; LogMissingTranslations = 0
 
+	WifiAddon_GridUserManagement = "Diva.GridUserManagement.dll"
+
 [GridService]
         StorageProvider = "Diva.Data.MySQL.dll"
 

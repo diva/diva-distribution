@@ -32,12 +32,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using System.Web;
 using log4net;
 using OpenMetaverse;
 using OpenSim.Framework;
 
-using Diva.Utils;
-using Diva.Wifi.WifiScript;
+using Diva.Interfaces;
 
 // Set English as the neutral resources language for assembly.
 // (This does not work with Mono, so we implement a work-around in Localization.GetLanguageInfo().)

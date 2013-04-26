@@ -45,8 +45,9 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Diva.Utils;
+using Diva.Interfaces;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 using InventoryTreeNode = Diva.OpenSimServices.InventoryTreeNode;
 
 namespace Diva.Wifi
@@ -291,6 +292,34 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "main-menu.html", env.Data);
         }
 
+        public string GetAddonsMenu(Environment env)
+        {
+            if (!m_WebApp.IsInstalled)
+                return string.Empty;
+
+            // are there any addons?
+            if (m_WebApp.Addons.Count > 0)
+            {
+                SessionInfo sinfo = env.Session;
+                if (sinfo.Account != null)
+                {
+                    if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) // Admin
+                    {
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">Addons menu</p><div id=\"addons-menu\">  <ul>");
+                        str.Append(System.Environment.NewLine);
+                        foreach (WifiAddon a in m_WebApp.Addons)
+                            str.AppendFormat("  <li><a href=\"{0}\">{1}</a></li>{2}", a.Path, a.MenuAnchor, System.Environment.NewLine);
+
+                        str.Append("  </ul></div>");
+
+                        return str.ToString();
+                    }
+
+                }
+            }
+
+            return string.Empty;
+        }
 
         public string GetLoginLogout(Environment env)
         {

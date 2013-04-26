@@ -29,6 +29,7 @@ using System;
 using System.IO;
 using Diva.Wifi.WifiScript;
 using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -39,7 +40,7 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: DefaultRequest");
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;

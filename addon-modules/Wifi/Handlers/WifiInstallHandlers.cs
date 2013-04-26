@@ -46,7 +46,7 @@ using OpenMetaverse;
 
 using Diva.Utils;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 
 namespace Diva.Wifi
@@ -74,8 +74,8 @@ namespace Diva.Wifi
 
             httpResponse.ContentType = "text/html";
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = m_WebApp.Services.InstallGetRequest(env);
 
@@ -122,8 +122,8 @@ namespace Diva.Wifi
                 if (request.ContainsKey("password2"))
                     password2 = request["password2"].ToString();
 
-                Request req = RequestFactory.CreateRequest(string.Empty, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+                Request req = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(req);
 
                 string result = m_WebApp.Services.InstallPostRequest(env, password, password2);
 

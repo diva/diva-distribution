@@ -19,6 +19,7 @@
   <Reference name="Nini" path="../../bin/"/>
   <Reference name="log4net" path="../../bin/"/>
 
+  <Reference name="Diva.Interfaces"/>
   <Reference name="Diva.Utils"/>
 
   <Files>

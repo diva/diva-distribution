@@ -24,20 +24,15 @@
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  * 
  */
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Globalization;
 
-namespace Diva.Wifi.WifiScript
+namespace Diva.Interfaces
 {
-    public interface IWifiScriptFace
+    public interface IEnvironment
     {
-        string DocsPath
+        CultureInfo[] LanguageInfo
         {
             get;
         }
-
-        string LocalizePath(IEnvironment env, string path);
-        string Translate(IEnvironment env, string textId);
     }
 }

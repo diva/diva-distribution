@@ -48,6 +48,7 @@ using Diva.Wifi.WifiScript;
 using Diva.Utils;
 
 using Processor = Diva.Wifi.WifiScript.Processor;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -76,8 +77,8 @@ namespace Diva.Wifi
             //m_log.DebugFormat("[Wifi]: resource {0}", resource);
             resource = Uri.UnescapeDataString(resource).Trim(WebAppUtils.DirectorySeparatorChars);
 
-            Request request = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             if (resource == string.Empty || resource.StartsWith("index."))
             {

@@ -44,7 +44,7 @@ namespace Diva.Wifi
             m_log.Debug("[Wifi]: HyperlinkGetRequest");
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
@@ -68,7 +68,7 @@ namespace Diva.Wifi
             m_log.Debug("[Wifi]: HyperlinkAddRequest");
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
@@ -111,7 +111,7 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: HyperlinkDeleteGetRequest {0}", regionID);
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
@@ -156,7 +156,7 @@ namespace Diva.Wifi
             m_log.DebugFormat("[Wifi]: HyperlinkDeletePostRequest {0}", regionID);
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;

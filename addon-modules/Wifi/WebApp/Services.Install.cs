@@ -30,6 +30,8 @@ using log4net;
 using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -50,7 +52,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: InstallPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             if (password == password2)
             {

@@ -20,6 +20,7 @@
   <Reference name="OpenMetaverseTypes" path="../../bin/"/>
 
   <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
 
   <Files>
     <Match pattern="*.cs" recurse="true">

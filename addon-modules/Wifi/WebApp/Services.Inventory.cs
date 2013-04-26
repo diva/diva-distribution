@@ -33,7 +33,9 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 
+using Diva.Utils;
 using Diva.OpenSimServices;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -43,7 +45,7 @@ namespace Diva.Wifi
         {
             m_log.DebugFormat("[Wifi]: InventoryLoadGetRequest");
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
@@ -67,7 +69,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: InventoryGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo))
@@ -102,7 +104,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: InventoryPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo))

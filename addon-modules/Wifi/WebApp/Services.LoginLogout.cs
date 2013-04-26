@@ -31,6 +31,8 @@ using log4net;
 using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -45,7 +47,7 @@ namespace Diva.Wifi
             }
 
             m_log.DebugFormat("[Wifi]: LoginRequest {0} {1}", first, last);
-            Request request = env.Request;
+            Request request = env.TheRequest;
             string encpass = OpenSim.Framework.Util.Md5Hash(password);
 
             string notification;
@@ -64,7 +66,7 @@ namespace Diva.Wifi
                 sinfo.Account = account;
                 sinfo.Notify = new NotificationData();
                 m_Sessions.Add(authtoken, sinfo, m_WebApp.SessionTimeout);
-                env.Request.Query["sid"] = authtoken;
+                env.TheRequest.Query["sid"] = authtoken;
                 env.Session = sinfo;
 
                 List<object> loo = new List<object>();
@@ -80,7 +82,7 @@ namespace Diva.Wifi
         public string LogoutRequest(Environment env)
         {
             m_log.DebugFormat("[Wifi]: LogoutRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo))

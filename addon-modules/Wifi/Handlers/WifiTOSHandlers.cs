@@ -65,8 +65,8 @@ namespace Diva.Wifi
             if (httpRequest.Query.ContainsKey("uid"))
                 userId = HttpUtility.UrlDecode(httpRequest.Query["uid"].ToString());
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = m_WebApp.Services.TOSGetRequest(env, userId);
 
@@ -107,8 +107,8 @@ namespace Diva.Wifi
             Dictionary<string, object> postdata =
                     ServerUtils.ParseQueryString(body);
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));
             if (action == null)

@@ -46,7 +46,7 @@ using OpenMetaverse;
 
 using Diva.Utils;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -74,8 +74,8 @@ namespace Diva.Wifi
             string resource = GetParam(path);
             //m_log.DebugFormat("[USER ACCOUNT HANDLER GET]: resource {0}", resource);
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = string.Empty;
             UUID userID = UUID.Zero;
@@ -161,8 +161,8 @@ namespace Diva.Wifi
                 avatar = request["avatar"].ToString();
             }
 
-            Request req = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+            Request req = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(req);
 
             string result = m_WebApp.Services.NewAccountPostRequest(env, first, last, email, password, password2, avatar);
 
@@ -187,8 +187,8 @@ namespace Diva.Wifi
                 if (request.ContainsKey("newpassword2"))
                     newpassword2 = request["newpassword2"].ToString();
 
-                Request req = RequestFactory.CreateRequest(resource, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+                Request req = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(req);
 
                 string result = m_WebApp.Services.UserAccountPostRequest(env, userID, email, oldpassword, newpassword, newpassword2);
 

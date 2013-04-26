@@ -29,9 +29,10 @@ using System.Globalization;
 using System.Reflection;
 using log4net;
 
-using Diva.Wifi.WifiScript;
+using OpenSim.Services.Interfaces;
+using Diva.Interfaces;
 
-namespace Diva.Wifi
+namespace Diva.Utils
 {
     public class Environment : IEnvironment
     {
@@ -42,7 +43,7 @@ namespace Diva.Wifi
         //
 
         private Request m_Request;
-        public Request Request
+        public Request TheRequest
         {
             get { return m_Request; }
         }
@@ -85,6 +86,23 @@ namespace Diva.Wifi
             m_Request = req;
         }
 
+    }
+
+    public struct SessionInfo
+    {
+        public string Sid;
+        public string IpAddress;
+        public UserAccount Account;
+        public NotificationData Notify;
+    }
+
+    public delegate string ServiceCall(Environment env);
+
+    public struct NotificationData
+    {
+        public ServiceCall FollowUp;
+        public string RedirectUrl;
+        public int RedirectDelay;
     }
 
     public enum Flags : uint

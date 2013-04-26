@@ -40,8 +40,8 @@
   <Reference name="OpenSim.Services.PresenceService"/>
   <Reference name="OpenSim.Addons.Groups"/>
 
-  <Reference name="Diva.Utils"/>
   <Reference name="Diva.Interfaces"/>
+  <Reference name="Diva.Utils"/>
   <Reference name="Diva.Wifi.ScriptEngine"/>
   <Reference name="Diva.OpenSimServices"/>
 

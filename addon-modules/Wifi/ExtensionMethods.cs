@@ -31,9 +31,11 @@ using System.Linq;
 using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 
-using Diva.Wifi;
+using Diva.Interfaces;
 using Diva.OpenSimServices;
 using Diva.Wifi.WifiScript;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -64,7 +66,7 @@ namespace Diva.Wifi
             foreach (InventoryTreeNode child in node.Children)
             {
                 // Create a new environment
-                Environment newEnv = new Environment(env2.Request);
+                Environment newEnv = new Environment(env2.TheRequest);
                 newEnv.Flags = env2.Flags;
                 newEnv.Session = env2.Session;
                 newEnv.State = env2.State;

@@ -48,9 +48,10 @@ using OpenSim.Services.InventoryService;
 using OpenSim.Services.GridService;
 
 using Diva.Wifi.WifiScript;
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
+using Diva.Utils;
 using Diva.OpenSimServices;
 
 namespace Diva.Wifi

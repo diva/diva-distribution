@@ -47,7 +47,7 @@ using OpenSim.Services.InventoryService;
 
 using Diva.Wifi.WifiScript;
 using Diva.Utils;
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 using OpenSim.Server.Base;
 
 namespace Diva.Wifi
@@ -79,8 +79,8 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[XXX]: resource {0}", resource);
-            Request request = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = string.Empty;
             if (resource.Equals("/") || resource.Equals(string.Empty))
@@ -132,8 +132,8 @@ namespace Diva.Wifi
                     if (postdata.ContainsKey("message"))
                         broadcast_message = postdata["message"].ToString();
 
-                Request req = RequestFactory.CreateRequest(resource, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+                    Request req = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(req);
 
                 string result = string.Empty;
                 if (resource.Equals("/") || resource.Equals(string.Empty))

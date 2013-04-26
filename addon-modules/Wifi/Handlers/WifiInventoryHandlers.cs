@@ -51,8 +51,8 @@ namespace Diva.Wifi
         public override byte[] Handle(string path, Stream requestData,
                 IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[XXX]: resource {0}", resource);
@@ -88,8 +88,8 @@ namespace Diva.Wifi
             string resource = GetParam(path);
             //m_log.DebugFormat("[INVENTORY HANDLER HANDLER GET]: resource {0}", resource);
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = m_WebApp.Services.InventoryGetRequest(env);
 
@@ -130,8 +130,8 @@ namespace Diva.Wifi
             Dictionary<string, object> postdata =
                     ServerUtils.ParseQueryString(body);
 
-            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));
             if (action == null)

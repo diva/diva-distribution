@@ -48,9 +48,10 @@ using OpenSim.Services.InventoryService;
 using OpenSim.Services.GridService;
 
 using Diva.Wifi.WifiScript;
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 
+using Diva.Utils;
 using Diva.OpenSimServices;
 
 namespace Diva.Wifi
@@ -60,7 +61,7 @@ namespace Diva.Wifi
         public string RegionManagementShutdownPostRequest(Environment env)
         {
             //m_log.DebugFormat("[Wifi]: RegionManagementShutdownPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -105,7 +106,7 @@ namespace Diva.Wifi
 
         public string RegionManagementRestartPostRequest(Environment env)
         {
-            Request request = env.Request;
+            Request request = env.TheRequest;
             SessionInfo sinfo;
 
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -155,7 +156,7 @@ namespace Diva.Wifi
 
         public string RegionManagementBroadcastPostRequest(Environment env, string message)
         {
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -199,7 +200,7 @@ namespace Diva.Wifi
         public string RegionManagementGetRequest(Environment env)
         {
             m_log.DebugFormat("[Services]: RegionManagementGetRequest()");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&

@@ -43,7 +43,7 @@ using OpenMetaverse;
 
 using Diva.Utils;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -111,8 +111,8 @@ namespace Diva.Wifi
             last = request["lastname"].ToString();
             password = request["password"].ToString();
 
-            Request req = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+            Request req = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(req);
 
             string result = m_WebApp.Services.LoginRequest(env, first, last, password);
 

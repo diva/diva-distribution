@@ -30,7 +30,7 @@ using System.Net;
 using System.Web;
 using OpenSim.Framework.Servers.HttpServer;
 
-namespace Diva.Wifi
+namespace Diva.Utils
 {
     public struct Request
     {
@@ -45,12 +45,17 @@ namespace Diva.Wifi
     {
         public static Request CreateRequest(string resource, IOSHttpRequest httpRequest)
         {
+            return CreateRequest(resource, httpRequest, null);
+        }
+
+        public static Request CreateRequest(string resource, IOSHttpRequest httpRequest, CultureInfo[] cinfo)
+        {
             Request request = new Request();
             request.Resource = resource;
             request.Cookies = httpRequest.Cookies;
             request.IPEndPoint = httpRequest.RemoteIPEndPoint;
             request.Query = httpRequest.Query;
-            request.LanguageInfo = Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language"));
+            request.LanguageInfo = cinfo;
 
             return request;
         }

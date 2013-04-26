@@ -52,8 +52,9 @@ using OpenSim.Server.Base;
 
 using Diva.Utils;
 using Diva.Wifi.WifiScript;
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
+using Request = Diva.Utils.Request;
 
 using Diva.OpenSimServices;
 using Diva.Interfaces;
@@ -391,6 +392,22 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[Wifi]: Message sent to " + token + ".");
         }
 
+        public T GetServiceObject<T>()
+        {
+            object obj = null;
+            if (typeof(T) == typeof(GridUserService))
+                obj = m_GridUserService;
+            else if (typeof(T) == typeof(UserAccountService))
+                obj = m_UserAccountService;
+            else if (typeof(T) == typeof(PresenceService))
+                obj = m_PresenceService;
+            else if (typeof(T) == typeof(GridService))
+                obj = m_GridService;
+            else if (typeof(T) == typeof(InventoryService))
+                obj = m_InventoryService;
+
+            return (T)obj;
+        }
     }
 
 }

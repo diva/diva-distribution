@@ -37,6 +37,8 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Base;
 
 using Diva.Utils;
+using Environment = Diva.Utils.Environment;
+
 
 namespace Diva.Wifi
 {
@@ -66,8 +68,8 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[HYPERLINK GET HANDLER]: resource {0}", resource);
-            Request request = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = string.Empty;
             if (resource.StartsWith("/delete"))
@@ -126,8 +128,8 @@ namespace Diva.Wifi
             {
                 // Here the data on the stream is transformed into a nice dictionary of keys & values
                 Dictionary<string, object> postdata = ServerUtils.ParseQueryString(body);
-                Request request = RequestFactory.CreateRequest(resource, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+                Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(request);
 
                 string result = string.Empty;
                 if (resource.StartsWith("/add"))

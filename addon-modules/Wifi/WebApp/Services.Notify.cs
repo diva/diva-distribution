@@ -26,6 +26,7 @@
  */
 
 using System.Collections.Generic;
+using Diva.Utils;
 
 namespace Diva.Wifi
 {
@@ -36,7 +37,7 @@ namespace Diva.Wifi
             m_log.Debug("[Wifi]: NotifyRequest");
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo))
+            if (TryGetSessionInfo(env.TheRequest, out sinfo))
             {
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
@@ -76,15 +77,6 @@ namespace Diva.Wifi
                 m_Sessions.Update(sinfo.Sid, sinfo, m_WebApp.SessionTimeout);
                 env.Session = sinfo;
             }
-        }
-
-        public delegate string ServiceCall(Environment env);
-
-        public struct NotificationData
-        {
-            public ServiceCall FollowUp;
-            public string RedirectUrl;
-            public int RedirectDelay;
         }
 
         class Notification

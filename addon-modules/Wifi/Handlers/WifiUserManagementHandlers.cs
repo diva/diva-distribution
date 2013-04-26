@@ -44,9 +44,10 @@ using OpenSim.Framework;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenMetaverse;
 
+using Diva.Interfaces;
 using Diva.Utils;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 
 namespace Diva.Wifi
@@ -77,8 +78,8 @@ namespace Diva.Wifi
 
             string resource = GetParam(path);
             //m_log.DebugFormat("[XXX]: resource {0}", resource);
-            Request request = RequestFactory.CreateRequest(resource, httpRequest);
-            Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+            Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+            Environment env = new Environment(request);
 
             string result = string.Empty;
             if (resource.StartsWith("/edit"))
@@ -170,8 +171,8 @@ namespace Diva.Wifi
                 Dictionary<string, object> postdata =
                         ServerUtils.ParseQueryString(body);
 
-                Request req = RequestFactory.CreateRequest(resource, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(req);
+                Request req = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(req);
 
                 string result = string.Empty;
                 if (resource.Equals("/") || resource.Equals(string.Empty))

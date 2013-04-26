@@ -32,6 +32,8 @@ using log4net;
 using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -40,7 +42,7 @@ namespace Diva.Wifi
         public string UserManagementGetRequest(Environment env)
         {
             m_log.DebugFormat("[Wifi]: UserManagementGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -59,7 +61,7 @@ namespace Diva.Wifi
         public string UserSearchPostRequest(Environment env, string terms)
         {
             m_log.DebugFormat("[Wifi]: UserSearchPostRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -86,7 +88,7 @@ namespace Diva.Wifi
         public string UserEditGetRequest(Environment env, UUID userID)
         {
             m_log.DebugFormat("[Wifi]: UserEditGetRequest {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -112,7 +114,7 @@ namespace Diva.Wifi
         public string UserEditPostRequest(Environment env, UUID userID, string first, string last, string email, int level, int flags, string title)
         {
             m_log.DebugFormat("[Wifi]: UserEditPostRequest {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -151,7 +153,7 @@ namespace Diva.Wifi
         public string UserEditPostRequest(Environment env, UUID userID, string password)
         {
             m_log.DebugFormat("[Wifi]: UserEditPostRequest (password) {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -185,7 +187,7 @@ namespace Diva.Wifi
         public string UserActivateGetRequest(Environment env, UUID userID)
         {
             m_log.DebugFormat("[Wifi]: UserActivateGetRequest {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -251,7 +253,7 @@ namespace Diva.Wifi
         public string UserDeleteGetRequest(Environment env, UUID userID)
         {
             m_log.DebugFormat("[Wifi]: UserDeleteGetRequest {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -278,7 +280,7 @@ namespace Diva.Wifi
         public string UserDeletePostRequest(Environment env, UUID userID)
         {
             m_log.DebugFormat("[Wifi]: UserDeletePostRequest {0}", userID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&

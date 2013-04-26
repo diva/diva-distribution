@@ -34,6 +34,9 @@ using OpenMetaverse;
 using OpenSim.Services.Interfaces;
 using OpenSim.Framework;
 
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
+
 namespace Diva.Wifi
 {
     public partial class Services
@@ -41,7 +44,7 @@ namespace Diva.Wifi
         public string GroupsManagementGetRequest(Environment env)
         {
             m_log.DebugFormat("[Wifi]: GroupsManagementGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -60,7 +63,7 @@ namespace Diva.Wifi
         public string GroupsSearchPostRequest(Environment env, string terms)
         {
             m_log.DebugFormat("[Wifi]: GroupsManagementGetRequest");
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -87,7 +90,7 @@ namespace Diva.Wifi
         public string GroupsEditGetRequest(Environment env, UUID groupID)
         {
             m_log.DebugFormat("[Wifi]: GroupsEditGetRequest {0}", groupID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -118,7 +121,7 @@ namespace Diva.Wifi
         public string GroupsEditPostRequest(Environment env, UUID groupID, string name, string charter)
         {
             m_log.DebugFormat("[Wifi]: GroupsEditPostRequest {0} {1}", groupID, name);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
 
             SessionInfo sinfo;
@@ -159,7 +162,7 @@ namespace Diva.Wifi
         public string GroupsDeleteGetRequest(Environment env, UUID groupID)
         {
             m_log.DebugFormat("[Wifi]: GroupsDeleteGetRequest {0}", groupID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&
@@ -191,7 +194,7 @@ namespace Diva.Wifi
         public string GroupsDeletePostRequest(Environment env, UUID groupID)
         {
             m_log.DebugFormat("[Wifi]: GroupsDeletePostRequest {0}", groupID);
-            Request request = env.Request;
+            Request request = env.TheRequest;
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(request, out sinfo) &&

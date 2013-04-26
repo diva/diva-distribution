@@ -34,6 +34,7 @@ using log4net;
 using log4net.Appender;
 using log4net.Layout;
 
+using Diva.Interfaces;
 using Diva.Wifi.WifiScript;
 
 namespace Diva.Wifi.ProcessorTest

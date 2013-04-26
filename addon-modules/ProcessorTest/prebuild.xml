@@ -18,6 +18,7 @@
   <Reference name="Mono.Addins" path="../../bin/"/>
   <Reference name="log4net" path="../../bin/"/>
 
+  <Reference name="Diva.Interfaces"/>
   <Reference name="Diva.Wifi.ScriptEngine"/>
   
   <Files>

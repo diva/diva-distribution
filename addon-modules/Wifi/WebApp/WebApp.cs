@@ -46,16 +46,17 @@ using OpenSim.Services.Interfaces;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 using OpenSim.Services.InventoryService;
 
+using Diva.Interfaces;
 using Diva.Utils;
 using Diva.Wifi.WifiScript;
 using Diva.OpenSimServices;
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
     using StatisticsDict = Dictionary<string, float>;
 
-    public class WebApp
+    public class WebApp : IWifiApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
@@ -390,14 +391,29 @@ namespace Diva.Wifi
         }
 
         #endregion
-    }
 
-    public struct SessionInfo
-    {
-        public string Sid;
-        public string IpAddress;
-        public UserAccount Account;
-        public Services.NotificationData Notify;
+        #region IWifiApp
+
+        private List<WifiAddon> m_Addons = new List<WifiAddon>();
+        public List<WifiAddon> Addons
+        {
+            get { return m_Addons; }
+        }
+
+        public void Register(IWifiAddon addon, string menuAnchor, string path)
+        {
+            WifiAddon a = new WifiAddon();
+            a.Addon = addon;
+            a.MenuAnchor = menuAnchor;
+            a.Path = path;
+            m_Addons.Add(a);
+        }
+
+        public T GetServiceObject<T>()
+        {
+            return Services.GetServiceObject<T>();
+        }
+        #endregion IWifiApp
     }
 
     public class Avatar

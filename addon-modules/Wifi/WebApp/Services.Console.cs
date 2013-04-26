@@ -32,6 +32,8 @@ using OpenMetaverse;
 
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 using System.Collections.Specialized;
+using Diva.Utils;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -41,7 +43,7 @@ namespace Diva.Wifi
         {
             m_log.DebugFormat("[Wifi]: ConsoleRequest");
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo) &&
+            if (TryGetSessionInfo(env.TheRequest, out sinfo) &&
                 (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 env.Session = sinfo;
@@ -57,7 +59,7 @@ namespace Diva.Wifi
         {
             m_log.DebugFormat("[Wifi]: ConsoleHeartbeat");
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo) &&
+            if (TryGetSessionInfo(env.TheRequest, out sinfo) &&
                 (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 // Reset session timer
@@ -73,7 +75,7 @@ namespace Diva.Wifi
             string result = string.Empty;
 
             SessionInfo sinfo;
-            if (TryGetSessionInfo(env.Request, out sinfo) &&
+            if (TryGetSessionInfo(env.TheRequest, out sinfo) &&
                 (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel))
             {
                 // Retrieve addresses of simulators (and the regions running on them)

@@ -34,7 +34,8 @@ using OpenSim.Server.Base;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Handlers.Base;
 
-using Environment = Diva.Wifi.Environment;
+using Diva.Interfaces;
+using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
@@ -43,6 +44,7 @@ namespace Diva.Wifi
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private const string m_ConfigName = "WifiService";
         private const string m_ServePathPrefix = "ServePath_";
+        private const string m_AddonPrefix = "WifiAddon_";
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName) :
             base(config, server, configName)
@@ -111,6 +113,26 @@ namespace Diva.Wifi
                         m_log.WarnFormat("[Wifi]: Invalid format with configuration option {0}: {1}", servePath, paths);
                 }
             }
+
+            // Load addons
+            IEnumerable<string> addonVars = serverConfig.GetKeys().Where(option => option.StartsWith(m_AddonPrefix));
+            if (addonVars.Count() > 0)
+            {
+                foreach (string addonVar in addonVars)
+                {
+                    string addonDll = serverConfig.GetString(addonVar, string.Empty);
+                    if (addonDll != string.Empty)
+                    {
+                        m_log.InfoFormat("[Wifi]: Loading addon {0}", addonDll);
+                        object[] args = new object[] { config, m_ConfigName, server, app };
+                        IWifiAddon addon = ServerUtils.LoadPlugin<IWifiAddon>(addonDll, args);
+
+                        if (addon == null)
+                            m_log.WarnFormat("[Wifi]: Unable to load addon {0}", addonDll);
+                    }
+                }
+            }
+
         }
     }
 }

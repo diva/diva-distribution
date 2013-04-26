@@ -46,7 +46,7 @@ using OpenMetaverse;
 
 using Diva.Utils;
 
-using Environment = Diva.Wifi.Environment;
+using Environment = Diva.Utils.Environment;
 
 
 namespace Diva.Wifi
@@ -69,8 +69,8 @@ namespace Diva.Wifi
             string result = string.Empty;
             try
             {
-                Request request = RequestFactory.CreateRequest(string.Empty, httpRequest);
-                Diva.Wifi.Environment env = new Diva.Wifi.Environment(request);
+                Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
+                Environment env = new Environment(request);
 
                 string resource = GetParam(path);
                 //m_log.DebugFormat("[XXX]: resource {0}", resource);
