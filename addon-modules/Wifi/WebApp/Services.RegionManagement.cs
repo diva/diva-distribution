@@ -98,7 +98,7 @@ namespace Diva.Wifi
                     env.State = State.RegionManagementUnsuccessful;
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -147,7 +147,7 @@ namespace Diva.Wifi
                     env.State = State.RegionManagementUnsuccessful;
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -191,7 +191,7 @@ namespace Diva.Wifi
                     env.State = State.RegionManagementUnsuccessful;
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -215,10 +215,10 @@ namespace Diva.Wifi
                 });
 
                 env.Session = sinfo;
-                env.Data = Objectify(regions);
+                env.Data = WebAppUtils.Objectify(regions);
                 env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                 env.State = State.RegionManagementForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {
@@ -233,7 +233,7 @@ namespace Diva.Wifi
             if (regions != null)
             {
                 m_log.DebugFormat("[Wifi]: GetRegionList found {0} users in DB", regions.Count);
-                return Objectify<GridRegion>(regions);
+                return WebAppUtils.Objectify<GridRegion>(regions);
             }
             else
             {

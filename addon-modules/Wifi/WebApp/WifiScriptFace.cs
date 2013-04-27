@@ -161,91 +161,103 @@ namespace Diva.Wifi
         public string GetContent(Environment env)
         {
             //m_log.DebugFormat("[WifiScriptFace]: GetContent, flags {0} ({1})", env.State, (uint)env.State);
-
-            if (env.State == State.InstallForm)
-                return m_WebApp.ReadFile(env, "installform.html");
-
-            if (env.State == State.ForgotPassword)
-                return m_WebApp.ReadFile(env, "forgotpasswordform.html");
-            if (env.State == State.RecoveringPassword)
-                return m_WebApp.ReadFile(env, "recoveringpassword.html");
-            //if (env.State == State.BadPassword)
-            //    return "<p>The password must be at least 3 characters.</p>";
-
-            if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
-                return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
-
-            if (env.State == State.Notification)
-                return m_WebApp.ReadFile(env, "notification.html", env.Data);
-
-            if (env.State == State.GetTOS)
-                return m_WebApp.ReadFile(env, "tos.html", env.Data);
-
-            if (env.State == State.AcceptTOS)
-                return "Thank you and enjoy your visit!";
-
-            if ((env.Flags & Flags.IsLoggedIn) != 0)
+            if ((uint)env.State < 50)
             {
-                if (env.State == State.UserAccountForm)
-                    return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
 
-                if (env.State == State.UserSearchForm)
-                    return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
-                if (env.State == State.UserSearchFormResponse)
-                    return GetUserList(env);
+                if (env.State == State.InstallForm)
+                    return m_WebApp.ReadFile(env, "installform.html");
 
-                if (env.State == State.UserEditForm)
-                    return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
-                
-                if (env.State == State.UserDeleteForm)
-                    return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
+                if (env.State == State.ForgotPassword)
+                    return m_WebApp.ReadFile(env, "forgotpasswordform.html");
+                if (env.State == State.RecoveringPassword)
+                    return m_WebApp.ReadFile(env, "recoveringpassword.html");
+                //if (env.State == State.BadPassword)
+                //    return "<p>The password must be at least 3 characters.</p>";
 
-                if (env.State == State.HyperlinkList)
-                    return GetHyperlinks(env);
-                if (env.State == State.HyperlinkListForm)
-                    return m_WebApp.ReadFile(env, "linkregionform.html", env.Data);
-                if (env.State == State.HyperlinkDeleteForm)
-                    return m_WebApp.ReadFile(env, "linkregiondeleteform.html", env.Data);
+                if (env.State == State.NewAccountForm || env.State == State.NewAccountFormRetry)
+                    return m_WebApp.ReadFile(env, "newaccountform.html", env.Data);
 
-                if (env.State == State.RegionManagementForm)
-                    return GetRegionManagementForm(env);
-                if (env.State == State.RegionManagementSuccessful)
-                    return "Success! Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
-                if (env.State == State.RegionManagementUnsuccessful)
-                    return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
+                if (env.State == State.Notification)
+                    return m_WebApp.ReadFile(env, "notification.html", env.Data);
 
-                if (env.State == State.InventoryListForm)
-                //{
-                //    string invListStr = string.Empty;
-                //    if (env.Data.Count > 0)
-                //    {
-                //        InventoryTreeNode tree = (InventoryTreeNode)env.Data[0];
-                //        if (tree.Children != null)
-                //        {
-                //            List<object> loo = new List<object>();
-                //            foreach (InventoryTreeNode node in tree.Children)
-                //            {
-                //                m_log.DebugFormat("--> {0}", node.Name);
-                //                loo.Add(node);
-                //                invListStr += m_WebApp.ReadFile(env, "inventorylist.html", loo);
-                //            }
-                //            return invListStr;
-                //        }
-                //    }
-                    return m_WebApp.ReadFile(env, "inventorylist.html", env.Data); 
-            //    }
+                if (env.State == State.GetTOS)
+                    return m_WebApp.ReadFile(env, "tos.html", env.Data);
 
-                if (env.State == State.Console)
-                    return m_WebApp.ReadFile(env, "console.html", env.Data);
+                if (env.State == State.AcceptTOS)
+                    return "Thank you and enjoy your visit!";
 
-                if (env.State == State.GroupsList)
-                    return m_WebApp.ReadFile(env, "groupslist.html", env.Data);
-                if (env.State == State.GroupEditForm)
-                    return m_WebApp.ReadFile(env, "groupeditform.html", env.Data);
-                if (env.State == State.GroupDeleteForm)
-                    return m_WebApp.ReadFile(env, "groupdeleteform.html", env.Data);
+                if ((env.Flags & Flags.IsLoggedIn) != 0)
+                {
+                    if (env.State == State.UserAccountForm)
+                        return m_WebApp.ReadFile(env, "useraccountform.html", env.Data);
+
+                    if (env.State == State.UserSearchForm)
+                        return m_WebApp.ReadFile(env, "usersearchform.html", env.Data);
+                    if (env.State == State.UserSearchFormResponse)
+                        return GetUserList(env);
+
+                    if (env.State == State.UserEditForm)
+                        return m_WebApp.ReadFile(env, "usereditform.html", env.Data);
+
+                    if (env.State == State.UserDeleteForm)
+                        return m_WebApp.ReadFile(env, "userdeleteform.html", env.Data);
+
+                    if (env.State == State.HyperlinkList)
+                        return GetHyperlinks(env);
+                    if (env.State == State.HyperlinkListForm)
+                        return m_WebApp.ReadFile(env, "linkregionform.html", env.Data);
+                    if (env.State == State.HyperlinkDeleteForm)
+                        return m_WebApp.ReadFile(env, "linkregiondeleteform.html", env.Data);
+
+                    if (env.State == State.RegionManagementForm)
+                        return GetRegionManagementForm(env);
+                    if (env.State == State.RegionManagementSuccessful)
+                        return "Success! Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
+                    if (env.State == State.RegionManagementUnsuccessful)
+                        return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
+
+                    if (env.State == State.InventoryListForm)
+                        //{
+                        //    string invListStr = string.Empty;
+                        //    if (env.Data.Count > 0)
+                        //    {
+                        //        InventoryTreeNode tree = (InventoryTreeNode)env.Data[0];
+                        //        if (tree.Children != null)
+                        //        {
+                        //            List<object> loo = new List<object>();
+                        //            foreach (InventoryTreeNode node in tree.Children)
+                        //            {
+                        //                m_log.DebugFormat("--> {0}", node.Name);
+                        //                loo.Add(node);
+                        //                invListStr += m_WebApp.ReadFile(env, "inventorylist.html", loo);
+                        //            }
+                        //            return invListStr;
+                        //        }
+                        //    }
+                        return m_WebApp.ReadFile(env, "inventorylist.html", env.Data);
+                    //    }
+
+                    if (env.State == State.Console)
+                        return m_WebApp.ReadFile(env, "console.html", env.Data);
+
+                    if (env.State == State.GroupsList)
+                        return m_WebApp.ReadFile(env, "groupslist.html", env.Data);
+                    if (env.State == State.GroupEditForm)
+                        return m_WebApp.ReadFile(env, "groupeditform.html", env.Data);
+                    if (env.State == State.GroupDeleteForm)
+                        return m_WebApp.ReadFile(env, "groupdeleteform.html", env.Data);
 
 
+                }
+            }
+            else // try the addons
+            {
+                foreach (WifiAddon addon in m_WebApp.Addons)
+                {
+                    string result;
+                    if ((result = addon.Addon.GetContent(env)) != null)
+                        return result;
+                }
             }
 
             return string.Empty;

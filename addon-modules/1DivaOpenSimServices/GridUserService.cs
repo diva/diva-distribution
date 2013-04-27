@@ -100,27 +100,37 @@ namespace Diva.OpenSimServices
             if (d == null)
                 return null;
 
-            DGridUserInfo info = new DGridUserInfo();
-            info.UserID = d.UserID;
-            info.HomeRegionID = new UUID(d.Data["HomeRegionID"]);
-            info.HomePosition = Vector3.Parse(d.Data["HomePosition"]);
-            info.HomeLookAt = Vector3.Parse(d.Data["HomeLookAt"]);
-
-            info.LastRegionID = new UUID(d.Data["LastRegionID"]);
-            info.LastPosition = Vector3.Parse(d.Data["LastPosition"]);
-            info.LastLookAt = Vector3.Parse(d.Data["LastLookAt"]);
-
-            info.Online = bool.Parse(d.Data["Online"]);
-            info.Login = Util.ToDateTime(Convert.ToInt32(d.Data["Login"]));
-            info.Logout = Util.ToDateTime(Convert.ToInt32(d.Data["Logout"]));
-
-            if (d.Data.ContainsKey("TOS") && d.Data["TOS"] != null)
-                info.TOS = d.Data["TOS"];
-            else 
-                info.TOS = string.Empty;
+            DGridUserInfo info = ToGridUserInfo(d);
 
             return info;
 
+        }
+
+        public override GridUserInfo[] GetGridUserInfo(string[] userIDs)
+        {
+            List<GridUserInfo> ret = new List<GridUserInfo>();
+
+            foreach (string id in userIDs)
+                ret.Add(GetGridUserInfo(id));
+
+            return ret.ToArray();
+        }
+
+        public DGridUserInfo[] GetGridUsers(string pattern)
+        {
+            GridUserData[] gusers = ((Diva.Data.IGridUserData)m_Database).GetUsers(pattern);
+
+            if (gusers == null)
+                return new DGridUserInfo[0];
+
+            DGridUserInfo[] guinfos = new DGridUserInfo[gusers.Length];
+            int i = 0;
+            foreach (GridUserData gu in gusers)
+            {
+                guinfos[i++] = ToGridUserInfo(gu);
+            }
+
+            return guinfos;
         }
 
         public bool StoreTOS(DGridUserInfo info)
@@ -137,9 +147,9 @@ namespace Diva.OpenSimServices
         }
 
 
-        protected GridUserInfo ToGridUserInfo(GridUserData d)
+        protected DGridUserInfo ToGridUserInfo(GridUserData d)
         {
-            GridUserInfo info = new GridUserInfo();
+            DGridUserInfo info = new DGridUserInfo();
             info.UserID = d.UserID;
             info.HomeRegionID = new UUID(d.Data["HomeRegionID"]);
             info.HomePosition = Vector3.Parse(d.Data["HomePosition"]);
@@ -152,6 +162,12 @@ namespace Diva.OpenSimServices
             info.Online = bool.Parse(d.Data["Online"]);
             info.Login = Util.ToDateTime(Convert.ToInt32(d.Data["Login"]));
             info.Logout = Util.ToDateTime(Convert.ToInt32(d.Data["Logout"]));
+
+            if (d.Data.ContainsKey("TOS") && d.Data["TOS"] != null)
+                info.TOS = d.Data["TOS"];
+            else
+                info.TOS = string.Empty;
+
 
             return info;
         }

@@ -366,12 +366,12 @@ namespace Diva.Wifi
 
         #region read html files
 
-        public string ReadFile(Environment env, string path)
+        public string ReadFile(IEnvironment env, string path)
         {
-            return ReadFile(env, path, env.Data);
+            return ReadFile((Environment)env, path, ((Environment)env).Data);
         }
 
-        public string ReadFile(Environment env, string path, List<object> lot)
+        public string ReadFile(IEnvironment env, string path, List<object> lot)
         {
             string file = Localization.LocalizePath(env, path);
             try
@@ -412,6 +412,14 @@ namespace Diva.Wifi
         public T GetServiceObject<T>()
         {
             return Services.GetServiceObject<T>();
+        }
+
+        public bool TryGetSessionInfo(IRequest req, out ISessionInfo sinfo)
+        {
+            SessionInfo si;
+            bool success = Services.TryGetSessionInfo((Request)req, out si);
+            sinfo = si;
+            return success;
         }
         #endregion IWifiApp
     }

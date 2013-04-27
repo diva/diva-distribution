@@ -88,7 +88,7 @@ namespace Diva.Utils
 
     }
 
-    public struct SessionInfo
+    public struct SessionInfo : ISessionInfo
     {
         public string Sid;
         public string IpAddress;

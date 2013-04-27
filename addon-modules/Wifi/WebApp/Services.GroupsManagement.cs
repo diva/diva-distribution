@@ -54,7 +54,7 @@ namespace Diva.Wifi
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                 env.State = State.GroupsList;
                 env.Data = GetGroupsList(env, m_PendingIdentifier);
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             
             return m_WebApp.ReadFile(env, "index.html");
@@ -76,9 +76,9 @@ namespace Diva.Wifi
                     env.State = State.UserSearchFormResponse;
                     // Put the list in the environment
                     List<UserAccount> accounts = m_UserAccountService.GetActiveAccounts(UUID.Zero, terms, m_PendingIdentifier);
-                    env.Data = Objectify<UserAccount>(accounts);
+                    env.Data = WebAppUtils.Objectify<UserAccount>(accounts);
 
-                    return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                    return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
                 else
                     return GroupsManagementGetRequest(env);
@@ -112,7 +112,7 @@ namespace Diva.Wifi
                 else
                     m_log.WarnFormat("[Wifi]: No Groups service");
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             
             return m_WebApp.ReadFile(env, "index.html");
@@ -149,7 +149,7 @@ namespace Diva.Wifi
                         m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent group");
                     }
 
-                    return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                    return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
                 else
                     m_log.WarnFormat("[Wifi]: No Groups service");
@@ -184,7 +184,7 @@ namespace Diva.Wifi
                 else
                     m_log.WarnFormat("[Wifi]: No Groups service");
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -207,7 +207,7 @@ namespace Diva.Wifi
                 NotifyWithoutButton(env, _("The group has been deleted.", env));
                 m_log.DebugFormat("[Wifi]: Deleted group {0}", groupID);
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");

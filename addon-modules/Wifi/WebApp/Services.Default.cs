@@ -45,7 +45,7 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn;
                 env.State = State.Default;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "splash.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "splash.html"));
             }
 
             string resourcePath = Localization.LocalizePath(env, "splash.html");

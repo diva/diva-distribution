@@ -264,6 +264,14 @@ namespace Diva.Utils
             return html;
         }
 
+        public static string PadURLs(Environment env, string sid, string html)
+        {
+            if ((env.Flags & Flags.IsLoggedIn) == 0 && (env.Flags & Flags.IsValidSession) == 0)
+                return html;
+
+            return WebAppUtils.PadURLs(sid, html);
+        }
+
         public static string PadURLs(Hashtable queryPairs, string html)
         {
             HashSet<string> uris = new HashSet<string>();
@@ -312,6 +320,17 @@ namespace Diva.Utils
                 }
             }
         }
+
+        public static List<object> Objectify<T>(IEnumerable<T> listOfThings)
+        {
+            List<object> listOfObjects = new List<object>();
+            foreach (T thing in listOfThings)
+                listOfObjects.Add(thing);
+
+            return listOfObjects;
+        }
+
+
 
     }
 }

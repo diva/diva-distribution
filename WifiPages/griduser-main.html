@@ -1,0 +1,24 @@
+<p>Retrieve users</p>
+<table cellspacing="20">
+  <tr valign="top"><td>
+  <ul>
+    <li>Enter a single space character to list all grid users.</li>
+    <li>Other search terms must be at least 3 characters long.</li>
+  </ul>
+  <form action="/wifi/admin/gridusers" method="post">
+  <p class="bodytext"> 
+    <input name="terms" type="text" class="inputstyle" />&nbsp;
+    <input type="submit" value="search" class="button" />
+  </p>
+  </form>
+  </td>
+
+  <td>
+    <div id="gridusers-menu">
+    <ul>
+      <li><a href="/wifi/admin/gridusers/online">List online users</a></li>
+    </ul>
+    </div>
+  </td>
+  </tr>
+</table>

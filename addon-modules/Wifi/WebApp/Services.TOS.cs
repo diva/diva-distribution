@@ -76,7 +76,7 @@ namespace Diva.Wifi
                     env.Flags = Flags.IsValidSession;
 
                 env.State = State.GetTOS;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {
@@ -132,7 +132,7 @@ namespace Diva.Wifi
                 if (sinfo.Account != null)
                     env.Flags = Flags.IsLoggedIn;
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {

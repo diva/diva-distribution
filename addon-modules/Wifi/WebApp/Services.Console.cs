@@ -49,7 +49,7 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                 env.State = State.Console;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");

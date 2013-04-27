@@ -59,5 +59,11 @@ namespace Diva.Data.SQLite
         {
             return m_DatabaseHandler.GetCount(string.Format("Online = '{0}' OR CAST(julianday('now')-julianday(datetime(Logout, 'unixepoch')) AS INTEGER) <= {1}", true, period));
         }
+
+        public GridUserData[] GetUsers(string pattern)
+        {
+            return m_DatabaseHandler.Get(pattern);
+        }
+
     }
 }

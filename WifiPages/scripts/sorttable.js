@@ -3,6 +3,8 @@ function DoOnload() {
     InitPendingTableRowSort();
   if (document.getElementById('users'))
     InitUserTableRowSort();
+  if (document.getElementById('gridusers'))
+    InitGridUserTableRowSort();
   if (document.getElementById('hyperlinks'))
     InitHyperlinkTableRowSort();
 }
@@ -24,6 +26,15 @@ function InitUserTableRowSort() {
   users[3] = { column:4, reverse:false, comparer:function(a, b) {return CompareDateCells(a, b, 4);} }; // Created
   SetupTableHeadings('users', users);
 }
+// Configuration for sorting rows in gridusers table
+var gridusers; // variable name must match the table id
+function InitGridUserTableRowSort() {
+  gridusers = new Array();
+  gridusers[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Name
+  gridusers[1] = { column:1, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 1);} }; // Origin
+  gridusers[2] = { column:2, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 2);} };  // Online
+  SetupTableHeadings('gridusers', gridusers);
+}
 // Configuration for sorting rows in hyperlinks table
 var hyperlinks; // variable name must match the table id
 function InitHyperlinkTableRowSort() {
@@ -41,8 +52,9 @@ var sortIndicatorReverse = 'headerSortDescending';
 function SetupTableHeadings(tableId, columnConfig) {
   var translationSortRows = document.getElementsByName('text')[0].getAttribute('value');
   var table = document.getElementById(tableId);
-  if (table.rows == null || table.rows.length <= 2)
+  if (table.rows == null || table.rows.length <= 2) {
     return;
+  }
   for (var i = 0; i < columnConfig.length; ++i) {
     var heading = table.rows[0].cells[columnConfig[i].column];
     heading.onclick = new Function("SortColumn('" + tableId + "', " + i +")");

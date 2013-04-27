@@ -9,6 +9,7 @@ namespace Diva.Interfaces
 {
     public interface IWifiAddon
     {
+        string GetContent(IEnvironment env);
     }
 
     public struct WifiAddon

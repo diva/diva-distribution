@@ -52,7 +52,7 @@ namespace Diva.Wifi
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                 env.State = State.UserSearchForm;
                 env.Data = GetUserList(env, m_PendingIdentifier);
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             
             return m_WebApp.ReadFile(env, "index.html");
@@ -74,9 +74,9 @@ namespace Diva.Wifi
                     env.State = State.UserSearchFormResponse;
                     // Put the list in the environment
                     List<UserAccount> accounts = m_UserAccountService.GetActiveAccounts(UUID.Zero, terms, m_PendingIdentifier);
-                    env.Data = Objectify<UserAccount>(accounts);
+                    env.Data = WebAppUtils.Objectify<UserAccount>(accounts);
 
-                    return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                    return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
                 else
                     return UserManagementGetRequest(env);
@@ -105,7 +105,7 @@ namespace Diva.Wifi
                     env.Data = loo;
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             
             return m_WebApp.ReadFile(env, "index.html");
@@ -143,7 +143,7 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -176,7 +176,7 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Attempt at updating an inexistent account");
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -244,7 +244,7 @@ namespace Diva.Wifi
                     }
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -270,7 +270,7 @@ namespace Diva.Wifi
                     env.Data = loo;
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");
@@ -304,7 +304,7 @@ namespace Diva.Wifi
                     m_log.DebugFormat("[Wifi]: Attempt at deleting an inexistent account");
                 }
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
 
             return m_WebApp.ReadFile(env, "index.html");

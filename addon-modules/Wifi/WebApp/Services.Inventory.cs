@@ -55,7 +55,7 @@ namespace Diva.Wifi
                     _("If your browser does not automatically load the next page, then use the button, please.", env));
                 NotifyWithRedirect(env, message, _("continue", env), 0, "/wifi/user/inventory",
                     delegate(Environment e) { return InventoryGetRequest(e); });
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
         }
@@ -87,7 +87,7 @@ namespace Diva.Wifi
                 env.Data = loo;
                 env.Flags = Flags.IsLoggedIn;
                 env.State = State.InventoryListForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {

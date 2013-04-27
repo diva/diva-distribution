@@ -30,9 +30,11 @@ using System.Net;
 using System.Web;
 using OpenSim.Framework.Servers.HttpServer;
 
+using Diva.Interfaces;
+
 namespace Diva.Utils
 {
-    public struct Request
+    public struct Request : IRequest
     {
         public string Resource;
         public HttpCookieCollection Cookies;

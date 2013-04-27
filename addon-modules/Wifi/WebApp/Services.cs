@@ -284,14 +284,6 @@ namespace Diva.Wifi
         static Regex action = new Regex("(<form\\s+.*action\\s*=\\s*\\\"(\\S+\\\")).*>");
         static Regex xmlhttprequest = new Regex("(@@wifi@@(\\S+\\\"))");
 
-        private string PadURLs(Environment env, string sid, string html)
-        {
-            if ((env.Flags & Flags.IsLoggedIn) == 0 && (env.Flags & Flags.IsValidSession) == 0)
-                return html;
-
-            return WebAppUtils.PadURLs(sid, html);
-        }
-
 
         /*
         private void PrintStr(string html)
@@ -305,7 +297,7 @@ namespace Diva.Wifi
             List<UserAccount> accounts = m_UserAccountService.GetUserAccounts(UUID.Zero, terms);
             if (accounts != null && accounts.Count > 0)
             {
-                return Objectify<UserAccount>(accounts);
+                return WebAppUtils.Objectify<UserAccount>(accounts);
             }
             else
             {
@@ -321,7 +313,7 @@ namespace Diva.Wifi
                 List<DirGroupsReplyData> groups = m_GroupsService.FindGroups(string.Empty, string.Empty);
                 if (groups != null && groups.Count > 0)
                 {
-                    return Objectify<DirGroupsReplyData>(groups);
+                    return WebAppUtils.Objectify<DirGroupsReplyData>(groups);
                 }
             }
             return new List<object>();
@@ -339,7 +331,7 @@ namespace Diva.Wifi
             //    AvatarPreselection = ""
             IEnumerable<Avatar> visibleAvatars = m_WebApp.DefaultAvatars.Where(avatar => !string.IsNullOrEmpty(avatar.Type));
 
-            return Objectify<Avatar>(visibleAvatars);
+            return WebAppUtils.Objectify<Avatar>(visibleAvatars);
         }
 
         private void SetServiceURLs(UserAccount account)
@@ -348,15 +340,6 @@ namespace Diva.Wifi
             account.ServiceURLs["HomeURI"] = m_WebApp.LoginURL.ToString();
             account.ServiceURLs["InventoryServerURI"] = m_WebApp.LoginURL.ToString();
             account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
-        }
-
-        private List<object> Objectify<T>(IEnumerable<T> listOfThings)
-        {
-            List<object> listOfObjects = new List<object>();
-            foreach (T thing in listOfThings)
-                listOfObjects.Add(thing);
-
-            return listOfObjects;
         }
 
         private bool SendEMail(string to, string subject, string message)

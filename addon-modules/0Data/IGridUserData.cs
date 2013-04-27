@@ -30,6 +30,7 @@ namespace Diva.Data
 {
     public interface IGridUserData : OpenSim.Data.IGridUserData
     {
+        GridUserData[] GetUsers(string query);
         GridUserData[] GetOnlineUsers();
         long GetOnlineUserCount();
         long GetActiveUserCount(int period);

@@ -58,7 +58,7 @@ namespace Diva.Wifi
                     env.State = State.HyperlinkListForm;
                 env.Data = GetHyperlinks(env, sinfo.Account.PrincipalID);
 
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
         }
@@ -101,7 +101,7 @@ namespace Diva.Wifi
                     else
                         return HyperlinkGetRequest(env);
                 }
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
         }
@@ -148,7 +148,7 @@ namespace Diva.Wifi
                     }
                 }
             }
-            return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+            return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
         }
 
         public string HyperlinkDeletePostRequest(Environment env, UUID regionID)
@@ -193,7 +193,7 @@ namespace Diva.Wifi
                             delegate(Environment e) { return HyperlinkGetRequest(e); });
                     }
                 }
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             return m_WebApp.ReadFile(env, "index.html");
         }
@@ -222,7 +222,7 @@ namespace Diva.Wifi
                     }
                 }
             }
-            return Objectify<RegionInfo>(links);
+            return WebAppUtils.Objectify<RegionInfo>(links);
         }
     }
 }

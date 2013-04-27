@@ -58,7 +58,7 @@ namespace Diva.Wifi
                 env.Data = loo;
                 env.Flags = Flags.IsLoggedIn;
                 env.State = State.UserAccountForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {
@@ -106,13 +106,13 @@ namespace Diva.Wifi
                     env.Flags = Flags.IsLoggedIn;
                     NotifyWithoutButton(env, _("Your account has been updated.", env));
                     m_log.DebugFormat("[Wifi]: Updated account for user {0}", sinfo.Account.Name);
-                    return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                    return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
                 }
 
                 // nothing was updated, really
                 env.Flags = Flags.IsLoggedIn;
                 env.State = State.UserAccountForm;
-                return PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
+                return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             else
             {

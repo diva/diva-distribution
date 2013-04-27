@@ -66,5 +66,15 @@ namespace Diva.Data.MySQL
         {
             return m_DatabaseHandler.GetCount(string.Format("Online = '{0}' OR DATEDIFF(CURRENT_DATE(), FROM_UNIXTIME(Logout)) <= {1}", true, period));
         }
+
+        public GridUserData[] GetUsers(string pattern)
+        {
+            if (string.IsNullOrEmpty(pattern) || pattern.Trim().Length == 0)
+                pattern = "1 ORDER BY UserID LIMIT 200";
+            else
+                pattern = string.Format("UserID LIKE '%{0}%' ORDER BY UserID LIMIT 100", pattern);
+
+            return m_DatabaseHandler.Get(pattern);
+        }
     }
 }

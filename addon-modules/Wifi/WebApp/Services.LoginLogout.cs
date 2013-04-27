@@ -76,7 +76,7 @@ namespace Diva.Wifi
                 notification = string.Format(_("Welcome to {0}!", env), m_WebApp.GridName);
             }
             NotifyWithoutButton(env, notification);
-            return PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
+            return WebAppUtils.PadURLs(env, authtoken, m_WebApp.ReadFile(env, "index.html"));
         }
 
         public string LogoutRequest(Environment env)
