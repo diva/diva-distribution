@@ -24,9 +24,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+using System;
 using System.Reflection;
 
 using OpenSim.Data;
+#if CSharpSqlite
+    using Community.CsharpSqlite.Sqlite;
+#else
+using Mono.Data.Sqlite;
+#endif
 
 namespace Diva.Data.SQLite
 {
@@ -63,6 +69,16 @@ namespace Diva.Data.SQLite
         public GridUserData[] GetUsers(string pattern)
         {
             return m_DatabaseHandler.Get(pattern);
+        }
+
+        public void ResetTOS()
+        {
+            using (SqliteCommand cmd = new SqliteCommand())
+            {
+                cmd.CommandText = String.Format("update {0} set TOS=?tos", m_Realm);
+                cmd.Parameters.AddWithValue("?tos", "");
+                DoQuery(cmd);
+            }
         }
 
     }

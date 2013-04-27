@@ -421,6 +421,11 @@ namespace Diva.Wifi
             sinfo = si;
             return success;
         }
+
+        public void NotifyWithoutButton(IEnvironment env, string message)
+        {
+            Services.NotifyWithoutButton(env, message);
+        }
         #endregion IWifiApp
     }
 

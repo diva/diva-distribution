@@ -15,6 +15,7 @@ namespace Diva.Interfaces
         bool TryGetSessionInfo(IRequest req, out ISessionInfo sinfo);
         string ReadFile(IEnvironment env, string path);
         string ReadFile(IEnvironment env, string path, List<object> loo);
+        void NotifyWithoutButton(IEnvironment env, string message);
     }
 
     public interface IRequest

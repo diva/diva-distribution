@@ -26,6 +26,7 @@
  */
 
 using System.Collections.Generic;
+using Diva.Interfaces;
 using Diva.Utils;
 
 namespace Diva.Wifi
@@ -50,21 +51,22 @@ namespace Diva.Wifi
             return m_WebApp.ReadFile(env, "index.html");
         }
 
-        public void NotifyWithoutButton(Environment env, string message)
+        public void NotifyWithoutButton(IEnvironment env, string message)
         {
             Notify(env, message, string.Empty, null);
         }
-        public void NotifyOK(Environment env, string message, ServiceCall followUp)
+        public void NotifyOK(IEnvironment env, string message, ServiceCall followUp)
         {
-            Notify(env, message, _("OK", env), followUp);
+            Notify(env, message, _("OK", (Environment)env), followUp);
         }
-        public void Notify(Environment env, string message, string buttonText, ServiceCall followUp)
+        public void Notify(IEnvironment env, string message, string buttonText, ServiceCall followUp)
         {
             NotifyWithRedirect(env, message, buttonText, -1, string.Empty, followUp);
         }
-        public void NotifyWithRedirect(Environment env, string message, string buttonText,
+        public void NotifyWithRedirect(IEnvironment e, string message, string buttonText,
             int redirectSeconds, string redirectUrl, ServiceCall followUp)
         {
+            Environment env = (Environment)e;
             env.Data = new List<object>();
             env.Data.Add(new Notification(message, buttonText));
             env.State = State.Notification;

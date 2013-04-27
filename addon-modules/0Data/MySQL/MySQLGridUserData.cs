@@ -76,5 +76,15 @@ namespace Diva.Data.MySQL
 
             return m_DatabaseHandler.Get(pattern);
         }
+
+        public void ResetTOS()
+        {
+            using (MySqlCommand cmd = new MySqlCommand())
+            {
+                cmd.CommandText = String.Format("update {0} set TOS=?tos", m_Realm);
+                cmd.Parameters.AddWithValue("?tos", string.Empty);
+                ExecuteNonQuery(cmd);
+            }
+        }
     }
 }

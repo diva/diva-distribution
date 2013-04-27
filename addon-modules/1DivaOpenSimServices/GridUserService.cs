@@ -47,9 +47,9 @@ namespace Diva.OpenSimServices
         {
         }
 
-        public List<GridUserInfo> GetOnlineUsers()
+        public List<DGridUserInfo> GetOnlineUsers()
         {
-            List<GridUserInfo> onlineList = new List<GridUserInfo>();
+            List<DGridUserInfo> onlineList = new List<DGridUserInfo>();
             try
             {
                 GridUserData[] onlines = ((Diva.Data.IGridUserData)m_Database).GetOnlineUsers();
@@ -146,6 +146,10 @@ namespace Diva.OpenSimServices
             return false;
         }
 
+        public void ResetTOS()
+        {
+            ((Diva.Data.IGridUserData)m_Database).ResetTOS();
+        }
 
         protected DGridUserInfo ToGridUserInfo(GridUserData d)
         {
