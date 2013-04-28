@@ -1,17 +1,16 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Mono.Addins;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Diva.Modules")]
+[assembly: AssemblyTitle("Diva.Interfaces")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Diva Distribution")]
-[assembly: AssemblyCopyright("Crista Lopes aka Diva Canto")]
+[assembly: AssemblyCopyright("Diva Canto aka Crista Lopes")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,7 +20,7 @@ using Mono.Addins;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bffc8af7-6d09-44fe-be1e-7678be72ee1f")]
+[assembly: Guid("e1d1d2f6-4928-4ac7-babb-3d443aceb6c8")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,8 +30,4 @@ using Mono.Addins;
 //      Revision
 //
 [assembly: AssemblyVersion("0.7.6.*")]
-
-
-[assembly: Addin("Diva.Modules", "0.1")]
-[assembly: AddinDependency("OpenSim", "0.5")]
 
