@@ -81,5 +81,14 @@ namespace Diva.Data.SQLite
             }
         }
 
+        public void ResetOnline()
+        {
+            using (SqliteCommand cmd = new SqliteCommand())
+            {
+                cmd.CommandText = String.Format("update {0} set Online='False'", m_Realm);
+                DoQuery(cmd);
+            }
+        }
+
     }
 }

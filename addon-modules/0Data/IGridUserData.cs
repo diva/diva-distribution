@@ -35,5 +35,6 @@ namespace Diva.Data
         long GetOnlineUserCount();
         long GetActiveUserCount(int period);
         void ResetTOS();
+        void ResetOnline();
     }
 }

@@ -70,9 +70,9 @@ namespace Diva.Data.MySQL
         public GridUserData[] GetUsers(string pattern)
         {
             if (string.IsNullOrEmpty(pattern) || pattern.Trim().Length == 0)
-                pattern = "1 ORDER BY UserID LIMIT 200";
+                pattern = "1 ORDER BY UserID";
             else
-                pattern = string.Format("UserID LIKE '%{0}%' ORDER BY UserID LIMIT 100", pattern);
+                pattern = string.Format("UserID LIKE '%{0}%' ORDER BY UserID", pattern);
 
             return m_DatabaseHandler.Get(pattern);
         }
@@ -83,6 +83,15 @@ namespace Diva.Data.MySQL
             {
                 cmd.CommandText = String.Format("update {0} set TOS=?tos", m_Realm);
                 cmd.Parameters.AddWithValue("?tos", string.Empty);
+                ExecuteNonQuery(cmd);
+            }
+        }
+
+        public void ResetOnline()
+        {
+            using (MySqlCommand cmd = new MySqlCommand())
+            {
+                cmd.CommandText = String.Format("update {0} set Online='False'", m_Realm);
                 ExecuteNonQuery(cmd);
             }
         }

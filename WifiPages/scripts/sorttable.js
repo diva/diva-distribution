@@ -32,7 +32,8 @@ function InitGridUserTableRowSort() {
   gridusers = new Array();
   gridusers[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Name
   gridusers[1] = { column:1, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 1);} }; // Origin
-  gridusers[2] = { column:2, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 2);} };  // Online
+  gridusers[2] = { column:2, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 2);} }; // Online
+  gridusers[3] = { column:3, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 3);} }; // Login
   SetupTableHeadings('gridusers', gridusers);
 }
 // Configuration for sorting rows in hyperlinks table

@@ -45,6 +45,14 @@ namespace Diva.OpenSimServices
         public GridUserService(IConfigSource config)
             : base(config)
         {
+            try
+            {
+                ((Diva.Data.IGridUserData)m_Database).ResetOnline();
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
         }
 
         public List<DGridUserInfo> GetOnlineUsers()
@@ -138,9 +146,11 @@ namespace Diva.OpenSimServices
             GridUserData d = m_Database.Get(info.UserID);
             if (d != null)
             {
-                d.Data["TOS"] = info.TOS;
-
-                return m_Database.Store(d);
+                if (d.Data.ContainsKey("TOS"))
+                {
+                    d.Data["TOS"] = info.TOS;
+                    return m_Database.Store(d);
+                }
             }
 
             return false;
@@ -148,7 +158,14 @@ namespace Diva.OpenSimServices
 
         public void ResetTOS()
         {
-            ((Diva.Data.IGridUserData)m_Database).ResetTOS();
+            try
+            {
+                ((Diva.Data.IGridUserData)m_Database).ResetTOS();
+            }
+            catch (InvalidCastException)
+            {
+                m_log.WarnFormat(m_CastWarning, MethodBase.GetCurrentMethod().Name);
+            }
         }
 
         protected DGridUserInfo ToGridUserInfo(GridUserData d)
