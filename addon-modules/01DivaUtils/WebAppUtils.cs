@@ -195,6 +195,7 @@ namespace Diva.Utils
             Regex re = new Regex("[^a-zA-Z0-9_]+");
             return !re.IsMatch(name);
         }
+
         public static bool IsValidEmail(string email)
         {
             string strRegex = @"^(([^<>()[\]\\.,;:\s@\""]+"

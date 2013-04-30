@@ -170,7 +170,16 @@ namespace Diva.Wifi.WifiScript
                     else
                     {
                         m_FileName = file;
-                        Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, m_ListOfObjects);
+                        List<object> nextLoo = m_ListOfObjects;
+                        if (m_ListOfObjects != null && m_Index < m_ListOfObjects.Count - 1)
+                        {
+                            m_Index++;
+                            if (m_ListOfObjects[m_Index] is List<object>)
+                            //if (IsGenericList(m_ListOfObjects[m_Index].GetType()))
+                                nextLoo = (List<object>)m_ListOfObjects[m_Index];
+                        }
+                        Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, nextLoo);
+                        //Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, m_ListOfObjects);
                         return p.Process(sr.ReadToEnd());
                     }
                 }
@@ -253,14 +262,23 @@ namespace Diva.Wifi.WifiScript
                         // Let's search in the list of objects
                         object o = m_ListOfObjects[GetIndex()];
                         Type type = o.GetType();
-                        FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public);
+                        FieldInfo finfo = type.GetField(name, BindingFlags.Instance | BindingFlags.Public );
                         if (finfo != null)
                         {
                             value = finfo.GetValue(o);
                             translate = Attribute.IsDefined(finfo, typeof(TranslateAttribute));
                         }
-                        else
-                            m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}; {2}", name, type, argStr);
+                        else // Try properties
+                        {
+                            PropertyInfo pinfo = type.GetProperty(name, BindingFlags.Instance | BindingFlags.Public );
+                            if (pinfo != null)
+                            {
+                                value = pinfo.GetValue(o, null);
+                                translate = Attribute.IsDefined(pinfo, typeof(TranslateAttribute));
+                            }
+                            else
+                                m_log.DebugFormat("[WifiScript]: Field {0} not found in type {1}; {2}", name, type, argStr);
+                        }
                     }
                 }
 
@@ -376,6 +394,26 @@ namespace Diva.Wifi.WifiScript
         private int GetIndex()
         {
             return (m_Index == -1) ? 0 : m_Index;
+        }
+
+        public bool IsGenericList(Type type)
+        {
+            if (type == null)
+            {
+                throw new ArgumentNullException("type");
+            }
+            foreach (Type @interface in type.GetInterfaces())
+            {
+                if (@interface.IsGenericType)
+                {
+                    if (@interface.GetGenericTypeDefinition() == typeof(ICollection<>))
+                    {
+                        // if needed, you can also return the type used as generic argument
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

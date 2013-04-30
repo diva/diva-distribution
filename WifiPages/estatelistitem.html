@@ -1,0 +1,11 @@
+  <tr class="bodytext">
+    <td class="username"><!-- #get field=EstateName --> </td>
+    <td class="username"><!-- #get field=OwnerName --></td>
+    <td class="userlevel"><!-- #get field=NRegions --></td>
+    <td class="userlevel"><!-- #get field=PublicAccess --></td>
+    <td class="command"><a href="/wifi/admin/estates/edit/<!-- #get field=EstateID -->">edit</a></td>
+    <td class="command"><a href="/wifi/admin/estates/delete/<!-- #get field=EstateID -->">delete</a></td>
+  </tr>
+
+  <!-- Recursion ! -->
+  <!-- #include file=estatelistitem.html -->

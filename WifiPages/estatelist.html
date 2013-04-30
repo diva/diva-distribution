@@ -1,0 +1,27 @@
+<script src="/wifi/scripts/sorttable.js" type="text/javascript"></script>
+<script src="/wifi/scripts/forms.js" type="text/javascript"></script>
+
+<div id="estate-creation">
+  <input type="submit" value="New Zone/Estate" class="button" onclick="showEstateCreateForm()"/>
+</div>
+
+<p>&nbsp;</p>
+
+<p>Zones/Estates:</p>
+
+<input type="hidden" name="text" value="Sort rows">
+<table id="zones" class="entries">
+  <thead>
+    <tr class="bodytext">
+      <th class="username">Name</th>
+      <th class="username">Owner</th>
+      <th class="userlevel"># Regions</th>
+      <th class="userlevel">Public Access</th>
+      <th class="command">&nbsp;</th>
+      <th class="command">&nbsp;</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- #include file=estatelistitem.html -->
+  </tbody>
+</table>

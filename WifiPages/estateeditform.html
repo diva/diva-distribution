@@ -1,0 +1,45 @@
+<p>Estate/Zone <!-- #get field=EstateID-->:</p>
+
+<table cellspacing="20">
+<tr>
+<td>
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="1">
+    Name:</br>
+    <input name="name" type="text" value="<!-- #get field=EstateName-->" class="inputstyle" /></br></br>
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+</td>
+<td>
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="2">
+    Owner:</br>
+    <input name="owner" type="text" value="<!-- #get field=OwnerName-->" class="inputstyle" /></br></br>
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+</td>
+</tr>
+</table>
+
+<p>&nbsp;</p>
+<p>This estate/zone has <!--#get field=NRegions --> regions.</p>
+<p>&nbsp;</p>
+
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="3">
+    Move region:
+    <select name="region">
+      <!-- #include file=regionselect.html -->
+    </select>
+    to estate:
+    <select name="estate">
+      <!-- #include file=estateselect.html -->
+    </select>
+    <input type="submit" value="Move" class="button" />
+  </p>
+</form>
