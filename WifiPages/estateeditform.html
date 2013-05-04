@@ -1,4 +1,4 @@
-<p>Estate/Zone <!-- #get field=EstateID-->:</p>
+<p>Estate <!-- #get field=EstateID-->:</p>
 
 <table cellspacing="20">
 <tr>
@@ -22,16 +22,26 @@
   </p>
 </form>
 </td>
+<td>
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="3">
+    Public Access?</br>
+    <input name="public" type="text" value="<!-- #get field=PublicAccess-->" class="inputstyle" /></br></br>
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+</td>
 </tr>
 </table>
 
 <p>&nbsp;</p>
-<p>This estate/zone has <!--#get field=NRegions --> regions.</p>
+<p>This estate has <!--#get field=NRegions --> regions.</p>
 <p>&nbsp;</p>
 
 <form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
   <p class="bodytext"> 
-    <input type="hidden" name="form" value="3">
+    <input type="hidden" name="form" value="4">
     Move region:
     <select name="region">
       <!-- #include file=regionselect.html -->

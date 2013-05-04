@@ -426,6 +426,16 @@ namespace Diva.Wifi
         {
             Services.NotifyWithoutButton(env, message);
         }
+
+        public void SetAvatar(IEnvironment env, UUID userID, string avatarType)
+        {
+            Services.SetAvatar(env, userID, avatarType);
+        }
+
+        public bool SendEMail(string to, string subject, string message)
+        {
+            return Services.SendEMail(to, subject, message);
+        }
         #endregion IWifiApp
     }
 

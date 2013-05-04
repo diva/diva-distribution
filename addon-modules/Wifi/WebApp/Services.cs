@@ -342,7 +342,7 @@ namespace Diva.Wifi
             account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
         }
 
-        private bool SendEMail(string to, string subject, string message)
+        public bool SendEMail(string to, string subject, string message)
         {
             bool success = true;
             try

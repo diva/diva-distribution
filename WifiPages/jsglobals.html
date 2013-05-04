@@ -3,6 +3,12 @@ var estateCreationForm = '<form name="create-estate" action="/wifi/admin/estates
                               'Name: <input type="text" name="name"/>&nbsp;' +
                               'Owner: <input type="text" name="owner"/> &nbsp;&nbsp;' +
                               '<input type="submit" class="button" value="Create" />' +
-                         '</form/>';
+                         '</form>';
+
+var usersCreationForm = '<form name="upload-users" action="/wifi/admin/gridusers/create" method="post">' +
+                              'CSV file should have columns First Last Email AvatarType</br>' +
+                              'Choose CSV File: <input type="file" name="datafile" size="40"/>&nbsp;' +
+                              '<input type="submit" class="button" value="Upload" />' +
+                         '</form>';
 
 </script>

@@ -43,6 +43,12 @@ namespace Diva.Utils
 
         public static readonly char[] DirectorySeparatorChars = { System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar };
 
+        private static string m_UploadPath = "DivaUploads";
+        public static string UploadPath
+        {
+            get { return m_UploadPath; }
+        }
+
         public static string GetContentType(string resource)
         {
             resource = resource.ToLower();

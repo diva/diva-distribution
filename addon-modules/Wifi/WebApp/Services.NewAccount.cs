@@ -34,6 +34,7 @@ using OpenMetaverse;
 using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 
+using Diva.Interfaces;
 using Diva.Utils;
 using Environment = Diva.Utils.Environment;
 
@@ -138,8 +139,9 @@ namespace Diva.Wifi
 
         }
 
-        private void SetAvatar(Environment env, UUID newUser, string avatarType)
+        public void SetAvatar(IEnvironment e, UUID newUser, string avatarType)
         {
+            Environment env = (Environment)e;
             UserAccount account = null;
             string[] parts = null;
 

@@ -1,4 +1,3 @@
-function showEstateCreateForm() {
-  $('#estate-creation').html(estateCreationForm);
+function showForm(divName, form) {
+  $('#' + divName).html(form);
 }
-

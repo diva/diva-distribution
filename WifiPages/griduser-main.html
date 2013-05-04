@@ -1,3 +1,5 @@
+<script src="/wifi/scripts/forms.js" type="text/javascript"></script>
+
 <p>Retrieve users</p>
 <table cellspacing="20">
   <tr valign="top"><td>
@@ -18,8 +20,11 @@
     <ul>
       <li><a href="/wifi/admin/gridusers/online">List online users</a></li>
       <li><a href="/wifi/admin/gridusers/tos/reset">Reset TOS</a></li>
+      <li><a href="#" onclick="showForm('users-creation', usersCreationForm)">
+          Create users (bulk)</a></li>
     </ul>
     </div>
+    <div id="users-creation"></div>
   </td>
   </tr>
 </table>
