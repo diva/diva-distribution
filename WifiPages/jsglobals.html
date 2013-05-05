@@ -5,9 +5,9 @@ var estateCreationForm = '<form name="create-estate" action="/wifi/admin/estates
                               '<input type="submit" class="button" value="Create" />' +
                          '</form>';
 
-var usersCreationForm = '<form name="upload-users" action="/wifi/admin/gridusers/create" enctype="multipart/form-data" method="post">' +
+var usersCreationForm = '<form name="upload-users" action="/wifi/admin/gridusers/create" onsubmit="return checkExtension(\'csv\');" enctype="multipart/form-data" method="post">' +
                               'CSV file should have columns First Last Email AvatarType</br>' +
-                              'Choose CSV File: <input type="file" name="datafile" size="40"/>&nbsp;' +
+                              'Choose CSV File: <input type="file" name="datafile" size="40" accept=".csv"/>&nbsp;' +
                               '<input type="submit" class="button" value="Upload" />' +
                          '</form>';
 
