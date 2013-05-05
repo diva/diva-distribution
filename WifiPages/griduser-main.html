@@ -19,7 +19,7 @@
     <div id="gridusers-menu">
     <ul>
       <li><a href="/wifi/admin/gridusers/online">List online users</a></li>
-      <li><a href="/wifi/admin/gridusers/tos/reset">Reset TOS</a></li>
+      <li><a href="/wifi/admin/gridusers/tos/reset" onclick="return confirm('Are you sure you want to reset the TOS?');">Reset TOS</a></li>
       <li><a href="#" onclick="showForm('users-creation', usersCreationForm)">
           Create users (bulk)</a></li>
     </ul>
