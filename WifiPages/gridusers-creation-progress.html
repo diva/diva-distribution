@@ -1,0 +1,17 @@
+<a href="/wifi/admin/gridusers/progress"><input type="submit" value="Refresh" class="button" ></a>
+
+<p><strong>Users processed: <!-- #get field=NProcessed --></strong></p>
+
+<p>Problems:</p>
+
+<table id="gridusersprogress" class="entries">
+  <thead>
+    <tr class="bodytext">
+      <th class="userlevel">Row</th>
+      <th class="username">Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- #include file=gridusersprogressitem.html -->
+  </tbody>
+</table>

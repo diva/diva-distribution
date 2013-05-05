@@ -147,7 +147,10 @@ namespace Diva.Wifi
 
             Avatar defaultAvatar = m_WebApp.DefaultAvatars.FirstOrDefault(av => av.Type.Equals(avatarType));
             if (defaultAvatar.Name != null)
+            {
+                m_log.DebugFormat("[XXX]: Avatar type is {0}", defaultAvatar.Name);
                 parts = defaultAvatar.Name.Split(new char[] { ' ' });
+            }
 
             if (parts == null || (parts != null && parts.Length != 2))
                 return;

@@ -342,6 +342,26 @@ namespace Diva.Wifi
             account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
         }
 
+        public bool SendEMailSync(string to, string subject, string message)
+        {
+            bool success = true;
+            try
+            {
+                MailMessage msg = new MailMessage();
+                msg.From = new MailAddress(m_WebApp.SmtpUsername);
+                msg.To.Add(new MailAddress(to));
+                msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
+                msg.Body = message;
+                m_Client.Send(msg);
+            }
+            catch (Exception e)
+            {
+                m_log.WarnFormat("[Wifi]: Exception on sending mail to {0}: {1}", to, e);
+                success = false;
+            }
+            return success;
+        }
+
         public bool SendEMail(string to, string subject, string message)
         {
             bool success = true;
@@ -362,7 +382,7 @@ namespace Diva.Wifi
             return success;
         }
 
-        private static void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
+        private void SendCompletedCallback(object sender, AsyncCompletedEventArgs e)
         {
             String token = (string)e.UserState;
 
@@ -373,6 +393,7 @@ namespace Diva.Wifi
                 m_log.DebugFormat("[Wifi]: [{0}] {1}", token, e.Error.ToString());
             else
                 m_log.DebugFormat("[Wifi]: Message sent to " + token + ".");
+
         }
 
         public T GetServiceObject<T>()
