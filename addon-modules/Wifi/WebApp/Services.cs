@@ -409,6 +409,8 @@ namespace Diva.Wifi
                 obj = m_GridService;
             else if (typeof(T) == typeof(InventoryService))
                 obj = m_InventoryService;
+            else if (typeof(T) == typeof(GroupsService))
+                obj = m_GroupsService;
 
             return (T)obj;
         }
