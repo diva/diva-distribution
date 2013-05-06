@@ -258,10 +258,12 @@ namespace Diva.Wifi
         #endregion
 
         private Type m_ExtensionMethods;
+        private ISceneActor m_SceneActor;
 
-
-        public WebApp(IConfigSource config, string configName, IHttpServer server)
+        public WebApp(IConfigSource config, string configName, IHttpServer server, ISceneActor sactor)
         {
+            m_SceneActor = sactor;
+
             ReadConfigs(config, configName);
 
             // Create the two parts
@@ -411,6 +413,12 @@ namespace Diva.Wifi
 
         public T GetServiceObject<T>()
         {
+            if (typeof(T) == typeof(ISceneActor))
+            {
+                m_log.DebugFormat("[XXX]: SceneActor requested {0}", (m_SceneActor == null ? "null" : "not null"));
+                return (T)m_SceneActor;
+            }
+
             return Services.GetServiceObject<T>();
         }
 

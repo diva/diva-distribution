@@ -47,6 +47,11 @@ namespace Diva.Wifi
         private const string m_AddonPrefix = "WifiAddon_";
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName) :
+            this(config, server, configName, null)
+        {
+        }
+
+        public WifiServerConnector(IConfigSource config, IHttpServer server, string configName, ISceneActor sactor) :
             base(config, server, configName)
         {
             IConfig serverConfig = config.Configs[m_ConfigName];
@@ -64,7 +69,7 @@ namespace Diva.Wifi
             //}
 
             // Launch the WebApp
-            WebApp app = new WebApp(config, m_ConfigName, server);
+            WebApp app = new WebApp(config, m_ConfigName, server, sactor);
 
             // Register all the handlers
             server.AddStreamHandler(new WifiDefaultHandler(app));

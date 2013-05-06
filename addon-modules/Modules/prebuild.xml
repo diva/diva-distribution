@@ -32,6 +32,7 @@
   <Reference name="Mono.Addins" path="../../bin/"/>
 
   <Reference name="Diva.Utils"/>
+  <Reference name="Diva.Interfaces"/>
   <Reference name="Diva.ModuleShim"/>
   <Reference name="Diva.OpenSimServices"/>
 

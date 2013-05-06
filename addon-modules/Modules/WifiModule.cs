@@ -26,6 +26,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Reflection;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers;
@@ -39,33 +40,36 @@ using OpenMetaverse.Imaging;
 using log4net;
 using Nini.Config;
 
+using Diva.Interfaces;
+
 using Mono.Addins;
 
 namespace Diva.Modules
 {
     [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "WifiModule")]
 
-    public class WifiModule : ISharedRegionModule
+    public class WifiModule : ISharedRegionModule, ISceneActor
     {
         #region Class and Instance Members
 
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool m_enabled = false;
-        
+        private List<Scene> m_Scenes = new List<Scene>();
+
         #endregion
 
         #region ISharedRegionModule
 
         public void Initialise(IConfigSource config)
         {
-            m_log.Info("[Wifi Module] Initializing...");
+            m_log.Info("[Wifi Module]: Initializing...");
 
             try
             {
                 m_enabled = config.Configs["Modules"].GetBoolean("WifiModule", m_enabled);
                 if (m_enabled)
                 {
-                    object[] args = new object[] { config, MainServer.Instance, string.Empty };
+                    object[] args = new object[] { config, MainServer.Instance, string.Empty, this };
                     //new WifiServerConnector(config, MainServer.Instance, string.Empty);
 
                     ServerUtils.LoadPlugin<IServiceConnector>("Diva.Wifi.dll:WifiServerConnector", args);
@@ -100,10 +104,18 @@ namespace Diva.Modules
 
         public void AddRegion(Scene scene)
         {
+            if (!m_enabled)
+                return;
+
+            m_Scenes.Add(scene);
         }
 
         public void RemoveRegion(Scene scene)
         {
+            if (!m_enabled)
+                return;
+
+            m_Scenes.Remove(scene);
         }
 
         public void RegionLoaded(Scene scene)
@@ -118,8 +130,13 @@ namespace Diva.Modules
         {
         }
 
-
         #endregion
+
+        public void ForEachScene(SceneAction d)
+        {
+            foreach (Scene s in m_Scenes)
+                d(s);
+        }
 
     }
 }
