@@ -145,11 +145,11 @@ namespace Diva.Wifi
             if (TryGetSessionInfo(request, out sinfo))
             {
                 env.Session = sinfo;
-
-                // load iar
-                // ...
-                InventoryArchiveReader reader = new InventoryArchiveReader(m_InventoryService, m_AssetService, m_UserAccountService, sinfo.Account, "/", pathtofile, true);
-                reader.Execute();
+                if (sinfo.Account.UserLevel >= m_WebApp.IARUserLevel)
+                {
+                    InventoryArchiveReader reader = new InventoryArchiveReader(m_InventoryService, m_AssetService, m_UserAccountService, sinfo.Account, "/", pathtofile, true);
+                    reader.Execute();
+                }
 
                 // Send the [new] inventory list
                 return InventoryLoadGetRequest(env);

@@ -217,25 +217,7 @@ namespace Diva.Wifi
                         return "Action could not be performed. Please check if the server is running.<br/>Back to <a href=\"/wifi/admin/regions\">Region Management Page</a>";
 
                     if (env.State == State.InventoryListForm)
-                        //{
-                        //    string invListStr = string.Empty;
-                        //    if (env.Data.Count > 0)
-                        //    {
-                        //        InventoryTreeNode tree = (InventoryTreeNode)env.Data[0];
-                        //        if (tree.Children != null)
-                        //        {
-                        //            List<object> loo = new List<object>();
-                        //            foreach (InventoryTreeNode node in tree.Children)
-                        //            {
-                        //                m_log.DebugFormat("--> {0}", node.Name);
-                        //                loo.Add(node);
-                        //                invListStr += m_WebApp.ReadFile(env, "inventorylist.html", loo);
-                        //            }
-                        //            return invListStr;
-                        //        }
-                        //    }
                         return m_WebApp.ReadFile(env, "inventorylist.html", env.Data);
-                    //    }
 
                     if (env.State == State.Console)
                         return m_WebApp.ReadFile(env, "console.html", env.Data);
@@ -417,6 +399,15 @@ namespace Diva.Wifi
 
             return _("No linked regions found", env);
         }
+
+        public string GetIARTransfers(Environment env)
+        {
+            if (env.Session.Account.UserLevel >= m_WebApp.IARUserLevel)
+                return m_WebApp.ReadFile(env, "iars.html", env.Data);
+
+            return string.Empty;
+        }
+
 
         public string LocalizePath(IEnvironment env, string path)
         {

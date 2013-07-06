@@ -245,8 +245,8 @@ namespace Diva.Wifi
                         m_log.DebugFormat("[Wifi]: Unable o parse sid {0}", request.Query["sid"].ToString());
                 }
             }
-            else
-                m_log.DebugFormat("[Wifi]: no sid in Query");
+            //else
+            //    m_log.DebugFormat("[Wifi]: no sid in Query");
 
             return success;
         }
