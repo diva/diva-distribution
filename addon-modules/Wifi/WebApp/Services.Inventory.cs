@@ -37,6 +37,8 @@ using Diva.Utils;
 using Diva.OpenSimServices;
 using Environment = Diva.Utils.Environment;
 
+using InventoryArchiveReader = OpenSim.Region.CoreModules.Avatar.Inventory.Archiver.InventoryArchiveReadRequest;
+
 namespace Diva.Wifi
 {
     public partial class Services
@@ -117,6 +119,37 @@ namespace Diva.Wifi
                     Move(sinfo.Account.PrincipalID, nodes, types, folder);
                 else if (action == "new")
                     NewFolder(sinfo.Account.PrincipalID, newFolderName, folder);
+
+                // Send the [new] inventory list
+                return InventoryLoadGetRequest(env);
+            }
+            else
+            {
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+
+        }
+
+        public string InventoryUploadRequest(Environment env, string pathtofile)
+        {
+            if (!m_WebApp.IsInstalled)
+            {
+                m_log.DebugFormat("[Wifi]: warning: someone is trying to access InventoryPostRequest and Wifi isn't installed!");
+                return m_WebApp.ReadFile(env, "index.html");
+            }
+
+            m_log.DebugFormat("[Wifi]: InventoryPostRequest");
+            Request request = env.TheRequest;
+
+            SessionInfo sinfo;
+            if (TryGetSessionInfo(request, out sinfo))
+            {
+                env.Session = sinfo;
+
+                // load iar
+                // ...
+                InventoryArchiveReader reader = new InventoryArchiveReader(m_InventoryService, m_AssetService, m_UserAccountService, sinfo.Account, "/", pathtofile, true);
+                reader.Execute();
 
                 // Send the [new] inventory list
                 return InventoryLoadGetRequest(env);

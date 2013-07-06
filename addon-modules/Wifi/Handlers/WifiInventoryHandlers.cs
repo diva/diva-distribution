@@ -34,6 +34,8 @@ using OpenSim.Server.Base;
 
 using Diva.Utils;
 
+using Guid = System.Guid;
+
 namespace Diva.Wifi
 {
     public class WifiInventoryLoadGetHandler : BaseStreamHandler
@@ -123,41 +125,68 @@ namespace Diva.Wifi
             string resource = GetParam(path);
             //m_log.DebugFormat("[INVENTORY HANDLER POST]: resource {0}", resource);
 
-            StreamReader sr = new StreamReader(requestData);
-            string body = sr.ReadToEnd();
-            sr.Close();
-            body = body.Trim();
-            Dictionary<string, object> postdata =
-                    ServerUtils.ParseQueryString(body);
-
             Request request = RequestFactory.CreateRequest(string.Empty, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
             Environment env = new Environment(request);
 
-            string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));
-            if (action == null)
-                action = string.Empty;
-            else
-                action = action.Substring("action-".Length);
-            
-            string folder = string.Empty;
-            string newFolderName = string.Empty;
-            List<string> nodes = new List<string>();
-            List<string> types = new List<string>();
-
-            if (postdata.ContainsKey("folder"))
-                folder = postdata["folder"].ToString();
-            if (postdata.ContainsKey("newFolderName"))
-                newFolderName = postdata["newFolderName"].ToString();
-            foreach (KeyValuePair<string, object> kvp in postdata)
+            string result = string.Empty;
+            if (resource.Equals("/") || resource.Equals(string.Empty))
             {
-                if (kvp.Key.StartsWith("inv-"))
+                StreamReader sr = new StreamReader(requestData);
+                string body = sr.ReadToEnd();
+                sr.Close();
+                body = body.Trim();
+                Dictionary<string, object> postdata =
+                        ServerUtils.ParseQueryString(body);
+
+                string action = postdata.Keys.FirstOrDefault(key => key.StartsWith("action-"));
+                if (action == null)
+                    action = string.Empty;
+                else
+                    action = action.Substring("action-".Length);
+
+                string folder = string.Empty;
+                string newFolderName = string.Empty;
+                List<string> nodes = new List<string>();
+                List<string> types = new List<string>();
+
+                if (postdata.ContainsKey("folder"))
+                    folder = postdata["folder"].ToString();
+                if (postdata.ContainsKey("newFolderName"))
+                    newFolderName = postdata["newFolderName"].ToString();
+                foreach (KeyValuePair<string, object> kvp in postdata)
                 {
-                    nodes.Add(kvp.Key.Substring(4));
-                    types.Add(kvp.Value.ToString());
+                    if (kvp.Key.StartsWith("inv-"))
+                    {
+                        nodes.Add(kvp.Key.Substring(4));
+                        types.Add(kvp.Value.ToString());
+                    }
+                }
+
+                result = m_WebApp.Services.InventoryPostRequest(env, action, folder, newFolderName, nodes, types);
+            }
+            else if (resource.StartsWith("/upload"))
+            {
+                HttpMultipartParser parser = new HttpMultipartParser(requestData, "datafile");
+                if (parser.Success)
+                {
+                    //string user = HttpUtility.UrlDecode(parser.Parameters["user"]);
+                    if (!Directory.Exists(WebAppUtils.UploadPath))
+                        Directory.CreateDirectory(WebAppUtils.UploadPath);
+
+                    string filename = new Guid().ToString().Substring(0, 8) + ".iar";
+                    string pathToFile = System.IO.Path.Combine(WebAppUtils.UploadPath, filename);
+                    if (File.Exists(pathToFile))
+                        File.Delete(pathToFile);
+                    using (FileStream w = new FileStream(pathToFile, FileMode.CreateNew))
+                    {
+                        w.Write(parser.FileContents, 0, parser.FileContents.Length);
+                    }
+                    result = m_WebApp.Services.InventoryUploadRequest(env, pathToFile);
+                    File.Delete(pathToFile);
                 }
             }
 
-            return WebAppUtils.StringToBytes(m_WebApp.Services.InventoryPostRequest(env, action, folder, newFolderName, nodes, types));
+            return WebAppUtils.StringToBytes(result);
 
         }
 

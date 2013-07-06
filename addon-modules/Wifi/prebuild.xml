@@ -28,10 +28,12 @@
   <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Framework.Servers"/>
   <Reference name="OpenSim.Framework.Servers.HttpServer"/>
+  <Reference name="OpenSim.Region.CoreModules"/>
   <Reference name="OpenSim.Server.Base"/>
   <Reference name="OpenSim.Server.Handlers"/>
   <Reference name="OpenSim.Services.Base"/>
   <Reference name="OpenSim.Services.Interfaces"/>
+  <Reference name="OpenSim.Services.AssetService"/>
   <Reference name="OpenSim.Services.InventoryService"/>
   <Reference name="OpenSim.Services.UserAccountService"/>
   <Reference name="OpenSim.Services.AuthenticationService"/>
