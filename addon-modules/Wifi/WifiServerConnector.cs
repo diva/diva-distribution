@@ -74,6 +74,7 @@ namespace Diva.Wifi
 
             // Register all the handlers
             server.AddStreamHandler(new WifiDefaultHandler(app));
+            server.AddStreamHandler(new WifiHeadHandler(app));
             server.AddStreamHandler(new WifiNotifyHandler(app));
             server.AddStreamHandler(new WifiInstallGetHandler(app));
             server.AddStreamHandler(new WifiInstallPostHandler(app));

@@ -423,7 +423,6 @@ namespace Diva.Wifi
         {
             if (typeof(T) == typeof(ISceneActor))
             {
-                m_log.DebugFormat("[XXX]: SceneActor requested {0}", (m_SceneActor == null ? "null" : "not null"));
                 return (T)m_SceneActor;
             }
 
