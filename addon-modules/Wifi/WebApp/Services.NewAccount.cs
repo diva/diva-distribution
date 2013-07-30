@@ -240,7 +240,7 @@ namespace Diva.Wifi
 
             InventoryFolderBase defaultAvatarFolder = new InventoryFolderBase(UUID.Random(), folderName, newUserID, clothing.ID);
             defaultAvatarFolder.Version = 1;
-            defaultAvatarFolder.Type = (short)AssetType.Clothing;
+            defaultAvatarFolder.Type = (short)AssetType.Folder;
 
             if (!m_InventoryService.AddFolder(defaultAvatarFolder))
                 m_log.DebugFormat("[Wifi]: Failed to store {0} folder", folderName);
