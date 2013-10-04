@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta http-equiv="Content-Script-Type" content="text/javascript" /><!-- W3C wants this -->
+    <title><!-- #get var=GridName --></title>
+    <!-- #call method=GetRefresh -->
+    <link rel="shortcut icon" href="/wifi/images/favicon.ico" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/wifi/console.css" />
+    <link rel="stylesheet" media="screen" type="text/css" href="/wifi/fluid.css" />
+    <!-- The following embedded style MUST be the last one defined -->
+    <!-- in order to work with the remote console.                 -->
+    <style type="text/css">
+    /* <![CDATA[ */
+    #console #messages {
+      overflow:auto;
+    }
+    /* ]]> */
+    </style>
+
+    <script src="/wifi/scripts/global.js" type="text/javascript"></script>
+    
+  </head>
+
+  <body>
+    <div id="header">
+      <!--#include file=header.html -->
+    </div>
+
+    <div id="page">  <!-- wraps and defines overall page width, centers it -->
+
+      <div id="right-nav">  <!-- right side navigation, etc on page -->
+        <!--#call method=GetMainMenu --> 
+        <br />
+
+        <div class="right-nav-divider"></div>
+        <!--#call method=GetLoginLogout --> 
+        <br />
+
+        <div class="right-nav-divider"></div>
+        <!--#include file=links.html --> 
+
+      </div> <!-- end right side navigation -->
+	  
+      <div id="content"> <!-- content area of page -->
+        <!--#include file=content-box.html --> 
+      </div> <!-- end content area of page -->
+	  
+    </div>
+
+    <div id="footer">
+      <!-- #include file=footer.html -->
+    </div>
+  
+  </body>
+</html>

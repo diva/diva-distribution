@@ -1,0 +1,10 @@
+  <tr class="bodytext">
+    <td class="address"><!-- #get var=RegionAddress --></td>
+    <td class="xloc"><!-- #get var=RegionLocX --></td>
+    <td class="yloc"><!-- #get var=RegionLocY --></td>
+    <td class="owner"><!-- #get var=RegionOwner --></td>
+    <td class="command"><!-- #call method=GetHyperlinkCommands --></td>
+  </tr>
+
+  <!-- Recursion ! -->
+  <!-- #include file=linkregionitem.html -->

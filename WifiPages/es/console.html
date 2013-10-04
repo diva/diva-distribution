@@ -1,0 +1,61 @@
+    <script src="/wifi/scripts/console.js" type="text/javascript"></script>
+
+    <div id="noscript">Esta función requiere de JavaScript. Por favor, active el JavaScript en su navegador.</div>
+    <div id="console" style="display:none">
+      
+      <div id="tabulators">
+        <div class="cssmenu tab">
+          <form name="settings" onsubmit="ChangedOption(this.bufsize.name); return false" action="#">
+            <input type="hidden" name="debug" value=""> <!-- non-empty value enables trace menu options -->
+            <input type="hidden" name="text" value="No connection">
+            <input type="hidden" name="text" value="There are not any other active simulators.">
+            <ul id="options">
+              <li onclick="CreateConsole()"> Nueva consola </li>
+              <li onclick="Disconnect()"> Cerrar la consola activa </li>
+              <li><input type="checkbox" name="mono" value="enable" onclick="ChangedOption(this.name)" /> Use mono-space font </li>
+              <li><input type="checkbox" name="trace" value="enable" onclick="ChangedOption(this.name)" checked="checked" /> Enable traces </li>
+              <li><input type="checkbox" name="trace" value="hide" onclick="ChangedOption(this.name)" /> Hide traces </li>
+              <li><input type="text" name="bufsize" value="1000" size="4" onchange="ChangedOption(this.name)" /> Lines of scroll back buffer </li>
+              <li onclick="UpdateScrollback(99999)"> Limpiar todos los mensajes </li>
+            </ul>
+          </form>
+          <span class="symbol">&#x25A4;</span>
+        </div>
+        
+        <div id="rootconsole" class="tab" title="No status">
+          <span class="symbol"><!--&#x22A0;&nbsp;--></span>
+          <span>Consola</span>&nbsp;
+          <span class="normal"><span class="symbol"><!--&#x25CF;-->&#x25C9;</span></span>
+        </div>
+      </div>
+        
+      <div id="login">
+        <form name="credentials" onsubmit="Connect(); return false" action="#">
+          <div id="simulators">
+            <span>Por favor, seleccione el simulador:</span>
+            <p><input type="radio" name="simulator" value="address" />Simulador en <span>%address%</span> con región(s) </p>
+          </div>
+          <p>Servidor Host & Port: <input name="address" type="text" value="" /></p>
+          <p>Usuario: <input name="user" type="text" value="<!-- #call method=GetConsoleUser -->" /></p>
+          <p>Contraseña: <input name="password" type="password" value="<!-- #call method=GetConsolePass -->" /></p>
+          <input type="submit" value="Connect" class="button" />
+        </form>
+      </div>
+
+      <div id="messages">
+       <div id="configinfo">La consola de WiFi se vale de la consola REST de OpenSimulator para su correcto funcionamiento. Por ello, asegúrese que tanto el servidor Robust como los distintos simuladores que se utilicen han sido iniciados con el parametro  "-console =rest". Además, recuerde añadir en la secciones [Network] de los archivos de configuración, los parámetros "ConsoleUser" y "ConsolePass". Los valores que se les asigne a los mismos deben coincidir en todos ellos. Finalmente, si se trabaja en modo Grid, el parámetro "ConsoleAllowedOrigin" de la sección [Network] de los archivos de configuración de todos los simuladores de región, deben de encontrarse ajustados con el mismo valor que el parámetro "WebAddress" de la sección [WifiService] del archivo de configuración del servidor Robust.</div>
+        <div id="configerror" class="textlogo">¡Se ha recibido una respuesta errónea desde la consola remota! Por favor asegúrese que el servidor (Robust Server) y/o el simulador se encuentren configurados correctamente.</div>
+      </div>
+        
+      <div id="command">
+        <form name="command" onsubmit="Command(activeConsole, this.command.value); return false" action="#">
+          <div id="prompt" class="textlogo">Prompt</div>
+          <div class="inputstyle cmdinput">
+            <input name="command" type="text" value="Command" class="inputstyle" />
+          </div>
+          <input type="submit" value="Send" class="button" />
+          <input type="button" value="Disconnect" onclick="Disconnect()" class="button" />
+        </form>
+      </div>
+
+    </div>
