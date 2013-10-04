@@ -43,7 +43,6 @@ namespace Diva.OpenSimServices
     public class GroupsService : OpenSim.Groups.GroupsService, IGroupsService
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private static readonly string m_CastWarning = "[DivaData]: Invalid cast for GridUser store. Diva.Data required for method {0}.";
 
         public GroupsService(IConfigSource config)
             : base(config)

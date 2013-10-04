@@ -26,13 +26,14 @@
  */
 
 using System;
+using System.Reflection;
 
 using OpenSim.Data.MySQL;
 
 namespace Diva.Data.MySQL
 {
     /// <summary>
-    /// A SQLite Interface for the Inventory
+    /// A MySQL Interface for the Inventory
     /// </summary>
     public class MySQLXInventoryData : OpenSim.Data.MySQL.MySQLXInventoryData
     {
