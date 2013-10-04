@@ -170,6 +170,7 @@ namespace Diva.Wifi
             }
 
             AvatarData avatar = m_AvatarService.GetAvatar(account.PrincipalID);
+            
 
             if (avatar == null)
             {
@@ -191,7 +192,7 @@ namespace Diva.Wifi
                 {
                     if (_kvp.Value != null)
                     {
-                        string itemID = CreateItemFrom(_kvp.Value, newUser, defaultFolderID);
+                        string itemID = CreateItemFrom(_kvp.Key, _kvp.Value, newUser, defaultFolderID);
                         if (itemID != string.Empty)
                             attchs[_kvp.Key] = itemID;
                     }
@@ -248,24 +249,57 @@ namespace Diva.Wifi
             return defaultAvatarFolder.ID;
         }
 
-        private string CreateItemFrom(string itemID, UUID newUserID, UUID defaultFolderID)
+        private string CreateItemFrom(string key, string value, UUID newUserID, UUID defaultFolderID)
         {
             InventoryItemBase item = new InventoryItemBase();
             item.Owner = newUserID;
             InventoryItemBase retrievedItem = null;
             InventoryItemBase copyItem = null;
 
-            UUID uuid = UUID.Zero;
-            if (UUID.TryParse(itemID, out uuid))
+            if (key.Contains("Wearable"))
             {
-                item.ID = uuid;
-                retrievedItem = m_InventoryService.GetItem(item);
-                if (retrievedItem != null)
+                if (!value.Contains(':'))
+                    return String.Empty;
+            
+                string[] parts = new string[2];
+                parts = value.Split(new char[] { ':' });
+                if (parts.Length != 2)
+                    return String.Empty;
+
+                UUID uuid = UUID.Zero;
+                if (UUID.TryParse(parts[0], out uuid))
                 {
-                    copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
-                    m_InventoryService.AddItem(copyItem);
-                    return copyItem.ID.ToString();
+                    item.ID = uuid;
+                    retrievedItem = m_InventoryService.GetItem(item);
+                    if (retrievedItem != null)
+                    {
+                        copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
+                        m_InventoryService.AddItem(copyItem);
+                        return copyItem.ID.ToString() + ':' + retrievedItem.AssetID;
+                    }
                 }
+
+            }
+            else if (key.Contains("_ap_"))
+            {
+                string[] attachs = value.Split(new char[] { ',' });
+                UUID uuid;
+                List<String> attachids = new List<string>();
+                foreach (string s in attachs)
+                {
+                    if (UUID.TryParse(s, out uuid))
+                    {
+                        item.ID = uuid;
+                        retrievedItem = m_InventoryService.GetItem(item);
+                        if (retrievedItem != null)
+                        {
+                            copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
+                            m_InventoryService.AddItem(copyItem);
+                            attachids.Add(copyItem.ID.ToString());
+                        }
+                    }
+                }
+                return string.Join(",", attachids.ToArray());
             }
 
             return string.Empty;
