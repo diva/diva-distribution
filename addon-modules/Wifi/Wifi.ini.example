@@ -90,7 +90,11 @@
     ;;   more of the languages requested by a user.
     ; LogMissingTranslations = 0
 
-	WifiAddon_GridUserManagement = "Diva.GridUserManagement.dll"
+    ;; Who can upload IARs? Set the UserLevel of accounts in order to restrict
+    ;; this feature. Default is 0 (everyone can do it)
+    ; IARUserLevel = 0
+
+    WifiAddon_GridUserManagement = "Diva.GridUserManagement.dll"
 
 [GridService]
         StorageProvider = "Diva.Data.MySQL.dll"
