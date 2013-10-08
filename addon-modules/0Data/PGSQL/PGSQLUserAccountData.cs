@@ -38,7 +38,7 @@ using Npgsql;
 
 namespace Diva.Data.PGSQL
 {
-    public class PGSQLUserAccountData : OpenSim.Data.PGSQL.PGSqlUserAccountData, IUserAccountData
+    public class PGSQLUserAccountData : OpenSim.Data.PGSQL.PGSQLUserAccountData, IUserAccountData
     {
         private PGSQLGenericTableHandler<UserAccountData> m_DatabaseHandler;
 

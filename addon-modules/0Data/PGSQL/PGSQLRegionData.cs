@@ -39,7 +39,7 @@ namespace Diva.Data.PGSQL
     /// <summary>
     /// A RegionData Interface to the PGSQL database
     /// </summary>
-    public class PGSQLRegionData : OpenSim.Data.PGSQL.PGSqlRegionData, IRegionData
+    public class PGSQLRegionData : OpenSim.Data.PGSQL.PGSQLRegionData, IRegionData
     {
         protected override Assembly Assembly
         {

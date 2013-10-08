@@ -34,7 +34,7 @@ using OpenSim.Data.PGSQL;
 
 namespace Diva.Data.PGSQL
 {
-    public class PGSQLFriendsData : OpenSim.Data.PGSQL.PGSqlFriendsData
+    public class PGSQLFriendsData : OpenSim.Data.PGSQL.PGSQLFriendsData
     {
         protected override Assembly Assembly
         {

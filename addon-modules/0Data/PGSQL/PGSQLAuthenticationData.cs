@@ -38,7 +38,7 @@ using OpenSim.Data.PGSQL;
 
 namespace Diva.Data.PGSQL
 {
-    public class PGSQLAuthenticationData : OpenSim.Data.PGSQL.PGSqlAuthenticationData
+    public class PGSQLAuthenticationData : OpenSim.Data.PGSQL.PGSQLAuthenticationData
     {
         protected override Assembly Assembly
         {
