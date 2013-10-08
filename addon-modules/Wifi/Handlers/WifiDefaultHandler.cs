@@ -56,12 +56,17 @@ namespace Diva.Wifi
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private WebApp m_WebApp;
+        protected WebApp m_WebApp;
 
         public WifiDefaultHandler(WebApp webapp) :
                 base("GET", "/wifi")
         {
             m_WebApp = webapp;
+        }
+
+        public WifiDefaultHandler(string verb, string path) :
+            base(verb, path)
+        {
         }
 
         public override byte[] Handle(string path, Stream requestData,
@@ -133,5 +138,28 @@ namespace Diva.Wifi
             return string.Empty;
         }
         */
+    }
+
+    public class WifiHeadHandler : WifiDefaultHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static readonly byte[] m_EmptyBody = new byte[0];
+
+        public WifiHeadHandler(WebApp webapp) :
+            base("HEAD", "/wifi")
+        {
+            m_WebApp = webapp;
+        }
+
+        public override byte[] Handle(string path, Stream requestData,
+                                      IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
+        {
+            //m_log.DebugFormat("[Wifi]: HEAD request {0}", path);
+            byte[] result = base.Handle(path, requestData, httpRequest, httpResponse);
+            httpResponse.ContentLength = result.Length;
+            httpResponse.ContentLength64 = result.Length;
+            return m_EmptyBody;
+        }
     }
 }

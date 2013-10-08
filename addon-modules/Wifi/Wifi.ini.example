@@ -90,7 +90,12 @@
     ;;   more of the languages requested by a user.
     ; LogMissingTranslations = 0
 
-	WifiAddon_GridUserManagement = "Diva.GridUserManagement.dll"
+    ;; Who can upload IARs? Set the UserLevel of accounts in order to restrict
+    ;; this feature. Default is 0 (everyone can do it)
+    ; IARUserLevel = 0
+
+    ;; Ignore this. This addon is not available in the distribution of wifi
+    ; WifiAddon_GridUserManagement = "Diva.GridUserManagement.dll"
 
 [GridService]
         StorageProvider = "Diva.Data.MySQL.dll"
@@ -100,4 +105,4 @@
 ;; Robust.exe will not read any includes anyway, so you can copy this configuration
 ;; into your Robust.ini without any unwanted side effects.)
 ;;
-Include-WifiSQLite = config-include/storage/WifiSQLite.ini
+;Include-WifiSQLite = config-include/storage/WifiSQLite.ini

@@ -1,0 +1,442 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Diva.Wifi\n"
+"Report-Msgid-Bugs-To: marck00@nexgo.de\n"
+"POT-Creation-Date: 2010-12-09 18:39+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Sergio Melero Raya (Outback Abbot) <outbackabbot@gmail."
+"com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SearchPath-0: ..\n"
+
+# A default avatar type
+msgid "Female"
+msgstr "Femenino"
+
+# A default avatar type
+msgid "Male"
+msgstr "Masculino"
+
+# A default avatar type
+msgid "Neutral"
+msgstr "Neutro"
+
+# A default avatar type
+msgid "Default"
+msgstr "Por defecto"
+
+# Region owner name for hyperlinks owned by nobody.
+msgid "nobody"
+msgstr "nadie"
+
+# Inventory system folder
+msgid "My Inventory"
+msgstr "Mi inventario"
+
+# Inventory system folder
+msgid "My Outfits"
+msgstr "Mis Vestuarios"
+
+# Inventory system folder
+msgid "My Suitcase"
+msgstr "Mi maleta"
+
+# Inventory system folder
+msgid "Animations"
+msgstr "Animaciones"
+
+# Inventory system folder
+msgid "Body Parts"
+msgstr "Partes del cuerpo"
+
+# Inventory system folder
+msgid "Calling Cards"
+msgstr "Tarjetas de visita"
+
+# Inventory system folder and asset type
+msgid "Clothing"
+msgstr "Ropa"
+
+# Inventory system folder
+msgid "Current Outfit"
+msgstr "Vestuario actual"
+
+# Inventory system folder
+msgid "Favorites"
+msgstr "Favoritos"
+
+# Inventory system folder
+msgid "Gestures"
+msgstr "Gestos"
+
+# Inventory system folder
+msgid "Landmarks"
+msgstr "Hitos"
+
+# Inventory system folder
+msgid "Lost And Found"
+msgstr "Objetos perdidos"
+
+# Inventory system folder
+msgid "Notecards"
+msgstr "Notas"
+
+# Inventory system folder
+msgid "Objects"
+msgstr "Objetos"
+
+# Inventory system folder
+msgid "Photo Album"
+msgstr "Álbum de fotos"
+
+# Inventory system folder
+msgid "Scripts"
+msgstr "Scripts"
+
+# Inventory system folder
+msgid "Sounds"
+msgstr "Sonidos"
+
+# Inventory system folder
+msgid "Textures"
+msgstr "Texturas"
+
+# Inventory system folder
+msgid "Trash"
+msgstr "Papelera"
+
+# Asset type
+msgid "Unknown"
+msgstr "Desconocido"
+
+# Asset type
+msgid "Texture"
+msgstr "Textura"
+
+# Asset type
+msgid "Sound"
+msgstr "Sonido"
+
+# Asset type
+msgid "CallingCard"
+msgstr "Tarjetas de visita"
+
+# Asset type
+msgid "Landmark"
+msgstr "Hito"
+
+# Asset type
+msgid "Object"
+msgstr "Objeto"
+
+# Asset type
+msgid "Notecard"
+msgstr "Nota"
+
+# Asset type
+msgid "Folder"
+msgstr "Carpeta"
+
+# Asset type
+msgid "RootFolder"
+msgstr "Carpeta Root"
+
+# Asset type
+msgid "LSLText"
+msgstr "Texto LSL"
+
+# Asset type
+msgid "LSLBytecode"
+msgstr "LSL Bytecode"
+
+# Asset type
+msgid "TextureTGA"
+msgstr "Textura TGA"
+
+# Asset type
+msgid "Bodypart"
+msgstr "Parte del cuerpo"
+
+# Asset type
+msgid "TrashFolder"
+msgstr "Carpeta Papelera"
+
+# Asset type
+msgid "SnapshotFolder"
+msgstr "Carpeta Capturas"
+
+# Asset type
+msgid "LostAndFoundFolder"
+msgstr "Carpeta Objetos Perdidos"
+
+# Asset type
+msgid "SoundWAV"
+msgstr "Sonido WAV"
+
+# Asset type
+msgid "ImageTGA"
+msgstr "Imagen TGA"
+
+# Asset type
+msgid "ImageJPEG"
+msgstr "Imagen JPEG"
+
+# Asset type
+msgid "Animation"
+msgstr "Animación"
+
+# Asset type
+msgid "Gesture"
+msgstr "Gestos"
+
+# Asset type
+msgid "Simstate"
+msgstr "Estado del sim"
+
+# Asset type
+msgid "FavoriteFolder"
+msgstr "CarpetaFavoritos"
+
+# Asset type
+msgid "Link"
+msgstr "Vinculo"
+
+# Asset type
+msgid "LinkFolder"
+msgstr "Carpeta Vinculos"
+
+# Asset type
+msgid "EnsembleStart"
+msgstr ""
+
+# Asset type
+msgid "EnsembleEnd"
+msgstr ""
+
+# Asset type
+msgid "CurrentOutfitFolder"
+msgstr "Carpeta Vestuario Actual"
+
+# Asset type
+msgid "OutfitFolder"
+msgstr "Carpeta Vestuario"
+
+# Asset type
+msgid "MyOutfitsFolder"
+msgstr "Carpeta Mis Vestuarios"
+
+# Asset type
+msgid "Mesh"
+msgstr "Mesh"
+
+# Button Label
+#: ../ExtensionMethods.cs:155
+msgid "delete"
+msgstr "Eliminar"
+
+#: ../WebApp/Services.ChangeUserAccount.cs:105
+msgid "Your account has been updated."
+msgstr "Su cuenta ha sido actualizada."
+
+# {0} is an error message
+#: ../WebApp/Services.Hyperlinks.cs:91
+#, csharp-format
+msgid "Failed to link region: {0}"
+msgstr "No se ha podido crear el vinculo con la región: {0}"
+
+#: ../WebApp/Services.Hyperlinks.cs:93
+#, csharp-format
+msgid ""
+"Region link to {0} established. (If this link already existed, then it will "
+"remain at the original location.)"
+msgstr ""
+"Se ha establecido el vinculo con la región {0} (Si el vinculo ya existe, "
+"permanecerá entonces en la ubicación original.)"
+
+#: ../WebApp/Services.Hyperlinks.cs:96
+msgid "Invalid region address."
+msgstr "Dirección de la región invalida."
+
+#: ../WebApp/Services.Hyperlinks.cs:144 ../WebApp/Services.Hyperlinks.cs:190
+msgid "Region link not found."
+msgstr "Vinculo con la región no encontrado."
+
+#: ../WebApp/Services.Hyperlinks.cs:175
+#, csharp-format
+msgid "Deleted region link {0}."
+msgstr "Vinculo con la región {0} eliminado."
+
+#: ../WebApp/Services.Hyperlinks.cs:179
+#, csharp-format
+msgid "Deletion of region link {0} failed."
+msgstr "No se ha podido eliminar el vinculo con la región {0}"
+
+#: ../WebApp/Services.Install.cs:64
+#, csharp-format
+msgid "Your Wifi has been installed. The administrator account is {0} {1}"
+msgstr ""
+"Su Wifi se ha instalado con éxito. La cuenta de administrador es {0} {1}"
+
+#: ../WebApp/Services.Inventory.cs:52
+msgid "Loading your inventory, please wait"
+msgstr "Cargando su inventario, por favor espere"
+
+#: ../WebApp/Services.Inventory.cs:53
+msgid ""
+"If your browser does not automatically load the next page, then use the "
+"button, please."
+msgstr ""
+"Por favor, use este botón si su navegador no carga automáticamente la "
+"siguiente pagina."
+
+# Button label
+#: ../WebApp/Services.Inventory.cs:54
+msgid "continue"
+msgstr "continuar"
+
+#: ../WebApp/Services.LoginLogout.cs:57
+msgid "Login failed."
+msgstr "Error de inicio de sesión."
+
+# {0} is the grid name
+#: ../WebApp/Services.LoginLogout.cs:74
+#, csharp-format
+msgid "Welcome to {0}!"
+msgstr "¡Bienvenido a {0}!"
+
+#: ../WebApp/Services.NewAccount.cs:95
+msgid "Your account has been created."
+msgstr "Su cuenta ha sido creada."
+
+# Admin email message: {0} {1} is the avatar name, {2} is the grid name.
+#: ../WebApp/Services.NewAccount.cs:110
+#, csharp-format
+msgid "New account {0} {1} created in {2} is awaiting your approval."
+msgstr "Nueva cuenta {0} {1} creada en {2} esta esperando su aprobación. "
+
+# Admin email subject
+#: ../WebApp/Services.NewAccount.cs:116
+msgid "Account awaiting approval"
+msgstr "Cuenta pendiente de aprobación"
+
+#: ../WebApp/Services.NewAccount.cs:118
+msgid "Your account awaits administrator approval."
+msgstr ""
+"Su cuenta  se encuentra pendiente de aprobación por parte del administrador."
+
+# Inventory folder name
+#: ../WebApp/Services.NewAccount.cs:173
+msgid "Default Avatar"
+msgstr "Avatar por defecto"
+
+# Button label
+#: ../WebApp/Services.Notify.cs:58
+msgid "OK"
+msgstr ""
+
+# Email message. {0} {1} is the avatar name.
+#: ../WebApp/Services.PasswordRecovery.cs:78
+#, csharp-format
+msgid "Your account is {0} {1}"
+msgstr "Su cuenta es {0} {1}"
+
+# Email message
+#: ../WebApp/Services.PasswordRecovery.cs:79
+msgid "Click here to reset your password:"
+msgstr "Haga clic aquí para restablecer su contraseña:"
+
+# Email subject.
+#: ../WebApp/Services.PasswordRecovery.cs:81
+msgid "Password Reset"
+msgstr "Restablecer Contraseña"
+
+#: ../WebApp/Services.PasswordRecovery.cs:82
+msgid "Check your email. You must reset your password within 60 minutes."
+msgstr ""
+"Revise su correo electrónico. Debe restablecer su contraseña en 60 minutos."
+
+#: ../WebApp/Services.PasswordRecovery.cs:84
+msgid "Email could not be sent."
+msgstr "El correo electrónico no se ha podido enviar."
+
+#: ../WebApp/Services.PasswordRecovery.cs:107
+msgid "Invalid token."
+msgstr ""
+
+#: ../WebApp/Services.PasswordRecovery.cs:120
+msgid "Your password has been reset."
+msgstr "Su contraseña se ha restablecido."
+
+#: ../WebApp/Services.UserManagement.cs:135
+#: ../WebApp/Services.UserManagement.cs:168
+msgid "The account has been updated."
+msgstr "La cuenta se ha actualizado."
+
+#: ../WebApp/Services.UserManagement.cs:140
+#: ../WebApp/Services.UserManagement.cs:173
+msgid "The account does not exist."
+msgstr "La cuenta no existe."
+
+#: ../WebApp/Services.UserManagement.cs:196
+msgid "The account has been activated."
+msgstr "La cuenta ha sido activada."
+
+# Email message
+#: ../WebApp/Services.UserManagement.cs:238
+msgid "Your account has been activated."
+msgstr "Su cuenta ha sido activada."
+
+# Email message
+#: ../WebApp/Services.UserManagement.cs:239
+msgid "First name:"
+msgstr "Nombre:"
+
+# Email message
+#: ../WebApp/Services.UserManagement.cs:240
+msgid "Last name:"
+msgstr "Apellido:"
+
+# Email message
+#: ../WebApp/Services.UserManagement.cs:241
+msgid "LoginURI:"
+msgstr "LoginURI:"
+
+# Email subject.
+#: ../WebApp/Services.UserManagement.cs:242
+msgid "Account activated"
+msgstr "Cuenta activada"
+
+#: ../WebApp/Services.UserManagement.cs:297
+msgid "The account has been deleted."
+msgstr "La cuenta ha sido eliminada."
+
+#: ../WebApp/Services.UserManagement.cs:302
+msgid "Unable to delete account because it does not exist."
+msgstr "No se puede eliminar la cuenta, ya que no existe."
+
+#: ../WebApp/WifiScriptFace.cs:283 ../WebApp/WifiScriptFace.cs:297
+msgid "Who are you?"
+msgstr "¿Quien eres?"
+
+#: ../WebApp/WifiScriptFace.cs:292
+msgid "No email on file"
+msgstr "Ningún correo electrónico en el archivo"
+
+#: ../WebApp/WifiScriptFace.cs:345
+msgid "No linked regions found"
+msgstr "No se encuentran regiones vinculadas"
+
+#: ../WebApp/WifiScriptFace.cs:369
+msgid "No users found"
+msgstr "No se encontraron usuarios"
+
+#: ../WebApp/WifiScriptFace.cs:377
+msgid "No regions found"
+msgstr "No se encontraron regiones"

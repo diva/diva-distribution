@@ -55,6 +55,7 @@ using Diva.Wifi.WifiScript;
 using Environment = Diva.Utils.Environment;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
 using Request = Diva.Utils.Request;
+using AssetService = OpenSim.Services.AssetService.AssetService;
 
 using Diva.OpenSimServices;
 using Diva.Interfaces;
@@ -73,6 +74,7 @@ namespace Diva.Wifi
         private UserAccountService m_UserAccountService;
         private PasswordAuthenticationService m_AuthenticationService;
         private InventoryService m_InventoryService;
+        private IAssetService m_AssetService;
         private GridService m_GridService;
         private GridUserService m_GridUserService;
         private IAvatarService m_AvatarService;
@@ -100,6 +102,7 @@ namespace Diva.Wifi
             m_UserAccountService = new UserAccountService(config);
             m_AuthenticationService = new PasswordAuthenticationService(config);
             m_InventoryService = new InventoryService(config);
+            m_AssetService = new AssetService(config);
             m_GridService = new GridService(config);
             m_GridUserService = new GridUserService(config);
             m_AvatarService = new AvatarService(config);
@@ -242,8 +245,8 @@ namespace Diva.Wifi
                         m_log.DebugFormat("[Wifi]: Unable o parse sid {0}", request.Query["sid"].ToString());
                 }
             }
-            else
-                m_log.DebugFormat("[Wifi]: no sid in Query");
+            //else
+            //    m_log.DebugFormat("[Wifi]: no sid in Query");
 
             return success;
         }

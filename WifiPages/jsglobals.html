@@ -10,4 +10,9 @@ var usersCreationForm = '<form name="upload-users" action="/wifi/admin/gridusers
                               '<input type="submit" class="button" value="Upload" />' +
                          '</form>';
 
+var loadIARForm = '<form name="load-iar" action="/wifi/user/inventory/upload" onsubmit="return checkExtension(\'iar\');" enctype="multipart/form-data" method="post">' +
+                              'Choose IAR File: <input type="file" name="datafile" size="40" accept=".iar"/></br>' +
+                              '<input type="submit" class="button" value="Upload" />' +
+                         '</form>';
+
 </script>

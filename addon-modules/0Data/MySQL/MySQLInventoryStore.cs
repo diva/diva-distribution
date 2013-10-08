@@ -33,7 +33,7 @@ using OpenSim.Data.MySQL;
 namespace Diva.Data.MySQL
 {
     /// <summary>
-    /// An Inventory Interface to the SQLite database
+    /// An Inventory Interface to the MySQL database
     /// </summary>
     public class MySQLInventoryStore : OpenSim.Data.MySQL.MySQLInventoryData
     {

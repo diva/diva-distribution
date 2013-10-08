@@ -145,6 +145,12 @@ namespace Diva.Wifi
             get { return m_ConsolePass; }
         }
 
+        private int m_IARUserLevel = 0;
+        public int IARUserLevel
+        {
+            get { return m_IARUserLevel; }
+        }
+
         private StatisticsDict m_Statistics;
         public StatisticsDict Statistics
         {
@@ -310,6 +316,8 @@ namespace Diva.Wifi
             m_LocalizationCachingPeriod = TimeSpan.FromHours(Math.Abs(appConfig.GetDouble("LocalizationCachingPeriod", 0.0)));
             m_LogMissingTranslations = (short)appConfig.GetInt("LogMissingTranslations", 1);
 
+            m_IARUserLevel = appConfig.GetInt("IARUserLevel", 0);
+
             // Read list of default avatars and their account names
             const string avatarParamPrefix = "AvatarAccount_";
             IEnumerable<string> avatars = appConfig.GetKeys().Where(avatar => avatar.StartsWith(avatarParamPrefix));
@@ -415,7 +423,6 @@ namespace Diva.Wifi
         {
             if (typeof(T) == typeof(ISceneActor))
             {
-                m_log.DebugFormat("[XXX]: SceneActor requested {0}", (m_SceneActor == null ? "null" : "not null"));
                 return (T)m_SceneActor;
             }
 

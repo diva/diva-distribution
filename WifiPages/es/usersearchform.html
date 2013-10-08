@@ -1,0 +1,14 @@
+  <p>Recuperar usuarios</p>
+  <ul>
+    <li>Introduzca un carácter de espacio para obtener un listado de todas las cuentas.</li>
+    <li>Para utilizar otros términos de búsqueda, estos deben de tener un mínimo de 3 caracteres.</li>
+    <li>Puede utilizar búsquedas en mayúsculas o minúsculas siempre que ambos términos, se encuentren separados mediante un carácter de espacio.</li>
+  </ul>
+  <form action="/wifi/admin/users" method="post">
+  <p class="bodytext"> 
+    <input name="terms" type="text" class="inputstyle" />&nbsp;
+    <input type="submit" value="search" class="button" />
+  </p>
+  </form>
+
+  <!-- #call method=GetPendingUserList --> 
