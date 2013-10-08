@@ -1,0 +1,43 @@
+<!-- Diva.Data.PGSQL -->
+<Project frameworkVersion="v3_5" name="Diva.Data.PGSQL" path="addon-modules/0Data/PGSQL" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../../bin/</ReferencePath>
+  <Reference name="System"/>
+  <Reference name="System.Core"/>
+  <Reference name="System.Data"/>
+  <Reference name="System.Web"/>
+  <Reference name="System.Xml"/>
+
+  <Reference name="Nini" path="../../../bin/"/>
+  <Reference name="Mono.Addins" path="../../../bin/"/>
+  <Reference name="Npgsql" path="../../../bin/"/>
+  <Reference name="log4net" path="../../../bin/"/>
+  <Reference name="OpenMetaverse" path="../../../bin/"/>
+  <Reference name="OpenMetaverseTypes" path="../../../bin/"/>
+
+  <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Data"/>
+  <Reference name="OpenSim.Data.PGSQL"/>
+  <Reference name="OpenSim.Region.Framework"/>
+
+  <Reference name="Diva.Data"/>
+
+  <Files>
+    <Match pattern="*.cs" recurse="true">
+      <Exclude pattern="Tests" />
+    </Match>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.sql"/>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.migrations"/>
+    <Match buildAction="EmbeddedResource" path="Resources" pattern="*.addin.xml" recurse="true"/>
+  </Files>
+</Project>
