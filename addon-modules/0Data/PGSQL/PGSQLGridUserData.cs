@@ -49,28 +49,28 @@ namespace Diva.Data.PGSQL
         public PGSQLGridUserData(string connectionString, string realm)
                 : base(connectionString, realm)
         {
-            m_DatabaseHandler = new PGSQLGenericTableHandler<GridUserData>(connectionString, realm, "GridUserStore");
+            m_DatabaseHandler = new Diva.Data.PGSQL.PGSQLGenericTableHandler<GridUserData>(connectionString, realm, "GridUserStore");
         }
 
         public GridUserData[] GetOnlineUsers()
         {
-            return m_DatabaseHandler.Get("Online", true.ToString());
+            return m_DatabaseHandler.Get("Online", "'true'");
         }
 
         public long GetOnlineUserCount()
         {
-            return m_DatabaseHandler.GetCount("Online", true.ToString());
+            return m_DatabaseHandler.GetCount("Online", "'true'");
         }
 
         public long GetActiveUserCount(int period)
         {
-            return m_DatabaseHandler.GetCount(string.Format(" \"Online\" = {0} OR Date_Part('day', now()-to_timestamp(Logout)) <= {1}", "true", period));
+            return m_DatabaseHandler.GetCount(string.Format(" \"Online\" = '{0}' OR Date_Part('day', now()-to_timestamp(cast(\"Logout\" as double precision))) <= {1}", "true", period));
         }
 
         public GridUserData[] GetUsers(string pattern)
         {
             if (string.IsNullOrEmpty(pattern) || pattern.Trim().Length == 0)
-                pattern = "1 ORDER BY \"UserID\" ";
+                pattern = " ORDER BY \"UserID\" ";
             else
                 pattern = string.Format(" \"UserID\" LIKE '%{0}%' ORDER BY \"UserID\" ", pattern);
 
@@ -91,7 +91,7 @@ namespace Diva.Data.PGSQL
         {
             using (NpgsqlCommand cmd = new NpgsqlCommand())
             {
-                cmd.CommandText = String.Format("update {0} set \"Online\"=False ", m_Realm);
+                cmd.CommandText = String.Format("update {0} set \"Online\"='False' ", m_Realm);
                 ExecuteNonQuery(cmd);
             }
         }
