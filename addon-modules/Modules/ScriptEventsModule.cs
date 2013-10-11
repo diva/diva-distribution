@@ -67,9 +67,11 @@ namespace Diva.Modules
 
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private Scene m_Scene;
-        private Dictionary<VOEvents, List<UUID>> m_EventSubscribers = new Dictionary<VOEvents, List<UUID>>();
+        private static Dictionary<string, List<UUID>> m_SimEventSubscribers = new Dictionary<string, List<UUID>>();
+        private Dictionary<string, List<UUID>> m_EventSubscribers = new Dictionary<string, List<UUID>>();
 
         private IScriptModuleComms m_ScriptComms;
+        private static List<IScriptModuleComms> m_ScriptModules = new List<IScriptModuleComms>();
 
         #endregion
 
@@ -103,7 +105,10 @@ namespace Diva.Modules
         {
             m_ScriptComms = scene.RequestModuleInterface<IScriptModuleComms>();
             if (m_ScriptComms != null)
+            {
                 m_ScriptComms.OnScriptCommand += OnScriptCommand;
+                m_ScriptModules.Add(m_ScriptComms);
+            }
         }
 
         public void RemoveRegion(Scene scene)
@@ -138,41 +143,41 @@ namespace Diva.Modules
                 = input.Split(new char[] { '|' }, StringSplitOptions.None);
 
             string command = tokens[0];
-            if (command == "subscribe" && tokens.Length >= 2)
+            string event_name = string.Empty;
+            Dictionary<string, List<UUID>> theDict = null;
+            if ((command == "subscribe" || command == "sim-subscribe") && tokens.Length >= 2)
             {
-                string event_name = tokens[1];
-                try
+                event_name = tokens[1];
+
+                if (command == "subscribe")
+                    theDict = m_EventSubscribers;
+                else
+                    theDict = m_SimEventSubscribers;
+
+                List<UUID> subs;
+                if (theDict.ContainsKey(event_name))
+                    subs = theDict[event_name];
+                else
                 {
-                    VOEvents e = (VOEvents)Enum.Parse(typeof(VOEvents), event_name);
-                    List<UUID> subs;
-                    if (m_EventSubscribers.ContainsKey(e))
-                        subs = m_EventSubscribers[e];
-                    else
-                    {
-                        subs = new List<UUID>();
-                        m_EventSubscribers.Add(e, subs);
-                    }
-                    if (!subs.Contains(scriptId))
-                        subs.Add(scriptId);
+                    subs = new List<UUID>();
+                    theDict.Add(event_name, subs);
                 }
-                catch (Exception)
-                {
-                    m_log.DebugFormat("[Diva.ScriptEvents]: event name {0} not recognized", event_name);
-                }
+                if (!subs.Contains(scriptId))
+                    subs.Add(scriptId);
             }
             else if (command == "unsubscribe" && tokens.Length >= 2)
             {
-                string event_name = tokens[1];
-                try
-                {
-                    VOEvents e = (VOEvents)Enum.Parse(typeof(VOEvents), event_name);
-                    if (m_EventSubscribers.ContainsKey(e) && m_EventSubscribers[e].Contains(scriptId))
-                        m_EventSubscribers[e].Remove(scriptId); ;
-                }
-                catch (Exception)
-                {
-                    m_log.DebugFormat("[Diva.ScriptEvents]: event name {0} not recognized", event_name);
-                }
+                event_name = tokens[1];
+                if (m_EventSubscribers.ContainsKey(event_name) && m_EventSubscribers[event_name].Contains(scriptId))
+                    m_EventSubscribers[event_name].Remove(scriptId); 
+
+                if (m_SimEventSubscribers.ContainsKey(event_name) && m_SimEventSubscribers[event_name].Contains(scriptId))
+                    m_SimEventSubscribers[event_name].Remove(scriptId); 
+            }
+            else if (command == "publish" && tokens.Length >= 2)
+            {
+                event_name = tokens[1];
+                Publish(event_name, tokens.Length >= 3 ? tokens.Skip(2).ToArray() : null, string.Empty);
             }
         }
 
@@ -184,23 +189,32 @@ namespace Diva.Modules
         /// <param name="sp"></param>
         void OnMakeRootAgent(ScenePresence sp)
         {
-            //sp.ControllingClient.OnAddPrim += ControllingClient_OnAddPrim;
-            if (m_EventSubscribers.ContainsKey(VOEvents.AvatarArrived) && m_EventSubscribers[VOEvents.AvatarArrived].Count > 0)
-            {
-                Util.FireAndForget(delegate
-                {
-                    bool localTP = ((sp.TeleportFlags & Constants.TeleportFlags.ViaHGLogin) == 0);
-                    List<UUID> subs = m_EventSubscribers[VOEvents.AvatarArrived];
-                    foreach (UUID script in subs)
-                        m_ScriptComms.DispatchReply(script, 0, "event|" + VOEvents.AvatarArrived + "|" + localTP, sp.UUID.ToString());
-                });
-            }
+            string event_name = VOEvents.AvatarArrived.ToString();
+            bool localTP = ((sp.TeleportFlags & Constants.TeleportFlags.ViaHGLogin) == 0);
+
+            Publish(event_name, new string[] { localTP.ToString() }, sp.UUID.ToString());
+
+            //if (m_EventSubscribers.ContainsKey(event_name) && m_EventSubscribers[event_name].Count > 0)
+            //{
+            //    Util.FireAndForget(delegate
+            //    {
+            //        foreach (UUID script in m_EventSubscribers[event_name])
+            //            m_ScriptComms.DispatchReply(script, 0, "event|" + event_name + "|" + localTP, sp.UUID.ToString());
+            //    });
+            //}
+
+            //if (m_SimEventSubscribers.ContainsKey(event_name) && m_SimEventSubscribers[event_name].Count > 0)
+            //{
+            //    Util.FireAndForget(delegate
+            //    {
+            //        foreach (IScriptModuleComms m in m_ScriptModules)
+            //            foreach (UUID script in m_SimEventSubscribers[event_name])
+            //                m_ScriptComms.DispatchReply(script, 0, "event|" + event_name + "|" + localTP, sp.UUID.ToString());
+            //    });
+            //}
+
         }
 
-        //void ControllingClient_OnAddPrim(UUID ownerID, UUID groupID, Vector3 RayEnd, Quaternion rot, PrimitiveBaseShape shape, byte bypassRaycast, Vector3 RayStart, UUID RayTargetID, byte RayEndIsIntersection)
-        //{
-        //    m_log.DebugFormat("[Diva.ScriptEvents]: User {0} added a prim", ownerID);
-        //}
 
         /// <summary>
         /// Emits events of the kind event|LastAvatarLeft
@@ -210,7 +224,8 @@ namespace Diva.Modules
             if (scene != m_Scene)
                 return;
 
-            if (m_EventSubscribers.ContainsKey(VOEvents.LastAvatarLeft) && m_EventSubscribers[VOEvents.LastAvatarLeft].Count > 0)
+            string event_name = VOEvents.LastAvatarLeft.ToString();
+            if (m_EventSubscribers.ContainsKey(event_name) && m_EventSubscribers[event_name].Count > 0)
             {
                 bool no_avies = true;
                 List<ScenePresence> presences = m_Scene.GetScenePresences();
@@ -221,17 +236,43 @@ namespace Diva.Modules
                             break;
                         }
                     if (no_avies)
-                        Util.FireAndForget(delegate
-                        {
-                            List<UUID> subs = m_EventSubscribers[VOEvents.LastAvatarLeft];
-                            foreach (UUID script in subs)
-                                m_ScriptComms.DispatchReply(script, 0, "event|" + VOEvents.LastAvatarLeft, "");
-                        });
+                        Publish(event_name, null, "");
+                        //Util.FireAndForget(delegate
+                        //{
+                        //    List<UUID> subs = m_EventSubscribers[event_name];
+                        //    foreach (UUID script in subs)
+                        //        m_ScriptComms.DispatchReply(script, 0, "event|" + event_name, "");
+                        //});
             }
         }
 
 
         #endregion
 
+        private void Publish(string event_name, string[] args, string key)
+        {
+            if (m_EventSubscribers.ContainsKey(event_name) && m_EventSubscribers[event_name].Count > 0)
+            {
+                Util.FireAndForget(delegate
+                {
+                    string message = "event|" + event_name + 
+                            ((args != null && args.Length > 0) ? "|" + string.Join("|", args) : string.Empty);
+                    foreach (UUID script in m_EventSubscribers[event_name])
+                        m_ScriptComms.DispatchReply(script, 0, message, key);
+                });
+            }
+
+            if (m_SimEventSubscribers.ContainsKey(event_name) && m_SimEventSubscribers[event_name].Count > 0)
+            {
+                Util.FireAndForget(delegate
+                {
+                    string message = "event|" + event_name +
+                            ((args != null && args.Length > 0) ? "|" + string.Join("|", args) : string.Empty);
+                    foreach (IScriptModuleComms m in m_ScriptModules)
+                        foreach (UUID script in m_SimEventSubscribers[event_name])
+                            m.DispatchReply(script, 0, message, key);
+                });
+            }
+        }
     }
 }
