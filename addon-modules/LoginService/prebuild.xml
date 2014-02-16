@@ -1,5 +1,5 @@
 <!-- Diva.LoginService -->
-<Project frameworkVersion="v3_5" name="Diva.LoginService" path="addon-modules/LoginService" type="Library">
+<Project frameworkVersion="v4_0" name="Diva.LoginService" path="addon-modules/LoginService" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
