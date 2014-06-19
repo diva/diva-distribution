@@ -166,45 +166,47 @@ namespace Diva.Wifi
             {
                 m_UserAccountService.CreateDefaultAppearanceEntries(newUser);
                 m_log.WarnFormat("[Wifi]: Tried to get avatar of account {0} {1} but that account does not exist", parts[0], parts[1]);
-                return;
-            }
-
-            AvatarData avatar = m_AvatarService.GetAvatar(account.PrincipalID);
-            
-
-            if (avatar == null)
-            {
-                m_log.WarnFormat("[Wifi]: Avatar of account {0} {1} is null", parts[0], parts[1]);
-                return;
-            }
-
-            m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
-
-            // Get and replicate the attachments
-            // and put them in a folder named after the avatar type under Clothing
-            string folderName = _("Default Avatar", env) + " " + _(defaultAvatar.PrettyType, env);
-            UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, folderName.Trim());
-
-            if (defaultFolderID != UUID.Zero)
-            {
-                Dictionary<string, string> attchs = new Dictionary<string, string>();
-                foreach (KeyValuePair<string, string> _kvp in avatar.Data)
-                {
-                    if (_kvp.Value != null)
-                    {
-                        string itemID = CreateItemFrom(_kvp.Key, _kvp.Value, newUser, defaultFolderID);
-                        if (itemID != string.Empty)
-                            attchs[_kvp.Key] = itemID;
-                    }
-                }
-
-                foreach (KeyValuePair<string, string> _kvp in attchs)
-                    avatar.Data[_kvp.Key] = _kvp.Value;
-
-                m_AvatarService.SetAvatar(newUser, avatar);
             }
             else
-                m_log.Debug("[Wifi]: could not create folder " + folderName);
+            {
+                AvatarData avatar = m_AvatarService.GetAvatar(account.PrincipalID);
+
+                if (avatar == null)
+                {
+                    m_log.WarnFormat("[Wifi]: Avatar of account {0} {1} is null", parts[0], parts[1]);
+                    m_UserAccountService.CreateDefaultAppearanceEntries(newUser);
+                }
+                else
+                {
+                    m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
+
+                    // Get and replicate the attachments
+                    // and put them in a folder named after the avatar type under Clothing
+                    string folderName = _("Default Avatar", env) + " " + _(defaultAvatar.PrettyType, env);
+                    UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, folderName.Trim());
+
+                    if (defaultFolderID != UUID.Zero)
+                    {
+                        Dictionary<string, string> attchs = new Dictionary<string, string>();
+                        foreach (KeyValuePair<string, string> _kvp in avatar.Data)
+                        {
+                            if (_kvp.Value != null)
+                            {
+                                string itemID = CreateItemFrom(_kvp.Key, _kvp.Value, newUser, defaultFolderID);
+                                if (itemID != string.Empty)
+                                    attchs[_kvp.Key] = itemID;
+                            }
+                        }
+
+                        foreach (KeyValuePair<string, string> _kvp in attchs)
+                            avatar.Data[_kvp.Key] = _kvp.Value;
+
+                        m_AvatarService.SetAvatar(newUser, avatar);
+                    }
+                    else
+                        m_log.Debug("[Wifi]: could not create folder " + folderName);
+                }
+            }
 
             // Set home and last location for new account
             // Config setting takes precedence over home location of default avatar
@@ -212,7 +214,7 @@ namespace Diva.Wifi
             UUID homeRegion = Avatar.HomeRegion;
             Vector3 position = Avatar.HomeLocation;
             Vector3 lookAt = new Vector3();
-            if (homeRegion == UUID.Zero)
+            if (homeRegion == UUID.Zero && account != null)
             {
                 GridUserInfo userInfo = m_GridUserService.GetGridUserInfo(account.PrincipalID.ToString());
                 if (userInfo != null)
