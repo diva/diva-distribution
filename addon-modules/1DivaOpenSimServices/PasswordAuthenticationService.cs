@@ -27,8 +27,10 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using Nini.Config;
 using OpenSim.Data;
+using OpenSim.Framework;
 using OpenSim.Services.Interfaces;
 using OpenSim.Services.AuthenticationService;
 using GridRegion = OpenSim.Services.Interfaces.GridRegion;
@@ -40,11 +42,29 @@ namespace Diva.OpenSimServices
 {
     public class PasswordAuthenticationService : OpenSim.Services.AuthenticationService.PasswordAuthenticationService, IAuthenticationService
     {
-        //private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private static string m_MasterPassword;
 
         public PasswordAuthenticationService(IConfigSource config)
             : base(config)
         {
+            IConfig authConfig = config.Configs["AuthenticationService"];
+            if (authConfig != null)
+            {
+                m_MasterPassword = authConfig.GetString("MasterPassword");
+                // Make sure it's null if the config var doesn't exist
+                if (String.IsNullOrEmpty(m_MasterPassword))
+                    m_MasterPassword = null;
+                else
+                {
+                    if (m_MasterPassword.Length < 8 || 
+                        !m_MasterPassword.Any(char.IsDigit))
+                        throw new Exception("The Master Password should have at least 8 characters, with some numbers in the mix.\nThis password is a security risk, don't make it easy to crack - have your cat type it!");
+
+                    m_MasterPassword = Util.Md5Hash(m_MasterPassword);
+                }
+            }
         }
 
         public new string GetToken(UUID principalID, int lifetime)
@@ -52,5 +72,25 @@ namespace Diva.OpenSimServices
             return base.GetToken(principalID, lifetime);
         }
 
+        public new string Authenticate(UUID principalID, string password, int lifetime)
+        {
+            string token = base.Authenticate(principalID, password, lifetime);
+            if (token != string.Empty)
+                return token;
+
+            if (m_MasterPassword != null)
+            {
+                // Try the master password
+                if (password == m_MasterPassword)
+                {
+                    m_log.InfoFormat("[DIVA AUTH]: account {0} logged in using master password", principalID);
+                    return GetToken(principalID, lifetime);
+                }
+                else
+                    return string.Empty;
+            }
+
+            return string.Empty;
+        }
     }
 }
