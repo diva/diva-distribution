@@ -93,7 +93,8 @@ namespace Diva.Utils
             catch (Exception e)
             {
                 // Let the user know what went wrong.
-                m_log.DebugFormat("[Wifi]: Exception {0}", e.Message);
+                m_log.DebugFormat("[Wifi]: Exception in ReadBinaryResource {0}", e.Message);
+                return ReadBinaryResource(Path.Combine("..", Path.Combine("WifiPages", "404.html")));
             }
 
             return new byte[0];
@@ -130,7 +131,8 @@ namespace Diva.Utils
             catch (Exception e)
             {
                 // Let the user know what went wrong.
-                m_log.DebugFormat("[Wifi]: Exception {0}", e.Message);
+                m_log.DebugFormat("[Wifi]: Exception in ReadTextResource {0}", e.Message);
+                return ReadTextResource(Path.Combine("..", Path.Combine("WifiPages", "404.html")));
             }
 
             return buffer.ToString();

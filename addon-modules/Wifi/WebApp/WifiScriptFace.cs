@@ -229,7 +229,6 @@ namespace Diva.Wifi
                     if (env.State == State.GroupDeleteForm)
                         return m_WebApp.ReadFile(env, "groupdeleteform.html", env.Data);
 
-
                 }
             }
             else // try the addons

@@ -33,9 +33,12 @@ using OpenMetaverse;
 
 using OpenSim.Services.Interfaces;
 using OpenSim.Framework;
+using OpenSim.Groups;
 
 using Diva.Utils;
 using Environment = Diva.Utils.Environment;
+using Diva.OpenSimServices;
+using GroupsService = Diva.OpenSimServices.GroupsService;
 
 namespace Diva.Wifi
 {
@@ -53,7 +56,7 @@ namespace Diva.Wifi
                 env.Session = sinfo;
                 env.Flags = Flags.IsLoggedIn | Flags.IsAdmin;
                 env.State = State.GroupsList;
-                env.Data = GetGroupsList(env, m_PendingIdentifier);
+                env.Data = GetGroupsList(env);
                 return WebAppUtils.PadURLs(env, sinfo.Sid, m_WebApp.ReadFile(env, "index.html"));
             }
             
@@ -212,5 +215,7 @@ namespace Diva.Wifi
 
             return m_WebApp.ReadFile(env, "index.html");
         }
+
     }
+
 }
