@@ -8,11 +8,11 @@ function toggle(source) {
 }
 </script>
 
-<p>Group: <!-- #get field=GroupName --></p>
+<p>Group: <!-- #get field=groupName --> (<!-- #get field=members --> members)</p>
 
 <form method="post" action="/wifi/admin/addon-groups/members/delete">
 <input type="hidden" name="text" value="Sort rows">
-<input type="hidden" name="groupID" value="<!-- #get field=GroupID -->">
+<input type="hidden" name="groupID" value="<!-- #get field=groupID -->">
 <table id="members" class="entries">
   <thead>
     <tr class="bodytext">
