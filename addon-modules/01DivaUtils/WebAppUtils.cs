@@ -97,7 +97,6 @@ namespace Diva.Utils
                 return ReadBinaryResource(Path.Combine("..", Path.Combine("WifiPages", "404.html")));
             }
 
-            return new byte[0];
         }
 
         public static string ReadTextResource(string resourceName)
