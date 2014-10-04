@@ -52,8 +52,8 @@ function InitHyperlinkTableRowSort() {
 var members; // variable name must match the table id
 function InitMembersTableRowSort() {
   members = new Array();
-  members[0] = { column:0, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 0);} }; // Name
-  members[1] = { column:1, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 1);} }; // IsOwner
+  members[0] = { column:1, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 1);} }; // Name
+  members[1] = { column:2, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 2);} }; // IsOwner
   SetupTableHeadings('members', members);
 }
 

@@ -8,17 +8,43 @@ function toggle(source) {
 }
 </script>
 
-<p>Group: <!-- #get field=groupName --> (<!-- #get field=members --> members)</p>
+<p>Group: <span class="bodytext"><!-- #get field=groupName --></span> (<!-- #get field=members --> members)</p>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+
+<form action="/wifi/admin/addon-groups/members/ -->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="1">
+    <input type="hidden" name="groupID" value="<!-- #get field=groupID -->">
+    Add members (comma-separated names):</br></br>
+    <textarea name="users" rows="3" cols="30" class="textareastyle"></textarea>
+    &nbsp;&nbsp;
+    Role:
+    <select name="role">
+      <!-- #include file=grouprolesselect.html -->
+    </select>
+    </br>
+    <input type="submit" value="add" class="button" />
+  </p>
+</form>
+
+<p>&nbsp;</p>
+
+<hr>
+<p>&nbsp;</p>
 
 <form method="post" action="/wifi/admin/addon-groups/members/delete">
+<p class="bodytext">Eject members:</p></br>
+<input type="hidden" name="form" value="2">
 <input type="hidden" name="text" value="Sort rows">
 <input type="hidden" name="groupID" value="<!-- #get field=groupID -->">
 <table id="members" class="entries">
   <thead>
     <tr class="bodytext">
+      <th><input type="checkbox" onClick="toggle(this)"></th>
       <th class="username">Name</th>
       <th class="usertitle">Owner?</th>
-      <th><input type="checkbox" onClick="toggle(this)"></th>
     </tr>
   </thead>
   <tbody>
