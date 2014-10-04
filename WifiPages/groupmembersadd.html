@@ -1,0 +1,24 @@
+<p>Group: <span class="bodytext"><!-- #get field=groupName --></span> (<!-- #get field=members --> members)</p>
+<p>&nbsp;</p>
+<hr>
+<p>&nbsp;</p>
+
+<form action="/wifi/admin/addon-groups/members/ -->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="1">
+    <input type="hidden" name="groupID" value="<!-- #get field=groupID -->">
+    Add members (comma-separated names):</br></br>
+    <textarea name="users" rows="3" cols="30" class="textareastyle"></textarea>
+    &nbsp;&nbsp;
+    Role:
+    <select name="role">
+      <!-- #include file=grouprolesselect.html -->
+    </select>
+    </br>
+    <input type="submit" value="add" class="button" />
+  </p>
+</form>
+
+<p>&nbsp;</p>
+
+<!-- #include file=groupmemberslist.html -->
