@@ -83,7 +83,7 @@ namespace Diva.Wifi
             string result = string.Empty;
             if (resource.StartsWith("/edit"))
             {
-                // client invoked /wifi/admin/users/edit, possibly with the UUID parameter after
+                // client invoked /wifi/admin/groups/edit, possibly with the UUID parameter after
                 UUID groupID = UUID.Zero;
                 // SplitParams(path) returns an array of whatever parameters come after the path.
                 // In this case it should return "edit" and "<uuid>"; we want "<uuid>", so [1]
@@ -98,7 +98,7 @@ namespace Diva.Wifi
             }
             else if (resource.StartsWith("/delete"))
             {
-                // client invoked /wifi/admin/users/delete, possibly with the UUID parameter after
+                // client invoked /wifi/admin/groups/delete, possibly with the UUID parameter after
                 UUID groupID = UUID.Zero;
                 // SplitParams(path) returns an array of whatever parameters come after the path.
                 // In this case it should return "delete" and "<uuid>"; we want "<uuid>", so [1]

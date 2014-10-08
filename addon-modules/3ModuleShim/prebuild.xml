@@ -1,5 +1,5 @@
 <!-- Image Service Module -->
-<Project frameworkVersion="v3_5" name="Diva.ModuleShim" path="addon-modules/3ModuleShim" type="Library">
+<Project frameworkVersion="v4_0" name="Diva.ModuleShim" path="addon-modules/3ModuleShim" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

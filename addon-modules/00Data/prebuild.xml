@@ -1,5 +1,5 @@
 <!-- Diva.Data -->
-<Project frameworkVersion="v3_5" name="Diva.Data" path="addon-modules/0Data" type="Library">
+<Project frameworkVersion="v4_0" name="Diva.Data" path="addon-modules/00Data" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

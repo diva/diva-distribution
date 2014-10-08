@@ -396,7 +396,7 @@ namespace Diva.Wifi
             catch (Exception e)
             {
                 m_log.DebugFormat("[Wifi]: Exception on ReadFile {0}: {1}", path, e);
-                return string.Empty;
+                return WebAppUtils.ReadTextResource(Path.Combine("..", Path.Combine(WebApp.DocsPath, "404.html")));
             }
         }
 

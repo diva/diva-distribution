@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Diva.Data.MySQL")]
+[assembly: AssemblyTitle("Diva.Interfaces")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Diva Distribution")]
-[assembly: AssemblyCopyright("Crista Lopes aka Diva Canto, and contributors")]
+[assembly: AssemblyCopyright("Diva Canto aka Crista Lopes")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("82bceb97-dbf1-43d9-831c-c4d66937f93e")]
+[assembly: Guid("e1d1d2f6-4928-4ac7-babb-3d443aceb6c8")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -29,5 +29,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.7.6.*")]
+[assembly: AssemblyVersion("0.8.0.*")]
 

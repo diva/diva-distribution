@@ -1,5 +1,5 @@
 <!-- Image Service Module -->
-<Project frameworkVersion="v3_5" name="Diva.Modules" path="addon-modules/Modules" type="Library">
+<Project frameworkVersion="v4_0" name="Diva.Modules" path="addon-modules/Modules" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

@@ -1,6 +1,8 @@
 <p>Estate <!-- #get field=EstateID-->: this estate has <!--#get field=NRegions --> regions.</p>
 
+<hr>
 <table cellspacing="20">
+<tbody valign="bottom">
 <tr>
 <td>
 <form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
@@ -32,12 +34,51 @@
   </p>
 </form>
 </td>
-</tr>
-</table>
-
+<td>
 <form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
   <p class="bodytext"> 
     <input type="hidden" name="form" value="4">
+    Allowed Groups:</br>
+    <textarea name="groups" rows="3" cols="30" class="textareastyle"><!-- #get field=GroupNames--></textarea></br></br>
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+</td>
+</tr>
+</tbody>
+</table>
+
+
+<hr>
+<p>Reset all regions:</p>
+
+<table cellspacing="20">
+<tr>
+<td>
+<form action="/wifi/admin/estates/land/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="5">
+    Group:
+    <input name="group" type="text" class="inputstyle" />
+    &nbsp;&nbsp;
+    Music URL:
+    <input name="music" type="text" class="inputstyle" />
+    &nbsp;&nbsp;
+    <input name="safe" type="checkbox"/>Safe options
+    &nbsp;&nbsp;
+    <input type="submit" value="Reset" class="button" />
+  </p>
+</form>
+</td>
+</tr>
+</table>
+
+<hr>
+<p>Region assignments:</p>
+
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="6">
     Move region:
     <select name="region">
       <!-- #include file=regionselect.html -->

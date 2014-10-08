@@ -84,6 +84,10 @@ namespace Diva.OpenSimServices
             m_Database.DeleteGroup(groupID);
         }
 
+        public void RemoveAgentFromGroup(string userID, UUID groupID)
+        {
+            _RemoveAgentFromGroup(string.Empty, userID, groupID);
+        }
     }
 
 }

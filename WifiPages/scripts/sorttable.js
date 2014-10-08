@@ -7,6 +7,8 @@ function DoOnload() {
     InitGridUserTableRowSort();
   if (document.getElementById('hyperlinks'))
     InitHyperlinkTableRowSort();
+  if (document.getElementById('members'))
+    InitMembersTableRowSort();
 }
 // Configuration for sorting rows in pending users table
 var pending; // variable name must match the table id
@@ -46,6 +48,15 @@ function InitHyperlinkTableRowSort() {
   hyperlinks[3] = { column:3, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 3);} }; // Owner
   SetupTableHeadings('hyperlinks', hyperlinks);
 }
+
+var members; // variable name must match the table id
+function InitMembersTableRowSort() {
+  members = new Array();
+  members[0] = { column:1, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 1);} }; // Name
+  members[1] = { column:2, reverse:false, comparer:function(a, b) {return CompareTextCells(a, b, 2);} }; // IsOwner
+  SetupTableHeadings('members', members);
+}
+
 var sortIndicatorNeutral = 'headerSortable';
 var sortIndicatorNormal = 'headerSortAscending';
 var sortIndicatorReverse = 'headerSortDescending';

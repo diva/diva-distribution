@@ -309,7 +309,7 @@ namespace Diva.Wifi
 
         }
 
-        private List<object> GetGroupsList(Environment env, string terms)
+        private List<object> GetGroupsList(Environment env)
         {
             if (m_GroupsService != null)
             {

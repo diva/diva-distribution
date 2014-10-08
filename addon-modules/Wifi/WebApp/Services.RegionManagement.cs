@@ -93,7 +93,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[Wifi]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception (1) " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
@@ -142,7 +142,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[Wifi]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception (2) " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
@@ -186,7 +186,7 @@ namespace Diva.Wifi
                 }
                 catch (Exception e)
                 {
-                    m_log.Debug("[Wifi]: Exception " + e.Message);
+                    m_log.Debug("[Wifi]: Exception (3) " + e.Message);
                     env.Flags = Flags.IsAdmin | Flags.IsLoggedIn;
                     env.State = State.RegionManagementUnsuccessful;
                 }
