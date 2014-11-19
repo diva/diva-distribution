@@ -79,8 +79,8 @@ namespace Diva.Wifi
             //    m_log.DebugFormat("  >> {0}={1}", o, httpRequest.Query[o]);
 
             string resource = GetParam(path);
-            //m_log.DebugFormat("[Wifi]: resource {0}", resource);
             resource = Uri.UnescapeDataString(resource).Trim(WebAppUtils.DirectorySeparatorChars);
+            //m_log.DebugFormat("[Wifi]: resource {0}", resource);
 
             Request request = RequestFactory.CreateRequest(resource, httpRequest, Localization.GetLanguageInfo(httpRequest.Headers.Get("accept-language")));
             Environment env = new Environment(request);
@@ -161,5 +161,25 @@ namespace Diva.Wifi
             httpResponse.ContentLength64 = result.Length;
             return m_EmptyBody;
         }
+    }
+
+    public class WifiRootHandler : BaseStreamHandler
+    {
+        private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        protected BaseStreamHandler m_DefaultHandler;
+
+        public WifiRootHandler(BaseStreamHandler defaultHandler) :
+            base("GET", "/")
+        {
+            m_DefaultHandler = defaultHandler;
+        }
+
+        public override byte[] Handle(string path, Stream requestData,
+                              IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
+        {
+            return m_DefaultHandler.Handle("/wifi" + path, requestData, httpRequest, httpResponse);
+        }
+
     }
 }
