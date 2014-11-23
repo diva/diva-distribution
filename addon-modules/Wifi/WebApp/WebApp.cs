@@ -419,6 +419,11 @@ namespace Diva.Wifi
             m_Addons.Add(a);
         }
 
+        public void RegisterEstateServiceObject(Object estateService)
+        {
+            Services.RegisterEstateServiceObject((IEstateDataService)estateService);
+        }
+
         public T GetServiceObject<T>()
         {
             if (typeof(T) == typeof(ISceneActor))

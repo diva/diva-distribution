@@ -51,6 +51,10 @@ p.textlogo {
   position:relative;
 }
 
+a:link {color:#f8f8f8; text-decoration:none}
+a:hover {color:#ff9933;text-decoration:none}
+a:active {color:#ff0000}
+
 #content {
   margin-right:17em;
   padding:2.4em;

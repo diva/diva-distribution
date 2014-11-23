@@ -169,6 +169,7 @@ namespace Diva.Wifi.WifiScript
                     }
                     else
                     {
+                        string oldFile = m_FileName;
                         m_FileName = file;
                         List<object> nextLoo = m_ListOfObjects;
                         if (m_ListOfObjects != null && m_Index < m_ListOfObjects.Count - 1)
@@ -180,7 +181,9 @@ namespace Diva.Wifi.WifiScript
                         }
                         Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, nextLoo);
                         //Processor p = new Processor(m_WebApp, m_ExtensionMethods, m_Env, m_ListOfObjects);
-                        return p.Process(sr.ReadToEnd());
+                        string result = p.Process(sr.ReadToEnd());
+                        m_FileName = oldFile;
+                        return result;
                     }
                 }
             }

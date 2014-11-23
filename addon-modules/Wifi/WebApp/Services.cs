@@ -80,6 +80,7 @@ namespace Diva.Wifi
         private IAvatarService m_AvatarService;
         private IPresenceService m_PresenceService;
         private IGroupsService m_GroupsService;
+        private IEstateDataService m_EstateService;
 
         private string m_ServerAdminPassword;
         private DateTime m_LastStatisticsUpdate;
@@ -414,8 +415,15 @@ namespace Diva.Wifi
                 obj = m_InventoryService;
             else if (typeof(T) == typeof(GroupsService))
                 obj = m_GroupsService;
+            else if (typeof(T) == typeof(IEstateDataService))
+                obj = m_EstateService;
 
             return (T)obj;
+        }
+
+        public void RegisterEstateServiceObject(IEstateDataService estateService)
+        {
+            m_EstateService = estateService;
         }
     }
 
