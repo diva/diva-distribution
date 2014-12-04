@@ -68,6 +68,8 @@ namespace Diva.Utils
                 return "text/xml";
             if (resource.EndsWith(".js"))
                 return "application/javascript";
+            if (resource.EndsWith(".exe"))
+                return "application/exe";
             return "text/html";
         }
 
