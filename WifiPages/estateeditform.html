@@ -34,6 +34,9 @@
   </p>
 </form>
 </td>
+</tr>
+
+<tr>
 <td>
 <form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
   <p class="bodytext"> 
@@ -44,6 +47,17 @@
   </p>
 </form>
 </td>
+<td>
+<form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
+  <p class="bodytext"> 
+    <input type="hidden" name="form" value="5">
+    Landing regions:</br>
+    <textarea name="landings" rows="3" cols="30" class="textareastyle"><!-- #get field=LandingRegions--></textarea></br></br>
+    <input type="submit" value="update" class="button" />
+  </p>
+</form>
+</td>
+<td>&nbsp</td>
 </tr>
 </tbody>
 </table>
@@ -57,7 +71,7 @@
 <td>
 <form action="/wifi/admin/estates/land/<!-- #get field=EstateID-->" method="post">
   <p class="bodytext"> 
-    <input type="hidden" name="form" value="5">
+    <input type="hidden" name="form" value="6">
     Group:
     <input name="group" type="text" class="inputstyle" />
     &nbsp;&nbsp;
@@ -78,7 +92,7 @@
 
 <form action="/wifi/admin/estates/edit/<!-- #get field=EstateID-->" method="post">
   <p class="bodytext"> 
-    <input type="hidden" name="form" value="6">
+    <input type="hidden" name="form" value="7">
     Move region:
     <select name="region">
       <!-- #include file=regionselect.html -->

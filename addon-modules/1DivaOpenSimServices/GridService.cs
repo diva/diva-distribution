@@ -71,5 +71,24 @@ namespace Diva.OpenSimServices
             }
             return 0;
         }
+
+        public void SetFallback(UUID regionID, Boolean fallback)
+        {
+            OpenSim.Data.RegionData rdata = m_Database.Get(regionID, UUID.Zero);
+            if (rdata != null)
+            {
+                int flags = Convert.ToInt32(rdata.Data["flags"]);
+                if (fallback)
+                    flags |= (int)OpenSim.Framework.RegionFlags.FallbackRegion;
+                else
+                {
+                    int mask = 1 << (int)Math.Log((double)OpenSim.Framework.RegionFlags.FallbackRegion, 2); 
+                    flags &= ~mask;
+                }
+                rdata.Data["flags"] = flags.ToString();
+                m_Database.Store(rdata);
+            }
+        }
+
     }
 }
