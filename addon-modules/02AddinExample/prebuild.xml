@@ -1,0 +1,37 @@
+<!-- Image Service Module -->
+<Project frameworkVersion="v4_0" name="Diva.AddinExample" path="addon-modules/02AddinExample" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../bin/</ReferencePath>
+  <Reference name="System"/>
+  <Reference name="System.Core"/>
+  <Reference name="OpenMetaverse" path="../../bin/"/>
+  <Reference name="OpenMetaverseTypes" path="../../bin/"/>
+  <Reference name="OpenSim.Framework"/>
+  <Reference name="OpenSim.Framework.Servers"/>
+  <Reference name="OpenSim.Framework.Servers.HttpServer"/>
+  <Reference name="OpenSim.Region.Framework"/>
+  <Reference name="OpenSim.Server.Base"/>
+
+  <Reference name="Nini" path="../../bin/" />
+  <Reference name="log4net" path="../../bin/"/>
+  <Reference name="Mono.Addins" path="../../bin/"/>
+  <Reference name="CsvHelper" path="Lib"/>
+
+  <Files>
+    <Match pattern="*.cs" recurse="true"/>
+    <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />
+    <Match pattern="*.html" buildAction="Copy" destination="../../bin/" />
+    <Match pattern="*.dll" recurse="true" buildAction="Copy" destination="../../bin/" />
+  </Files>
+
+</Project>
