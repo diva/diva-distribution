@@ -1,4 +1,4 @@
-<!-- Image Service Module -->
+<!-- Addins Example Module -->
 <Project frameworkVersion="v4_0" name="Diva.AddinExample" path="addon-modules/02AddinExample" type="Library">
   <Configuration name="Debug">
     <Options>
