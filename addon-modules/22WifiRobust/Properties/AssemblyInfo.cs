@@ -36,3 +36,20 @@ using Mono.Addins;
 [assembly: AddinDependency("Robust", OpenSim.VersionInfo.VersionNumber)]
 [assembly: AddinDescription("Diva Wifi, a Web application for OpenSim grids")]
 [assembly: AddinAuthor("Diva Canto")]
+
+[assembly: ImportAddinAssembly("Diva.Data.dll")]
+[assembly: ImportAddinAssembly("Diva.Data.MySQL.dll")]
+[assembly: ImportAddinAssembly("Diva.Interfaces.dll")]
+[assembly: ImportAddinAssembly("Diva.OpenSimServices.dll")]
+[assembly: ImportAddinAssembly("Diva.Utils.dll")]
+[assembly: ImportAddinAssembly("Diva.Wifi.dll")]
+[assembly: ImportAddinAssembly("Diva.Wifi.ScriptEngine.dll")]
+
+[assembly: ImportAddinAssembly("de/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("en/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("es/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("fr/Diva.Wifi.resources.dll")]
+
+[assembly: ImportAddinFile("Wifi.ini")]
+
+[assembly: ImportAddinFile("AddinExample.html")]

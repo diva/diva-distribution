@@ -51,5 +51,19 @@
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
     </Match>
+    <Match pattern="WifiPages/*" buildAction="Copy" destination="../../bin/WifiPages" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/scripts/*.js" buildAction="Copy" destination="../../bin/WifiPages/scripts" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/de/*.html" buildAction="Copy" destination="../../bin/WifiPages/de" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/es/*.html" buildAction="Copy" destination="../../bin/WifiPages/es" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/fr/*.html" buildAction="Copy" destination="../../bin/WifiPages/fr" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/ru/*.html" buildAction="Copy" destination="../../bin/WifiPages/ru" recurse="true">
+    </Match>
+    <Match pattern="WifiPages/images/*" buildAction="Copy" destination="../../bin/WifiPages/images" recurse="true">
+    </Match>
   </Files>
 </Project>
