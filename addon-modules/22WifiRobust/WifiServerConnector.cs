@@ -35,7 +35,6 @@ using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Handlers.Base;
 
 using Diva.Interfaces;
-using Environment = Diva.Utils.Environment;
 
 namespace Diva.Wifi
 {
