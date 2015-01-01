@@ -59,6 +59,8 @@ namespace Diva.Wifi
     public class WebApp : IWifiApp
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        public static const string WifiVersion = ".1";
+
         public static readonly string DocsPath = System.IO.Path.Combine("..", "WifiPages");
 
         public static WebApp WebAppInstance;
