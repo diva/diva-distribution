@@ -45,7 +45,7 @@ namespace Diva.AddinExample
 
         public void Initialise(IConfigSource config)
         {
-            Configure(config);
+            LoadConfiguration(config);
 
             IConfig cnf = config.Configs["AddinExample"];
             if (cnf == null)
@@ -99,7 +99,7 @@ namespace Diva.AddinExample
 
         #endregion
 
-        private void Configure(IConfigSource config)
+        private void LoadConfiguration(IConfigSource config)
         {
 
             IConfig cnf = config.Configs["Startup"];
