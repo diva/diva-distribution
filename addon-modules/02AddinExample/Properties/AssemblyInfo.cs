@@ -32,7 +32,7 @@ using Mono.Addins;
 //
 [assembly: AssemblyVersion("0.8.1.*")]
 
-[assembly: Addin("Diva.AddinExample", OpenSim.VersionInfo.VersionNumber + ".1")]
+[assembly: Addin("Diva.AddinExample", OpenSim.VersionInfo.VersionNumber + ".2")]
 [assembly: AddinDependency("OpenSim.Region.Framework", OpenSim.VersionInfo.VersionNumber)]
 [assembly: AddinDescription("Example of how to create OpenSim Addins")]
 [assembly: AddinAuthor("Diva Canto")]

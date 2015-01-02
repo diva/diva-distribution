@@ -45,9 +45,14 @@ namespace Diva.AddinExample
 
         public void Initialise(IConfigSource config)
         {
+            Configure(config);
+
             IConfig cnf = config.Configs["AddinExample"];
             if (cnf == null)
+            {
+                m_log.ErrorFormat("[Diva.AddinExample]: Section AddinExample not found in configuration");
                 return;
+            }
 
             m_Enabled = cnf.GetBoolean("enabled", m_Enabled);
             if (m_Enabled)
@@ -93,6 +98,39 @@ namespace Diva.AddinExample
         public void Close() { }
 
         #endregion
+
+        private void Configure(IConfigSource config)
+        {
+
+            IConfig cnf = config.Configs["Startup"];
+            if (cnf == null)
+                return;
+
+            string configDirectory = cnf.GetString("ConfigDirectory", ".");
+
+            string configFile = Path.Combine(configDirectory, "AddinExample.ini");
+            if (!File.Exists(configFile))
+            {
+                // We need to copy the one that comes in the package
+
+                if (!Directory.Exists(configDirectory))
+                    Directory.CreateDirectory(configDirectory);
+
+                string embeddedConfig = Path.Combine(AssemblyDirectory, "AddinExample.ini");
+                File.Copy(embeddedConfig, configFile);
+                m_log.ErrorFormat("[AddinExample]: PLEASE EDIT {0} BEFORE RUNNING THIS ADDIN", configFile);
+                throw new Exception("AddinExample addin must be configured prior to running");
+            }
+
+            if (File.Exists(configFile))
+            {
+                // Merge 
+                config.Merge(new IniConfigSource(configFile));
+            }
+            else
+                m_log.WarnFormat("[Wifi]: Config file {0} not found", configFile);
+
+        }
 
     }
 
