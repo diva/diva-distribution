@@ -118,7 +118,7 @@ namespace Diva.AddinExample
 
                 string embeddedConfig = Path.Combine(AssemblyDirectory, "AddinExample.ini");
                 File.Copy(embeddedConfig, configFile);
-                m_log.ErrorFormat("[AddinExample]: PLEASE EDIT {0} BEFORE RUNNING THIS ADDIN", configFile);
+                m_log.ErrorFormat("[Diva.AddinExample]: PLEASE EDIT {0} BEFORE RUNNING THIS ADDIN", configFile);
                 throw new Exception("AddinExample addin must be configured prior to running");
             }
 
@@ -128,7 +128,7 @@ namespace Diva.AddinExample
                 config.Merge(new IniConfigSource(configFile));
             }
             else
-                m_log.WarnFormat("[Wifi]: Config file {0} not found", configFile);
+                m_log.WarnFormat("[Diva.AddinExample]: Config file {0} not found", configFile);
 
         }
 
