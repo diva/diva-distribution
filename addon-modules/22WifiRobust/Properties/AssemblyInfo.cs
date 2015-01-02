@@ -52,4 +52,3 @@ using Mono.Addins;
 
 [assembly: ImportAddinFile("Wifi.ini")]
 
-[assembly: ImportAddinFile("AddinExample.html")]

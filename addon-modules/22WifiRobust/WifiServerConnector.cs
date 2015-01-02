@@ -26,10 +26,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using log4net;
 using Nini.Config;
+using Mono.Addins;
+
 using OpenSim.Server.Base;
 using OpenSim.Framework.Servers.HttpServer;
 using OpenSim.Server.Handlers.Base;
@@ -38,71 +41,179 @@ using Diva.Interfaces;
 
 namespace Diva.Wifi
 {
-    public class WifiServerConnector : ServiceConnector
+    [Extension(Path = "/Robust/Connector")]
+    public class WifiServerConnector : ServiceConnector, IRobustConnector
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        private const string m_ConfigName = "WifiService";
         private const string m_ServePathPrefix = "ServePath_";
         private const string m_AddonPrefix = "WifiAddon_";
+        private ISceneActor m_SceneActor;
+        private IHttpServer m_Server;
+        private List<IRequestHandler> m_RequestHandlers = new List<IRequestHandler>();
+        private static string CONFIG_FILE = "Wifi.ini";
+
+        private static string AssemblyDirectory
+        {
+            get
+            {
+                string location = Assembly.GetExecutingAssembly().Location;
+                return Path.GetDirectoryName(location);
+            }
+        }
+
+        public override string ConfigName
+        {
+            get { return "WifiService"; }
+        }
+
+        public bool Enabled
+        {
+            get;
+            private set;
+        }
+
+        public string PluginPath
+        {
+            get;
+            set;
+        }
+
+        // Called from the plugin loader (in ServerUtils)
+        public WifiServerConnector()
+        {
+            m_log.DebugFormat("[Wifi]: Instance created");
+        }
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName) :
             this(config, server, configName, null)
         {
+            m_Server = server;
+            Config = config;
+            if (!string.IsNullOrEmpty(configName))
+                ConfigName = configName;
         }
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName, ISceneActor sactor) :
             base(config, server, configName)
         {
-            m_log.DebugFormat("[Wifi]: WifiServerConnector starting");
-            IConfig serverConfig = config.Configs[m_ConfigName];
-            if (serverConfig == null)
-                throw new Exception(String.Format("No section {0} in config file", m_ConfigName));
+            m_SceneActor = sactor;
+            m_log.DebugFormat("[Wifi]: WifiServerConnector starting with config {0}", ConfigName);
 
-            //
-            // Leaving this here for educational purposes
-            //
-            //if (Environment.StaticVariables.ContainsKey("AppDll"))
-            //{
-            //    object[] args = new object[] { config, server };
-            //    WebApp app = ServerUtils.LoadPlugin<IWebApp>(Environment.StaticVariables["AppDll"].ToString(), args);
-            //    Environment.InitializeWebApp(app);
-            //}
+            Initialize(server);
+
+        }
+
+        private void AddStreamHandler(IRequestHandler rh)
+        {
+            m_RequestHandlers.Add(rh);
+            m_Server.AddStreamHandler(rh);
+        }
+
+        #region IRobustConnector
+        public uint Configure(IConfigSource config)
+        {
+            Config = config;
+            ConfigFile = Path.Combine(AssemblyDirectory, CONFIG_FILE);
+
+            // We've already been configured! (not mono addin)
+            if (m_Server != null)
+                return m_Server.Port;
+
+            IConfig wifiConfig = Config.Configs[ConfigName];
+            if (wifiConfig == null)
+            {
+                m_log.DebugFormat("[Wifi]: Configuring from {0}...", ConfigFile);
+
+                if (File.Exists(ConfigFile))
+                {
+                    IConfigSource configsource = new IniConfigSource(ConfigFile);
+                    AdjustStorageProvider(configsource);
+
+                    wifiConfig = configsource.Configs[ConfigName];
+
+                    // Merge everything
+                    Config.Merge(configsource);
+                }
+                else
+                    m_log.WarnFormat("[Wifi]: Config file {0} not found", ConfigFile);
+
+                if (wifiConfig == null)
+                    throw new Exception(string.Format("[Wifi]: Could not load configuration from {0}. Unable to proceed.", ConfigFile));
+
+                Enabled = true;
+            }
+
+            // Let's look for the port in WifiService first, then look elsewhere
+            int port = wifiConfig.GetInt("ServerPort", -1);
+            if (port > 0)
+                return (uint)port;
+
+            IConfig section = Config.Configs["Const"];
+            if (section != null)
+            {
+                port = section.GetInt("PublicPort", -1);
+                if (port > 0)
+                    return (uint)port;
+            }
+
+            section = Config.Configs["Network"];
+            if (section != null)
+            {
+                port = section.GetInt("port", -1);
+                if (port > 0)
+                    return (uint)port;
+            }
+
+            if (port < 0)
+                throw new Exception("[Wifi]: Could not find port in configuration file");
+
+            return 0;
+        }
+
+        public void Initialize(IHttpServer server)
+        {
+            m_log.DebugFormat("[Wifi]: Initializing. Server at port {0}.", server.Port);
+            IConfig serverConfig = Config.Configs[ConfigName];
+            if (serverConfig == null)
+                throw new Exception(String.Format("No section {0} in config file", ConfigName));
+
+            m_Server = server;
 
             // Launch the WebApp
-            WebApp app = new WebApp(config, m_ConfigName, server, sactor);
+            WebApp app = new WebApp(Config, ConfigName, server, m_SceneActor);
 
             // Register all the handlers
             BaseStreamHandler defaultHandler = new WifiDefaultHandler(app);
-            server.AddStreamHandler(defaultHandler);
-            server.AddStreamHandler(new WifiRootHandler(defaultHandler));
-            server.AddStreamHandler(new WifiHeadHandler(app));
-            server.AddStreamHandler(new WifiNotifyHandler(app));
-            server.AddStreamHandler(new WifiInstallGetHandler(app));
-            server.AddStreamHandler(new WifiInstallPostHandler(app));
-            server.AddStreamHandler(new WifiLoginHandler(app));
-            server.AddStreamHandler(new WifiLogoutHandler(app));
-            server.AddStreamHandler(new WifiForgotPasswordGetHandler(app));
-            server.AddStreamHandler(new WifiForgotPasswordPostHandler(app));
-            server.AddStreamHandler(new WifiPasswordRecoverGetHandler(app));
-            server.AddStreamHandler(new WifiPasswordRecoverPostHandler(app));
-            server.AddStreamHandler(new WifiUserAccountGetHandler(app));
-            server.AddStreamHandler(new WifiUserAccountPostHandler(app));
-            server.AddStreamHandler(new WifiUserManagementGetHandler(app));
-            server.AddStreamHandler(new WifiUserManagementPostHandler(app));
-            server.AddStreamHandler(new WifiConsoleHandler(app));
+            AddStreamHandler(defaultHandler);
+            AddStreamHandler(new WifiRootHandler(defaultHandler));
+            AddStreamHandler(new WifiHeadHandler(app));
+            AddStreamHandler(new WifiNotifyHandler(app));
+            AddStreamHandler(new WifiInstallGetHandler(app));
+            AddStreamHandler(new WifiInstallPostHandler(app));
+            AddStreamHandler(new WifiLoginHandler(app));
+            AddStreamHandler(new WifiLogoutHandler(app));
+            AddStreamHandler(new WifiForgotPasswordGetHandler(app));
+            AddStreamHandler(new WifiForgotPasswordPostHandler(app));
+            AddStreamHandler(new WifiPasswordRecoverGetHandler(app));
+            AddStreamHandler(new WifiPasswordRecoverPostHandler(app));
+            AddStreamHandler(new WifiUserAccountGetHandler(app));
+            AddStreamHandler(new WifiUserAccountPostHandler(app));
+            AddStreamHandler(new WifiUserManagementGetHandler(app));
+            AddStreamHandler(new WifiUserManagementPostHandler(app));
+            AddStreamHandler(new WifiConsoleHandler(app));
 
-            server.AddStreamHandler(new WifiInventoryLoadGetHandler(app));
-            server.AddStreamHandler(new WifiInventoryGetHandler(app));
-            server.AddStreamHandler(new WifiInventoryPostHandler(app));
+            AddStreamHandler(new WifiInventoryLoadGetHandler(app));
+            AddStreamHandler(new WifiInventoryGetHandler(app));
+            AddStreamHandler(new WifiInventoryPostHandler(app));
 
-            server.AddStreamHandler(new WifiHyperlinkGetHandler(app));
-            server.AddStreamHandler(new WifiHyperlinkPostHandler(app));
+            AddStreamHandler(new WifiHyperlinkGetHandler(app));
+            AddStreamHandler(new WifiHyperlinkPostHandler(app));
 
-            server.AddStreamHandler(new WifiTOSGetHandler(app));
-            server.AddStreamHandler(new WifiTOSPostHandler(app));
+            AddStreamHandler(new WifiTOSGetHandler(app));
+            AddStreamHandler(new WifiTOSPostHandler(app));
 
-            server.AddStreamHandler(new WifiGroupsManagementGetHandler(app));
-            server.AddStreamHandler(new WifiGroupsManagementPostHandler(app));
+            AddStreamHandler(new WifiGroupsManagementGetHandler(app));
+            AddStreamHandler(new WifiGroupsManagementPostHandler(app));
 
             //server.AddStreamHandler(new WifiRegionManagementPostHandler(app));
             //server.AddStreamHandler(new WifiRegionManagementGetHandler(app));
@@ -116,7 +227,7 @@ namespace Diva.Wifi
                     string paths = serverConfig.GetString(servePath, string.Empty);
                     string[] parts = paths.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Count() == 2)
-                        server.AddStreamHandler(new WifiGetHandler(parts[0], parts[1]));
+                        AddStreamHandler(new WifiGetHandler(parts[0], parts[1]));
                     else
                         m_log.WarnFormat("[Wifi]: Invalid format with configuration option {0}: {1}", servePath, paths);
                 }
@@ -132,7 +243,7 @@ namespace Diva.Wifi
                     if (addonDll != string.Empty)
                     {
                         m_log.InfoFormat("[Wifi]: Loading addon {0}", addonDll);
-                        object[] args = new object[] { config, m_ConfigName, server, app };
+                        object[] args = new object[] { Config, ConfigName, server, app };
                         IWifiAddon addon = ServerUtils.LoadPlugin<IWifiAddon>(addonDll, args);
 
                         if (addon == null)
@@ -141,6 +252,39 @@ namespace Diva.Wifi
                 }
             }
 
+        }
+
+        public void Unload()
+        {
+            foreach (IRequestHandler rh in m_RequestHandlers)
+                m_Server.RemoveStreamHandler(rh.HttpMethod, rh.Path);
+
+            // Tell the addons to unload too!
+            m_RequestHandlers.Clear();
+        }
+
+        #endregion IRobustConnector
+
+        private void AdjustStorageProvider(IConfigSource configsource)
+        {
+            IConfig database = configsource.Configs["DatabaseService"];
+            if (database == null)
+            {
+                m_log.WarnFormat("[Wifi]: DatabaseService section not found");
+                return;
+            }
+
+            string dll = database.GetString("StorageProvider", string.Empty);
+            if (dll == string.Empty)
+            {
+                m_log.WarnFormat("[Wifi]: StorageProvider not found");
+                return;
+            }
+
+            dll = Path.Combine(AssemblyDirectory, dll);
+            
+            m_log.DebugFormat("[XXX]: {0}", dll);
+            database.Set("StorageProvider", dll);
         }
     }
 }
