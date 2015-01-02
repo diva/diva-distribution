@@ -65,7 +65,7 @@ namespace Diva.Wifi
 
             if (type.StartsWith("application") || type.StartsWith("text"))
             {
-                string res = WebAppUtils.ReadTextResource(resourcePath, true);
+                string res = WebAppUtils.ReadTextResource(resourcePath, WebApp.MissingPage, true);
                 return WebAppUtils.StringToBytes(res);
             }
 

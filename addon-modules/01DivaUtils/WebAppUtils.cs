@@ -96,17 +96,17 @@ namespace Diva.Utils
             {
                 // Let the user know what went wrong.
                 m_log.DebugFormat("[Wifi]: Exception in ReadBinaryResource {0}", e.Message);
-                return ReadBinaryResource(Path.Combine("..", Path.Combine("WifiPages", "404.html")));
+                return new byte[0];
             }
 
         }
 
-        public static string ReadTextResource(string resourceName)
+        public static string ReadTextResource(string resourceName, string missingpage)
         {
-            return ReadTextResource(resourceName, false);
+            return ReadTextResource(resourceName, missingpage, false);
         }
 
-        public static string ReadTextResource(string resourceName, bool keepEndOfLines)
+        public static string ReadTextResource(string resourceName, string missingpage, bool keepEndOfLines)
         {
             StringBuilder buffer = new StringBuilder();
             try
@@ -133,7 +133,10 @@ namespace Diva.Utils
             {
                 // Let the user know what went wrong.
                 m_log.DebugFormat("[Wifi]: Exception in ReadTextResource {0}", e.Message);
-                return ReadTextResource(Path.Combine("..", Path.Combine("WifiPages", "404.html")));
+                if (missingpage != string.Empty)
+                    return ReadTextResource(missingpage, "");
+                else
+                    return string.Empty;
             }
 
             return buffer.ToString();

@@ -49,8 +49,9 @@ namespace Diva.Wifi
             }
 
             string resourcePath = Localization.LocalizePath(env, "splash.html");
+            m_log.DebugFormat("[XXX]: {0}", resourcePath);
             Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-            return p.Process(WebAppUtils.ReadTextResource(resourcePath));
+            return p.Process(WebAppUtils.ReadTextResource(resourcePath, WebApp.MissingPage));
         }
     }
 }

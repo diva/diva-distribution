@@ -96,7 +96,8 @@ namespace Diva.Wifi
             }
             else
             {
-                string resourcePath = System.IO.Path.Combine(WebApp.DocsPath, resource);
+                string resourcePath = WebApp.GetPath(resource);
+
                 string type = WebAppUtils.GetContentType(resource);
                 httpResponse.ContentType = type;
                 //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
@@ -105,7 +106,7 @@ namespace Diva.Wifi
 
                 if (type.StartsWith("application"))
                 {
-                    string res = WebAppUtils.ReadTextResource(resourcePath, true);
+                    string res = WebAppUtils.ReadTextResource(resourcePath, WebApp.MissingPage, true);
                     return WebAppUtils.StringToBytes(res);
                 }
                 if (type.StartsWith("text"))
@@ -115,7 +116,7 @@ namespace Diva.Wifi
 
                     resourcePath = Localization.LocalizePath(env, resource);
                     Processor p = new Processor(m_WebApp.WifiScriptFace, env);
-                    string res = p.Process(WebAppUtils.ReadTextResource(resourcePath));
+                    string res = p.Process(WebAppUtils.ReadTextResource(resourcePath, WebApp.MissingPage));
                     if (res == string.Empty)
                         res = m_WebApp.Services.DefaultRequest(env);
                     return WebAppUtils.StringToBytes(res);

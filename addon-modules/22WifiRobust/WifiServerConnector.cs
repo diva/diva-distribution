@@ -112,12 +112,28 @@ namespace Diva.Wifi
         #region IRobustConnector
         public uint Configure(IConfigSource config)
         {
-            Config = config;
-            ConfigFile = Path.Combine(AssemblyDirectory, CONFIG_FILE);
-
             // We've already been configured! (not mono addin)
             if (m_Server != null)
                 return m_Server.Port;
+
+            Config = config;
+
+            IConfig startconfig = Config.Configs["Startup"];
+            string configdirectory = startconfig.GetString("ConfigDirectory", ".");
+
+            ConfigFile = Path.Combine(configdirectory, CONFIG_FILE);
+            if (!File.Exists(ConfigFile))
+            {
+                // We need to copy the one that comes in the package
+
+                if (!Directory.Exists(configdirectory))
+                    Directory.CreateDirectory(configdirectory);
+
+                string embeddedConfig = Path.Combine(AssemblyDirectory, CONFIG_FILE);
+                File.Copy(embeddedConfig, ConfigFile);
+                m_log.ErrorFormat("[Wifi]: PLEASE EDIT {0} BEFORE RUNNING THIS SERVICE", ConfigFile);
+                throw new Exception("Wifi addin must be configured prior to running");
+            }
 
             IConfig wifiConfig = Config.Configs[ConfigName];
             if (wifiConfig == null)

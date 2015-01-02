@@ -68,9 +68,12 @@ namespace Diva.Wifi
         }
 
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public const string WifiVersion = ".1";
+        public const string WifiVersion = ".2";
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
+        public static readonly string UserDocsPath = "..";
+        private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "welcome.html" });
+        public static readonly string MissingPage = Path.Combine(DocsPath, "404.html");
 
         public static WebApp WebAppInstance;
         public static WifiScriptFace WifiScriptFaceInstance;
@@ -389,6 +392,14 @@ namespace Diva.Wifi
 
         private void ExtractResources()
         {
+            if (!Directory.Exists(UserDocsPath))
+            {
+                // Try to create the directory.
+                DirectoryInfo di = Directory.CreateDirectory(UserDocsPath);
+                if (di == null)
+                    m_log.WarnFormat("[Wifi]: Unable to create folder {0}", UserDocsPath);
+            }
+
             foreach (string resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
                 if (!resourceName.StartsWith("Diva.Wifi"))
@@ -399,7 +410,12 @@ namespace Diva.Wifi
                 string ext = Path.GetExtension(filePath);
                 filePath = rnameNoExt.Replace('.', Path.DirectorySeparatorChar) + ext;
 
-                string destinationPath = Path.Combine(AssemblyDirectory, filePath);
+                string destinationPath = string.Empty;
+
+                if (SpecialFiles.Exists(s => filePath.Contains(s)))
+                    destinationPath = Path.Combine(UserDocsPath, filePath);
+                else
+                    destinationPath = Path.Combine(AssemblyDirectory, filePath);
                 if (File.Exists(destinationPath))
                     continue;
 
@@ -430,6 +446,17 @@ namespace Diva.Wifi
 
         #region read html files
 
+        public static string GetPath(string resource)
+        {
+            string resourcePath = string.Empty;
+            if (SpecialFiles.Exists(s => resource.Contains(s)))
+                resourcePath = System.IO.Path.Combine(Path.Combine(WebApp.UserDocsPath, "WifiPages"), resource);
+            else
+                resourcePath = System.IO.Path.Combine(WebApp.DocsPath, resource);
+
+            return resourcePath;
+        }
+
         public string ReadFile(IEnvironment env, string path)
         {
             return ReadFile((Environment)env, path, ((Environment)env).Data);
@@ -437,53 +464,21 @@ namespace Diva.Wifi
 
         public string ReadFile(IEnvironment env, string path, List<object> lot)
         {
-            string fullPath = Path.Combine(AssemblyDirectory, path);
-            if (File.Exists(fullPath))
-            {
-                string file = Localization.LocalizePath(env, fullPath);
-                m_log.DebugFormat("[XXX]: File exists {0}", file);
-                try
-                {
-                    using (StreamReader sr = new StreamReader(file))
-                    {
-                        string content = sr.ReadToEnd();
-                        Processor p = new Processor(WifiScriptFace, m_ExtensionMethods, env, lot);
-                        return p.Process(content);
-                    }
-                }
-                catch (Exception e)
-                {
-                    m_log.DebugFormat("[Wifi]: Exception on ReadFile {0}: {1}", path, e);
-                    return WebAppUtils.ReadTextResource(Path.Combine("..", Path.Combine(WebApp.DocsPath, "404.html")));
-                }
-            }
-            else
-            {
-                // Try embedded resources
-                return ReadEmbeddedFile(env, path, lot);
-            }
-        }
-
-        private string ReadEmbeddedFile(IEnvironment env, string path, List<object> lot)
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "Diva.Wifi.WifiPages." + path;
+            string file = Localization.LocalizePath(env, path);
             try
             {
-                using (Stream stream = assembly.GetManifestResourceStream(resourceName))
-                using (StreamReader reader = new StreamReader(stream))
+                using (StreamReader sr = new StreamReader(file))
                 {
-                    string content = reader.ReadToEnd();
+                    string content = sr.ReadToEnd();
                     Processor p = new Processor(WifiScriptFace, m_ExtensionMethods, env, lot);
                     return p.Process(content);
                 }
             }
             catch (Exception e)
             {
-                m_log.DebugFormat("[Wifi]: Exception on ReadEmbeddedFile {0}: {1}", path, e);
-                return string.Empty;
+                m_log.DebugFormat("[Wifi]: Exception on ReadFile {0}: {1}", path, e);
+                return WebAppUtils.ReadTextResource(WebApp.MissingPage, WebApp.MissingPage);
             }
-
         }
         #endregion
 

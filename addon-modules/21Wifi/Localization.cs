@@ -205,7 +205,7 @@ namespace Diva.Wifi
                             return localizedPath;
                 }
             }
-            return Path.Combine(WebApp.DocsPath, path);
+            return WebApp.GetPath(path);
         }
 
         private static bool CheckPathExists(string path, string language, out string localizedPath)
@@ -213,13 +213,13 @@ namespace Diva.Wifi
             string languagePath;
             if (m_PathCache.TryGet(path, language, out languagePath))
             {
-                localizedPath = Path.Combine(WebApp.DocsPath, languagePath);
+                localizedPath = WebApp.GetPath(languagePath);
                 return true;
             }
             else if (language != m_FallbackLanguage.Name)
             {
                 languagePath = Path.Combine(language, path);
-                localizedPath = Path.Combine(WebApp.DocsPath, languagePath);
+                localizedPath = WebApp.GetPath(languagePath);
                 if (File.Exists(localizedPath))
                 {
                     //m_log.DebugFormat("[Wifi]: L10n for {0} results in path: {1}", language, localizedPath);
@@ -229,7 +229,7 @@ namespace Diva.Wifi
             }
             else
             {
-                localizedPath = Path.Combine(WebApp.DocsPath, path);
+                localizedPath = WebApp.GetPath(path);
                 //m_log.DebugFormat("[Wifi]: L10n for {0} results in path: {1}", language, localizedPath);
                 m_PathCache.AddOrUpdate(path, language, path);
                 return true;
