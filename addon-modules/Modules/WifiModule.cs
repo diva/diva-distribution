@@ -72,7 +72,7 @@ namespace Diva.Modules
                     object[] args = new object[] { config, MainServer.Instance, string.Empty, this };
                     //new WifiServerConnector(config, MainServer.Instance, string.Empty);
 
-                    ServerUtils.LoadPlugin<IServiceConnector>("Diva.Wifi.dll:WifiServerConnector", args);
+                    ServerUtils.LoadPlugin<IServiceConnector>("Diva.Wifi.dll:WifiMain", args);
                     m_log.Debug("[Wifi Module]: Wifi enabled.");
                 }
 
