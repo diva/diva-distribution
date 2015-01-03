@@ -147,8 +147,9 @@ namespace Diva.Wifi
 
                     wifiConfig = configsource.Configs[ConfigName];
 
-                    // Merge everything
+                    // Merge everything and expand eventual key values used by our config
                     Config.Merge(configsource);
+                    Config.ExpandKeyValues();
                 }
                 else
                     m_log.WarnFormat("[Wifi]: Config file {0} not found", ConfigFile);
@@ -189,8 +190,6 @@ namespace Diva.Wifi
         public void Initialize(IHttpServer server)
         {
             m_log.DebugFormat("[Wifi]: Initializing. Server at port {0}.", server.Port);
-            if (Config == null)
-                m_log.ErrorFormat("[XXX]: NULL");
 
             IConfig serverConfig = Config.Configs[ConfigName];
             if (serverConfig == null)
