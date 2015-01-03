@@ -32,7 +32,7 @@ using Mono.Addins;
 //
 [assembly: AssemblyVersion("0.8.1.*")]
 
-[assembly: Addin("Diva.Wifi(Robust)", OpenSim.VersionInfo.VersionNumber + Diva.Wifi.WebApp.WifiVersion, Url = "http://metaverseink.com", Category = "RobustPlugin")]
+[assembly: Addin("Diva.Wifi.Robust", OpenSim.VersionInfo.VersionNumber + Diva.Wifi.WebApp.WifiVersion, Url = "http://metaverseink.com", Category = "RobustPlugin")]
 [assembly: AddinDependency("Robust", OpenSim.VersionInfo.VersionNumber)]
 [assembly: AddinDescription("Diva Wifi, a Web application for OpenSim grids")]
 [assembly: AddinAuthor("Diva Canto")]
