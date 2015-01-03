@@ -400,6 +400,12 @@ namespace Diva.Wifi
                     m_log.WarnFormat("[Wifi]: Unable to create folder {0}", UserDocsPath);
             }
 
+            if (Directory.Exists(DocsPath))
+            {
+                // Always delete it
+                Directory.Delete(DocsPath, true);
+            }
+
             foreach (string resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())
             {
                 if (!resourceName.StartsWith("Diva.Wifi"))
