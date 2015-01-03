@@ -87,16 +87,16 @@ namespace Diva.Wifi
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName) :
             this(config, server, configName, null)
         {
-            m_Server = server;
-            Config = config;
-            if (!string.IsNullOrEmpty(configName))
-                ConfigName = configName;
         }
 
         public WifiServerConnector(IConfigSource config, IHttpServer server, string configName, ISceneActor sactor) :
             base(config, server, configName)
         {
+            m_Server = server;
+            Config = config;
             m_SceneActor = sactor;
+            if (!string.IsNullOrEmpty(configName))
+                ConfigName = configName;
             m_log.DebugFormat("[Wifi]: WifiServerConnector starting with config {0}", ConfigName);
 
             Initialize(server);
@@ -189,6 +189,9 @@ namespace Diva.Wifi
         public void Initialize(IHttpServer server)
         {
             m_log.DebugFormat("[Wifi]: Initializing. Server at port {0}.", server.Port);
+            if (Config == null)
+                m_log.ErrorFormat("[XXX]: NULL");
+
             IConfig serverConfig = Config.Configs[ConfigName];
             if (serverConfig == null)
                 throw new Exception(String.Format("No section {0} in config file", ConfigName));
