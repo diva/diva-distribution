@@ -301,7 +301,6 @@ namespace Diva.Wifi
 
             dll = Path.Combine(AssemblyDirectory, dll);
             
-            m_log.DebugFormat("[XXX]: {0}", dll);
             database.Set("StorageProvider", dll);
         }
     }
