@@ -16,6 +16,7 @@ namespace Diva.Interfaces
             get;
         }
 
+        bool LoadConfig(IConfigSource config);
         void Initialize(IConfigSource config, string configName, IHttpServer server, IWifiApp app);
         string GetContent(IEnvironment env);
     }

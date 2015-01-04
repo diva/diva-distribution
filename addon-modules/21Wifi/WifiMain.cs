@@ -174,7 +174,8 @@ namespace Diva.Wifi
             if (args.Change == ExtensionChange.Add)
             {
                 m_log.InfoFormat("[Wifi]: Detected addon {0}", addon.Name);
-                addon.Initialize(m_Config, ConfigName, m_Server, m_WebApp);
+                if (addon.LoadConfig(m_Config))
+                    addon.Initialize(m_Config, ConfigName, m_Server, m_WebApp);
             }
         }
 
