@@ -31,4 +31,3 @@ using Mono.Addins;
 //      Revision
 //
 [assembly: AssemblyVersion("0.8.1.*")]
-

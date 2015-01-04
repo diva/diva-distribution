@@ -68,7 +68,7 @@ namespace Diva.Wifi
         }
 
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-        public const string WifiVersion = ".2";
+        public const string WifiVersion = "2";
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
         public static readonly string UserDocsPath = "..";

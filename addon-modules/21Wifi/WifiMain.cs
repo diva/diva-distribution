@@ -31,6 +31,7 @@ using System.Linq;
 using System.Reflection;
 using log4net;
 using Nini.Config;
+using Mono.Addins;
 
 using OpenSim.Server.Base;
 using OpenSim.Framework.Servers.HttpServer;
@@ -50,6 +51,7 @@ namespace Diva.Wifi
         private List<IRequestHandler> m_RequestHandlers = new List<IRequestHandler>();
 
         private IConfigSource m_Config;
+        private WebApp m_WebApp;
 
         private string ConfigName
         {
@@ -90,40 +92,40 @@ namespace Diva.Wifi
                 throw new Exception(String.Format("No section {0} in config file", ConfigName));
 
             // Launch the WebApp
-            WebApp app = new WebApp(m_Config, ConfigName, m_Server, m_SceneActor);
+            m_WebApp = new WebApp(m_Config, ConfigName, m_Server, m_SceneActor);
 
             // Register all the handlers
-            BaseStreamHandler defaultHandler = new WifiDefaultHandler(app);
+            BaseStreamHandler defaultHandler = new WifiDefaultHandler(m_WebApp);
             AddStreamHandler(defaultHandler);
             AddStreamHandler(new WifiRootHandler(defaultHandler));
-            AddStreamHandler(new WifiHeadHandler(app));
-            AddStreamHandler(new WifiNotifyHandler(app));
-            AddStreamHandler(new WifiInstallGetHandler(app));
-            AddStreamHandler(new WifiInstallPostHandler(app));
-            AddStreamHandler(new WifiLoginHandler(app));
-            AddStreamHandler(new WifiLogoutHandler(app));
-            AddStreamHandler(new WifiForgotPasswordGetHandler(app));
-            AddStreamHandler(new WifiForgotPasswordPostHandler(app));
-            AddStreamHandler(new WifiPasswordRecoverGetHandler(app));
-            AddStreamHandler(new WifiPasswordRecoverPostHandler(app));
-            AddStreamHandler(new WifiUserAccountGetHandler(app));
-            AddStreamHandler(new WifiUserAccountPostHandler(app));
-            AddStreamHandler(new WifiUserManagementGetHandler(app));
-            AddStreamHandler(new WifiUserManagementPostHandler(app));
-            AddStreamHandler(new WifiConsoleHandler(app));
+            AddStreamHandler(new WifiHeadHandler(m_WebApp));
+            AddStreamHandler(new WifiNotifyHandler(m_WebApp));
+            AddStreamHandler(new WifiInstallGetHandler(m_WebApp));
+            AddStreamHandler(new WifiInstallPostHandler(m_WebApp));
+            AddStreamHandler(new WifiLoginHandler(m_WebApp));
+            AddStreamHandler(new WifiLogoutHandler(m_WebApp));
+            AddStreamHandler(new WifiForgotPasswordGetHandler(m_WebApp));
+            AddStreamHandler(new WifiForgotPasswordPostHandler(m_WebApp));
+            AddStreamHandler(new WifiPasswordRecoverGetHandler(m_WebApp));
+            AddStreamHandler(new WifiPasswordRecoverPostHandler(m_WebApp));
+            AddStreamHandler(new WifiUserAccountGetHandler(m_WebApp));
+            AddStreamHandler(new WifiUserAccountPostHandler(m_WebApp));
+            AddStreamHandler(new WifiUserManagementGetHandler(m_WebApp));
+            AddStreamHandler(new WifiUserManagementPostHandler(m_WebApp));
+            AddStreamHandler(new WifiConsoleHandler(m_WebApp));
 
-            AddStreamHandler(new WifiInventoryLoadGetHandler(app));
-            AddStreamHandler(new WifiInventoryGetHandler(app));
-            AddStreamHandler(new WifiInventoryPostHandler(app));
+            AddStreamHandler(new WifiInventoryLoadGetHandler(m_WebApp));
+            AddStreamHandler(new WifiInventoryGetHandler(m_WebApp));
+            AddStreamHandler(new WifiInventoryPostHandler(m_WebApp));
 
-            AddStreamHandler(new WifiHyperlinkGetHandler(app));
-            AddStreamHandler(new WifiHyperlinkPostHandler(app));
+            AddStreamHandler(new WifiHyperlinkGetHandler(m_WebApp));
+            AddStreamHandler(new WifiHyperlinkPostHandler(m_WebApp));
 
-            AddStreamHandler(new WifiTOSGetHandler(app));
-            AddStreamHandler(new WifiTOSPostHandler(app));
+            AddStreamHandler(new WifiTOSGetHandler(m_WebApp));
+            AddStreamHandler(new WifiTOSPostHandler(m_WebApp));
 
-            AddStreamHandler(new WifiGroupsManagementGetHandler(app));
-            AddStreamHandler(new WifiGroupsManagementPostHandler(app));
+            AddStreamHandler(new WifiGroupsManagementGetHandler(m_WebApp));
+            AddStreamHandler(new WifiGroupsManagementPostHandler(m_WebApp));
 
             //server.AddStreamHandler(new WifiRegionManagementPostHandler(app));
             //server.AddStreamHandler(new WifiRegionManagementGetHandler(app));
@@ -153,7 +155,7 @@ namespace Diva.Wifi
                     if (addonDll != string.Empty)
                     {
                         m_log.InfoFormat("[Wifi]: Loading addon {0}", addonDll);
-                        object[] args = new object[] { m_Config, ConfigName, m_Server, app };
+                        object[] args = new object[] { m_Config, ConfigName, m_Server, m_WebApp };
                         IWifiAddon addon = ServerUtils.LoadPlugin<IWifiAddon>(addonDll, args);
 
                         if (addon == null)
@@ -162,6 +164,18 @@ namespace Diva.Wifi
                 }
             }
 
+            // Load Wifi addons as mono addins
+            AddinManager.AddExtensionNodeHandler("/Diva/Wifi/Addon", OnExtensionChanged);
+        }
+
+        private void OnExtensionChanged(object s, ExtensionNodeEventArgs args)
+        {
+            IWifiAddon addon = (IWifiAddon)args.ExtensionObject;
+            if (args.Change == ExtensionChange.Add)
+            {
+                m_log.InfoFormat("[Wifi]: Detected addon {0}", addon.Name);
+                addon.Initialize(m_Config, ConfigName, m_Server, m_WebApp);
+            }
         }
 
         public void Unload()
