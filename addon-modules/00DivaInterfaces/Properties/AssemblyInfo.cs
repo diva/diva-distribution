@@ -32,5 +32,6 @@ using Mono.Addins;
 //
 [assembly: AssemblyVersion("0.8.1.*")]
 
-
 [assembly: Addin("Diva.Interfaces", OpenSim.VersionInfo.VersionNumber + "." + Diva.Interfaces.Info.VersionNumber)]
+[assembly: AddinDescription("Extension point for Wifi addons")]
+[assembly: AddinAuthor("Diva Canto")]

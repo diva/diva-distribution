@@ -36,3 +36,5 @@ using Mono.Addins;
 [assembly: Addin("Diva.Modules", OpenSim.VersionInfo.VersionNumber + ".1")]
 [assembly: AddinDependency("OpenSim.Region.Framework", OpenSim.VersionInfo.VersionNumber)]
 
+[assembly: AddinDescription("Script events module")]
+[assembly: AddinAuthor("Diva Canto")]
