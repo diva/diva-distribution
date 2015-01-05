@@ -164,8 +164,15 @@ namespace Diva.Wifi
                 }
             }
 
-            // Load Wifi addons as mono addins
-            AddinManager.AddExtensionNodeHandler("/Diva/Wifi/Addon", OnExtensionChanged);
+            // Load Wifi addons as mono addins, if they exist
+            try
+            {
+                AddinManager.AddExtensionNodeHandler("/Diva/Wifi/Addon", OnExtensionChanged);
+            }
+            catch (InvalidOperationException e)
+            {
+                m_log.DebugFormat("[Wifi]: extension point /Diva/Wifi/Addon not found");
+            }
         }
 
         private void OnExtensionChanged(object s, ExtensionNodeEventArgs args)
