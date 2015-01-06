@@ -31,3 +31,24 @@ using Mono.Addins;
 //      Revision
 //
 [assembly: AssemblyVersion("0.8.1.*")]
+
+[assembly: Addin("Diva.Wifi", OpenSim.VersionInfo.VersionNumber + "." + Diva.Wifi.WebApp.WifiVersion, Url = "http://metaverseink.com", Category = "RobustPlugin")]
+[assembly: AddinDependency("Diva.Interfaces", OpenSim.VersionInfo.VersionNumber + "." + Diva.Interfaces.Info.VersionNumber)]
+[assembly: AddinDependency("Robust", OpenSim.VersionInfo.VersionNumber)]
+[assembly: AddinDependency("OpenSim.Region.Framework", OpenSim.VersionInfo.VersionNumber)]
+
+[assembly: AddinDescription("Diva Wifi, a Web application for OpenSim grids")]
+[assembly: AddinAuthor("Diva Canto")]
+
+[assembly: ImportAddinAssembly("Diva.Data.dll")]
+[assembly: ImportAddinAssembly("Diva.Data.MySQL.dll")]
+[assembly: ImportAddinAssembly("Diva.OpenSimServices.dll")]
+[assembly: ImportAddinAssembly("Diva.Utils.dll")]
+[assembly: ImportAddinAssembly("Diva.Wifi.ScriptEngine.dll")]
+
+[assembly: ImportAddinAssembly("de/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("en/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("es/Diva.Wifi.resources.dll")]
+[assembly: ImportAddinAssembly("fr/Diva.Wifi.resources.dll")]
+
+[assembly: ImportAddinFile("Wifi.ini")]

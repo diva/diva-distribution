@@ -44,10 +44,9 @@ using Diva.Interfaces;
 
 using Mono.Addins;
 
-namespace Diva.Modules
+namespace Diva.Wifi
 {
     [Extension(Path = "/OpenSim/RegionModules", NodeName = "RegionModule", Id = "WifiModule")]
-
     public class WifiModule : ISharedRegionModule, ISceneActor
     {
         #region Class and Instance Members
@@ -55,6 +54,7 @@ namespace Diva.Modules
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private bool m_enabled = false;
         private List<Scene> m_Scenes = new List<Scene>();
+        private WifiMain m_WifiMain;
 
         #endregion
 
@@ -69,10 +69,7 @@ namespace Diva.Modules
                 m_enabled = config.Configs["Modules"].GetBoolean("WifiModule", m_enabled);
                 if (m_enabled)
                 {
-                    object[] args = new object[] { config, MainServer.Instance, string.Empty, this };
-                    //new WifiServerConnector(config, MainServer.Instance, string.Empty);
-
-                    ServerUtils.LoadPlugin<IServiceConnector>("Diva.Wifi.dll:WifiMain", args);
+                    m_WifiMain = new WifiMain(config, MainServer.Instance, string.Empty, this);
                     m_log.Debug("[Wifi Module]: Wifi enabled.");
                 }
 
@@ -94,7 +91,7 @@ namespace Diva.Modules
 
         public string Name
         {
-            get { return "Wifi Service"; }
+            get { return "Wifi Service Module"; }
         }
 
         public Type ReplaceableInterface 
