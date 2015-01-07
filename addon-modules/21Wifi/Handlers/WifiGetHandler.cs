@@ -52,20 +52,20 @@ namespace Diva.Wifi
                 IOSHttpRequest httpRequest, IOSHttpResponse httpResponse)
         {
             string resource = GetParam(path);
-            //m_log.DebugFormat("[Wifi]: resource {0}", resource);
             resource = resource.Trim(WebAppUtils.DirectorySeparatorChars);
             string resourcePath = System.IO.Path.Combine(m_LocalPath, resource);
             resourcePath = Uri.UnescapeDataString(resourcePath);
+            m_log.DebugFormat("[Wifi]: resourcePath {0}", resourcePath);
 
             string type = WebAppUtils.GetContentType(resource);
             httpResponse.ContentType = type;
             //m_log.DebugFormat("[Wifi]: ContentType {0}", type);
             if (type.StartsWith("image"))
-                return WebAppUtils.ReadBinaryResource(resourcePath);
+                return WebAppUtils.ReadBinaryResource(new string[] {resourcePath});
 
             if (type.StartsWith("application") || type.StartsWith("text"))
             {
-                string res = WebAppUtils.ReadTextResource(resourcePath, WebApp.MissingPage, true);
+                string res = WebAppUtils.ReadTextResource(new string[] {resourcePath}, WebApp.MissingPage, true);
                 return WebAppUtils.StringToBytes(res);
             }
 

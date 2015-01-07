@@ -73,72 +73,83 @@ namespace Diva.Utils
             return "text/html";
         }
 
-        public static byte[] ReadBinaryResource(string resourceName)
+        public static byte[] ReadBinaryResource(string[] resourceNames)
         {
-            try
+            foreach (string resourceName in resourceNames)
             {
-                using (BinaryReader sr = new BinaryReader(File.Open(resourceName, FileMode.Open)))
+                try
                 {
-                    byte[] buffer = new byte[32768];
-                    using (MemoryStream ms = new MemoryStream())
+                    using (BinaryReader sr = new BinaryReader(File.Open(resourceName, FileMode.Open)))
                     {
-                        while (true)
+                        byte[] buffer = new byte[32768];
+                        using (MemoryStream ms = new MemoryStream())
                         {
-                            int read = sr.Read(buffer, 0, buffer.Length);
-                            if (read <= 0)
-                                return ms.ToArray();
-                            ms.Write(buffer, 0, read);
+                            while (true)
+                            {
+                                int read = sr.Read(buffer, 0, buffer.Length);
+                                if (read <= 0)
+                                    return ms.ToArray();
+                                ms.Write(buffer, 0, read);
+                            }
                         }
                     }
                 }
+                catch (Exception e)
+                {
+                    continue;
+                }
             }
-            catch (Exception e)
-            {
-                // Let the user know what went wrong.
-                m_log.DebugFormat("[Wifi]: Exception in ReadBinaryResource {0}", e.Message);
-                return new byte[0];
-            }
-
+            // Let the user know what went wrong.
+            m_log.DebugFormat("[Wifi]: BinaryResource {0} not found", Path.GetFileName(resourceNames[0]));
+            return new byte[0];
         }
 
-        public static string ReadTextResource(string resourceName, string missingpage)
+        public static string ReadTextResource(string[] resourceNames, string missingpage)
         {
-            return ReadTextResource(resourceName, missingpage, false);
+            return ReadTextResource(resourceNames, missingpage, false);
         }
 
-        public static string ReadTextResource(string resourceName, string missingpage, bool keepEndOfLines)
+        public static string ReadTextResource(string[] resourceNames, string missingpage, bool keepEndOfLines)
         {
             StringBuilder buffer = new StringBuilder();
-            try
+            bool found = false;
+            foreach (string resourceName in resourceNames)
             {
-                // Create an instance of StreamReader to read from a file.
-                // The using statement also closes the StreamReader.
-                using (StreamReader sr = new StreamReader(resourceName))
+                try
                 {
-                    if (keepEndOfLines)
+                    using (StreamReader sr = new StreamReader(resourceName))
                     {
-                        buffer.Append(sr.ReadToEnd());
-                    }
-                    else
-                    {
-                        String line;
-                        while ((line = sr.ReadLine()) != null)
+                        if (keepEndOfLines)
                         {
-                            buffer.Append(line);
+                            buffer.Append(sr.ReadToEnd());
                         }
+                        else
+                        {
+                            String line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                buffer.Append(line);
+                            }
+                        }
+                        found = true;
+                        break;
                     }
                 }
+                catch (Exception e)
+                {
+                    continue;
+                }
             }
-            catch (Exception e)
+
+            if (!found)
             {
                 // Let the user know what went wrong.
-                m_log.DebugFormat("[Wifi]: Exception in ReadTextResource {0}", e.Message);
+                m_log.DebugFormat("[Wifi]: TextResource {0} not found", Path.GetFileName(resourceNames[0]));
                 if (missingpage != string.Empty)
-                    return ReadTextResource(missingpage, "");
+                    return ReadTextResource(new string[] {missingpage}, "");
                 else
                     return string.Empty;
             }
-
             return buffer.ToString();
         }
         

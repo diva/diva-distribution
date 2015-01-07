@@ -72,7 +72,7 @@ namespace Diva.Wifi
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
         public static readonly string UserDocsPath = "..";
-        private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "welcome.html" });
+        private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "termsofservice.html", "welcome.html" });
         public static readonly string MissingPage = Path.Combine(DocsPath, "404.html");
 
         public static WebApp WebAppInstance;
@@ -398,6 +398,8 @@ namespace Diva.Wifi
                 DirectoryInfo di = Directory.CreateDirectory(UserDocsPath);
                 if (di == null)
                     m_log.WarnFormat("[Wifi]: Unable to create folder {0}", UserDocsPath);
+                else
+                    Directory.CreateDirectory(Path.Combine(UserDocsPath, "images"));
             }
 
             if (Directory.Exists(DocsPath))
@@ -463,6 +465,12 @@ namespace Diva.Wifi
             return resourcePath;
         }
 
+        public static string[] GetPaths(string resource)
+        {
+            // UserDocsPath (external) comes first
+            return new string[] {System.IO.Path.Combine(Path.Combine(WebApp.UserDocsPath, "WifiPages"), resource), System.IO.Path.Combine(WebApp.DocsPath, resource)};
+        }
+
         public string ReadFile(IEnvironment env, string path)
         {
             return ReadFile((Environment)env, path, ((Environment)env).Data);
@@ -483,7 +491,7 @@ namespace Diva.Wifi
             catch (Exception e)
             {
                 m_log.DebugFormat("[Wifi]: Exception on ReadFile {0}: {1}", path, e);
-                return WebAppUtils.ReadTextResource(WebApp.MissingPage, WebApp.MissingPage);
+                return WebAppUtils.ReadTextResource(new string[] {WebApp.MissingPage}, "");
             }
         }
         #endregion
