@@ -45,16 +45,21 @@ namespace Diva.AddinExample
 
         public void Initialise(IConfigSource config)
         {
-            LoadConfiguration(config);
-
+            // We only load the configuration file if the main config doesn't know about this module already
             IConfig cnf = config.Configs["AddinExample"];
             if (cnf == null)
             {
-                m_log.ErrorFormat("[Diva.AddinExample]: Section AddinExample not found in configuration");
-                return;
+                LoadConfiguration(config);
+                cnf = config.Configs["AddinExample"];
+                if (cnf == null)
+                {
+                    m_log.WarnFormat("[Diva.AddinExample]: Configuration section AddinExample not found. Unable to proceed.");
+                    return;
+                }
             }
 
             m_Enabled = cnf.GetBoolean("enabled", m_Enabled);
+
             if (m_Enabled)
             {
                 string pathToCsvFile = Path.Combine(AssemblyDirectory, "Names.csv");
@@ -101,34 +106,19 @@ namespace Diva.AddinExample
 
         private void LoadConfiguration(IConfigSource config)
         {
-
-            IConfig cnf = config.Configs["Startup"];
-            if (cnf == null)
+            string configPath = string.Empty;
+            bool created;
+            if (!Util.MergeConfigurationFile(config, "AddinExample.ini", Path.Combine(AssemblyDirectory, "AddinExample.ini"), out configPath, out created))
+            {
+                m_log.WarnFormat("[Diva.AddinExample]: Configuration file not merged");
                 return;
-
-            string configDirectory = cnf.GetString("ConfigDirectory", ".");
-
-            string configFile = Path.Combine(configDirectory, "AddinExample.ini");
-            if (!File.Exists(configFile))
-            {
-                // We need to copy the one that comes in the package
-
-                if (!Directory.Exists(configDirectory))
-                    Directory.CreateDirectory(configDirectory);
-
-                string embeddedConfig = Path.Combine(AssemblyDirectory, "AddinExample.ini");
-                File.Copy(embeddedConfig, configFile);
-                m_log.ErrorFormat("[Diva.AddinExample]: PLEASE EDIT {0} BEFORE RUNNING THIS ADDIN", configFile);
-                throw new Exception("AddinExample addin must be configured prior to running");
             }
 
-            if (File.Exists(configFile))
+            if (created)
             {
-                // Merge 
-                config.Merge(new IniConfigSource(configFile));
+                m_log.ErrorFormat("[Diva.AddinExample]: PLEASE EDIT {0} BEFORE RUNNING THIS ADDIN", configPath);
+                throw new Exception("Addin must be configured prior to running");
             }
-            else
-                m_log.WarnFormat("[Diva.AddinExample]: Config file {0} not found", configFile);
 
         }
 
