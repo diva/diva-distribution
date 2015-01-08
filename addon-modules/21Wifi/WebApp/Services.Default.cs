@@ -37,7 +37,7 @@ namespace Diva.Wifi
     {
         public string DefaultRequest(Environment env)
         {
-            m_log.DebugFormat("[Wifi]: DefaultRequest");
+            m_log.DebugFormat("[Wifi]: DefaultRequest from {0}", env.TheRequest.IPEndPoint.ToString());
 
             SessionInfo sinfo;
             if (TryGetSessionInfo(env.TheRequest, out sinfo))
