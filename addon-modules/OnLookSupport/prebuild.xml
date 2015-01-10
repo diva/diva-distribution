@@ -1,0 +1,19 @@
+<!-- Diva.OnLookSupport -->
+<Project frameworkVersion="v4_0" name="Diva.OnLook" path="addon-modules/OnLookSupport" type="Library">
+  <Configuration name="Debug">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+  <Configuration name="Release">
+    <Options>
+      <OutputPath>../../bin/</OutputPath>
+    </Options>
+  </Configuration>
+
+  <ReferencePath>../../bin/</ReferencePath>
+
+  <Files>
+    <Match pattern="*.xml" path="ViewerSupport" recurse="true" buildAction="Copy" destination="../../bin/ViewerSupport" />
+  </Files>
+</Project>

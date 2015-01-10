@@ -1,0 +1,3 @@
+This folder contains UI customizations that opensim servers can send
+to OnLook viewers. Place these files in your opensim installation
+under the folder bin/ViewerSupport (if it doesn't exist, create it).
