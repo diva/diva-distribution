@@ -140,14 +140,6 @@ namespace Diva.Wifi
                     return (uint)port;
             }
 
-            section = Config.Configs["Network"];
-            if (section != null)
-            {
-                port = section.GetInt("port", -1);
-                if (port > 0)
-                    return (uint)port;
-            }
-
             if (port < 0)
                 throw new Exception("[Wifi]: Could not find port in configuration file");
 
