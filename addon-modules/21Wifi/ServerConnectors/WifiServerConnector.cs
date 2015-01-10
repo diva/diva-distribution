@@ -89,26 +89,27 @@ namespace Diva.Wifi
             string configdirectory = startconfig.GetString("ConfigDirectory", ".");
 
             ConfigFile = Path.Combine(configdirectory, CONFIG_FILE);
-            if (!File.Exists(ConfigFile))
-            {
-                // We need to copy the one that comes in the package
-
-                if (!Directory.Exists(configdirectory))
-                    Directory.CreateDirectory(configdirectory);
-
-                string embeddedConfig = Path.Combine(AssemblyDirectory, CONFIG_FILE);
-                File.Copy(embeddedConfig, ConfigFile);
-                m_log.ErrorFormat("[Wifi]: PLEASE EDIT {0} BEFORE RUNNING THIS SERVICE", ConfigFile);
-                throw new Exception("Wifi addin must be configured prior to running");
-            }
 
             IConfig wifiConfig = Config.Configs[ConfigName];
+            
             if (wifiConfig == null)
             {
-                m_log.DebugFormat("[Wifi]: Configuring from {0}...", ConfigFile);
-
-                if (File.Exists(ConfigFile))
+                // No [WifiService] in the main configuration. We need to read it from its own file
+                if (!File.Exists(ConfigFile))
                 {
+                    // We need to copy the one that comes in the package
+                    if (!Directory.Exists(configdirectory))
+                        Directory.CreateDirectory(configdirectory);
+
+                    string embeddedConfig = Path.Combine(AssemblyDirectory, CONFIG_FILE);
+                    File.Copy(embeddedConfig, ConfigFile);
+                    m_log.ErrorFormat("[Wifi]: PLEASE EDIT {0} BEFORE RUNNING THIS SERVICE", ConfigFile);
+                    throw new Exception("Wifi addin must be configured prior to running");
+                }
+                else
+                {
+                    m_log.DebugFormat("[Wifi]: Configuring from {0}...", ConfigFile);
+
                     IConfigSource configsource = new IniConfigSource(ConfigFile);
                     AdjustStorageProvider(configsource);
 
@@ -118,15 +119,13 @@ namespace Diva.Wifi
                     Config.Merge(configsource);
                     Config.ExpandKeyValues();
                 }
-                else
-                    m_log.WarnFormat("[Wifi]: Config file {0} not found", ConfigFile);
 
                 if (wifiConfig == null)
                     throw new Exception(string.Format("[Wifi]: Could not load configuration from {0}. Unable to proceed.", ConfigFile));
 
             }
 
-            Enabled = true;
+            Enabled = wifiConfig.GetBoolean("Enabled", false);
 
             // Let's look for the port in WifiService first, then look elsewhere
             int port = wifiConfig.GetInt("ServerPort", -1);
@@ -157,7 +156,10 @@ namespace Diva.Wifi
 
         public void Initialize(IHttpServer server)
         {
-            m_log.DebugFormat("[Wifi]: Initializing. Server at port {0}.", server.Port);
+            m_log.DebugFormat("[Wifi]: Initializing. Server at port {0}. Service is {1}", server.Port, Enabled ? "enabled" : "disabled");
+
+            if (!Enabled)
+                return;
 
             IConfig serverConfig = Config.Configs[ConfigName];
             if (serverConfig == null)
@@ -168,6 +170,9 @@ namespace Diva.Wifi
 
         public void Unload()
         {
+            if (!Enabled)
+                return;
+
             m_WifiMain.Unload();
         }
 

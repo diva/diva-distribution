@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Mono.Addins;
@@ -32,7 +33,7 @@ using Mono.Addins;
 //
 [assembly: AssemblyVersion("0.8.1.*")]
 
-[assembly: Addin("Diva.Wifi", OpenSim.VersionInfo.VersionNumber + "." + Diva.Wifi.WebApp.WifiVersion, Url = "http://metaverseink.com", Category = "RobustPlugin")]
+[assembly: Addin("Diva.Wifi", OpenSim.VersionInfo.VersionNumber + "." + Diva.Wifi.Info.VersionNumber, Url = "http://metaverseink.com", Category = "RobustPlugin")]
 [assembly: AddinDependency("Diva.Interfaces", OpenSim.VersionInfo.VersionNumber + "." + Diva.Interfaces.Info.VersionNumber)]
 [assembly: AddinDependency("Robust", OpenSim.VersionInfo.VersionNumber)]
 [assembly: AddinDependency("OpenSim.Region.Framework", OpenSim.VersionInfo.VersionNumber)]
@@ -52,3 +53,21 @@ using Mono.Addins;
 [assembly: ImportAddinAssembly("fr/Diva.Wifi.resources.dll")]
 
 [assembly: ImportAddinFile("Wifi.ini")]
+
+namespace Diva.Wifi
+{
+    class Info
+    {
+        public const string VersionNumber = "3";
+
+        public static string AssemblyDirectory
+        {
+            get
+            {
+                string location = Assembly.GetExecutingAssembly().Location;
+                return Path.GetDirectoryName(location);
+            }
+        }
+
+    }
+}

@@ -27,6 +27,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using OpenSim.Framework;
 using OpenSim.Framework.Servers;
@@ -64,14 +65,25 @@ namespace Diva.Wifi
         {
             m_log.Info("[Wifi Module]: Initializing...");
 
+            // We only load the configuration file if the config doesn't know about this module already
+            IConfig wifiConfig = config.Configs["WifiService"];
+            if (wifiConfig == null)
+                LoadConfiguration(config);
+
+            wifiConfig = config.Configs["WifiService"];
+            if (wifiConfig == null)
+                throw new Exception("[Wifi Module]: Unable to find configuration. Service disabled.");
+
             try
             {
-                m_enabled = config.Configs["Modules"].GetBoolean("WifiModule", m_enabled);
+                m_enabled = wifiConfig.GetBoolean("Enabled", m_enabled);
                 if (m_enabled)
                 {
                     m_WifiMain = new WifiMain(config, MainServer.Instance, string.Empty, this);
                     m_log.Debug("[Wifi Module]: Wifi enabled.");
                 }
+                else
+                    m_log.Debug("[Wifi Module]: Wifi disabled.");
 
             }
             catch (Exception e)
@@ -133,6 +145,46 @@ namespace Diva.Wifi
         {
             foreach (Scene s in m_Scenes)
                 d(s);
+        }
+
+        private void LoadConfiguration(IConfigSource config)
+        {
+            string configPath = string.Empty;
+            bool created;
+            if (!Util.MergeConfigurationFile(config, "Wifi.ini", Path.Combine(Diva.Wifi.Info.AssemblyDirectory, "Wifi.ini"), out configPath, out created))
+            {
+                m_log.WarnFormat("[Wifi Module]: Configuration file not merged.");
+                return;
+            }
+
+            AdjustStorageProvider(config);
+
+            if (created)
+            {
+                m_log.ErrorFormat("[Wifi Module]: PLEASE EDIT {0} BEFORE RUNNING THIS SERVICE", configPath);
+                throw new Exception("Wifi addin must be configured prior to running");
+            }
+        }
+
+        private void AdjustStorageProvider(IConfigSource configsource)
+        {
+            IConfig database = configsource.Configs["DatabaseService"];
+            if (database == null)
+            {
+                m_log.WarnFormat("[Wifi]: DatabaseService section not found");
+                return;
+            }
+
+            string dll = database.GetString("StorageProvider", string.Empty);
+            if (dll == string.Empty)
+            {
+                m_log.WarnFormat("[Wifi]: StorageProvider not found");
+                return;
+            }
+
+            dll = Path.Combine(Diva.Wifi.Info.AssemblyDirectory, dll);
+
+            database.Set("StorageProvider", dll);
         }
 
     }
