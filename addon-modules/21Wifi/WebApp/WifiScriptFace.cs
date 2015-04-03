@@ -282,7 +282,9 @@ namespace Diva.Wifi
                 return m_WebApp.ReadFile(env, "main-menu-users.html", env.Data);
             }
 
-            return m_WebApp.ReadFile(env, "main-menu.html", env.Data);
+            // At the request of Ai Austin, I'm exposing this to users. But just this.
+            string[] resources = WebApp.GetPaths("main-menu.html");
+            return WebAppUtils.ReadTextResource(resources, WebApp.MissingPage);
         }
 
         public string GetAddonsMenu(Environment env)
