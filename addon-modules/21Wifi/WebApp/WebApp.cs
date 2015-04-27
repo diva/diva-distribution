@@ -480,12 +480,13 @@ namespace Diva.Wifi
             string file = Localization.LocalizePath(env, path);
             try
             {
+                string content = string.Empty;
                 using (StreamReader sr = new StreamReader(file))
                 {
-                    string content = sr.ReadToEnd();
-                    Processor p = new Processor(WifiScriptFace, m_ExtensionMethods, env, lot);
-                    return p.Process(content);
+                    content = sr.ReadToEnd();
                 }
+                Processor p = new Processor(WifiScriptFace, m_ExtensionMethods, env, lot);
+                return p.Process(content);
             }
             catch (Exception e)
             {

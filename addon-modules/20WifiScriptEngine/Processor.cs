@@ -150,7 +150,8 @@ namespace Diva.Wifi.WifiScript
                 // ignore the name which should be file
                 string file = m_WebApp.LocalizePath(m_Env, value);
                 //m_log.DebugFormat("[WifiScript]: Including file {0} with index = {1} (previous file is {2})", file, m_Index, m_FileName);
-                
+
+                string content = string.Empty;
                 using (StreamReader sr = new StreamReader(file))
                 {
                     if (file == m_FileName)
@@ -164,8 +165,7 @@ namespace Diva.Wifi.WifiScript
                             }
                         }
 
-                        // recurse!
-                        return Process(sr.ReadToEnd());
+                        content = sr.ReadToEnd();
                     }
                     else
                     {
@@ -186,6 +186,10 @@ namespace Diva.Wifi.WifiScript
                         return result;
                     }
                 }
+
+                // recurse!
+                if (!string.IsNullOrEmpty(content))
+                    return Process(content);
             }
 
             return string.Empty;
