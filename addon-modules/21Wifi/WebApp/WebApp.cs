@@ -251,6 +251,12 @@ namespace Diva.Wifi
             get { return m_SmtpPassword; }
         }
 
+        private bool m_BypassCertificateVerification;
+        public bool BypassCertificateVerification
+        {
+            get { return m_BypassCertificateVerification; }
+        }
+
         private Avatar[] m_DefaultAvatars;
         public Avatar[] DefaultAvatars
         {
@@ -315,6 +321,7 @@ namespace Diva.Wifi
             m_SmtpPort = Int32.Parse(appConfig.GetString("SmtpPort", "587"));
             m_SmtpUsername = appConfig.GetString("SmtpUsername", "your_email@gmail.com");
             m_SmtpPassword = appConfig.GetString("SmtpPassword", "your_password");
+            m_BypassCertificateVerification = appConfig.GetBoolean("BypassCertificateVerification", false);
 
             m_AdminFirst = appConfig.GetString("AdminFirst", string.Empty);
             m_AdminLast = appConfig.GetString("AdminLast", string.Empty);

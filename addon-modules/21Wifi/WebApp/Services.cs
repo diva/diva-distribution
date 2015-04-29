@@ -33,7 +33,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
+using System.Net.Security;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -112,6 +114,11 @@ namespace Diva.Wifi
 
             // Create the "God" account if it doesn't exist
             CreateGod();
+
+            if (m_WebApp.BypassCertificateVerification)
+                ServicePointManager.ServerCertificateValidationCallback =
+                    delegate(object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+                        { return true; };
 
             // Connect to our outgoing mail server for password forgetfulness
             m_Client = new SmtpClient(m_WebApp.SmtpHost, m_WebApp.SmtpPort);
