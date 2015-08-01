@@ -31,7 +31,7 @@ using Mono.Addins;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.8.1.*")]
+[assembly: AssemblyVersion("0.8.2.*")]
 
 [assembly: Addin("Diva.Wifi", OpenSim.VersionInfo.VersionNumber + "." + Diva.Wifi.Info.VersionNumber, Url = "http://metaverseink.com", Category = "RobustPlugin")]
 [assembly: AddinDependency("Diva.Interfaces", OpenSim.VersionInfo.VersionNumber + "." + Diva.Interfaces.Info.VersionNumber)]
