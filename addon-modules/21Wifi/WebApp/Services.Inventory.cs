@@ -188,7 +188,7 @@ namespace Diva.Wifi
             List<UUID> folders = new List<UUID>();
             SplitNodes(userID, nodes, types, items, folders);
 
-            InventoryFolderBase trash = m_InventoryService.GetFolderForType(userID, AssetType.TrashFolder);
+            InventoryFolderBase trash = m_InventoryService.GetFolderForType(userID, FolderType.Trash);
             if (trash != null)
             {
                 List<InventoryItemBase> its = new List<InventoryItemBase>();

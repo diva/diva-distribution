@@ -254,7 +254,7 @@ namespace Diva.LoginService
                 //
                 LLLoginResponse response = new LLLoginResponse(account, aCircuit, guinfo, destination, inventorySkel, friendsList, m_LibraryService,
                     where, startLocation, position, lookAt, gestures, m_WelcomeMessage, home, clientIP, m_MapTileURL, m_SearchURL, m_Currency, m_DSTZone,
-                    string.Empty, string.Empty, string.Empty);
+                    string.Empty, string.Empty, string.Empty, m_MaxAgentGroups);
 
                 m_log.DebugFormat("[DIVA LLOGIN SERVICE]: All clear. Sending login response to client.");
                 return response;
