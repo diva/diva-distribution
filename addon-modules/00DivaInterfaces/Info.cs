@@ -7,6 +7,6 @@ namespace Diva.Interfaces
 {
     public class Info
     {
-        public const string VersionNumber = "1";
+        public const string VersionNumber = "2";
     }
 }

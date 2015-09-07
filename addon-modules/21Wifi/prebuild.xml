@@ -52,9 +52,10 @@
       <Exclude pattern="Tests" />
     </Match>
     <Match pattern="*.resx" buildAction="EmbeddedResource" recurse="true" />
-
-    <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />
     
+    <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />
+    <Match pattern="Localization/*.pot" buildAction="Copy" destination="../../bin/" />
+
     <Match pattern="*" buildAction="EmbeddedResource" path="WifiPages" />
     <Match pattern="scripts/*.js" buildAction="EmbeddedResource" path="WifiPages"/>
     <Match pattern="de/*.html" buildAction="EmbeddedResource" path="WifiPages"/>

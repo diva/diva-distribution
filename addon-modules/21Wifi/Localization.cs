@@ -51,8 +51,8 @@ namespace Diva.Wifi
     public static class Localization
     {
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         private static readonly CultureInfo m_FallbackLanguage = new CultureInfo("en");
+        private static CultureInfo[] m_FrontendLanguage = null;
 
         private static readonly ResourceManager m_Resources =
             new ResourceManager("Diva.Wifi", Assembly.GetExecutingAssembly());
@@ -60,6 +60,10 @@ namespace Diva.Wifi
         private static LocalizationPathCache m_PathCache =
             new LocalizationPathCache(WebApp.WebAppInstance.LocalizationCachingPeriod);
 
+        public static void SetFrontendLanguage(CultureInfo cinfo)
+        {
+            m_FrontendLanguage = new CultureInfo[] { cinfo };
+        }
 
         /// <summary>
         /// Parses the parameters of HTTP header Accept-Language.
@@ -71,6 +75,12 @@ namespace Diva.Wifi
         /// </returns>
         public static CultureInfo[] GetLanguageInfo(string acceptLanguage)
         {
+            // Check if forced translation is on
+            if (TimeSpan.Zero != WebApp.WebAppInstance.LocalizationCachingPeriod &&
+                m_FrontendLanguage != null)
+                return m_FrontendLanguage;
+
+            // Check if browser-based translation is on or not
             if (string.IsNullOrEmpty(acceptLanguage) ||
                 TimeSpan.Zero == WebApp.WebAppInstance.LocalizationCachingPeriod)
             {

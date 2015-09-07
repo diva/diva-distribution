@@ -53,12 +53,13 @@ using Mono.Addins;
 [assembly: ImportAddinAssembly("fr/Diva.Wifi.resources.dll")]
 
 [assembly: ImportAddinFile("Wifi.ini")]
+[assembly: ImportAddinFile("Diva.Wifi.pot")]
 
 namespace Diva.Wifi
 {
     class Info
     {
-        public const string VersionNumber = "4";
+        public const string VersionNumber = "6";
 
         public static string AssemblyDirectory
         {
