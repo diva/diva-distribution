@@ -60,7 +60,7 @@ namespace Diva.Wifi
 {
     class Info
     {
-        public const string VersionNumber = "9";
+        public const string VersionNumber = "10";
 
         public static string AssemblyDirectory
         {

@@ -31,7 +31,7 @@ msgstr "Neutro"
 
 # A default avatar type
 msgid "Default"
-msgstr "padrão"
+msgstr "Padrão"
 
 # Region owner name for hyperlinks owned by nobody.
 msgid "nobody"
@@ -39,15 +39,15 @@ msgstr "ninguem"
 
 # Inventory system folder
 msgid "My Inventory"
-msgstr "meu Inventario"
+msgstr "Meu Inventario"
 
 # Inventory system folder
 msgid "My Outfits"
-msgstr "minhas roupas"
+msgstr "Minhas roupas"
 
 # Inventory system folder
 msgid "My Suitcase"
-msgstr "minha mala"
+msgstr "Minha mala"
 
 # Inventory system folder
 msgid "Animations"
@@ -55,7 +55,7 @@ msgstr "Animação"
 
 # Inventory system folder
 msgid "Body Parts"
-msgstr "corpo"
+msgstr "Corpo"
 
 # Inventory system folder
 msgid "Calling Cards"
@@ -67,7 +67,7 @@ msgstr "Roupas"
 
 # Inventory system folder
 msgid "Current Outfit"
-msgstr "roupa atual"
+msgstr "Roupa atual"
 
 # Inventory system folder
 msgid "Favorites"
@@ -115,11 +115,11 @@ msgstr "Lixo"
 
 # Asset type
 msgid "Unknown"
-msgstr "desconhecido"
+msgstr "Sesconhecido"
 
 # Asset type
 msgid "Texture"
-msgstr "Texturas"
+msgstr "Textura"
 
 # Asset type
 msgid "Sound"
@@ -163,7 +163,7 @@ msgstr "TexturasTGA"
 
 # Asset type
 msgid "Bodypart"
-msgstr "parte do corpo"
+msgstr "Parte do corpo"
 
 # Asset type
 msgid "TrashFolder"
@@ -275,7 +275,7 @@ msgstr "Excluídos link de região de {0}."
 #: ../WebApp/Services.Hyperlinks.cs:179
 #, csharp-format
 msgid "Deletion of region link {0} failed."
-msgstr "Excluídos link de região de {0}."
+msgstr "Exclusão link de região de {0} falhou."
 
 #: ../WebApp/Services.Install.cs:64
 #, csharp-format
@@ -406,7 +406,7 @@ msgstr "LoginURI:"
 # Email subject.
 #: ../WebApp/Services.UserManagement.cs:242
 msgid "Account activated"
-msgstr "conta ativado"
+msgstr "Conta ativada"
 
 #: ../WebApp/Services.UserManagement.cs:297
 msgid "The account has been deleted."

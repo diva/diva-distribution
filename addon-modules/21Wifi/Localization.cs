@@ -63,6 +63,7 @@ namespace Diva.Wifi
         public static void SetFrontendLanguage(CultureInfo cinfo)
         {
             m_FrontendLanguage = new CultureInfo[] { cinfo };
+
         }
 
         /// <summary>
@@ -166,8 +167,8 @@ namespace Diva.Wifi
                     }
                     catch (MissingManifestResourceException)
                     {
-                        m_log.DebugFormat("[Wifi]: Missing resource for culture {0} when translating: '{1}'",
-                            language, textId);
+                        m_log.DebugFormat("[Wifi]: Missing resource for culture {0} when translating: '{1}' ({2})",
+                            language, textId, m_Resources.BaseName);
                         if (WebApp.WebAppInstance.LogMissingTranslations > 0)
                             missing.Add(language.Name); // record missing languages
                     }

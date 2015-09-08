@@ -51,7 +51,6 @@
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
     </Match>
-    <Match pattern="*.resx" buildAction="EmbeddedResource" recurse="true" />
     
     <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />
     <Match pattern="Localization/*.pot" buildAction="Copy" destination="../../bin/" />
