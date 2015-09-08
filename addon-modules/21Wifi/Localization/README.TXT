@@ -29,6 +29,8 @@ The satellite assembly is a DLL file named Diva.Wifi.resources.dll that must res
 
 To deploy localization sets obtained as translated HTML files and PO or .resx files to an existing installation of Wifi/OpenSimulator, the HTML files must be manually copied/moved into the right subdirectory of WifiPages. To create and deploy the satellite assembly, use the helper scripts make_languages.sh (for PO or .resx files) or make_languages.bat (for .resx files). These scripts require an installation of Mono (make_languages.sh) or of the Microsoft SDK (make_languages.bat); the tools Resource Generator, resgen, and Assembly Linker, al, must be accessible via the system's path. Invoke one of these script in the directory where you saved the PO or .resx file(s); the satellite assemblies for each language will be generated and deployed to OpenSimulator's bin directory. After a restart of OpenSimulator, the new language(s) will be available.
 
+Note that you can also force translation on your Wifi installation by setting the variable FrontendLanguage to a valid language code for which a translation exists. In this case, the users' browser settings will be ignored, and pages will always be served in the language of your choice. This may or may not be what you want, but it's an available option.
+
 Information for developers
 --------------------------
 Each string with English text that is presented to the user (or administrator) must be used with the auxiliary method _(string, IEnvironment) in order to take advantage of the localization. (The environment data holds the language information that is used to determine the proper translation.) 
