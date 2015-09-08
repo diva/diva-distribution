@@ -61,6 +61,7 @@
     <Match pattern="de/*.html" buildAction="EmbeddedResource" path="WifiPages"/>
     <Match pattern="es/*.html" buildAction="EmbeddedResource" path="WifiPages"/>
     <Match pattern="fr/*.html" buildAction="EmbeddedResource" path="WifiPages"/>
+    <Match pattern="pt/*.html" buildAction="EmbeddedResource" path="WifiPages"/>
     <Match pattern="ru/*.html" buildAction="EmbeddedResource" path="WifiPages"/>
     <Match pattern="images/*" buildAction="EmbeddedResource" path="WifiPages"/>
 
