@@ -70,7 +70,6 @@ namespace Diva.Wifi
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
-        public static readonly string UserDocsPath = "..";
         private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "termsofservice.html", "welcome.html" });
         public static readonly string MissingPage = Path.Combine(DocsPath, "404.html");
 
@@ -100,6 +99,8 @@ namespace Diva.Wifi
             get { return m_Installed; }
             set { m_Installed = value; }
         }
+
+        private static string UserDocsPath = "..";
 
         #endregion
 
@@ -189,6 +190,18 @@ namespace Diva.Wifi
                     return null;
                 else
                     return new CultureInfo[] { m_AdminLanguage };
+            }
+        }
+
+        private CultureInfo m_FrontendLanguage;
+        public CultureInfo FrontendLanguage
+        {
+            get
+            {
+                if (m_LocalizationCachingPeriod == TimeSpan.Zero)
+                    return null;
+                else
+                    return  m_FrontendLanguage;
             }
         }
 
@@ -304,6 +317,9 @@ namespace Diva.Wifi
             WebAppInstance = this;
             WifiScriptFaceInstance = WifiScriptFace;
 
+            if (m_LocalizationCachingPeriod != TimeSpan.Zero && m_FrontendLanguage != null)
+                Diva.Wifi.Localization.SetFrontendLanguage(m_FrontendLanguage);
+
             m_log.DebugFormat("[Wifi]: Starting with extension methods type {0}", m_ExtensionMethods);
 
         }
@@ -328,6 +344,11 @@ namespace Diva.Wifi
             m_AdminPassword = appConfig.GetString("AdminPassword", string.Empty);
             m_AdminEmail = appConfig.GetString("AdminEmail", string.Empty);
             m_AdminLanguage = new CultureInfo(appConfig.GetString("AdminLanguage", "en"));
+            string lang = appConfig.GetString("FrontendLanguage", string.Empty);
+            if (lang != string.Empty)
+                m_FrontendLanguage = new CultureInfo(lang);
+
+            UserDocsPath = appConfig.GetString("UserDocsPath", UserDocsPath);
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
@@ -406,12 +427,6 @@ namespace Diva.Wifi
                     m_log.WarnFormat("[Wifi]: Unable to create folder {0}", UserDocsPath);
                 else
                     Directory.CreateDirectory(Path.Combine(UserDocsPath, "images"));
-            }
-
-            if (Directory.Exists(DocsPath))
-            {
-                // Always delete it
-                Directory.Delete(DocsPath, true);
             }
 
             foreach (string resourceName in Assembly.GetExecutingAssembly().GetManifestResourceNames())

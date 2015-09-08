@@ -31,7 +31,7 @@ msgstr "Neutro"
 
 # A default avatar type
 msgid "Default"
-msgstr "padr√£o"
+msgstr "Padr„o"
 
 # Region owner name for hyperlinks owned by nobody.
 msgid "nobody"
@@ -39,23 +39,23 @@ msgstr "ninguem"
 
 # Inventory system folder
 msgid "My Inventory"
-msgstr "meu Inventario"
+msgstr "Meu Inventario"
 
 # Inventory system folder
 msgid "My Outfits"
-msgstr "minhas roupas"
+msgstr "Minhas roupas"
 
 # Inventory system folder
 msgid "My Suitcase"
-msgstr "minha mala"
+msgstr "Minha mala"
 
 # Inventory system folder
 msgid "Animations"
-msgstr "Anima√ß√£o"
+msgstr "AnimaÁ„o"
 
 # Inventory system folder
 msgid "Body Parts"
-msgstr "corpo"
+msgstr "Corpo"
 
 # Inventory system folder
 msgid "Calling Cards"
@@ -67,7 +67,7 @@ msgstr "Roupas"
 
 # Inventory system folder
 msgid "Current Outfit"
-msgstr "roupa atual"
+msgstr "Roupa atual"
 
 # Inventory system folder
 msgid "Favorites"
@@ -79,7 +79,7 @@ msgstr "Gestos"
 
 # Inventory system folder
 msgid "Landmarks"
-msgstr "Marca√ß√£o"
+msgstr "MarcaÁ„o"
 
 # Inventory system folder
 msgid "Lost And Found"
@@ -115,11 +115,11 @@ msgstr "Lixo"
 
 # Asset type
 msgid "Unknown"
-msgstr "desconhecido"
+msgstr "Sesconhecido"
 
 # Asset type
 msgid "Texture"
-msgstr "Texturas"
+msgstr "Textura"
 
 # Asset type
 msgid "Sound"
@@ -131,7 +131,7 @@ msgstr "CallingCard"
 
 # Asset type
 msgid "Landmark"
-msgstr "Marca√ß√£o"
+msgstr "MarcaÁ„o"
 
 # Asset type
 msgid "Object"
@@ -163,7 +163,7 @@ msgstr "TexturasTGA"
 
 # Asset type
 msgid "Bodypart"
-msgstr "parte do corpo"
+msgstr "Parte do corpo"
 
 # Asset type
 msgid "TrashFolder"
@@ -191,7 +191,7 @@ msgstr "Imagem JPEG"
 
 # Asset type
 msgid "Animation"
-msgstr "Anima√ß√£o"
+msgstr "AnimaÁ„o"
 
 # Asset type
 msgid "Gesture"
@@ -250,47 +250,47 @@ msgstr "Sua conta foi atualizada."
 #: ../WebApp/Services.Hyperlinks.cs:91
 #, csharp-format
 msgid "Failed to link region: {0}"
-msgstr "Falha ao ligar a regi√£o: {0}"
+msgstr "Falha ao ligar a regi„o: {0}"
 
 #: ../WebApp/Services.Hyperlinks.cs:93
 #, csharp-format
 msgid "Region link to {0} established. (If this link already existed, then it will remain at the original location.)"
 msgstr ""
-"Link de regi√£o para {0} estabelecida. (Se esta liga√ß√£o j√° existia, em "
-"seguida, ele permanecer√° no local original.)"
+"Link de regi„o para {0} estabelecida. (Se esta ligaÁ„o j· existia, em "
+"seguida, ele permanecer· no local original.)"
 
 #: ../WebApp/Services.Hyperlinks.cs:96
 msgid "Invalid region address."
-msgstr "Endere√ßo de regi√£o inv√°lido."
+msgstr "EndereÁo de regi„o inv·lido."
 
 #: ../WebApp/Services.Hyperlinks.cs:144 ../WebApp/Services.Hyperlinks.cs:190
 msgid "Region link not found."
-msgstr "Liga√ß√£o Regi√£o n√£o encontrada."
+msgstr "LigaÁ„o Regi„o n„o encontrada."
 
 #: ../WebApp/Services.Hyperlinks.cs:175
 #, csharp-format
 msgid "Deleted region link {0}."
-msgstr "Exclu√≠dos link de regi√£o de {0}."
+msgstr "ExcluÌdos link de regi„o de {0}."
 
 #: ../WebApp/Services.Hyperlinks.cs:179
 #, csharp-format
 msgid "Deletion of region link {0} failed."
-msgstr "Exclu√≠dos link de regi√£o de {0}."
+msgstr "Exclus„o link de regi„o de {0} falhou."
 
 #: ../WebApp/Services.Install.cs:64
 #, csharp-format
 msgid "Your Wifi has been installed. The administrator account is {0} {1}"
-msgstr "Seu Wifi foi instalado. A conta de administrador √© {0} {1}"
+msgstr "Seu Wifi foi instalado. A conta de administrador È {0} {1}"
 
 #: ../WebApp/Services.Inventory.cs:52
 msgid "Loading your inventory, please wait"
-msgstr "Carregando seu invent√°rio, por favor espere"
+msgstr "Carregando seu invent·rio, por favor espere"
 
 #: ../WebApp/Services.Inventory.cs:53
 msgid "If your browser does not automatically load the next page, then use the button, please."
 msgstr ""
-"Se seu navegador n√£o carrega automaticamente a p√°gina seguinte, em seguida, "
-"usar o bot√£o, por favor."
+"Se seu navegador n„o carrega automaticamente a p·gina seguinte, em seguida, "
+"usar o bot„o, por favor."
 
 # Button label
 #: ../WebApp/Services.Inventory.cs:54
@@ -315,21 +315,21 @@ msgstr "Sua conta foi criada."
 #: ../WebApp/Services.NewAccount.cs:110
 #, csharp-format
 msgid "New account {0} {1} created in {2} is awaiting your approval."
-msgstr "Nova conta {0} {1} criado em {2} est√° aguardando sua aprova√ß√£o."
+msgstr "Nova conta {0} {1} criado em {2} est· aguardando sua aprovaÁ„o."
 
 # Admin email subject
 #: ../WebApp/Services.NewAccount.cs:116
 msgid "Account awaiting approval"
-msgstr "Conta aguarda aprova√ß√£o"
+msgstr "Conta aguarda aprovaÁ„o"
 
 #: ../WebApp/Services.NewAccount.cs:118
 msgid "Your account awaits administrator approval."
-msgstr "A sua conta aguarda aprova√ß√£o do administrador."
+msgstr "A sua conta aguarda aprovaÁ„o do administrador."
 
 # Inventory folder name
 #: ../WebApp/Services.NewAccount.cs:173
 msgid "Default Avatar"
-msgstr "Avatar Padr√£o"
+msgstr "Avatar Padr„o"
 
 # Button label
 #: ../WebApp/Services.Notify.cs:58
@@ -340,7 +340,7 @@ msgstr "OK"
 #: ../WebApp/Services.PasswordRecovery.cs:78
 #, csharp-format
 msgid "Your account is {0} {1}"
-msgstr "A sua conta √© {0} {1}"
+msgstr "A sua conta È {0} {1}"
 
 # Email message
 #: ../WebApp/Services.PasswordRecovery.cs:79
@@ -355,15 +355,15 @@ msgstr "Resetar a senha"
 #: ../WebApp/Services.PasswordRecovery.cs:82
 msgid "Check your email. You must reset your password within 60 minutes."
 msgstr ""
-"Verifique seu email. Voc√™ deve redefinir sua senha no prazo de 60 minutos."
+"Verifique seu email. VocÍ deve redefinir sua senha no prazo de 60 minutos."
 
 #: ../WebApp/Services.PasswordRecovery.cs:84
 msgid "Email could not be sent."
-msgstr "Email n√£o p√¥de ser enviado."
+msgstr "Email n„o pÙde ser enviado."
 
 #: ../WebApp/Services.PasswordRecovery.cs:107
 msgid "Invalid token."
-msgstr "Token inv√°lido."
+msgstr "Token inv·lido."
 
 #: ../WebApp/Services.PasswordRecovery.cs:120
 msgid "Your password has been reset."
@@ -377,7 +377,7 @@ msgstr "A conta foi atualizada."
 #: ../WebApp/Services.UserManagement.cs:140
 #: ../WebApp/Services.UserManagement.cs:173
 msgid "The account does not exist."
-msgstr "Essa conta n√£o existe."
+msgstr "Essa conta n„o existe."
 
 #: ../WebApp/Services.UserManagement.cs:196
 msgid "The account has been activated."
@@ -406,19 +406,19 @@ msgstr "LoginURI:"
 # Email subject.
 #: ../WebApp/Services.UserManagement.cs:242
 msgid "Account activated"
-msgstr "conta ativado"
+msgstr "Conta ativada"
 
 #: ../WebApp/Services.UserManagement.cs:297
 msgid "The account has been deleted."
-msgstr "A conta foi exclu√≠da."
+msgstr "A conta foi excluÌda."
 
 #: ../WebApp/Services.UserManagement.cs:302
 msgid "Unable to delete account because it does not exist."
-msgstr "N√£o √© poss√≠vel excluir a conta, porque ele n√£o existe."
+msgstr "N„o È possÌvel excluir a conta, porque ele n„o existe."
 
 #: ../WebApp/WifiScriptFace.cs:283 ../WebApp/WifiScriptFace.cs:297
 msgid "Who are you?"
-msgstr "Quem √© voc√™?"
+msgstr "Quem È vocÍ?"
 
 #: ../WebApp/WifiScriptFace.cs:292
 msgid "No email on file"
@@ -426,12 +426,12 @@ msgstr "Nenhum e-mail em arquivo"
 
 #: ../WebApp/WifiScriptFace.cs:345
 msgid "No linked regions found"
-msgstr "Nenhum regi√µes ligadas encontrado"
+msgstr "Nenhum regiıes ligadas encontrado"
 
 #: ../WebApp/WifiScriptFace.cs:369
 msgid "No users found"
-msgstr "Nenhum usu√°rio encontrado"
+msgstr "Nenhum usu·rio encontrado"
 
 #: ../WebApp/WifiScriptFace.cs:377
 msgid "No regions found"
-msgstr "Nenhuma regi√£o encontrada"
+msgstr "Nenhuma regi„o encontrada"
