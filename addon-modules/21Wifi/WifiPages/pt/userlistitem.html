@@ -1,0 +1,17 @@
+  <tr class="bodytext">
+    <td class="username"><!-- #get field=FirstName --> <!-- #get field=LastName --></td>
+    <td class="email"><!-- #get field=Email --></td>
+    <td class="usertitle"><!-- #get field=UserTitle --></td>
+    <td class="userlevel"><!-- #get field=UserLevel --></td>
+    <td class="date">
+      <script type="text/javascript">
+        ConvertAndWriteDate("<!-- #call method=GetAccountCreated -->");
+      </script>
+      <noscript><!-- #call method=GetAccountCreated --></noscript>
+    </td>
+    <td class="command"><a href="/wifi/admin/users/edit/<!-- #get field=PrincipalID -->">edit</a></td>
+    <td class="command"><a href="/wifi/admin/users/delete/<!-- #get field=PrincipalID -->">delete</a></td>
+  </tr>
+
+  <!-- Recursion ! -->
+  <!-- #include file=userlistitem.html -->

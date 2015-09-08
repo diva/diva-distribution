@@ -1,0 +1,32 @@
+<style type="text/css">
+<!--
+.style1 {
+	color: #FFFF00;
+	font-weight: bold;
+}
+.style2 {color: #FF0000; font-weight: bold; }
+-->
+</style>
+<p class="style1" >Coloque o seu nome no Primeiro nome, no segundo nome Coloque seu segundo nome, coloque um email valido e crie sua senha</p>
+<p class="style2" >Observa&ccedil;&atilde;o: Coloque o primeiro nome sem espa&ccedil;o e sem caracteres especiais</p>
+<p class="style2" >Voc&ecirc; criando sua conta, voc&ecirc; estar&aacute; afirmando ser maior de 18 anos e concordando com os termos de servi&ccedil;o.</p>
+<p >Criar Nova Conta</p>
+<form action="/wifi/user/account" method="post">
+  <p class="bodytext"> 
+    Primeiro Nome: (*)<br/>
+    <input name="first" type="text" class="inputstyle" /><br/><br/>
+    Segundo Nome: (*)<br/>
+    <input name="last" type="text" class="inputstyle" /><br/><br/>
+    Email:<br/>
+    <input name="email" type="text" class="inputstyle" /><br/><br/>
+    Senha: (*)<br/>
+    <input name="password" type="password" class="inputstyle" /><br/><br/>
+    Repetir Senha: (*)<br/>
+    <input name="password2" type="password" class="inputstyle" /><br/><br/>
+    Tipo de Avatar:<br />
+    <!-- #include file=avatarselectitem.html -->
+
+    <input type="submit" value="criar" class="button" />
+  </p> 
+  </form>
+
