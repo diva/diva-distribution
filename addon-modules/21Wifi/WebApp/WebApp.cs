@@ -70,7 +70,6 @@ namespace Diva.Wifi
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
-        public static readonly string UserDocsPath = "..";
         private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "termsofservice.html", "welcome.html" });
         public static readonly string MissingPage = Path.Combine(DocsPath, "404.html");
 
@@ -100,6 +99,8 @@ namespace Diva.Wifi
             get { return m_Installed; }
             set { m_Installed = value; }
         }
+
+        private static string UserDocsPath = "..";
 
         #endregion
 
@@ -346,6 +347,8 @@ namespace Diva.Wifi
             string lang = appConfig.GetString("FrontendLanguage", string.Empty);
             if (lang != string.Empty)
                 m_FrontendLanguage = new CultureInfo(lang);
+
+            UserDocsPath = appConfig.GetString("UserDocsPath", UserDocsPath);
 
             m_RemoteAdminPassword = appConfig.GetString("RemoteAdminPassword", string.Empty);
 
