@@ -307,7 +307,23 @@ namespace Diva.Wifi
 
                         return str.ToString();
                     }
+                    else // Everyone else
+                    {
+                        bool atLeastOne = false;
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">Addons menu</p><div id=\"addons-menu\">  <ul>");
+                        str.Append(System.Environment.NewLine);
+                        foreach (WifiAddon a in m_WebApp.Addons)
+                        {
+                            if (a.Privilege == PrivilegeLevel.AllUsers)
+                            {
+                                atLeastOne = true;
+                                str.AppendFormat("  <li><a href=\"{0}\">{1}</a></li>{2}", a.Path, a.MenuAnchor, System.Environment.NewLine);
+                            }
+                        }
+                        str.Append("  </ul></div>");
 
+                        return atLeastOne ? str.ToString() : string.Empty;
+                    }
                 }
             }
 

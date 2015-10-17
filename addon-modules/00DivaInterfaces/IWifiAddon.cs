@@ -21,11 +21,18 @@ namespace Diva.Interfaces
         string GetContent(IEnvironment env);
     }
 
+    public enum PrivilegeLevel
+    {
+        Admins = 0,
+        AllUsers = 1
+    }
+
     public struct WifiAddon
     {
         public IWifiAddon Addon;
         public string MenuAnchor;
         public string Path;
+        public PrivilegeLevel Privilege;
     }
 
 }
