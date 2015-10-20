@@ -526,12 +526,13 @@ namespace Diva.Wifi
             get { return m_Addons; }
         }
 
-        public void Register(IWifiAddon addon, string menuAnchor, string path)
+        public void Register(IWifiAddon addon, string menuAnchor, string path, PrivilegeLevel level = PrivilegeLevel.Admins)
         {
             WifiAddon a = new WifiAddon();
             a.Addon = addon;
             a.MenuAnchor = menuAnchor;
             a.Path = path;
+            a.Privilege = level;
             m_Addons.Add(a);
         }
 

@@ -16,7 +16,7 @@ namespace Diva.Interfaces
         { get; }
 
 
-        void Register(IWifiAddon addon, string menuAnchor, string path);
+        void Register(IWifiAddon addon, string menuAnchor, string path, PrivilegeLevel level = PrivilegeLevel.Admins);
         void RegisterEstateServiceObject(Object estateService);
         T GetServiceObject<T>();
         bool TryGetSessionInfo(IRequest req, out ISessionInfo sinfo);

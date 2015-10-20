@@ -305,7 +305,8 @@ namespace Diva.Wifi
 
                         str.Append("  </ul></div>");
 
-                        return str.ToString();
+                        Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+                        return p.Process(str.ToString());
                     }
                     else // Everyone else
                     {
@@ -322,7 +323,13 @@ namespace Diva.Wifi
                         }
                         str.Append("  </ul></div>");
 
-                        return atLeastOne ? str.ToString() : string.Empty;
+                        if (atLeastOne)
+                        {
+                            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+                            return p.Process(str.ToString());
+                        }
+
+                        return string.Empty;
                     }
                 }
             }
