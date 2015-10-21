@@ -559,6 +559,11 @@ namespace Diva.Wifi
             return success;
         }
 
+        public bool IsValidSessionForUser(string uid, string sid)
+        {
+            return Services.IsValidSessionForUser(uid, sid);
+        }
+
         public void NotifyWithoutButton(IEnvironment env, string message)
         {
             Services.NotifyWithoutButton(env, message);

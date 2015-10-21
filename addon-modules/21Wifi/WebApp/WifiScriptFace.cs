@@ -360,6 +360,17 @@ namespace Diva.Wifi
             return _("Who are you?", env);
         }
 
+        public string GetUserUuid(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (sinfo.Account != null)
+            {
+                return sinfo.Account.PrincipalID.ToString();
+            }
+
+            return _(UUID.Zero.ToString(), env);
+        }
+
         public string GetUserEmail(Environment env)
         {
             SessionInfo sinfo = env.Session;
