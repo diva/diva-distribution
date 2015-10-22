@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -407,5 +407,8 @@
   </data>
   <data name="Scripts" xml:space="preserve">
     <value>Scripts</value>
+  </data>
+  <data name="Addons menu" xml:space="preserve">
+    <value>Menu Adicional</value>
   </data>
 </root>

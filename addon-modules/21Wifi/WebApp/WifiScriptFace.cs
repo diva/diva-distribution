@@ -298,7 +298,8 @@ namespace Diva.Wifi
                 {
                     if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) // Admin
                     {
-                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">Addons menu</p><div id=\"addons-menu\">  <ul>");
+                        string addons_menu = Translate(env, "Addons menu");
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">" + addons_menu + "</p><div id=\"addons-menu\">  <ul>");
                         str.Append(System.Environment.NewLine);
                         foreach (WifiAddon a in m_WebApp.Addons)
                             str.AppendFormat("  <li><a href=\"{0}\">{1}</a></li>{2}", a.Path, a.MenuAnchor, System.Environment.NewLine);
@@ -311,7 +312,8 @@ namespace Diva.Wifi
                     else // Everyone else
                     {
                         bool atLeastOne = false;
-                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">Addons menu</p><div id=\"addons-menu\">  <ul>");
+                        string addons_menu = Translate(env, "Addons menu");
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">" + addons_menu + "</p><div id=\"addons-menu\">  <ul>");
                         str.Append(System.Environment.NewLine);
                         foreach (WifiAddon a in m_WebApp.Addons)
                         {

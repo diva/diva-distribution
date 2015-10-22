@@ -435,3 +435,7 @@ msgstr "Nenhum usuário encontrado"
 #: ../WebApp/WifiScriptFace.cs:377
 msgid "No regions found"
 msgstr "Nenhuma região encontrada"
+
+#: Addons menu
+msgid "Addons menu"
+msgstr "Menu Adicional"
