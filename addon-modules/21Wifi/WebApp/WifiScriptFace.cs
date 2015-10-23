@@ -298,16 +298,41 @@ namespace Diva.Wifi
                 {
                     if (sinfo.Account.UserLevel >= m_WebApp.AdminUserLevel) // Admin
                     {
-                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">Addons menu</p><div id=\"addons-menu\">  <ul>");
+                        string addons_menu = Translate(env, "Addons menu");
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">" + addons_menu + "</p><div id=\"addons-menu\">  <ul>");
                         str.Append(System.Environment.NewLine);
                         foreach (WifiAddon a in m_WebApp.Addons)
                             str.AppendFormat("  <li><a href=\"{0}\">{1}</a></li>{2}", a.Path, a.MenuAnchor, System.Environment.NewLine);
 
                         str.Append("  </ul></div>");
 
-                        return str.ToString();
+                        Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+                        return p.Process(str.ToString());
                     }
+                    else // Everyone else
+                    {
+                        bool atLeastOne = false;
+                        string addons_menu = Translate(env, "Addons menu");
+                        StringBuilder str = new StringBuilder("<p class=\"nav-headline\">" + addons_menu + "</p><div id=\"addons-menu\">  <ul>");
+                        str.Append(System.Environment.NewLine);
+                        foreach (WifiAddon a in m_WebApp.Addons)
+                        {
+                            if (a.Privilege == PrivilegeLevel.AllUsers)
+                            {
+                                atLeastOne = true;
+                                str.AppendFormat("  <li><a href=\"{0}\">{1}</a></li>{2}", a.Path, a.MenuAnchor, System.Environment.NewLine);
+                            }
+                        }
+                        str.Append("  </ul></div>");
 
+                        if (atLeastOne)
+                        {
+                            Processor p = new Processor(m_WebApp.WifiScriptFace, env);
+                            return p.Process(str.ToString());
+                        }
+
+                        return string.Empty;
+                    }
                 }
             }
 
@@ -335,6 +360,17 @@ namespace Diva.Wifi
             }
 
             return _("Who are you?", env);
+        }
+
+        public string GetUserUuid(Environment env)
+        {
+            SessionInfo sinfo = env.Session;
+            if (sinfo.Account != null)
+            {
+                return sinfo.Account.PrincipalID.ToString();
+            }
+
+            return _(UUID.Zero.ToString(), env);
         }
 
         public string GetUserEmail(Environment env)

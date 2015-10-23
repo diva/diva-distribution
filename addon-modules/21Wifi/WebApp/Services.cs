@@ -259,6 +259,12 @@ namespace Diva.Wifi
             return success;
         }
 
+        public bool IsValidSessionForUser(string uid, string sid)
+        {
+            SessionInfo session;
+            return m_Sessions.TryGetValue(sid, out session) && session.Account.PrincipalID.ToString() == uid;
+        }
+
         public void ComputeStatistics()
         {
             // Users in world

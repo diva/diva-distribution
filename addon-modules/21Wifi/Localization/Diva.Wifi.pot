@@ -430,3 +430,7 @@ msgstr ""
 msgid "No regions found"
 msgstr ""
 
+#: Addons menu
+msgid "Addons menu"
+msgstr ""
+

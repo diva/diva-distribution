@@ -16,10 +16,11 @@ namespace Diva.Interfaces
         { get; }
 
 
-        void Register(IWifiAddon addon, string menuAnchor, string path);
+        void Register(IWifiAddon addon, string menuAnchor, string path, PrivilegeLevel level = PrivilegeLevel.Admins);
         void RegisterEstateServiceObject(Object estateService);
         T GetServiceObject<T>();
         bool TryGetSessionInfo(IRequest req, out ISessionInfo sinfo);
+        bool IsValidSessionForUser(string uid, string sid);
         
         string ReadFile(IEnvironment env, string path);
         string ReadFile(IEnvironment env, string path, List<object> loo);

@@ -526,12 +526,13 @@ namespace Diva.Wifi
             get { return m_Addons; }
         }
 
-        public void Register(IWifiAddon addon, string menuAnchor, string path)
+        public void Register(IWifiAddon addon, string menuAnchor, string path, PrivilegeLevel level = PrivilegeLevel.Admins)
         {
             WifiAddon a = new WifiAddon();
             a.Addon = addon;
             a.MenuAnchor = menuAnchor;
             a.Path = path;
+            a.Privilege = level;
             m_Addons.Add(a);
         }
 
@@ -556,6 +557,11 @@ namespace Diva.Wifi
             bool success = Services.TryGetSessionInfo((Request)req, out si);
             sinfo = si;
             return success;
+        }
+
+        public bool IsValidSessionForUser(string uid, string sid)
+        {
+            return Services.IsValidSessionForUser(uid, sid);
         }
 
         public void NotifyWithoutButton(IEnvironment env, string message)
