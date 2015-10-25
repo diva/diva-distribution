@@ -7,9 +7,12 @@
         <!-- #get field=groupName --> &nbsp;&nbsp;
     </td>
     <td class="usertitle">
+        <a href="/wifi/admin/addon-groups/members/<!-- #get field=groupID -->" title="List"><img src="/wifi/images/list.png" width="10"></a>&nbsp;&nbsp;
+        <a href="/wifi/admin/addon-groups/members/add/<!-- #get field=groupID -->" title="Add"><img src="/wifi/images/add.png" width="10"></a>&nbsp;&nbsp;
+        <a href="/wifi/admin/addon-groups/members/eject/<!-- #get field=groupID -->" title="Eject"><img src="/wifi/images/remove.png" width="10"></a>&nbsp;&nbsp;
         <!-- #get field=members -->&nbsp;&nbsp;
     </td>
   </tr>
 
   <!-- Recursion ! -->
-  <!-- #include file=grouplistitem.html -->
+  <!-- #include file=grouplistitem-advanced.html -->
