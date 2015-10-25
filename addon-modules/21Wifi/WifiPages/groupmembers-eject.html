@@ -10,11 +10,8 @@ function toggle(source) {
 
 <p>Group: <span class="bodytext"><!-- #get field=groupName --></span> (<!-- #get field=members --> members)</p>
 <p>&nbsp;</p>
-<hr>
-<p>&nbsp;</p>
 
-<form method="post" action="/wifi/admin/addon-groups/members/delete">
-<p class="bodytext">Eject members:</p></br>
+<form method="post" action="/wifi/admin/addon-groups/members/eject">
 <input type="hidden" name="form" value="2">
 <input type="hidden" name="text" value="Sort rows">
 <input type="hidden" name="groupID" value="<!-- #get field=groupID -->">
