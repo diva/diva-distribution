@@ -121,7 +121,7 @@
     <value>Texturas</value>
   </data>
   <data name="Deleted region link {0}." xml:space="preserve">
-    <value>ExcluÌdos link de regi„o de {0}.</value>
+    <value>Exclu√≠dos link de regi√£o de {0}.</value>
   </data>
   <data name="Your password has been reset." xml:space="preserve">
     <value>Sua senha foi redefinida.</value>
@@ -133,28 +133,28 @@
     <value>Meu Inventario</value>
   </data>
   <data name="Failed to link region: {0}" xml:space="preserve">
-    <value>Falha ao ligar a regi„o: {0}</value>
+    <value>Falha ao ligar a regi√£o: {0}</value>
   </data>
   <data name="Default Avatar" xml:space="preserve">
-    <value>Avatar Padr„o</value>
+    <value>Avatar Padr√£o</value>
   </data>
   <data name="ImageJPEG" xml:space="preserve">
     <value>Imagem JPEG</value>
   </data>
   <data name="Invalid token." xml:space="preserve">
-    <value>Token inv·lido.</value>
+    <value>Token inv√°lido.</value>
   </data>
   <data name="No regions found" xml:space="preserve">
-    <value>Nenhuma regi„o encontrada</value>
+    <value>Nenhuma regi√£o encontrada</value>
   </data>
   <data name="Your account has been activated." xml:space="preserve">
     <value>Sua conta foi ativada.</value>
   </data>
   <data name="Landmarks" xml:space="preserve">
-    <value>MarcaÁ„o</value>
+    <value>Marca√ß√£o</value>
   </data>
   <data name="If your browser does not automatically load the next page, then use the button, please." xml:space="preserve">
-    <value>Se seu navegador n„o carrega automaticamente a p·gina seguinte, em seguida, usar o bot„o, por favor.</value>
+    <value>Se seu navegador n√£o carrega automaticamente a p√°gina seguinte, em seguida, usar o bot√£o, por favor.</value>
   </data>
   <data name="TextureTGA" xml:space="preserve">
     <value>TexturasTGA</value>
@@ -190,7 +190,7 @@
     <value>Minha mala</value>
   </data>
   <data name="Default" xml:space="preserve">
-    <value>Padr„o</value>
+    <value>Padr√£o</value>
   </data>
   <data name="Gestures" xml:space="preserve">
     <value>Gestos</value>
@@ -199,10 +199,10 @@
     <value>Minha Pasta de Roupas</value>
   </data>
   <data name="Account awaiting approval" xml:space="preserve">
-    <value>Conta aguarda aprovaÁ„o</value>
+    <value>Conta aguarda aprova√ß√£o</value>
   </data>
   <data name="Your Wifi has been installed. The administrator account is {0} {1}" xml:space="preserve">
-    <value>Seu Wifi foi instalado. A conta de administrador È {0} {1}</value>
+    <value>Seu Wifi foi instalado. A conta de administrador √© {0} {1}</value>
   </data>
   <data name="EnsembleStart" xml:space="preserve">
     <value>EnsembleStart</value>
@@ -211,7 +211,7 @@
     <value>CallingCard</value>
   </data>
   <data name="The account does not exist." xml:space="preserve">
-    <value>Essa conta n„o existe.</value>
+    <value>Essa conta n√£o existe.</value>
   </data>
   <data name="ImageTGA" xml:space="preserve">
     <value>Imagem TGA</value>
@@ -223,7 +223,7 @@
     <value>Favoritos</value>
   </data>
   <data name="Animation" xml:space="preserve">
-    <value>AnimaÁ„o</value>
+    <value>Anima√ß√£o</value>
   </data>
   <data name="Folder" xml:space="preserve">
     <value>Pasta</value>
@@ -232,7 +232,7 @@
     <value>Lixo</value>
   </data>
   <data name="No users found" xml:space="preserve">
-    <value>Nenhum usu·rio encontrado</value>
+    <value>Nenhum usu√°rio encontrado</value>
   </data>
   <data name="Objects" xml:space="preserve">
     <value>Objetos</value>
@@ -244,7 +244,7 @@
     <value>Mesh</value>
   </data>
   <data name="Loading your inventory, please wait" xml:space="preserve">
-    <value>Carregando seu invent·rio, por favor espere</value>
+    <value>Carregando seu invent√°rio, por favor espere</value>
   </data>
   <data name="delete" xml:space="preserve">
     <value>Excluir</value>
@@ -283,7 +283,7 @@
     <value>Resetar a senha</value>
   </data>
   <data name="Invalid region address." xml:space="preserve">
-    <value>EndereÁo de regi„o inv·lido.</value>
+    <value>Endere√ßo de regi√£o inv√°lido.</value>
   </data>
   <data name="LSLBytecode" xml:space="preserve">
     <value>LSLBytecode</value>
@@ -301,10 +301,10 @@
     <value>Bem-vindo ao {0}!</value>
   </data>
   <data name="Check your email. You must reset your password within 60 minutes." xml:space="preserve">
-    <value>Verifique seu email. VocÍ deve redefinir sua senha no prazo de 60 minutos.</value>
+    <value>Verifique seu email. Voc√™ deve redefinir sua senha no prazo de 60 minutos.</value>
   </data>
   <data name="No linked regions found" xml:space="preserve">
-    <value>Nenhum regiıes ligadas encontrado</value>
+    <value>Nenhumas regi√µes ligadas encontradas</value>
   </data>
   <data name="My Outfits" xml:space="preserve">
     <value>Minhas roupas</value>
@@ -322,10 +322,10 @@
     <value>Album de Fotos</value>
   </data>
   <data name="New account {0} {1} created in {2} is awaiting your approval." xml:space="preserve">
-    <value>Nova conta {0} {1} criado em {2} est· aguardando sua aprovaÁ„o.</value>
+    <value>Nova conta {0} {1} criado em {2} est√° aguardando sua aprova√ß√£o.</value>
   </data>
   <data name="The account has been deleted." xml:space="preserve">
-    <value>A conta foi excluÌda.</value>
+    <value>A conta foi exclu√≠da.</value>
   </data>
   <data name="TrashFolder" xml:space="preserve">
     <value>Pasta de Lixo</value>
@@ -337,7 +337,7 @@
     <value>Clique aqui para redefinir sua senha:</value>
   </data>
   <data name="Landmark" xml:space="preserve">
-    <value>MarcaÁ„o</value>
+    <value>Marca√ß√£o</value>
   </data>
   <data name="LinkFolder" xml:space="preserve">
     <value>Pasta de Link</value>
@@ -349,25 +349,25 @@
     <value>Som WAV</value>
   </data>
   <data name="Animations" xml:space="preserve">
-    <value>AnimaÁ„o</value>
+    <value>Anima√ß√£o</value>
   </data>
   <data name="Clothing" xml:space="preserve">
     <value>Roupas</value>
   </data>
   <data name="Email could not be sent." xml:space="preserve">
-    <value>Email n„o pÙde ser enviado.</value>
+    <value>Email n√£o pode ser enviado.</value>
   </data>
   <data name="Deletion of region link {0} failed." xml:space="preserve">
-    <value>Exclus„o de link de regi„o {0} falhou.</value>
+    <value>Exclus√£o de link de regi√£o {0} falhou.</value>
   </data>
   <data name="Your account awaits administrator approval." xml:space="preserve">
-    <value>A sua conta aguarda aprovaÁ„o do administrador.</value>
+    <value>A sua conta aguarda aprova√ß√£o do administrador.</value>
   </data>
   <data name="No email on file" xml:space="preserve">
     <value>Nenhum e-mail em arquivo</value>
   </data>
   <data name="Unable to delete account because it does not exist." xml:space="preserve">
-    <value>N„o È possÌvel excluir a conta, porque ele n„o existe.</value>
+    <value>N√£o √© poss√≠vel excluir a conta, porque ela n√£o existe.</value>
   </data>
   <data name="Login failed." xml:space="preserve">
     <value>Falha no login.</value>
@@ -391,19 +391,19 @@
     <value>Objetos</value>
   </data>
   <data name="Your account is {0} {1}" xml:space="preserve">
-    <value>A sua conta È {0} {1}</value>
+    <value>A sua conta √© {0} {1}</value>
   </data>
   <data name="Who are you?" xml:space="preserve">
-    <value>Quem È vocÍ?</value>
+    <value>Quem √© voc√™?</value>
   </data>
   <data name="LoginURI:" xml:space="preserve">
     <value>LoginURI:</value>
   </data>
   <data name="Region link to {0} established. (If this link already existed, then it will remain at the original location.)" xml:space="preserve">
-    <value>Link de regi„o para {0} estabelecida. (Se esta ligaÁ„o j· existia, em seguida, ele permanecer· no local original.)</value>
+    <value>Link de regi√£o para {0} estabelecida. (Se esta liga√ß√£o j√° existia, em seguida, ele permanecer√° no local original.)</value>
   </data>
   <data name="Region link not found." xml:space="preserve">
-    <value>LigaÁ„o Regi„o n„o encontrada.</value>
+    <value>Liga√ß√£o Regi√£o n√£o encontrada.</value>
   </data>
   <data name="Scripts" xml:space="preserve">
     <value>Scripts</value>
