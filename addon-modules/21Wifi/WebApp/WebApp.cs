@@ -70,7 +70,7 @@ namespace Diva.Wifi
         private static readonly ILog m_log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public static readonly string DocsPath = System.IO.Path.Combine(AssemblyDirectory, "WifiPages");
-        private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "termsofservice.html", "welcome.html", "main-menu.html" });
+        private static readonly List<string> SpecialFiles = new List<string>(new [] { "fluid.css", "footer.html", "header.html", "links.html", "splash.html", "termsofservice.html", "welcome.html" });
         public static readonly string MissingPage = Path.Combine(DocsPath, "404.html");
 
         public static WebApp WebAppInstance;
