@@ -579,9 +579,9 @@ namespace Diva.Wifi
             return Services.SendEMail(to, subject, message);
         }
 
-        public bool SendEMailSync(string to, string subject, string message)
+        public bool SendEMailSync(string to, string cc, string bcc, string subject, string message)
         {
-            return Services.SendEMailSync(to, subject, message);
+            return Services.SendEMailSync(to, cc, bcc, subject, message);
         }
         #endregion IWifiApp
     }

@@ -359,7 +359,7 @@ namespace Diva.Wifi
             account.ServiceURLs["AssetServerURI"] = m_WebApp.LoginURL.ToString();
         }
 
-        public bool SendEMailSync(string to, string subject, string message)
+        public bool SendEMailSync(string to, string cc, string bcc, string subject, string message)
         {
             bool success = true;
             try
@@ -367,6 +367,10 @@ namespace Diva.Wifi
                 MailMessage msg = new MailMessage();
                 msg.From = new MailAddress(m_WebApp.SmtpUsername);
                 msg.To.Add(new MailAddress(to));
+                if (!String.IsNullOrEmpty(cc))
+                    msg.CC.Add(cc);
+                if (!String.IsNullOrEmpty(bcc))
+                    msg.Bcc.Add(bcc);
                 msg.Subject = "[" + m_WebApp.GridName + "] " + subject;
                 msg.Body = message;
                 m_Client.Send(msg);

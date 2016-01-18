@@ -7,7 +7,8 @@ var estateCreationForm = '<form name="create-estate" action="/wifi/admin/estates
 
 var usersCreationForm = '<form name="upload-users" action="/wifi/admin/gridusers/create" onsubmit="return checkExtension(\'csv\');" enctype="multipart/form-data" method="post">' +
                               'Choose CSV File: <input type="file" name="datafile" size="40" accept=".csv"/></br>' +
-                              '<input type="submit" class="button" value="Upload" />' +
+                              '<input type="checkbox" name="bcc" checked/> Bcc emails to me</br>' +
+                              '<input type="submit" class="button" value="Submit" />' +
                          '</form>';
 
 var loadIARForm = '<form name="load-iar" action="/wifi/user/inventory/upload" onsubmit="return checkExtension(\'iar\');" enctype="multipart/form-data" method="post">' +

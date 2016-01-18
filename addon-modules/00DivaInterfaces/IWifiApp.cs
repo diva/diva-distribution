@@ -28,7 +28,7 @@ namespace Diva.Interfaces
 
         void SetAvatar(IEnvironment env, UUID userID, string avatarType);
         bool SendEMail(string to, string subject, string message);
-        bool SendEMailSync(string to, string subject, string message);
+        bool SendEMailSync(string to, string cc, string bcc, string subject, string message);
     }
 
     public interface IRequest
