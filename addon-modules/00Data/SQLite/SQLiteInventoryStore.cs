@@ -32,7 +32,11 @@ namespace Diva.Data.SQLite
     /// <summary>
     /// An Inventory Interface to the SQLite database
     /// </summary>
-    public class SQLiteInventoryStore : OpenSim.Data.SQLite.SQLiteInventoryStore
+    public class SQLiteInventoryStore : OpenSim.Data.SQLite.SQLiteXInventoryData
     {
+        public SQLiteInventoryStore(string conn, string realm) : base(conn, realm)
+        {
+
+        }
     }
 }

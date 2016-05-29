@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Mono.Addins;
 
@@ -30,7 +29,7 @@ using Mono.Addins;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("0.8.2.*")]
+[assembly: AssemblyVersion(OpenSim.VersionInfo.AssemblyVersionNumber)]
 
 [assembly: Addin("Diva.AddinExample", OpenSim.VersionInfo.VersionNumber + ".2")]
 [assembly: AddinDependency("OpenSim.Region.Framework", OpenSim.VersionInfo.VersionNumber)]
