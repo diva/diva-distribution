@@ -1,0 +1,21 @@
+﻿<script src="/wifi/scripts/sorttable.js" type="text/javascript"></script>
+
+<p>Regions Monitored:</p>
+
+<form action="/wifi/admin/addon-regions/" method="post">
+    <input type="hidden" name="text" value="Sort rows">
+    <table id="gridusers" class="entries">
+        <thead>
+            <tr class="bodytext">
+                <th style="text-align:center" class="usertitle">Monitor?</th>
+                <th style="text-align:center" class="username">Region</th>
+                <th style="text-align:center" class="username">X</th>
+                <th style="text-align:center" class="username">Y</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- #include file=regionlist-item.html -->
+        </tbody>
+    </table>
+    <P><input type="submit" value="Monitor" class="button" /></P>
+</form>
