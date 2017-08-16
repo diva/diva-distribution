@@ -253,8 +253,6 @@ namespace Diva.Wifi
 
         private string CreateItemFrom(string key, string value, UUID newUserID, UUID defaultFolderID)
         {
-            InventoryItemBase item = new InventoryItemBase();
-            item.Owner = newUserID;
             InventoryItemBase retrievedItem = null;
             InventoryItemBase copyItem = null;
 
@@ -271,8 +269,7 @@ namespace Diva.Wifi
                 UUID uuid = UUID.Zero;
                 if (UUID.TryParse(parts[0], out uuid))
                 {
-                    item.ID = uuid;
-                    retrievedItem = m_InventoryService.GetItem(item);
+                    retrievedItem = m_InventoryService.GetItem(newUserID, uuid);
                     if (retrievedItem != null)
                     {
                         copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
@@ -291,8 +288,7 @@ namespace Diva.Wifi
                 {
                     if (UUID.TryParse(s, out uuid))
                     {
-                        item.ID = uuid;
-                        retrievedItem = m_InventoryService.GetItem(item);
+                        retrievedItem = m_InventoryService.GetItem(newUserID, uuid);
                         if (retrievedItem != null)
                         {
                             copyItem = CopyFrom(retrievedItem, newUserID, defaultFolderID);
