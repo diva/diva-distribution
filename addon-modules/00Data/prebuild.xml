@@ -17,6 +17,7 @@
   
   <Reference name="OpenMetaverseTypes" path="../../bin/"/>
 
+  <Reference name="OpenSim.Framework"/>
   <Reference name="OpenSim.Data"/>
 
   <Files>
