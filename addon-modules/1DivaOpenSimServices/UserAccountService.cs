@@ -88,6 +88,11 @@ namespace Diva.OpenSimServices
             base.CreateDefaultAppearanceEntries(principalID);
         }
 
+        public new void EstablishAppearance(UUID destinationAgent, string model)
+        {
+            base.EstablishAppearance(destinationAgent, model);
+        }
+
         protected UserAccount ToUserAccount(UserAccountData d)
         {
             UserAccount account = new UserAccount(d.Data.ToDictionary(p => p.Key, p => (object)p.Value));

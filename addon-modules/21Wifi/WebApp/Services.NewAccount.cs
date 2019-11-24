@@ -161,52 +161,29 @@ namespace Diva.Wifi
             if (parts == null || (parts != null && parts.Length != 2))
                 return;
 
-            account = m_UserAccountService.GetUserAccount(UUID.Zero, parts[0], parts[1]);
-            if (account == null)
+            // "Unwear" anything that may be in Current Outfit folder
+            InventoryFolderBase cof = m_InventoryService.GetFolderForType(newUser, FolderType.CurrentOutfit);
+            if (cof != null)
             {
-                m_UserAccountService.CreateDefaultAppearanceEntries(newUser);
-                m_log.WarnFormat("[Wifi]: Tried to get avatar of account {0} {1} but that account does not exist", parts[0], parts[1]);
+                InventoryCollection contents = m_InventoryService.GetFolderContent(newUser, cof.ID);
+                if (contents.Items.Count > 0)
+                {
+                    List<UUID> cof_items = new List<UUID>();
+                    foreach (InventoryItemBase item in contents.Items)
+                    {
+                        cof_items.Add(item.ID);
+                    }
+                    if (cof != null)
+                    {
+                        m_log.DebugFormat("[Wifi]: Deleting old items in Current Outfit Folder");
+                        m_InventoryService.DeleteItems(newUser, cof_items);
+                    }
+                }
             }
             else
-            {
-                AvatarData avatar = m_AvatarService.GetAvatar(account.PrincipalID);
+                m_log.DebugFormat("[Wifi]: COF doesn't exist?!");
 
-                if (avatar == null)
-                {
-                    m_log.WarnFormat("[Wifi]: Avatar of account {0} {1} is null", parts[0], parts[1]);
-                    m_UserAccountService.CreateDefaultAppearanceEntries(newUser);
-                }
-                else
-                {
-                    m_log.DebugFormat("[Wifi]: Creating {0} avatar (account {1} {2})", avatarType, parts[0], parts[1]);
-
-                    // Get and replicate the attachments
-                    // and put them in a folder named after the avatar type under Clothing
-                    string folderName = _("Default Avatar", env) + " " + _(defaultAvatar.PrettyType, env);
-                    UUID defaultFolderID = CreateDefaultAvatarFolder(newUser, folderName.Trim());
-
-                    if (defaultFolderID != UUID.Zero)
-                    {
-                        Dictionary<string, string> attchs = new Dictionary<string, string>();
-                        foreach (KeyValuePair<string, string> _kvp in avatar.Data)
-                        {
-                            if (_kvp.Value != null)
-                            {
-                                string itemID = CreateItemFrom(_kvp.Key, _kvp.Value, newUser, defaultFolderID);
-                                if (itemID != string.Empty)
-                                    attchs[_kvp.Key] = itemID;
-                            }
-                        }
-
-                        foreach (KeyValuePair<string, string> _kvp in attchs)
-                            avatar.Data[_kvp.Key] = _kvp.Value;
-
-                        m_AvatarService.SetAvatar(newUser, avatar);
-                    }
-                    else
-                        m_log.Debug("[Wifi]: could not create folder " + folderName);
-                }
-            }
+            m_UserAccountService.EstablishAppearance(newUser, defaultAvatar.Name);
 
             // Set home and last location for new account
             // Config setting takes precedence over home location of default avatar
