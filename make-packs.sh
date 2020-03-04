@@ -1,5 +1,5 @@
-MAUTIL=../opensim-core/bin/mautil.exe
 DIVADISTRO=../diva-distribution
+MAUTIL=$DIVADISTRO/bin/mautil.exe
 MIREPO=../mono-addin-repos/metaverseink
 wd=`pwd`
 
