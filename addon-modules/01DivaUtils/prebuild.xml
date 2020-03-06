@@ -30,6 +30,7 @@
   <Files>
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
+      <Exclude name="obj" pattern="obj"/>
     </Match>
   </Files>
 </Project>

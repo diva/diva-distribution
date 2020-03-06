@@ -50,6 +50,7 @@
   <Files>
     <Match pattern="*.cs" recurse="true">
       <Exclude pattern="Tests" />
+      <Exclude name="obj" pattern="obj"/>
     </Match>
     
     <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />

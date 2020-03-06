@@ -28,10 +28,13 @@
   <Reference name="CsvHelper" path="Lib"/>
 
   <Files>
-    <Match pattern="*.cs" recurse="true"/>
+    <Match pattern="*.cs" recurse="true">
+      <Exclude name="obj" pattern="obj"/>
+    </Match>
     <Match pattern="*.ini" buildAction="Copy" destination="../../bin/" />
     <Match pattern="*.html" buildAction="Copy" destination="../../bin/" />
-    <Match pattern="*.dll" recurse="true" buildAction="Copy" destination="../../bin/" />
+    <Match pattern="*.dll" recurse="true" buildAction="Copy" destination="../../bin/" >
+      <Exclude name="obj" pattern="obj"/>    </Match>
   </Files>
 
 </Project>
