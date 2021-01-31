@@ -49,6 +49,18 @@ namespace Diva.OpenSimServices
         public PasswordAuthenticationService(IConfigSource config)
             : base(config)
         {
+            SetupMasterPassword(config);
+        }
+
+        public PasswordAuthenticationService(IConfigSource config, IUserAccountService userService) :
+            base(config, userService)
+        {
+            m_log.Debug("[DIVA AUTH]: Started with User Account access");
+            SetupMasterPassword(config);
+        }
+
+        private void SetupMasterPassword(IConfigSource config)
+        {
             IConfig authConfig = config.Configs["AuthenticationService"];
             if (authConfig != null)
             {
@@ -58,7 +70,7 @@ namespace Diva.OpenSimServices
                     m_MasterPassword = null;
                 else
                 {
-                    if (m_MasterPassword.Length < 8 || 
+                    if (m_MasterPassword.Length < 8 ||
                         !m_MasterPassword.Any(char.IsDigit))
                         throw new Exception("The Master Password should have at least 8 characters, with some numbers in the mix.\nThis password is a security risk, don't make it easy to crack - have your cat type it!");
 
