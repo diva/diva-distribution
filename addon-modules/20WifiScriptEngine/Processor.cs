@@ -55,6 +55,7 @@ namespace Diva.Wifi.WifiScript
         private List<object> m_ListOfObjects;
         private int m_Index;
         private static string m_FileName;
+        private int recursions;
 
         public Processor(IWifiScriptFace webApp, IEnvironment env)
             : this(webApp, null, env, null)
@@ -188,8 +189,16 @@ namespace Diva.Wifi.WifiScript
                 }
 
                 // recurse!
+                // TODO: This is bad design and only a bandaid to prevent crashes, avoid recursions!
+                // Page handling needs work to prevent this from occurring in the first place
                 if (!string.IsNullOrEmpty(content))
+                {
+                    recursions++;
+                    if (recursions > 10)
+                        return string.Empty;
+
                     return Process(content);
+                }
             }
 
             return string.Empty;
