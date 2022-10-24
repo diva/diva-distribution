@@ -1,5 +1,5 @@
 <!-- Diva.WifiUserAccountService -->
-<Project frameworkVersion="v4_6" name="Diva.OpenSimServices" path="addon-modules/1DivaOpenSimServices" type="Library">
+<Project frameworkVersion="v4_8" name="Diva.OpenSimServices" path="addon-modules/1DivaOpenSimServices" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>
