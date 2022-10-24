@@ -1,5 +1,5 @@
 <!-- Diva.OnLookSupport -->
-<Project frameworkVersion="v4_6" name="Diva.OnLook" path="addon-modules/OnLookSupport" type="Library">
+<Project frameworkVersion="v4_8" name="Diva.OnLook" path="addon-modules/OnLookSupport" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

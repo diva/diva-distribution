@@ -1,4 +1,4 @@
-<Project frameworkVersion="v4_6" name="Diva.Wifi.ProcessorTest" path="addon-modules/ProcessorTest" type="Exe">
+<Project frameworkVersion="v4_8" name="Diva.Wifi.ProcessorTest" path="addon-modules/ProcessorTest" type="Exe">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

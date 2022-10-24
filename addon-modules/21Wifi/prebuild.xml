@@ -1,5 +1,5 @@
 <!-- Diva.Wifi -->
-<Project frameworkVersion="v4_6" name="Diva.Wifi" path="addon-modules/21Wifi" type="Library">
+<Project frameworkVersion="v4_8" name="Diva.Wifi" path="addon-modules/21Wifi" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

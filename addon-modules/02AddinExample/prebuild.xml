@@ -1,5 +1,5 @@
 <!-- Addins Example Module -->
-<Project frameworkVersion="v4_6" name="Diva.AddinExample" path="addon-modules/02AddinExample" type="Library">
+<Project frameworkVersion="v4_8" name="Diva.AddinExample" path="addon-modules/02AddinExample" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../bin/</OutputPath>

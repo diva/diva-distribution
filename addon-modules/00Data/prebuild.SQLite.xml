@@ -1,5 +1,5 @@
 <!-- Diva.Data.SQLite -->
-<Project frameworkVersion="v4_6" name="Diva.Data.SQLite" path="addon-modules/00Data/SQLite" type="Library">
+<Project frameworkVersion="v4_8" name="Diva.Data.SQLite" path="addon-modules/00Data/SQLite" type="Library">
   <Configuration name="Debug">
     <Options>
       <OutputPath>../../../bin/</OutputPath>
