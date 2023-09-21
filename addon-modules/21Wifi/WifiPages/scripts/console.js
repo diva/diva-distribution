@@ -360,48 +360,53 @@ function ReadResponses(console, xml, status) {
       UpdateScrollback(elements.length);
       for (var i = 0; i < elements.length; ++i) {
         var lineNode = elements[i];
-        lineNode.removeAttribute('Number');
         //var lines = lineNode.firstChild.nodeValue.split('\n');
         //var parts = lines.shift().split(':');
-        var parts = lineNode.firstChild.nodeValue.split(':');
-        parts.shift(); // discard line number
-        var level = parts.shift();
-        var line = parts.join(':');
-        if (line.substr(1, 2) == '++') { // Prompt
-          if (line.substr(0, 1) == '+') {
-            // Normal prompt is used as title
-            SetTitle(console, line.substr(3));
+        var parts;
+        var line;
+        var level = xml.getElementsByTagName('Level');
+        if(lineNode.firstChild != null){
+          parts = lineNode.firstChild.nodeValue.split(':');
+          line = parts.join(':');
+          if (line.substr(1, 2) == '++') { // Prompt
+            if (line.substr(0, 1) == '+') {
+              // Normal prompt is used as title
+              SetTitle(console, line.substr(3));
+            }
+            else {
+              // Interactive prompt for requesting input
+              ShowPrompt(console, line.substr(3));
+            }
+            UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] '", line, "'"), true);
+            continue;
           }
-          else {
-            // Interactive prompt for requesting input
-            ShowPrompt(console, line.substr(3));
+          else if (line.length >= 1024) {
+            UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] Long line with ", line.length, " bytes"), true);
           }
-          UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] '", line, "'"), true);
-          continue;
+          var matches = line.match(LinePattern);
+          //line = new Array();
+          if (matches) {
+            line = new Array();
+            // Timestamp
+            line[0] = document.createTextNode(matches[1]);
+            // Module name
+            line[1] = document.createElement('span');
+            line[1].setAttribute('style', 'color:' + Colors.GetForString(matches[2]));
+            line[1].appendChild(document.createTextNode(matches[2]));
+            // Colon & whitespace
+            line[2] = document.createTextNode(matches[3]);
+            // Message
+            line[3] = document.createElement('span');
+            line[3].setAttribute('class', level);
+            line[3].appendChild(document.createTextNode(matches[4]));
+          }
         }
-        else if (line.length >= 1024) {
-          UpdateScrollback(1); Output(TRACE, "[ReadResponses:".concat(console.name, "] Long line with ", line.length, " bytes"), true);
+        else{
+          parts = lineNode;
+          line = parts;
         }
         if (console.prompt)
           HidePrompt(console, true);
-        // Format line
-        var matches = line.match(LinePattern);
-        //line = new Array();
-        if (matches) {
-          line = new Array();
-          // Timestamp
-          line[0] = document.createTextNode(matches[1]);
-          // Module name
-          line[1] = document.createElement('span');
-          line[1].setAttribute('style', 'color:' + Colors.GetForString(matches[2]));
-          line[1].appendChild(document.createTextNode(matches[2]));
-          // Colon & whitespace
-          line[2] = document.createTextNode(matches[3]);
-          // Message
-          line[3] = document.createElement('span');
-          line[3].setAttribute('class', level);
-          line[3].appendChild(document.createTextNode(matches[4]));
-        }
         //if (lines.length)
         //  UpdateScrollback(lines.length);
         //for (var l in lines)
